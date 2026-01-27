@@ -38,6 +38,13 @@ const DEFAULT_USERS: StoredUser[] = [
     approved: true,
     role: "user",
   },
+  {
+    name: "Manola Izquierdo",
+    email: "izquierdo.manola@gmail.com",
+    password: "$2b$10$UyYUnv33oKfOxMmA60ppbej6c/GebDgVW2Qu3OhebZ9BJ9SEKuSpm",
+    approved: true,
+    role: "user",
+  },
 ]
 
 function getStoredUsers(): StoredUser[] {
