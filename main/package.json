@@ -1,0 +1,55 @@
+{
+  "name": "dashboard_v2-electron",
+  "version": "1.11.6",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "electron:dev": "NODE_ENV=development electron .",
+    "electron:prod": "NODE_ENV=production electron .",
+    "prepack": "rm -rf out && cp -r ../app/out ./out",
+    "dist": "npm run prepack && electron-builder"
+  },
+  "build": {
+    "appId": "com.dashboard.v2",
+    "productName": "DavaraGovernance",
+    "files": [
+      "main.js",
+      "preload.js",
+      "out/**/*",
+      "package.json",
+      "security-headers.cjs"
+    ],
+    "directories": {
+      "buildResources": "../assets"
+    },
+    "mac": {
+      "target": "pkg"
+    },
+    "pkg": {
+      "installLocation": "/Applications"
+    },
+    "asar": true
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^5.2.1",
+    "docx": "^9.5.1",
+    "express": "^4.21.2",
+    "file-saver": "^2.0.5",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.1",
+    "jspdf-autotable": "^5.0.2",
+    "leaflet": "^1.9.4",
+    "react-date-picker": "^11.0.0",
+    "react-leaflet": "^5.0.0",
+    "serve-static": "^1.15.0",
+    "xlsx-js-style": "^1.2.0",
+    "zod": "^4.0.13"
+  },
+  "devDependencies": {
+    "@next/bundle-analyzer": "^16.0.2",
+    "@types/file-saver": "^2.0.7",
+    "@types/leaflet": "^1.9.20",
+    "electron": "^36.2.1",
+    "electron-builder": "^26.0.12"
+  }
+}

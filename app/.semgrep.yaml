@@ -1,0 +1,19 @@
+rules:
+  - id: no-eval
+    message: Avoid using eval for security and maintainability reasons.
+    severity: WARNING
+    languages: [javascript, typescript]
+    pattern: eval(...)
+  - id: avoid-inner-html
+    message: Prefer safer DOM update patterns over assigning to innerHTML.
+    severity: WARNING
+    languages: [javascript, typescript]
+    patterns:
+      - pattern-either:
+          - pattern: |
+              $X.innerHTML = $Y
+          - pattern: |
+              element.innerHTML = $VAL
+    metadata:
+      cwe: "CWE-79"
+      owasp: "A07:2021"

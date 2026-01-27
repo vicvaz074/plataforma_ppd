@@ -1,0 +1,3 @@
+configs:
+  - p/owasp-top-ten
+  - p/nextjs

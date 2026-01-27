@@ -1,0 +1,108 @@
+name: ZAP Baseline Scan
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  zap-baseline:
+    name: Build and scan with ZAP
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: app/pnpm-lock.yaml
+
+      - name: Install dependencies
+        working-directory: app
+        env:
+          NEXT_TELEMETRY_DISABLED: "1"
+        run: pnpm install --frozen-lockfile
+
+      - name: Build application
+        working-directory: app
+        env:
+          NEXT_TELEMETRY_DISABLED: "1"
+        run: pnpm build
+
+      - name: Start application
+        working-directory: app
+        env:
+          NEXT_TELEMETRY_DISABLED: "1"
+          HOSTNAME: "0.0.0.0"
+          PORT: "3000"
+        run: |
+          pnpm start --hostname 0.0.0.0 --port 3000 > ../.next-start.log 2>&1 &
+          echo $! > ../.next-app.pid
+
+      - name: Wait for application
+        run: |
+          pnpm dlx wait-on@7 http://127.0.0.1:3000 --timeout 120000 --interval 1000 || {
+            echo "Application did not start in time" >&2
+            cat .next-start.log || true
+            exit 1
+          }
+
+      - name: Run ZAP baseline scan
+        env:
+          ZAP_AUTH_HEADER: ${{ secrets.ZAP_AUTH_HEADER }}
+          ZAP_AUTH_HEADER_VALUE: ${{ secrets.ZAP_AUTH_HEADER_VALUE }}
+          ZAP_AUTH_HEADER_SITE: ${{ secrets.ZAP_AUTH_HEADER_SITE }}
+        run: |
+          mkdir -p zap
+          chmod 777 zap
+          docker run --rm --network="host" \
+            -u 0:0 \
+            -v "${{ github.workspace }}/zap:/zap/wrk" \
+            ghcr.io/zaproxy/zaproxy:stable \
+            zap-baseline.py \
+              -t http://127.0.0.1:3000 \
+              -c /zap/wrk/zap-configuration.yaml \
+              -a \
+              -j \
+              -r /zap/wrk/zap-baseline-report.html \
+              -J /zap/wrk/zap-baseline-report.json \
+              -I \
+              -l WARN
+
+      - name: Enforce risk threshold
+        run: |
+          if [ ! -f zap/zap-baseline-report.json ]; then
+            echo "ZAP JSON report not found" >&2
+            exit 1
+          fi
+          MED_HIGH=$(jq '[.site[].alerts[] | select((.riskcode|tonumber) >= 2)] | length' zap/zap-baseline-report.json)
+          echo "Medium/High alerts: ${MED_HIGH}"
+          if [ "$MED_HIGH" -gt 0 ]; then
+            echo "Failing due to medium/high risk ZAP alerts" >&2
+            exit 1
+          fi
+
+      - name: Upload ZAP reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-baseline-report
+          path: zap/zap-baseline-report.*
+
+      - name: Stop application
+        if: always()
+        run: |
+          if [ -f .next-app.pid ]; then
+            kill $(cat .next-app.pid) 2>/dev/null || true
+          fi
+          if [ -f .next-start.log ]; then
+            echo "Next.js start log:" && cat .next-start.log
+          fi

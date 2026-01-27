@@ -1,0 +1,169 @@
+@import url("https://cdn.jsdelivr.net/npm/remixicon@3.2.0/fonts/remixicon.css");
+/* Importar Futura Std */
+@import url("https://fonts.cdnfonts.com/css/futura-std-4");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Configuración base de tipografía */
+body {
+  font-family: "Futura Std", sans-serif;
+  font-weight: 400; /* Peso base para todo el texto */
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --primary: 247.7 97.2% 14.1%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --ring: 215 20.2% 65.1%;
+    --radius: 0.5rem;
+    --sidebar: 247.7 97.2% 14.1%;
+    --sidebar-foreground: 210 40% 98%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --primary: 247.7 97.2% 14.1%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 85.7% 97.3%;
+    --ring: 217.2 32.6% 17.5%;
+    --sidebar: 247.7 97.2% 14.1%;
+    --sidebar-foreground: 210 40% 98%;
+  }
+
+  /* Clases específicas para la jerarquía tipográfica con peso consistente */
+  h1,
+  .h1 {
+    @apply text-4xl md:text-5xl;
+    font-family: "Futura Std", sans-serif;
+    font-weight: 400 !important; /* Peso consistente para títulos principales */
+    color: hsl(var(--primary));
+  }
+
+  h2,
+  .h2 {
+    @apply text-3xl md:text-4xl;
+    font-family: "Futura Std", sans-serif;
+    font-weight: 400 !important;
+  }
+
+  h3,
+  .h3 {
+    @apply text-2xl md:text-3xl;
+    font-family: "Futura Std", sans-serif;
+    font-weight: 400 !important;
+  }
+
+  h4,
+  .h4 {
+    @apply text-xl md:text-2xl;
+    font-family: "Futura Std", sans-serif;
+    font-weight: 400 !important;
+  }
+
+  p,
+  .body-text {
+    font-family: "Futura Std", sans-serif;
+    font-weight: 400; /* Peso normal para texto del cuerpo */
+    @apply text-base md:text-lg;
+  }
+
+  * {
+    @apply border-border;
+  }
+}
+
+.font-heading {
+  font-family: "Futura Std", sans-serif;
+  font-weight: 400 !important;
+}
+
+.font-body {
+  font-family: "Futura Std", sans-serif;
+  font-weight: 400;
+}
+
+/* Anular cualquier clase de Tailwind que aplique negritas excesivas */
+.font-bold,
+.font-extrabold,
+.font-black {
+  font-weight: 400 !important;
+}
+
+/* Aplicar estilos específicos a elementos de formularios y páginas de autenticación */
+.text-center h2,
+form h2,
+.auth-title,
+.login-title,
+.register-title {
+  font-weight: 400 !important;
+}
+
+.bg-sidebar {
+  background-color: hsl(var(--sidebar));
+}
+
+.text-sidebar-foreground {
+  color: hsl(var(--sidebar-foreground));
+}
+
+/* Animaciones para botones */
+.button {
+  transition: all 0.3s ease;
+}
+
+.button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Animación de progreso indeterminado */
+@keyframes progress-indeterminate {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-progress-indeterminate {
+  animation: progress-indeterminate 1.5s infinite linear;
+}
+
