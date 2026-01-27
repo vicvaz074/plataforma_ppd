@@ -231,20 +231,6 @@ export function Sidebar() {
             unoptimized
           />
         </Link>
-        <div className="flex w-full items-center justify-center">
-          <Image
-            src="/images/OXXO-Logo.png"
-            alt="OXXO"
-            width={96}
-            height={28}
-            style={{
-              objectFit: "contain",
-              filter: "invert(1) brightness(100%)",
-            }}
-            priority
-            unoptimized
-          />
-        </div>
       </div>
 
       {/* Página actual arriba del menú */}
