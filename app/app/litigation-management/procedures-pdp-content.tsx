@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import jsPDF from "jspdf"
 import autoTable from "jspdf-autotable"
-import { Download, Edit, History, PlusCircle, Scale, Trash2 } from "lucide-react"
+import { ChevronLeft, Download, Edit, History, Home, PlusCircle, Scale, Trash2 } from "lucide-react"
 
 import { AliciaAssistant } from "@/components/alicia-assistant"
 import { Badge } from "@/components/ui/badge"
@@ -494,6 +494,18 @@ export function ProceduresPdpContent({ section }: ProceduresPdpContentProps) {
 
   return (
     <div className="container mx-auto py-10 px-4 sm:px-6 lg:px-8">
+      <div className="mb-6 flex gap-2">
+        <Button variant="ghost" size="sm" asChild>
+          <Link href="/litigation-management">
+            <ChevronLeft className="h-4 w-4" />
+          </Link>
+        </Button>
+        <Button variant="ghost" size="sm" asChild>
+          <Link href="/">
+            <Home className="h-4 w-4" />
+          </Link>
+        </Button>
+      </div>
       <div className="mb-10 flex flex-col gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Registro y trazabilidad de Procedimientos PDP</h1>
