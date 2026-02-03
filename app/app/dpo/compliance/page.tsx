@@ -1763,7 +1763,7 @@ export default function DPOCompliancePage() {
     <div className="container mx-auto space-y-8 py-8">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-3">
-          <SafeLink href="./dpo">
+          <SafeLink href="/dpo">
             <Button variant="outline" size="icon">
               <ArrowLeft className="h-4 w-4" />
             </Button>
