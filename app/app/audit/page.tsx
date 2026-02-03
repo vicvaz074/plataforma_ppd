@@ -68,14 +68,14 @@ const STORAGE_KEY = "audit_assessment_answers_v1"
 const auditSections: AuditSection[] = [
   {
     id: "principios",
-    title: "I. Principios de Protección de Datos Personales",
+    title: "Principios de Protección de Datos Personales",
     description:
       "Revisa el cumplimiento de los principios rectores aplicables a todos los tratamientos de datos personales en la organización.",
     icon: ShieldCheck,
     subsections: [
       {
         id: "principios-licitud",
-        title: "1. Licitud",
+        title: "Licitud",
         questions: [
           {
             id: "principios-licitud-base-juridica",
@@ -101,7 +101,7 @@ const auditSections: AuditSection[] = [
       },
       {
         id: "principios-consentimiento",
-        title: "2. Consentimiento",
+        title: "Consentimiento",
         questions: [
           {
             id: "principios-consentimiento-modalidades",
@@ -131,7 +131,7 @@ const auditSections: AuditSection[] = [
       },
       {
         id: "principios-informacion",
-        title: "3. Información (Aviso de privacidad)",
+        title: "Información (Aviso de privacidad)",
         questions: [
           {
             id: "principios-informacion-previa",
@@ -157,7 +157,7 @@ const auditSections: AuditSection[] = [
       },
       {
         id: "principios-calidad",
-        title: "4. Calidad",
+        title: "Calidad",
         questions: [
           {
             id: "principios-calidad-veracidad",
@@ -179,7 +179,7 @@ const auditSections: AuditSection[] = [
       },
       {
         id: "principios-finalidad",
-        title: "5. Finalidad",
+        title: "Finalidad",
         questions: [
           {
             id: "principios-finalidad-legitima",
@@ -201,7 +201,7 @@ const auditSections: AuditSection[] = [
       },
       {
         id: "principios-lealtad",
-        title: "6. Lealtad",
+        title: "Lealtad",
         questions: [
           {
             id: "principios-lealtad-no-engano",
@@ -219,7 +219,7 @@ const auditSections: AuditSection[] = [
       },
       {
         id: "principios-proporcionalidad",
-        title: "7. Proporcionalidad",
+        title: "Proporcionalidad",
         questions: [
           {
             id: "principios-proporcionalidad-necesarios",
@@ -237,7 +237,7 @@ const auditSections: AuditSection[] = [
       },
       {
         id: "principios-responsabilidad",
-        title: "8. Responsabilidad",
+        title: "Responsabilidad",
         questions: [
           {
             id: "principios-responsabilidad-demostracion",
@@ -257,14 +257,14 @@ const auditSections: AuditSection[] = [
   },
   {
     id: "derechos",
-    title: "II. Derechos de los Titulares y Consentimiento",
+    title: "Derechos de los Titulares y Consentimiento",
     description:
       "Verifica la existencia de mecanismos eficaces para atender los derechos de las personas titulares y la gestión del consentimiento.",
     icon: BadgeCheck,
     subsections: [
       {
         id: "derechos-arco",
-        title: "1. Derechos ARCO",
+        title: "Derechos ARCO",
         questions: [
           {
             id: "derechos-arco-mecanismos",
@@ -290,7 +290,7 @@ const auditSections: AuditSection[] = [
       },
       {
         id: "derechos-revocacion",
-        title: "2. Revocación del consentimiento",
+        title: "Revocación del consentimiento",
         questions: [
           {
             id: "derechos-revocacion-mecanismos",
@@ -308,7 +308,7 @@ const auditSections: AuditSection[] = [
       },
       {
         id: "derechos-limitacion",
-        title: "3. Limitación del uso o divulgación de datos",
+        title: "Limitación del uso o divulgación de datos",
         questions: [
           {
             id: "derechos-limitacion-mecanismos",
@@ -324,14 +324,14 @@ const auditSections: AuditSection[] = [
   },
   {
     id: "deberes",
-    title: "III. Deberes y Obligaciones Generales",
+    title: "Deberes y Obligaciones Generales",
     description:
       "Evalúa las medidas internas para garantizar la confidencialidad, seguridad y control del tratamiento de datos personales.",
     icon: ClipboardCheck,
     subsections: [
       {
         id: "deberes-seguridad",
-        title: "1. Seguridad",
+        title: "Seguridad",
         questions: [
           {
             id: "deberes-seguridad-medidas",
@@ -353,7 +353,7 @@ const auditSections: AuditSection[] = [
       },
       {
         id: "deberes-confidencialidad",
-        title: "2. Confidencialidad",
+        title: "Confidencialidad",
         questions: [
           {
             id: "deberes-confidencialidad-clausulas",
@@ -371,7 +371,7 @@ const auditSections: AuditSection[] = [
       },
       {
         id: "deberes-encargados",
-        title: "3. Encargados",
+        title: "Encargados",
         questions: [
           {
             id: "deberes-encargados-contratos",
@@ -389,7 +389,7 @@ const auditSections: AuditSection[] = [
       },
       {
         id: "deberes-transferencias",
-        title: "4. Transferencias",
+        title: "Transferencias",
         questions: [
           {
             id: "deberes-transferencias-clausulas",
@@ -413,14 +413,14 @@ const auditSections: AuditSection[] = [
   },
   {
     id: "sgdp",
-    title: "IV. Sistema de Gestión de Datos Personales (SGDP)",
+    title: "Sistema de Gestión de Datos Personales (SGDP)",
     description:
       "Analiza la gobernanza, operación y mejora continua del sistema de gestión de datos personales en la organización.",
     icon: Layers3,
     subsections: [
       {
         id: "sgdp-gobernanza",
-        title: "A. Gobernanza y planeación",
+        title: "Gobernanza y planeación",
         questions: [
           {
             id: "sgdp-gobernanza-alcance",
@@ -455,7 +455,7 @@ const auditSections: AuditSection[] = [
       },
       {
         id: "sgdp-operacion",
-        title: "B. Operación y cultura organizacional",
+        title: "Operación y cultura organizacional",
         questions: [
           {
             id: "sgdp-operacion-politica",
@@ -489,7 +489,7 @@ const auditSections: AuditSection[] = [
       },
       {
         id: "sgdp-verificacion",
-        title: "C. Verificación y mejora continua",
+        title: "Verificación y mejora continua",
         questions: [
           {
             id: "sgdp-verificacion-actualizacion",
@@ -529,7 +529,7 @@ const auditSections: AuditSection[] = [
   },
   {
     id: "evidencias",
-    title: "V. Evidencias requeridas",
+    title: "Evidencias requeridas",
     description:
       "Consolida los documentos clave que demuestran el cumplimiento y la trazabilidad de las acciones de auditoría.",
     icon: FolderCog,

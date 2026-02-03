@@ -215,72 +215,72 @@ const baseLegalOptions = [
 const riskThreats = [
   {
     id: "threat-1",
-    category: "A. Acceso Ilegítimo (Confidencialidad)",
+    category: "Acceso Ilegítimo (Confidencialidad)",
     label: "Acceso no autorizado por parte de empleados (abuso de privilegios).",
   },
   {
     id: "threat-2",
-    category: "A. Acceso Ilegítimo (Confidencialidad)",
+    category: "Acceso Ilegítimo (Confidencialidad)",
     label: "Acceso externo (Ciberataque, Hacking, Phishing).",
   },
   {
     id: "threat-3",
-    category: "A. Acceso Ilegítimo (Confidencialidad)",
+    category: "Acceso Ilegítimo (Confidencialidad)",
     label: "Robo o pérdida de dispositivos con datos (Laptops, USB, Móviles).",
   },
   {
     id: "threat-4",
-    category: "A. Acceso Ilegítimo (Confidencialidad)",
+    category: "Acceso Ilegítimo (Confidencialidad)",
     label: "Interceptación de comunicaciones (Man-in-the-middle).",
   },
   {
     id: "threat-5",
-    category: "B. Modificación no deseada (Integridad)",
+    category: "Modificación no deseada (Integridad)",
     label: "Errores humanos en la entrada de datos.",
   },
   {
     id: "threat-6",
-    category: "B. Modificación no deseada (Integridad)",
+    category: "Modificación no deseada (Integridad)",
     label: "Alteración malintencionada de registros (Sabotaje).",
   },
   {
     id: "threat-7",
-    category: "B. Modificación no deseada (Integridad)",
+    category: "Modificación no deseada (Integridad)",
     label: "Errores de software o corrupción de bases de datos.",
   },
   {
     id: "threat-8",
-    category: "B. Modificación no deseada (Integridad)",
+    category: "Modificación no deseada (Integridad)",
     label: "Falta de control de versiones o trazabilidad de cambios.",
   },
   {
     id: "threat-9",
-    category: "C. Desaparición o Pérdida (Disponibilidad)",
+    category: "Desaparición o Pérdida (Disponibilidad)",
     label: "Fallo físico de infraestructura (Discos duros, Servidores).",
   },
   {
     id: "threat-10",
-    category: "C. Desaparición o Pérdida (Disponibilidad)",
+    category: "Desaparición o Pérdida (Disponibilidad)",
     label: "Desastres naturales (Incendio, inundación, sismo).",
   },
   {
     id: "threat-11",
-    category: "C. Desaparición o Pérdida (Disponibilidad)",
+    category: "Desaparición o Pérdida (Disponibilidad)",
     label: "Ataque de Ransomware (Secuestro de datos).",
   },
   {
     id: "threat-12",
-    category: "C. Desaparición o Pérdida (Disponibilidad)",
+    category: "Desaparición o Pérdida (Disponibilidad)",
     label: "Fallo en los sistemas de copia de seguridad (Backups corruptos).",
   },
   {
     id: "threat-13",
-    category: "D. Otros riesgos específicos",
+    category: "Otros riesgos específicos",
     label: "Re-identificación de datos seudonimizados.",
   },
   {
     id: "threat-14",
-    category: "D. Otros riesgos específicos",
+    category: "Otros riesgos específicos",
     label: "Transferencia internacional sin garantías.",
   },
 ]

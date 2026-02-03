@@ -790,7 +790,7 @@ export default function DPOReportsPage() {
 
               // Asistentes
               new Paragraph({
-                text: "1. ASISTENTES",
+                text: "ASISTENTES",
                 heading: HeadingLevel.HEADING_2,
                 spacing: { after: 100 },
               }),
@@ -805,14 +805,14 @@ export default function DPOReportsPage() {
 
               // Orden del día
               new Paragraph({
-                text: "2. ORDEN DEL DÍA",
+                text: "ORDEN DEL DÍA",
                 heading: HeadingLevel.HEADING_2,
                 spacing: { after: 100 },
               }),
               ...actaInforme.orden.map(
                 (punto, index) =>
                   new Paragraph({
-                    text: `${index + 1}. ${punto}`,
+                    text: `• ${punto}`,
                     spacing: { after: 100 },
                   }),
               ),
@@ -820,7 +820,7 @@ export default function DPOReportsPage() {
 
               // Desarrollo
               new Paragraph({
-                text: "3. DESARROLLO DE LA REUNIÓN",
+                text: "DESARROLLO DE LA REUNIÓN",
                 heading: HeadingLevel.HEADING_2,
                 spacing: { after: 100 },
               }),
@@ -831,7 +831,7 @@ export default function DPOReportsPage() {
 
               // Conclusiones
               new Paragraph({
-                text: "4. CONCLUSIONES",
+                text: "CONCLUSIONES",
                 heading: HeadingLevel.HEADING_2,
                 spacing: { after: 100 },
               }),
@@ -846,7 +846,7 @@ export default function DPOReportsPage() {
 
               // Acciones
               new Paragraph({
-                text: "5. ACCIONES A REALIZAR",
+                text: "ACCIONES A REALIZAR",
                 heading: HeadingLevel.HEADING_2,
                 spacing: { after: 100 },
               }),
@@ -911,7 +911,7 @@ export default function DPOReportsPage() {
               ...(actaInforme.anexos.length > 0
                 ? [
                     new Paragraph({
-                      text: "6. ANEXOS",
+                      text: "ANEXOS",
                       heading: HeadingLevel.HEADING_2,
                       spacing: { after: 100 },
                     }),
@@ -1586,7 +1586,7 @@ export default function DPOReportsPage() {
                       </div>
 
                       <div className="mb-8">
-                        <h2 className="text-xl mb-3 text-primary">1. ASISTENTES</h2>
+                        <h2 className="text-xl mb-3 text-primary">ASISTENTES</h2>
                         <ul className="list-disc pl-6 space-y-1">
                           {actaInforme.asistentes.map((asistente, index) => (
                             <li key={index}>{asistente}</li>
@@ -1595,21 +1595,21 @@ export default function DPOReportsPage() {
                       </div>
 
                       <div className="mb-8">
-                        <h2 className="text-xl mb-3 text-primary">2. ORDEN DEL DÍA</h2>
-                        <ol className="list-decimal pl-6 space-y-1">
+                        <h2 className="text-xl mb-3 text-primary">ORDEN DEL DÍA</h2>
+                        <ul className="list-disc pl-6 space-y-1">
                           {actaInforme.orden.map((punto, index) => (
                             <li key={index}>{punto}</li>
                           ))}
-                        </ol>
+                        </ul>
                       </div>
 
                       <div className="mb-8">
-                        <h2 className="text-xl mb-3 text-primary">3. DESARROLLO DE LA REUNIÓN</h2>
+                        <h2 className="text-xl mb-3 text-primary">DESARROLLO DE LA REUNIÓN</h2>
                         <p className="whitespace-pre-line">{actaInforme.desarrollo}</p>
                       </div>
 
                       <div className="mb-8">
-                        <h2 className="text-xl mb-3 text-primary">4. CONCLUSIONES</h2>
+                        <h2 className="text-xl mb-3 text-primary">CONCLUSIONES</h2>
                         <ul className="list-disc pl-6 space-y-1">
                           {actaInforme.conclusiones.map((conclusion, index) => (
                             <li key={index}>{conclusion}</li>
@@ -1618,7 +1618,7 @@ export default function DPOReportsPage() {
                       </div>
 
                       <div className="mb-8">
-                        <h2 className="text-xl mb-3 text-primary">5. ACCIONES A REALIZAR</h2>
+                        <h2 className="text-xl mb-3 text-primary">ACCIONES A REALIZAR</h2>
                         <div className="border rounded-md overflow-hidden">
                           <table className="w-full">
                             <thead className="bg-primary/5">
@@ -1643,7 +1643,7 @@ export default function DPOReportsPage() {
 
                       {actaInforme.anexos.length > 0 && (
                         <div className="mb-8">
-                          <h2 className="text-xl mb-3 text-primary">6. ANEXOS</h2>
+                          <h2 className="text-xl mb-3 text-primary">ANEXOS</h2>
                           <ul className="list-disc pl-6 space-y-1">
                             {actaInforme.anexos.map((anexo, index) => (
                               <li key={index}>{anexo}</li>
@@ -1956,4 +1956,3 @@ export default function DPOReportsPage() {
     </div>
   )
 }
-
