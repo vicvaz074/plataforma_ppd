@@ -379,7 +379,7 @@ export default function StepRenderer({
       return (
         <div className="space-y-4">
           <h2 className="text-xl font-bold mb-4">
-            1. Información General de la Base de Datos
+            Información General de la Base de Datos
           </h2>
           <div>
             <Label htmlFor="databaseName">Nombre de la Base de Datos</Label>
@@ -512,7 +512,7 @@ export default function StepRenderer({
       return (
         <div className="space-y-4">
           <h2 className="text-xl font-bold mb-4">
-            2. Información General de la Base de Datos
+            Información General de la Base de Datos
           </h2>
           <div>
             <Label htmlFor="databaseName">Nombre de la Base de Datos</Label>
@@ -802,7 +802,7 @@ export default function StepRenderer({
         return (
           <div className="space-y-6 max-w-4xl mx-auto">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold">3. Datos, finalidades y nivel de riesgo</h2>
+              <h2 className="text-xl font-bold">Datos, finalidades y nivel de riesgo</h2>
               <Button variant="ghost" size="icon" onClick={() => setShowDataInfo(true)}>
                 <Info className="h-4 w-4" />
               </Button>
@@ -1594,7 +1594,7 @@ export default function StepRenderer({
       case 4:
         return (
           <div className="space-y-4">
-            <h2 className="text-xl font-bold mb-4">4. Obtención de Datos</h2>
+            <h2 className="text-xl font-bold mb-4">Obtención de Datos</h2>
             <div>
             <div className="flex items-center justify-between">
               <Label>Medio de Obtención</Label>
@@ -1752,7 +1752,7 @@ export default function StepRenderer({
       return (
         <div className="space-y-4">
           <h2 className="text-xl font-bold mb-4">
-            5. Bases legales Finalidades Primarias y Finalidades Secundarias
+            Bases legales Finalidades Primarias y Finalidades Secundarias
           </h2>
 
           <div className="space-y-4">
@@ -2055,7 +2055,7 @@ export default function StepRenderer({
       case 6:
         return (
           <div className="space-y-4">
-            <h2 className="text-xl font-bold">6. Descripción del tratamiento</h2>
+            <h2 className="text-xl font-bold">Descripción del tratamiento</h2>
             <div>
               <Label>Área Encargada</Label>
               <div className="flex flex-col space-y-2 mt-2">
@@ -2187,7 +2187,7 @@ export default function StepRenderer({
     case 7:
       return (
         <div className="space-y-4">
-          <h2 className="text-xl font-bold">7. Otras áreas involucradas en el tratamiento</h2>
+          <h2 className="text-xl font-bold">Otras áreas involucradas en el tratamiento</h2>
           {current.additionalAccesses.map((acc, idx) => (
             <div key={acc.id} className="space-y-4 border p-4 rounded-md">
               <div className="flex justify-between items-center">
@@ -2278,7 +2278,7 @@ export default function StepRenderer({
     case 8:
       return (
         <div className="space-y-4">
-          <h2 className="text-xl font-bold">8. Almacenamiento y Respaldo</h2>
+          <h2 className="text-xl font-bold">Almacenamiento y Respaldo</h2>
           <div>
             <Label>Medio de Almacenamiento</Label>
             <Select
@@ -2398,7 +2398,7 @@ export default function StepRenderer({
       const extraBlockings = current.additionalBlockings || [];
       return (
         <div className="space-y-4">
-          <h2 className="text-xl font-bold">9. Plazos de conservación y bloqueo</h2>
+          <h2 className="text-xl font-bold">Plazos de conservación y bloqueo</h2>
           <div>
             <Label>Plazo de conservación una vez terminada la relación jurídica</Label>
             <Select
@@ -2820,7 +2820,7 @@ export default function StepRenderer({
       return (
         <div className="space-y-4">
           <h2 className="text-xl font-bold flex items-center gap-2">
-            10. Supresión de Datos
+            Supresión de Datos
             <Button
               variant="ghost"
               size="icon"
@@ -2913,7 +2913,7 @@ export default function StepRenderer({
       const extraTransfers = current.additionalTransfers || [];
       return (
         <div className="space-y-4">
-          <h2 className="text-xl font-bold">11. Transferencia de Datos</h2>
+          <h2 className="text-xl font-bold">Transferencia de Datos</h2>
           <div>
             <Label>¿Existe transferencia?</Label>
             <RadioGroup
@@ -3433,7 +3433,7 @@ export default function StepRenderer({
       const extraRemissions = current.additionalRemissions || [];
       return (
         <div className="space-y-4">
-          <h2 className="text-xl font-bold">12. Remisión de Datos</h2>
+          <h2 className="text-xl font-bold">Remisión de Datos</h2>
           <div>
             <Label>¿Existe remisión de Datos?</Label>
             <RadioGroup
@@ -3628,7 +3628,7 @@ export default function StepRenderer({
       if (!current) return <div>Error: subinventario no encontrado.</div>;
       return (
         <div className="space-y-4">
-          <h2 className="text-xl font-bold">13. Análisis de Riesgo</h2>
+          <h2 className="text-xl font-bold">Análisis de Riesgo</h2>
           <RiskAnalysis
             formData={formData}
             onIncompleteSection={handleIncompleteSection}
@@ -3641,4 +3641,3 @@ export default function StepRenderer({
       return null;
   }
 }
-
