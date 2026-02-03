@@ -1138,7 +1138,7 @@ export default function DPOReportsPage() {
   return (
     <div className="container mx-auto py-8">
       <div className="flex items-center mb-8">
-        <SafeLink href="./dpo">
+        <SafeLink href="/dpo">
           <Button variant="outline" size="icon">
             <ArrowLeft className="h-4 w-4" />
           </Button>
