@@ -1812,7 +1812,7 @@ function SectionC({ form }: { form: UseFormReturn<IncidentFormData> }) {
   })
   return (
     <div className="space-y-8 mb-8">
-      <h3 className="text-2xl font-bold">C. Investigación y contención</h3>
+      <h3 className="text-2xl font-bold">Investigación y contención</h3>
       <div className="border p-4 rounded space-y-4">
         <h4 className="text-xl font-semibold">Datos para la investigación</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

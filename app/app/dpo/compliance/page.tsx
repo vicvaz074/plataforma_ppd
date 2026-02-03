@@ -1854,7 +1854,7 @@ export default function DPOCompliancePage() {
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                 <div className="space-y-4">
                   <div>
-                    <h3 className="text-lg font-semibold">A. Verificación de designación del DPD</h3>
+                    <h3 className="text-lg font-semibold">Verificación de designación del DPD</h3>
                     <p className="text-sm text-muted-foreground">
                       Registra la información del nombramiento, perfil y evidencias del Oficial o Delegado de Protección de Datos.
                     </p>
@@ -2097,7 +2097,7 @@ export default function DPOCompliancePage() {
 
                 <div className="space-y-4">
                   <div>
-                    <h3 className="text-lg font-semibold">B. Evaluación de políticas y documentación</h3>
+                    <h3 className="text-lg font-semibold">Evaluación de políticas y documentación</h3>
                     <p className="text-sm text-muted-foreground">
                       Documenta el marco normativo interno y los procedimientos que respaldan la gestión del DPD.
                     </p>
@@ -2255,7 +2255,7 @@ export default function DPOCompliancePage() {
 
                 <div className="space-y-4">
                   <div>
-                    <h3 className="text-lg font-semibold">C. Revisión de actividades documentadas del DPD</h3>
+                    <h3 className="text-lg font-semibold">Revisión de actividades documentadas del DPD</h3>
                     <p className="text-sm text-muted-foreground">
                       Evalúa la gestión operativa, registros y periodicidad de las actividades a cargo del DPD.
                     </p>
@@ -2365,7 +2365,7 @@ export default function DPOCompliancePage() {
 
                 <div className="space-y-4">
                   <div>
-                    <h3 className="text-lg font-semibold">D. Análisis de informes a la Alta Dirección</h3>
+                    <h3 className="text-lg font-semibold">Análisis de informes a la Alta Dirección</h3>
                     <p className="text-sm text-muted-foreground">
                       Revisa la frecuencia, contenido y evidencias de los reportes entregados a la Alta Dirección o Comité de Privacidad.
                     </p>
@@ -2491,7 +2491,7 @@ export default function DPOCompliancePage() {
 
                 <div className="space-y-4">
                   <div>
-                    <h3 className="text-lg font-semibold">E. Conclusiones y plan de acción</h3>
+                    <h3 className="text-lg font-semibold">Conclusiones y plan de acción</h3>
                     <p className="text-sm text-muted-foreground">
                       Resume el resultado de la revisión e identifica acciones de mejora y próximos hitos.
                     </p>
@@ -2925,4 +2925,3 @@ export default function DPOCompliancePage() {
     </div>
   )
 }
-
