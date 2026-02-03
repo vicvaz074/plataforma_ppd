@@ -2,10 +2,12 @@
 
 import { Progress } from "@/components/ui/progress"
 
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useForm, useFieldArray, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
+import jsPDF from "jspdf"
+import autoTable from "jspdf-autotable"
 import { Button } from "@/components/ui/button"
 import { Form, FormItem, FormLabel, FormControl, FormField } from "@/components/ui/form"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -17,18 +19,56 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
-import { ClipboardList, ShieldAlert } from "lucide-react"
+import { ClipboardList, FileDown, ShieldAlert } from "lucide-react"
 
 import { UseFormReturn } from "react-hook-form"
 
 // Importar los componentes de las secciones
 import { ReviewChecklist } from "./components/review-checklist"
 
+type UploadedFile = {
+  name: string
+  type: string
+  size: number
+  dataUrl: string
+}
+
+const fileToUploaded = (file: File): Promise<UploadedFile> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () =>
+      resolve({
+        name: file.name,
+        type: file.type,
+        size: file.size,
+        dataUrl: reader.result as string,
+      })
+    reader.onerror = () => reject(reader.error)
+    reader.readAsDataURL(file)
+  })
+
+const downloadFile = (file: UploadedFile) => {
+  const link = document.createElement("a")
+  link.href = file.dataUrl
+  link.download = file.name
+  link.click()
+}
+
 // Mantener el esquema de validación y los valores por defecto (no mostrados por brevedad)
 const incidentSchema = z.object({
   incidentMeta: z.object({
     nombreIncidente: z.string().min(1, "El nombre del incidente es requerido"),
   }),
+  evidencias: z
+    .array(
+      z.object({
+        name: z.string(),
+        type: z.string(),
+        size: z.number(),
+        dataUrl: z.string(),
+      }),
+    )
+    .optional(),
   contactGroups: z.array(
     z.object({
       groupTitle: z.string(),
@@ -350,6 +390,8 @@ const defaultIncidentMeta = {
   nombreIncidente: "",
 }
 
+const defaultEvidencias: UploadedFile[] = []
+
 const defaultInformacionGeneral = {
   nombre: "",
   direccion: "",
@@ -585,6 +627,30 @@ const defaultRegistrosComunicacion = [
 
 const incidentStorageKey = "security_incidents_v1"
 
+const formatValue = (value?: string | null) => (value && value.trim().length > 0 ? value : "N/D")
+
+const buildIncidentRows = (data: IncidentFormData) => [
+  ["Nombre del incidente", formatValue(data.incidentMeta.nombreIncidente)],
+  ["Fecha del incidente", formatValue(data.informacionIncidente.fecha)],
+  ["Hora del incidente", formatValue(data.informacionIncidente.hora)],
+  ["Localización", formatValue(data.informacionIncidente.localizacion)],
+  ["Sistema afectado", formatValue(data.informacionIncidente.tipoSistema)],
+  ["Responsable del sistema", formatValue(data.informacionIncidente.responsableSistema)],
+  ["Involucra datos personales", formatValue(data.informacionIncidente.involucraDatos)],
+  ["Tipo de datos", formatValue(data.informacionIncidente.tipoDatos)],
+  ["Descripción", formatValue(data.informacionIncidente.descripcion)],
+  ["Resumen ejecutivo", formatValue(data.resumenIncidente.resumenEjecutivo)],
+  ["Resumen técnico", formatValue(data.resumenIncidente.resumenTecnico)],
+  ["Evaluación de incidente", formatValue(data.evaluacionIncidente.esIncidente)],
+  ["Impacto", formatValue(data.d1Mitigacion.impact)],
+  ["Verificación de recuperación", formatValue(data.recoveryVerification)],
+  ["Resumen del incidente", formatValue(data.incidentSummary)],
+  ["Efectividad de la respuesta", formatValue(data.responseEffectiveness)],
+  ["Recomendaciones", formatValue(data.recommendationsForImprovement)],
+  ["Área involucrada", formatValue(data.documentacionIncidente.areaInvolucrada)],
+  ["Sistema de tratamiento", formatValue(data.documentacionIncidente.sistemaTratamiento)],
+  ["Datos personales", formatValue(data.documentacionIncidente.datosPersonales)],
+]
 
 // -----------------------------------------------------------------------------
 // Componente principal
@@ -598,11 +664,14 @@ export default function IncidentsAndBreachesPage() {
     { id: string; name: string; data: IncidentFormData; updatedAt: string }[]
   >([])
   const [activeIncidentId, setActiveIncidentId] = useState<string | null>(null)
+  const [selectedIncidentIds, setSelectedIncidentIds] = useState<string[]>([])
+  const [downloadMode, setDownloadMode] = useState<"active" | "selected">("active")
 
   const form = useForm<IncidentFormData>({
     resolver: zodResolver(incidentSchema),
     defaultValues: {
       incidentMeta: defaultIncidentMeta,
+      evidencias: defaultEvidencias,
       contactGroups: defaultContactGroups,
       informacionGeneral: defaultInformacionGeneral,
       informacionIncidente: defaultInformacionIncidente,
@@ -628,6 +697,140 @@ export default function IncidentsAndBreachesPage() {
       reviewChecklist: [],
     },
   })
+
+  const evidenciaFiles = useWatch({ control: form.control, name: "evidencias" }) ?? []
+  const hasActiveIncident = useMemo(
+    () => Boolean(activeIncidentId && incidents.some((incident) => incident.id === activeIncidentId)),
+    [activeIncidentId, incidents],
+  )
+
+  const generateIncidentPDF = (incident: { id: string; name: string; data: IncidentFormData }) => {
+    const doc = new jsPDF()
+    doc.setFontSize(16)
+    doc.text(`Reporte de incidente: ${incident.name}`, 14, 20)
+    doc.setFontSize(11)
+    autoTable(doc, {
+      startY: 30,
+      head: [["Campo", "Valor"]],
+      body: buildIncidentRows(incident.data),
+      styles: { fontSize: 10, cellPadding: 3 },
+      headStyles: { fillColor: [30, 64, 175] },
+    })
+    const evidencias = incident.data.evidencias ?? []
+    if (evidencias.length > 0) {
+      autoTable(doc, {
+        startY: (doc as jsPDF & { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? 40,
+        head: [["Evidencias adjuntas (PDF)", "Tamaño"]],
+        body: evidencias.map((file) => [file.name, `${(file.size / 1024).toFixed(1)} KB`]),
+        styles: { fontSize: 10, cellPadding: 3 },
+        headStyles: { fillColor: [30, 64, 175] },
+      })
+    }
+    doc.save(`incidente-${incident.id}.pdf`)
+    toast({ title: "Reporte PDF generado", description: `Se descargó el PDF del incidente ${incident.name}.` })
+  }
+
+  const generateCombinedPDF = (selected: { id: string; name: string; data: IncidentFormData }[]) => {
+    const doc = new jsPDF()
+    selected.forEach((incident, index) => {
+      if (index > 0) {
+        doc.addPage()
+      }
+      doc.setFontSize(16)
+      doc.text(`Reporte de incidente: ${incident.name}`, 14, 20)
+      doc.setFontSize(11)
+      autoTable(doc, {
+        startY: 30,
+        head: [["Campo", "Valor"]],
+        body: buildIncidentRows(incident.data),
+        styles: { fontSize: 10, cellPadding: 3 },
+        headStyles: { fillColor: [30, 64, 175] },
+      })
+      const evidencias = incident.data.evidencias ?? []
+      if (evidencias.length > 0) {
+        autoTable(doc, {
+          startY: (doc as jsPDF & { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? 40,
+          head: [["Evidencias adjuntas (PDF)", "Tamaño"]],
+          body: evidencias.map((file) => [file.name, `${(file.size / 1024).toFixed(1)} KB`]),
+          styles: { fontSize: 10, cellPadding: 3 },
+          headStyles: { fillColor: [30, 64, 175] },
+        })
+      }
+    })
+    doc.save("reporte_incidentes_seleccionados.pdf")
+    toast({ title: "Reporte PDF generado", description: "Se descargó el PDF con los incidentes seleccionados." })
+  }
+
+  const handleDownloadPDF = () => {
+    if (downloadMode === "active") {
+      if (!activeIncidentId) {
+        toast({
+          title: "Selecciona un incidente",
+          description: "Elige un incidente activo para descargar su PDF.",
+          variant: "destructive",
+        })
+        return
+      }
+      const incident = incidents.find((item) => item.id === activeIncidentId)
+      if (!incident) {
+        toast({
+          title: "Incidente no encontrado",
+          description: "No se pudo localizar el incidente activo.",
+          variant: "destructive",
+        })
+        return
+      }
+      generateIncidentPDF(incident)
+      return
+    }
+    const selected = incidents.filter((incident) => selectedIncidentIds.includes(incident.id))
+    if (selected.length === 0) {
+      toast({
+        title: "Sin incidentes seleccionados",
+        description: "Selecciona uno o más incidentes para descargar el reporte completo.",
+        variant: "destructive",
+      })
+      return
+    }
+    generateCombinedPDF(selected)
+  }
+
+  const handleEvidenceUpload = async (files: FileList | null) => {
+    if (!files || files.length === 0) return
+    const uploads: UploadedFile[] = []
+    for (const file of Array.from(files)) {
+      if (file.type !== "application/pdf") {
+        toast({
+          title: "Formato inválido",
+          description: `${file.name} no es un PDF.`,
+          variant: "destructive",
+        })
+        continue
+      }
+      const uploaded = await fileToUploaded(file)
+      uploads.push(uploaded)
+    }
+    if (uploads.length === 0) return
+    const nextFiles = [...(form.getValues("evidencias") ?? []), ...uploads]
+    form.setValue("evidencias", nextFiles, { shouldDirty: true })
+    toast({ title: "Evidencias agregadas", description: "Los PDF fueron adjuntados al incidente." })
+  }
+
+  const handleRemoveEvidence = (index: number) => {
+    const current = [...(form.getValues("evidencias") ?? [])]
+    current.splice(index, 1)
+    form.setValue("evidencias", current, { shouldDirty: true })
+  }
+
+  const toggleIncidentSelection = (incidentId: string, checked: boolean) => {
+    setSelectedIncidentIds((prev) =>
+      checked ? [...prev, incidentId] : prev.filter((id) => id !== incidentId),
+    )
+  }
+
+  const handleSelectAllIncidents = (checked: boolean) => {
+    setSelectedIncidentIds(checked ? incidents.map((incident) => incident.id) : [])
+  }
 
   const saveIncident = (data: IncidentFormData, mode: "draft" | "final" = "final") => {
     const incidentName = data.incidentMeta.nombreIncidente.trim()
@@ -693,6 +896,7 @@ export default function IncidentsAndBreachesPage() {
         data: {
           ...incident.data,
           incidentMeta: incident.data.incidentMeta ?? defaultIncidentMeta,
+          evidencias: incident.data.evidencias ?? defaultEvidencias,
         },
       }))
       setIncidents(normalized)
@@ -712,6 +916,7 @@ export default function IncidentsAndBreachesPage() {
   const handleNewIncident = () => {
     form.reset({
       incidentMeta: defaultIncidentMeta,
+      evidencias: defaultEvidencias,
       contactGroups: defaultContactGroups,
       informacionGeneral: defaultInformacionGeneral,
       informacionIncidente: defaultInformacionIncidente,
@@ -865,6 +1070,49 @@ export default function IncidentsAndBreachesPage() {
                         </FormItem>
                       )}
                     />
+                    <div className="space-y-2">
+                      <Label htmlFor="incident-evidence">Evidencias en PDF</Label>
+                      <Input
+                        id="incident-evidence"
+                        type="file"
+                        accept="application/pdf"
+                        multiple
+                        onChange={(event) => handleEvidenceUpload(event.target.files)}
+                      />
+                      {evidenciaFiles.length === 0 ? (
+                        <p className="text-sm text-muted-foreground">
+                          Adjunta evidencias en PDF para respaldar el incidente.
+                        </p>
+                      ) : (
+                        <div className="space-y-2">
+                          {evidenciaFiles.map((file, index) => (
+                            <div
+                              key={`${file.name}-${index}`}
+                              className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-3"
+                            >
+                              <div>
+                                <p className="text-sm font-medium">{file.name}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {(file.size / 1024).toFixed(1)} KB
+                                </p>
+                              </div>
+                              <div className="flex flex-wrap gap-2">
+                                <Button type="button" variant="outline" onClick={() => downloadFile(file)}>
+                                  Descargar
+                                </Button>
+                                <Button
+                                  type="button"
+                                  variant="destructive"
+                                  onClick={() => handleRemoveEvidence(index)}
+                                >
+                                  Eliminar
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                     <div className="flex flex-wrap gap-2">
                       <Button type="button" variant="outline" onClick={handleNewIncident}>
                         Nuevo incidente
@@ -887,6 +1135,47 @@ export default function IncidentsAndBreachesPage() {
                     <CardDescription>Visualice, edite o elimine los incidentes guardados.</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
+                    <div className="rounded-lg border p-4 space-y-3">
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                          <p className="font-medium">Descarga de reportes PDF</p>
+                          <p className="text-xs text-muted-foreground">
+                            Selecciona incidentes para descargar un reporte combinado o el formulario activo.
+                          </p>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={handleDownloadPDF}
+                          disabled={downloadMode === "active" && !hasActiveIncident}
+                        >
+                          <FileDown className="mr-2 h-4 w-4" />
+                          Descargar PDF
+                        </Button>
+                      </div>
+                      <RadioGroup
+                        value={downloadMode}
+                        onValueChange={(value) => setDownloadMode(value as "active" | "selected")}
+                        className="flex flex-wrap gap-4"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="active" id="download-active" />
+                          <Label htmlFor="download-active">PDF del formulario activo</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="selected" id="download-selected" />
+                          <Label htmlFor="download-selected">PDF combinado de seleccionados</Label>
+                        </div>
+                      </RadioGroup>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="select-all-incidents"
+                          checked={selectedIncidentIds.length === incidents.length && incidents.length > 0}
+                          onCheckedChange={(checked) => handleSelectAllIncidents(Boolean(checked))}
+                        />
+                        <Label htmlFor="select-all-incidents">Seleccionar todos</Label>
+                      </div>
+                    </div>
                     {incidents.length === 0 ? (
                       <p className="text-sm text-muted-foreground">
                         Aún no hay incidentes registrados. Guarda el primero para que aparezca aquí.
@@ -904,13 +1193,27 @@ export default function IncidentsAndBreachesPage() {
                                 Última actualización: {new Date(incident.updatedAt).toLocaleString("es-MX")}
                               </p>
                             </div>
-                            <div className="flex flex-wrap gap-2">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <Checkbox
+                                checked={selectedIncidentIds.includes(incident.id)}
+                                onCheckedChange={(checked) =>
+                                  toggleIncidentSelection(incident.id, Boolean(checked))
+                                }
+                              />
                               <Button
                                 type="button"
                                 variant={activeIncidentId === incident.id ? "secondary" : "outline"}
                                 onClick={() => handleSelectIncident(incident.id)}
                               >
                                 {activeIncidentId === incident.id ? "Editando" : "Ver/Editar"}
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => generateIncidentPDF(incident)}
+                              >
+                                <FileDown className="mr-2 h-4 w-4" />
+                                PDF
                               </Button>
                               <Button
                                 type="button"
