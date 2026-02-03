@@ -10,9 +10,16 @@ interface SafeLinkProps {
   className?: string
 }
 
+const isExternalHref = (href: string) => /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i.test(href)
+
 export function SafeLink({ href, children, className }: SafeLinkProps) {
+  const normalizedHref =
+    href.startsWith("/") || href.startsWith("#") || isExternalHref(href)
+      ? href
+      : `/${href}`
+
   return (
-    <Link href={href} className={className}>
+    <Link href={normalizedHref} className={className}>
       {children}
     </Link>
   )
