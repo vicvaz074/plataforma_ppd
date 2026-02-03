@@ -549,7 +549,7 @@ export function ProceduresPdpContent({ section }: ProceduresPdpContentProps) {
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10">
                   <section className="space-y-6">
                     <div>
-                      <h2 className="text-xl font-semibold">I. Datos generales del procedimiento</h2>
+                      <h2 className="text-xl font-semibold">Datos generales del procedimiento</h2>
                       <p className="text-sm text-muted-foreground">
                         Identifica la autoridad, estatus y responsables internos para asegurar el seguimiento adecuado.
                       </p>
@@ -729,7 +729,7 @@ export function ProceduresPdpContent({ section }: ProceduresPdpContentProps) {
 
                   <section className="space-y-6">
                     <div>
-                      <h2 className="text-xl font-semibold">II. Descripción del procedimiento</h2>
+                      <h2 className="text-xl font-semibold">Descripción del procedimiento</h2>
                       <p className="text-sm text-muted-foreground">
                         Documenta el origen, la etapa procesal y el detalle del avance para conservar la trazabilidad del caso.
                       </p>

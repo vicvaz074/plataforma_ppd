@@ -753,7 +753,7 @@ export function PrivacyNoticesContent({ section }: PrivacyNoticesContentProps) {
             >
                 <section className="space-y-4">
                   <div>
-                    <h2 className="text-xl font-semibold">A. Información general</h2>
+                    <h2 className="text-xl font-semibold">Información general</h2>
                     <p className="text-sm text-muted-foreground">
                       Registra los datos básicos del aviso aplicable al proceso,
                       sistema o categoría de titulares.
@@ -850,7 +850,7 @@ export function PrivacyNoticesContent({ section }: PrivacyNoticesContentProps) {
 
                 <section className="space-y-4">
                   <div>
-                    <h2 className="text-xl font-semibold">B. Política de gestión</h2>
+                    <h2 className="text-xl font-semibold">Política de gestión</h2>
                     <p className="text-sm text-muted-foreground">
                       Identifica los lineamientos internos relacionados con la
                       creación y actualización de avisos de privacidad.
@@ -957,7 +957,7 @@ export function PrivacyNoticesContent({ section }: PrivacyNoticesContentProps) {
                 <section className="space-y-4">
                   <div>
                     <h2 className="text-xl font-semibold">
-                      C. Aviso aplicable al tratamiento
+                      Aviso aplicable al tratamiento
                     </h2>
                     <p className="text-sm text-muted-foreground">
                       Adjunta el aviso vigente y describe la versión utilizada
@@ -1056,7 +1056,7 @@ export function PrivacyNoticesContent({ section }: PrivacyNoticesContentProps) {
                 <section className="space-y-4">
                   <div>
                     <h2 className="text-xl font-semibold">
-                      D. Puesta a disposición y prueba de cumplimiento
+                      Puesta a disposición y prueba de cumplimiento
                     </h2>
                     <p className="text-sm text-muted-foreground">
                       Documenta cómo se presentó el aviso y conserva evidencias
