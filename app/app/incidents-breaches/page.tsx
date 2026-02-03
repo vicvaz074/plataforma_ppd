@@ -1287,7 +1287,7 @@ function SectionA({ form }: { form: UseFormReturn<IncidentFormData> }) {
   })
   return (
     <div className="space-y-8 mb-8">
-      <h3 className="text-2xl font-bold">A.1 Lista de contactos</h3>
+      <h3 className="text-2xl font-bold">Lista de contactos</h3>
       {form.watch("contactGroups").map((group, groupIndex) => (
         <div key={groupIndex} className="border p-4 rounded space-y-4">
           <h4 className="text-xl font-semibold">{group.groupTitle}</h4>
@@ -1416,7 +1416,7 @@ function SectionA({ form }: { form: UseFormReturn<IncidentFormData> }) {
 function SectionB({ form }: { form: UseFormReturn<IncidentFormData> }) {
   return (
     <div className="space-y-8 mb-8">
-      <h3 className="text-2xl font-bold">B.1 Identificación de incidentes</h3>
+      <h3 className="text-2xl font-bold">Identificación de incidentes</h3>
       <div className="border p-4 rounded space-y-4">
         <h4 className="text-xl font-semibold">Información general</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1814,7 +1814,7 @@ function SectionC({ form }: { form: UseFormReturn<IncidentFormData> }) {
     <div className="space-y-8 mb-8">
       <h3 className="text-2xl font-bold">C. Investigación y contención</h3>
       <div className="border p-4 rounded space-y-4">
-        <h4 className="text-xl font-semibold">C.1 Datos para la investigación</h4>
+        <h4 className="text-xl font-semibold">Datos para la investigación</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -2070,7 +2070,7 @@ function SectionC({ form }: { form: UseFormReturn<IncidentFormData> }) {
         </div>
       </div>
       <div className="space-y-8 mb-8">
-        <h3 className="text-2xl font-bold">C.2 Acciones de contención</h3>
+        <h3 className="text-2xl font-bold">Acciones de contención</h3>
         <div className="border p-4 rounded space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
@@ -2404,14 +2404,14 @@ function SectionD({ form }: { form: UseFormReturn<IncidentFormData> }) {
   })
   return (
     <div className="space-y-8 mb-8">
-      <h3 className="text-2xl font-bold">D.1 Mitigación del incidente</h3>
+      <h3 className="text-2xl font-bold">Mitigación del incidente</h3>
       <div className="border p-4 rounded space-y-4">
         <h4 className="text-xl font-semibold">Descripción de las acciones de mitigación</h4>
 
         <PersonalInvolucradoArray form={form} />
 
         <div className="space-y-4 mt-8">
-          <h5 className="text-lg font-semibold">2. Descripción de las vulnerabilidades detectadas:</h5>
+          <h5 className="text-lg font-semibold">Descripción de las vulnerabilidades detectadas:</h5>
           <FormField
             control={form.control}
             name="d1Mitigacion.vulnerabilitiesDetected"
@@ -2511,7 +2511,7 @@ function SectionD({ form }: { form: UseFormReturn<IncidentFormData> }) {
         </div>
 
         <div className="space-y-4 mt-8">
-          <h5 className="text-lg font-semibold">3. Validación:</h5>
+          <h5 className="text-lg font-semibold">Validación:</h5>
           <FormField
             control={form.control}
             name="d1Mitigacion.validationProcedure"
@@ -2533,7 +2533,7 @@ function SectionD({ form }: { form: UseFormReturn<IncidentFormData> }) {
         </div>
 
         <div className="space-y-4 mt-8">
-          <h5 className="text-lg font-semibold">4. Cierre:</h5>
+          <h5 className="text-lg font-semibold">Cierre:</h5>
           <FormField
             control={form.control}
             name="d1Mitigacion.closingTime"
@@ -2551,9 +2551,11 @@ function SectionD({ form }: { form: UseFormReturn<IncidentFormData> }) {
 
       {/* Sección D.2: Procesamiento de Indicios o Evidencias */}
       <div className="space-y-8 mb-8">
-        <h3 className="text-2xl font-bold">D.2 Investigación del incidente (Procesamiento de Indicios o Evidencias)</h3>
+        <h3 className="text-2xl font-bold">
+          Investigación del incidente (Procesamiento de Indicios o Evidencias)
+        </h3>
         <div className="border p-4 rounded space-y-4">
-          <h4 className="text-xl font-semibold">1. Identificación de los indicios o evidencias</h4>
+          <h4 className="text-xl font-semibold">Identificación de los indicios o evidencias</h4>
           {identificacionEvidenciasFields.map((field, index) => (
             <div key={field.id} className="border p-4 rounded relative space-y-4">
               {identificacionEvidenciasFields.length > 1 && (
@@ -2635,7 +2637,7 @@ function SectionD({ form }: { form: UseFormReturn<IncidentFormData> }) {
         </div>
 
         <div className="border p-4 rounded space-y-4">
-          <h4 className="text-xl font-semibold">2. Fijación de los indicios o evidencias</h4>
+          <h4 className="text-xl font-semibold">Fijación de los indicios o evidencias</h4>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <FormField
               control={form.control}
@@ -2728,13 +2730,13 @@ function SectionD({ form }: { form: UseFormReturn<IncidentFormData> }) {
         </div>
 
         <div className="border p-4 rounded space-y-4">
-          <h4 className="text-xl font-semibold">3. Recolección o levantamiento</h4>
+          <h4 className="text-xl font-semibold">Recolección o levantamiento</h4>
           <FormField
             control={form.control}
             name="d2Evidencias.recoleccion.descripcionForma"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>a) Descripción de la forma en que se realizó</FormLabel>
+                <FormLabel>Descripción de la forma en que se realizó</FormLabel>
                 <FormControl>
                   <Textarea placeholder="Describa el proceso de recolección" {...field} />
                 </FormControl>
@@ -2746,7 +2748,7 @@ function SectionD({ form }: { form: UseFormReturn<IncidentFormData> }) {
             name="d2Evidencias.recoleccion.medidasPreservacion"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>b) Medidas tomadas para preservar la integridad del indicio o evidencia</FormLabel>
+                <FormLabel>Medidas tomadas para preservar la integridad del indicio o evidencia</FormLabel>
                 <FormControl>
                   <Textarea placeholder="Describa las medidas de preservación" {...field} />
                 </FormControl>
@@ -2756,7 +2758,7 @@ function SectionD({ form }: { form: UseFormReturn<IncidentFormData> }) {
         </div>
 
         <div className="border p-4 rounded space-y-4">
-          <h4 className="text-xl font-semibold">4. Entrega de indicios o evidencias</h4>
+          <h4 className="text-xl font-semibold">Entrega de indicios o evidencias</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               control={form.control}
@@ -2864,10 +2866,10 @@ function SectionD({ form }: { form: UseFormReturn<IncidentFormData> }) {
 function SectionE({ form }: { form: UseFormReturn<IncidentFormData> }) {
   return (
     <div className="space-y-8 mb-8">
-      <h3 className="text-2xl font-bold">E.1 Recuperación del incidente</h3>
+      <h3 className="text-2xl font-bold">Recuperación del incidente</h3>
       <Card className="w-full">
         <CardHeader>
-          <CardTitle>1. Continuidad en la operación</CardTitle>
+          <CardTitle>Continuidad en la operación</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <FormField
@@ -2918,7 +2920,7 @@ function SectionE({ form }: { form: UseFormReturn<IncidentFormData> }) {
 
       <Card className="w-full">
         <CardHeader>
-          <CardTitle>2. Tiempos</CardTitle>
+          <CardTitle>Tiempos</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -3006,7 +3008,7 @@ function SectionE({ form }: { form: UseFormReturn<IncidentFormData> }) {
 
       <Card className="w-full">
         <CardHeader>
-          <CardTitle>3. Monitoreo</CardTitle>
+          <CardTitle>Monitoreo</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <FormField
@@ -3046,7 +3048,7 @@ function SectionE({ form }: { form: UseFormReturn<IncidentFormData> }) {
 function SectionF({ form }: { form: UseFormReturn<IncidentFormData> }) {
   return (
     <div className="space-y-8 mb-8">
-      <h3 className="text-2xl font-bold">F.1 Recuperación del incidente</h3>
+      <h3 className="text-2xl font-bold">Recuperación del incidente</h3>
 
       <Card>
         <CardHeader>
@@ -3054,7 +3056,7 @@ function SectionF({ form }: { form: UseFormReturn<IncidentFormData> }) {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-4">
-            <h4 className="text-lg font-semibold">1. Descripción:</h4>
+            <h4 className="text-lg font-semibold">Descripción:</h4>
 
             <FormField
               control={form.control}
