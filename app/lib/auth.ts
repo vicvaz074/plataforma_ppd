@@ -45,6 +45,13 @@ const DEFAULT_USERS: StoredUser[] = [
     approved: true,
     role: "user",
   },
+  {
+    name: "María Elena Velazquez",
+    email: "mariaelena.velazquez@bbva.com",
+    password: "$2b$10$tWU29YMDlIkg..bNyoJvp.A2KHUscJ5.Pdv21WMV7hRMFC0oMk5b.",
+    approved: true,
+    role: "user",
+  },
 ]
 
 function getStoredUsers(): StoredUser[] {
