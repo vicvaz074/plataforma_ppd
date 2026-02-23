@@ -34,6 +34,7 @@ Este manual guía a los administradores en la operación estratégica de DavaraG
 ### 5.4 Contratos con terceros y destinatarios externos
 - Monitoree el registro de contratos con terceros, verificando que se documenten identidades, bases legales y alertas de vencimiento.【F:app/app/third-party-contracts/page.tsx†L1-L52】  
 - Supervise la base de destinatarios externos para mantener actualizados los roles, países de operación y mecanismos de transferencia; utilice la exportación CSV para auditorías.【F:app/app/external-recipients/page.tsx†L1-L126】
+- 
 
 ### 5.5 Políticas y concientización
 - Revise las políticas de seguridad documentadas, incluidas las opciones de exportación a Word/PDF, para asegurar su difusión corporativa.【F:app/app/data-policies/page.tsx†L1-L94】  

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
 import { UserProgressDashboard } from "@/components/user-progress-dashboard"
 
+
 export default function DashboardPage() {
   const { language } = useLanguage()
   const t = translations[language]
@@ -55,6 +56,8 @@ export default function DashboardPage() {
       pendingReviews: prev.pendingReviews - 1,
     }))
   }
+
+  const selectedModuleData = moduleReports.find((report) => report.module === selectedModule) || moduleReports[0]
 
   const AdminDashboard = () => (
     <motion.div
