@@ -2,17 +2,16 @@
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { FileText, ClipboardList } from "lucide-react"
-import Link from "next/link" // Usa Link de Next.js
+import { FileText, ClipboardList, BarChart3 } from "lucide-react"
+import Link from "next/link"
 
 export default function ThirdPartyContractsPage() {
   return (
     <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-8">Contratos con Terceros</h1>
+      <h1 className="mb-8 text-3xl font-bold">Contratos con Terceros</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Tarjeta para Registro de Contratos */}
-        <Card className="flex flex-col h-full">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        <Card className="flex h-full flex-col">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileText className="h-5 w-5" />
@@ -23,27 +22,21 @@ export default function ThirdPartyContractsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="flex-grow">
-            <p className="text-sm text-muted-foreground">
-              Esta sección le permite registrar nuevos contratos con terceros, especificando detalles como:
-            </p>
-            <ul className="list-disc list-inside mt-2 text-sm text-muted-foreground">
+            <ul className="list-inside list-disc space-y-1 text-sm text-muted-foreground">
               <li>Identidad del tercero, tipos de relación y bases legales</li>
               <li>Servicios contratados, categorías de datos y finalidades</li>
-              <li>Instrumentos jurídicos, garantías y alertas automáticas de vencimiento</li>
+              <li>Instrumentos jurídicos, garantías y alertas de vencimiento</li>
               <li>Evidencias adjuntas, responsables internos y bitácora de cumplimiento</li>
             </ul>
           </CardContent>
           <CardFooter>
             <Button asChild className="w-full">
-              <Link href="/third-party-contracts/registration">
-                Acceder al Registro de Contratos
-              </Link>
+              <Link href="/third-party-contracts/registration">Acceder al Registro de Contratos</Link>
             </Button>
           </CardFooter>
         </Card>
 
-        {/* Tarjeta para Documentos y Cláusulas */}
-        <Card className="flex flex-col h-full">
+        <Card className="flex h-full flex-col">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <ClipboardList className="h-5 w-5" />
@@ -54,10 +47,7 @@ export default function ThirdPartyContractsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="flex-grow">
-            <p className="text-sm text-muted-foreground">
-              Esta sección proporciona recursos útiles para la elaboración de contratos con terceros:
-            </p>
-            <ul className="list-disc list-inside mt-2 text-sm text-muted-foreground">
+            <ul className="list-inside list-disc space-y-1 text-sm text-muted-foreground">
               <li>Repositorio guiado de plantillas con metadatos auditables</li>
               <li>Cláusulas modelo parametrizables por tipo de relación</li>
               <li>Plantillas internas y documentos de apoyo personalizados</li>
@@ -65,10 +55,28 @@ export default function ThirdPartyContractsPage() {
             </ul>
           </CardContent>
           <CardFooter>
-            <Button asChild className="w-full">
-              <Link href="/third-party-contracts/documents">
-                Acceder a Documentos y Cláusulas
-              </Link>
+            <Button asChild className="w-full" variant="outline">
+              <Link href="/third-party-contracts/documents">Acceder a Documentos y Cláusulas</Link>
+            </Button>
+          </CardFooter>
+        </Card>
+
+        <Card className="flex h-full flex-col">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BarChart3 className="h-5 w-5" />
+              Reportes de contratos
+            </CardTitle>
+            <CardDescription>
+              Consulte métricas y gráficas reales de contratos vigentes, vencimientos y comunicaciones de datos.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex-grow text-sm text-muted-foreground">
+            Esta vista utiliza el historial real capturado en el módulo para construir los indicadores.
+          </CardContent>
+          <CardFooter>
+            <Button asChild className="w-full" variant="secondary">
+              <Link href="/third-party-contracts/reportes">Abrir reportes</Link>
             </Button>
           </CardFooter>
         </Card>
