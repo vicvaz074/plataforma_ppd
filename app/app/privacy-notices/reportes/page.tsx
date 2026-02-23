@@ -2,16 +2,12 @@
 
 import Link from "next/link"
 import { useEffect, useMemo, useState } from "react"
-import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { getFilesByCategory, type StoredFile } from "@/lib/fileStorage"
 
-const chartPalette = ["#2563eb", "#7c3aed", "#0891b2", "#0d9488", "#f59e0b", "#ef4444"]
-
 export default function PrivacyNoticesReportsPage() {
   const [notices, setNotices] = useState<StoredFile[]>([])
-  const [viewMode, setViewMode] = useState<"bars" | "cards">("bars")
 
   useEffect(() => {
     const load = () => setNotices(getFilesByCategory("privacy-notice"))
@@ -51,7 +47,7 @@ export default function PrivacyNoticesReportsPage() {
         <div>
           <p className="text-sm font-semibold text-muted-foreground">Módulo Avisos de Privacidad</p>
           <h1 className="text-3xl font-semibold">Reportes y gráficas</h1>
-          <p className="text-sm text-muted-foreground">Datos reales con visualización interactiva y animada.</p>
+          <p className="text-sm text-muted-foreground">Datos reales con base en los avisos registrados en la plataforma.</p>
         </div>
         <Button asChild variant="outline">
           <Link href="/privacy-notices">Volver al módulo</Link>
@@ -66,62 +62,27 @@ export default function PrivacyNoticesReportsPage() {
 
       <Card>
         <CardHeader>
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div>
-              <CardTitle>Clasificación por tipo de aviso</CardTitle>
-              <CardDescription>Puedes alternar entre barras animadas y tarjetas comparativas.</CardDescription>
-            </div>
-            <div className="flex gap-2">
-              <Button size="sm" variant={viewMode === "bars" ? "default" : "outline"} onClick={() => setViewMode("bars")}>Barras</Button>
-              <Button size="sm" variant={viewMode === "cards" ? "default" : "outline"} onClick={() => setViewMode("cards")}>Tarjetas</Button>
-            </div>
-          </div>
+          <CardTitle>Clasificación por tipo de aviso</CardTitle>
+          <CardDescription>Distribución calculada desde los metadatos de cada aviso.</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-3">
           {metrics.byType.length === 0 ? (
             <p className="text-sm text-muted-foreground">Aún no hay avisos para generar la gráfica.</p>
-          ) : viewMode === "bars" ? (
-            <div className="space-y-3">
-              {metrics.byType.map(([type, count], idx) => {
-                const pct = Math.round((count / metrics.total) * 100)
-                return (
-                  <div key={type} className="space-y-1">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="capitalize">{type.replace(/_/g, " ")}</span>
-                      <span>{count} ({pct}%)</span>
-                    </div>
-                    <div className="h-2 rounded-full bg-slate-200 dark:bg-slate-700">
-                      <motion.div
-                        className="h-2 rounded-full"
-                        initial={{ width: 0 }}
-                        animate={{ width: `${pct}%` }}
-                        transition={{ duration: 0.6, delay: idx * 0.08 }}
-                        style={{ backgroundColor: chartPalette[idx % chartPalette.length] }}
-                      />
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
           ) : (
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {metrics.byType.map(([type, count], idx) => {
-                const pct = Math.round((count / metrics.total) * 100)
-                return (
-                  <motion.div
-                    key={type}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: idx * 0.05 }}
-                    className="rounded-md border p-3"
-                  >
-                    <p className="text-xs text-muted-foreground capitalize">{type.replace(/_/g, " ")}</p>
-                    <p className="text-2xl font-bold">{count}</p>
-                    <p className="text-xs" style={{ color: chartPalette[idx % chartPalette.length] }}>{pct}% del total</p>
-                  </motion.div>
-                )
-              })}
-            </div>
+            metrics.byType.map(([type, count]) => {
+              const pct = Math.round((count / metrics.total) * 100)
+              return (
+                <div key={type} className="space-y-1">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="capitalize">{type.replace(/_/g, " ")}</span>
+                    <span>{count} ({pct}%)</span>
+                  </div>
+                  <div className="h-2 rounded-full bg-slate-200 dark:bg-slate-700">
+                    <div className="h-2 rounded-full bg-blue-600" style={{ width: `${pct}%` }} />
+                  </div>
+                </div>
+              )
+            })
           )}
         </CardContent>
       </Card>
