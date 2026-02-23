@@ -3,48 +3,15 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { FileText, ClipboardList } from "lucide-react"
-import Link from "next/link"
-import { ModuleInteractivePanel } from "@/components/module-interactive-panel"
-
-const supplierInsights = [
-  {
-    title: "Contratos con cláusulas críticas incompletas",
-    owner: "Compras",
-    score: 58,
-    status: "high" as const,
-    actionLabel: "Ir al registro de contratos",
-    href: "/third-party-contracts/registration",
-  },
-  {
-    title: "Proveedores con transferencias internacionales",
-    owner: "Legal",
-    score: 73,
-    status: "medium" as const,
-    actionLabel: "Revisar documentos y cláusulas",
-    href: "/third-party-contracts/documents",
-  },
-  {
-    title: "Contratos con evidencia documental completa",
-    owner: "Privacidad",
-    score: 89,
-    status: "low" as const,
-    actionLabel: "Consultar repositorio",
-    href: "/third-party-contracts/documents",
-  },
-]
+import Link from "next/link" // Usa Link de Next.js
 
 export default function ThirdPartyContractsPage() {
   return (
-    <div className="container mx-auto py-8 space-y-6">
-      <h1 className="text-3xl font-bold">Contratos con Terceros</h1>
-
-      <ModuleInteractivePanel
-        title="Semáforo de cadena de suministro"
-        description="Prioriza contratos y proveedores según criticidad, avance documental y nivel de riesgo residual."
-        items={supplierInsights}
-      />
+    <div className="container mx-auto py-8">
+      <h1 className="text-3xl font-bold mb-8">Contratos con Terceros</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Tarjeta para Registro de Contratos */}
         <Card className="flex flex-col h-full">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -68,11 +35,14 @@ export default function ThirdPartyContractsPage() {
           </CardContent>
           <CardFooter>
             <Button asChild className="w-full">
-              <Link href="/third-party-contracts/registration">Acceder al Registro de Contratos</Link>
+              <Link href="/third-party-contracts/registration">
+                Acceder al Registro de Contratos
+              </Link>
             </Button>
           </CardFooter>
         </Card>
 
+        {/* Tarjeta para Documentos y Cláusulas */}
         <Card className="flex flex-col h-full">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -96,7 +66,9 @@ export default function ThirdPartyContractsPage() {
           </CardContent>
           <CardFooter>
             <Button asChild className="w-full">
-              <Link href="/third-party-contracts/documents">Acceder a Documentos y Cláusulas</Link>
+              <Link href="/third-party-contracts/documents">
+                Acceder a Documentos y Cláusulas
+              </Link>
             </Button>
           </CardFooter>
         </Card>
