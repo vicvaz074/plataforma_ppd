@@ -57,6 +57,8 @@ export default function DashboardPage() {
     }))
   }
 
+  const selectedModuleData = moduleReports.find((report) => report.module === selectedModule) || moduleReports[0]
+
   const AdminDashboard = () => (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
