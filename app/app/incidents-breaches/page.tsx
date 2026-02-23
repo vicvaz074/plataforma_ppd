@@ -958,6 +958,8 @@ export default function IncidentsAndBreachesPage() {
     toast({ title: "Incidente eliminado", description: "El registro fue eliminado correctamente." })
   }
 
+
+
   const incidentMetrics = useMemo(() => {
     const typeCounter: Record<string, number> = {}
     let highSeverity = 0
