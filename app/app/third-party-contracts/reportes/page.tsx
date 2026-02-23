@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { useEffect, useMemo, useState } from "react"
+import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import type { ContractMeta } from "../types"
@@ -10,6 +11,7 @@ const STORAGE_KEY = "contractsHistory"
 
 export default function ThirdPartyContractsReportsPage() {
   const [contracts, setContracts] = useState<ContractMeta[]>([])
+  const [mode, setMode] = useState<"status" | "communications">("status")
 
   useEffect(() => {
     const load = () => {
@@ -38,8 +40,23 @@ export default function ThirdPartyContractsReportsPage() {
       total: contracts.length,
       status,
       communication: Object.entries(communication).sort((a, b) => b[1] - a[1]),
+      statusRows: [
+        { label: "Vigentes", value: status.vigente, color: "#16a34a" },
+        { label: "Por vencer", value: status.por_vencer, color: "#f59e0b" },
+        { label: "Vencidos", value: status.vencido, color: "#dc2626" },
+        { label: "Sin definir", value: status.sin_definir, color: "#64748b" },
+      ],
     }
   }, [contracts])
+
+  const activeRows =
+    mode === "status"
+      ? stats.statusRows
+      : stats.communication.map(([label, value], idx) => ({
+          label: label.replace(/_/g, " "),
+          value,
+          color: ["#2563eb", "#7c3aed", "#0891b2", "#f97316", "#0d9488"][idx % 5],
+        }))
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-12">
@@ -47,7 +64,7 @@ export default function ThirdPartyContractsReportsPage() {
         <div>
           <p className="text-sm font-semibold text-muted-foreground">Módulo Contratos con Terceros</p>
           <h1 className="text-3xl font-semibold">Reportes de contratos</h1>
-          <p className="text-sm text-muted-foreground">Métricas reales tomadas del historial de contratos registrados.</p>
+          <p className="text-sm text-muted-foreground">Gráficos interactivos y animados con historial real de contratos.</p>
         </div>
         <Button asChild variant="outline"><Link href="/third-party-contracts">Volver al módulo</Link></Button>
       </div>
@@ -61,19 +78,39 @@ export default function ThirdPartyContractsReportsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Comunicaciones de datos por tipo</CardTitle>
-          <CardDescription>Clasificación automática según el campo de comunicación del contrato.</CardDescription>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <CardTitle>{mode === "status" ? "Estado de contratos" : "Comunicaciones de datos"}</CardTitle>
+              <CardDescription>
+                {mode === "status"
+                  ? "Distribución por estatus contractual para seguimiento operativo."
+                  : "Clasificación según tipo de comunicación de datos personales."}
+              </CardDescription>
+            </div>
+            <div className="flex gap-2">
+              <Button size="sm" variant={mode === "status" ? "default" : "outline"} onClick={() => setMode("status")}>Estatus</Button>
+              <Button size="sm" variant={mode === "communications" ? "default" : "outline"} onClick={() => setMode("communications")}>Comunicaciones</Button>
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="space-y-3">
-          {stats.communication.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No hay contratos para calcular la clasificación.</p>
+          {activeRows.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No hay datos suficientes para mostrar la gráfica.</p>
           ) : (
-            stats.communication.map(([type, count]) => {
-              const pct = Math.round((count / stats.total) * 100)
+            activeRows.map((row, idx) => {
+              const pct = stats.total ? Math.round((row.value / stats.total) * 100) : 0
               return (
-                <div key={type} className="space-y-1">
-                  <div className="flex justify-between text-sm"><span className="capitalize">{type.replace(/_/g, " ")}</span><span>{count} ({pct}%)</span></div>
-                  <div className="h-2 rounded-full bg-slate-200 dark:bg-slate-700"><div className="h-2 rounded-full bg-indigo-600" style={{ width: `${pct}%` }} /></div>
+                <div key={row.label} className="space-y-1">
+                  <div className="flex justify-between text-sm"><span className="capitalize">{row.label}</span><span>{row.value} ({pct}%)</span></div>
+                  <div className="h-2 rounded-full bg-slate-200 dark:bg-slate-700">
+                    <motion.div
+                      className="h-2 rounded-full"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${pct}%` }}
+                      transition={{ duration: 0.6, delay: idx * 0.08 }}
+                      style={{ backgroundColor: row.color }}
+                    />
+                  </div>
                 </div>
               )
             })
