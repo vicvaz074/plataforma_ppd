@@ -9,11 +9,11 @@ export default function EipdLandingPage() {
         <p className="text-sm font-semibold text-muted-foreground">Módulo EIPD</p>
         <h1 className="text-3xl font-semibold text-foreground sm:text-4xl">Gestión de Evaluaciones de Impacto</h1>
         <p className="text-sm text-muted-foreground sm:text-base">
-          Elige si deseas iniciar una nueva EIPD o consultar las evaluaciones registradas.
+          Elige si deseas iniciar una nueva EIPD, consultar evaluaciones registradas o revisar reportes del módulo.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         <Card className="flex h-full flex-col">
           <CardHeader>
             <CardTitle>Realizar nueva EIPD</CardTitle>
@@ -38,6 +38,20 @@ export default function EipdLandingPage() {
           <CardContent className="mt-auto">
             <Button asChild variant="outline" className="w-full">
               <Link href="/eipd/consultar">Consultar EIPDs realizadas</Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="flex h-full flex-col">
+          <CardHeader>
+            <CardTitle>Reportes EIPD</CardTitle>
+            <CardDescription>
+              Consulta métricas reales de riesgo, vigencia y estado de evaluaciones capturadas.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="mt-auto">
+            <Button asChild variant="secondary" className="w-full">
+              <Link href="/eipd/reportes">Abrir reportes</Link>
             </Button>
           </CardContent>
         </Card>

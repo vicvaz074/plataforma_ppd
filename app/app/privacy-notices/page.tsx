@@ -9,11 +9,11 @@ export default function PrivacyNoticesLandingPage() {
         <p className="text-sm font-semibold text-muted-foreground">Módulo Avisos de Privacidad</p>
         <h1 className="text-3xl font-semibold text-foreground sm:text-4xl">Gestión de Avisos de Privacidad</h1>
         <p className="text-sm text-muted-foreground sm:text-base">
-          Elige si deseas registrar un nuevo aviso de privacidad o consultar los avisos registrados.
+          Elige si deseas registrar un nuevo aviso, consultar los avisos registrados o revisar reportes reales del módulo.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         <Card className="flex h-full flex-col">
           <CardHeader>
             <CardTitle>Registrar nuevo aviso</CardTitle>
@@ -38,6 +38,20 @@ export default function PrivacyNoticesLandingPage() {
           <CardContent className="mt-auto">
             <Button asChild variant="outline" className="w-full">
               <Link href="/privacy-notices/registrados">Ver avisos registrados</Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="flex h-full flex-col">
+          <CardHeader>
+            <CardTitle>Reportes y gráficas</CardTitle>
+            <CardDescription>
+              Visualiza indicadores reales del módulo a partir de los avisos cargados en la plataforma.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="mt-auto">
+            <Button asChild variant="secondary" className="w-full">
+              <Link href="/privacy-notices/reportes">Abrir reportes</Link>
             </Button>
           </CardContent>
         </Card>
