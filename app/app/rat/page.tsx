@@ -13,36 +13,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ModuleInteractivePanel } from "@/components/module-interactive-panel";
-
-
-
-const ratInsights = [
-  {
-    title: "Trazabilidad de flujos por sistema",
-    owner: "Inventario",
-    score: 77,
-    status: "medium" as const,
-    actionLabel: "Actualizar registro de inventarios",
-    href: "/rat/registro",
-  },
-  {
-    title: "Tratamientos con riesgo alto",
-    owner: "Cumplimiento",
-    score: 59,
-    status: "high" as const,
-    actionLabel: "Abrir análisis en informes",
-    href: "/rat/informes",
-  },
-  {
-    title: "Inventarios con documentación completa",
-    owner: "Privacidad",
-    score: 90,
-    status: "low" as const,
-    actionLabel: "Consultar reportes detallados",
-    href: "/rat/informes",
-  },
-]
 
 export default function RATPage() {
   const { language } = useLanguage();
@@ -88,7 +58,7 @@ export default function RATPage() {
     },
   } as const;
 
-  const t = language === "es" ? translations.es : translations.en;
+  const t = translations[language];
 
   const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } };
   const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };
@@ -99,18 +69,6 @@ export default function RATPage() {
         <h1 className="text-3xl font-bold mb-2">{t.title}</h1>
         <p className="text-muted-foreground">{t.description}</p>
       </motion.div>
-
-      <div className="mb-6">
-        <ModuleInteractivePanel
-          title={language === "es" ? "Panel operativo del inventario" : "Inventory operational panel"}
-          description={
-            language === "es"
-              ? "Visualización rápida para priorizar riesgos, trazabilidad y avance de inventarios."
-              : "Quick view to prioritize risks, traceability and inventory progress."
-          }
-          items={ratInsights}
-        />
-      </div>
 
       <motion.div className="grid md:grid-cols-2 gap-6" variants={container} initial="hidden" animate="show">
         <motion.div variants={item}>
@@ -126,7 +84,7 @@ export default function RATPage() {
               <div className="space-y-2">
                 {t.hints.map((hint, idx) => (
                   <div key={idx} className="flex items-center gap-2">
-                    <div className="h-2 w-2 rounded-full bg-black"></div>
+                    <div className={`h-2 w-2 rounded-full ${["bg-black", "bg-black", "bg-black"][idx]}`}></div>
                     <span className="text-sm">{hint}</span>
                   </div>
                 ))}
@@ -155,7 +113,7 @@ export default function RATPage() {
             <CardContent className="flex-grow">
               {t.reportHints.map((hint, idx) => (
                 <div key={idx} className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-black"></div>
+                  <div className={`h-2 w-2 rounded-full ${["bg-black", "bg-black", "bg-black"][idx]}`}></div>
                   <span className="text-sm">{hint}</span>
                 </div>
               ))}
