@@ -3,15 +3,48 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ClipboardCheck, FileText } from "lucide-react"
-import Link from "next/link" // <- Usa el Link de Next.js
+import Link from "next/link"
+import { ModuleInteractivePanel } from "@/components/module-interactive-panel"
+
+const dpoInsights = [
+  {
+    title: "SLA ARCO dentro de objetivo",
+    owner: "DPO",
+    score: 81,
+    status: "medium" as const,
+    actionLabel: "Abrir revisión de cumplimiento",
+    href: "/dpo/compliance",
+  },
+  {
+    title: "Incidentes con seguimiento pendiente",
+    owner: "Seguridad",
+    score: 54,
+    status: "high" as const,
+    actionLabel: "Revisar plan de acción",
+    href: "/dpo/compliance",
+  },
+  {
+    title: "Informe trimestral consolidado",
+    owner: "Dirección",
+    score: 92,
+    status: "low" as const,
+    actionLabel: "Generar informe ejecutivo",
+    href: "/dpo/reports",
+  },
+]
 
 export default function DPOPage() {
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-8">Oficial de Protección de Datos</h1>
+    <div className="container mx-auto py-8 space-y-6">
+      <h1 className="text-3xl font-bold">Oficial de Protección de Datos</h1>
+
+      <ModuleInteractivePanel
+        title="Control ejecutivo de cumplimiento"
+        description="Indicadores interactivos para seguimiento de cumplimiento, riesgos abiertos y reportes para comité."
+        items={dpoInsights}
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Revisión de Cumplimiento */}
         <Card className="shadow-md hover:shadow-lg transition-shadow">
           <CardHeader className="bg-slate-50 dark:bg-slate-800">
             <CardTitle className="flex items-center gap-2">
@@ -32,14 +65,11 @@ export default function DPOPage() {
           </CardContent>
           <CardFooter>
             <Button asChild className="w-full">
-              <Link href="/dpo/compliance">
-                Acceder a Revisión de Cumplimiento
-              </Link>
+              <Link href="/dpo/compliance">Acceder a Revisión de Cumplimiento</Link>
             </Button>
           </CardFooter>
         </Card>
 
-        {/* Generación de Informes */}
         <Card className="shadow-md hover:shadow-lg transition-shadow">
           <CardHeader className="bg-slate-50 dark:bg-slate-800">
             <CardTitle className="flex items-center gap-2">
@@ -60,9 +90,7 @@ export default function DPOPage() {
           </CardContent>
           <CardFooter>
             <Button asChild className="w-full">
-              <Link href="/dpo/reports">
-                Acceder a Generación de Informes
-              </Link>
+              <Link href="/dpo/reports">Acceder a Generación de Informes</Link>
             </Button>
           </CardFooter>
         </Card>

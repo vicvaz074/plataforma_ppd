@@ -7,13 +7,47 @@ import { ClipboardList, FileSpreadsheet, BookOpen } from "lucide-react"
 import { ArcoManagement } from "./components/arco-management"
 import { ArcoProcedures } from "./components/arco-procedures"
 import { ArcoReports } from "./components/arco-reports"
+import { ModuleInteractivePanel } from "@/components/module-interactive-panel"
+
+const arcoInsights = [
+  {
+    title: "Solicitudes cercanas a vencimiento",
+    owner: "Mesa ARCO",
+    score: 57,
+    status: "high" as const,
+    actionLabel: "Abrir gestión de solicitudes",
+    href: "/arco-rights",
+  },
+  {
+    title: "Casos con validación completa",
+    owner: "Cumplimiento",
+    score: 79,
+    status: "medium" as const,
+    actionLabel: "Revisar procedimientos",
+    href: "/arco-rights",
+  },
+  {
+    title: "Expedientes listos para auditoría",
+    owner: "DPO",
+    score: 91,
+    status: "low" as const,
+    actionLabel: "Preparar informe ARCO",
+    href: "/arco-rights",
+  },
+]
 
 export default function ArcoRightsPage() {
   const [selectedOption, setSelectedOption] = useState<string | null>(null)
 
   if (!selectedOption) {
     return (
-      <div className="container mx-auto py-10 px-4 max-w-4xl">
+      <div className="container mx-auto py-10 px-4 max-w-4xl space-y-6">
+        <ModuleInteractivePanel
+          title="Funnel operativo ARCO"
+          description="Vista interactiva para priorizar solicitudes por estado y anticipar vencimientos de SLA."
+          items={arcoInsights}
+        />
+
         <Card className="w-full">
           <CardHeader>
             <CardTitle className="text-3xl font-bold text-center mb-4">Gestión de Derechos ARCO</CardTitle>
@@ -104,4 +138,3 @@ export default function ArcoRightsPage() {
     </div>
   )
 }
-

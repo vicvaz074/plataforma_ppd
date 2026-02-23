@@ -1,6 +1,34 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { ModuleInteractivePanel } from "@/components/module-interactive-panel"
+
+const noticeInsights = [
+  {
+    title: "Cobertura de finalidades por aviso",
+    owner: "Jurídico",
+    score: 84,
+    status: "medium" as const,
+    actionLabel: "Revisar avisos registrados",
+    href: "/privacy-notices/registrados",
+  },
+  {
+    title: "Versiones con cambios en transferencias",
+    owner: "Privacidad",
+    score: 61,
+    status: "high" as const,
+    actionLabel: "Validar versión vigente",
+    href: "/privacy-notices/registro",
+  },
+  {
+    title: "Avisos con base legal completa",
+    owner: "Cumplimiento",
+    score: 93,
+    status: "low" as const,
+    actionLabel: "Ver detalle de cobertura",
+    href: "/privacy-notices/registrados",
+  },
+]
 
 export default function PrivacyNoticesLandingPage() {
   return (
@@ -12,6 +40,12 @@ export default function PrivacyNoticesLandingPage() {
           Elige si deseas registrar un nuevo aviso de privacidad o consultar los avisos registrados.
         </p>
       </div>
+
+      <ModuleInteractivePanel
+        title="Panel de cobertura y versiones"
+        description="Resumen interactivo para priorizar brechas de cobertura, cambios y estado de cumplimiento por aviso."
+        items={noticeInsights}
+      />
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <Card className="flex h-full flex-col">
@@ -43,5 +77,5 @@ export default function PrivacyNoticesLandingPage() {
         </Card>
       </div>
     </div>
-  );
+  )
 }
