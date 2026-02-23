@@ -6,8 +6,6 @@ import { translations } from "@/lib/translations"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { BarChart, LineChart, PieChart } from "@/components/ui/charts"
 import { UserProgressDashboard } from "@/components/user-progress-dashboard"
 
 export default function DashboardPage() {
@@ -15,7 +13,6 @@ export default function DashboardPage() {
   const t = translations[language]
   const [userRole, setUserRole] = useState<string | null>(null)
   const [pendingUsers, setPendingUsers] = useState<any[]>([])
-  const [selectedMetric, setSelectedMetric] = useState("users")
   const [dashboardData, setDashboardData] = useState({
     totalUsers: 0,
     totalDocuments: 0,
@@ -28,7 +25,6 @@ export default function DashboardPage() {
     const users = JSON.parse(localStorage.getItem("users") || "[]")
     setPendingUsers(users.filter((u: any) => !u.approved))
 
-    // Calcular datos precisos para el dashboard del administrador
     setDashboardData({
       totalUsers: users.filter((u: any) => u.approved).length,
       totalDocuments: JSON.parse(localStorage.getItem("documents") || "[]").length,
@@ -120,7 +116,7 @@ export default function DashboardPage() {
       </Button>
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-        <h2 className="text-xl font-semibold mt-8 mb-4">{t.pendingApprovals}</h2>
+        <h2 className="mb-4 mt-8 text-xl font-semibold">{t.pendingApprovals}</h2>
         {pendingUsers.length === 0 ? (
           <p>{t.noPendingApprovals}</p>
         ) : (
@@ -149,33 +145,13 @@ export default function DashboardPage() {
     </motion.div>
   )
 
-  const AnalyticsDashboard = () => (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold">{t.dashboard}</h1>
-
-      <Select onValueChange={setSelectedMetric} defaultValue={selectedMetric}>
-        <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder={t.selectMetric} />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="users">{t.users}</SelectItem>
-          <SelectItem value="revenue">{t.revenue}</SelectItem>
-          <SelectItem value="activities">{t.activities}</SelectItem>
-        </SelectContent>
-      </Select>
-    </div>
-  )
-
-  // Si el usuario es administrador, mostrar el dashboard de administrador
-  // Si es un usuario regular, mostrar el panel de progreso de usuario
   if (userRole === "admin") {
     return (
       <div className="container mx-auto py-10">
         <AdminDashboard />
       </div>
     )
-  } else {
-    return <UserProgressDashboard />
   }
-}
 
+  return <UserProgressDashboard />
+}

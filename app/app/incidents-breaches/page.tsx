@@ -3,6 +3,7 @@
 import { Progress } from "@/components/ui/progress"
 
 import { useEffect, useMemo, useState } from "react"
+import { motion } from "framer-motion"
 import { useForm, useFieldArray, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -19,7 +20,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
-import { ClipboardList, FileDown, ShieldAlert } from "lucide-react"
+import { BarChart3, ClipboardList, FileDown, ShieldAlert } from "lucide-react"
 
 import { UseFormReturn } from "react-hook-form"
 
@@ -659,6 +660,7 @@ const buildIncidentRows = (data: IncidentFormData) => [
 export default function IncidentsAndBreachesPage() {
   const { toast } = useToast()
   const [selectedOption, setSelectedOption] = useState<string | null>(null)
+  const [reportView, setReportView] = useState<"types" | "severity">("types")
   const [activeSection, setActiveSection] = useState<string | null>(null)
   const [incidents, setIncidents] = useState<
     { id: string; name: string; data: IncidentFormData; updatedAt: string }[]
@@ -956,6 +958,28 @@ export default function IncidentsAndBreachesPage() {
     toast({ title: "Incidente eliminado", description: "El registro fue eliminado correctamente." })
   }
 
+  const incidentMetrics = useMemo(() => {
+    const typeCounter: Record<string, number> = {}
+    let highSeverity = 0
+
+    incidents.forEach((incident) => {
+      const types = incident.data?.resumenIncidente?.tiposIncidente ?? []
+      types.forEach((type) => {
+        typeCounter[type] = (typeCounter[type] ?? 0) + 1
+      })
+
+      const impact = incident.data?.d1Mitigacion?.impact
+      if (impact === "Alto") highSeverity += 1
+    })
+
+    return {
+      total: incidents.length,
+      highSeverity,
+      lowMediumSeverity: Math.max(incidents.length - highSeverity, 0),
+      byType: Object.entries(typeCounter).sort((a, b) => b[1] - a[1]),
+    }
+  }, [incidents])
+
   const renderSection = (section: string) => {
     switch (section) {
       case "A":
@@ -985,7 +1009,7 @@ export default function IncidentsAndBreachesPage() {
               Seleccione una opción para comenzar el proceso de gestión de incidentes y brechas de seguridad.
             </CardDescription>
           </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <CardContent className="grid grid-cols-1 gap-6 md:grid-cols-3">
             {/* Opción Revisión */}
             <div className="flex flex-col h-full">
               <Card className="flex-1 flex flex-col hover:shadow-lg transition-shadow duration-300">
@@ -1025,6 +1049,25 @@ export default function IncidentsAndBreachesPage() {
                 </CardContent>
               </Card>
             </div>
+
+            <div className="flex flex-col h-full">
+              <Card className="flex-1 flex flex-col hover:shadow-lg transition-shadow duration-300">
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-center">
+                    <BarChart3 className="mr-2" />
+                    Reportes de Incidentes
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="flex flex-col flex-1 justify-between">
+                  <p className="text-center mb-4">
+                    Consulta métricas reales por tipo de incidente y nivel de severidad desde los registros guardados.
+                  </p>
+                  <Button onClick={() => setSelectedOption("reports")} className="w-full mt-auto" variant="secondary">
+                    Ver Reportes
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -1036,17 +1079,105 @@ export default function IncidentsAndBreachesPage() {
       <Card className="w-full max-w-4xl mx-auto">
         <CardHeader>
           <CardTitle className="text-2xl font-bold">
-            {selectedOption === "review" ? "Lista de Revisión" : "Registro de Incidentes"}
+            {selectedOption === "review" ? "Lista de Revisión" : selectedOption === "reports" ? "Reportes de Incidentes" : "Registro de Incidentes"}
           </CardTitle>
           <CardDescription>
             {selectedOption === "review"
               ? "Identifica los elementos requeridos para el plan de incidentes de seguridad"
-              : "Documenta el incidente de seguridad en todas sus etapas y obtén reportes generales de incidentes"}
+              : selectedOption === "reports"
+                ? "Métricas reales sobre incidentes capturados en la bitácora del módulo"
+                : "Documenta el incidente de seguridad en todas sus etapas y obtén reportes generales de incidentes"}
           </CardDescription>
         </CardHeader>
         <CardContent>
           {selectedOption === "review" ? (
             <ReviewChecklist form={form} />
+          ) : selectedOption === "reports" ? (
+            <div className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-3">
+                <Card>
+                  <CardHeader><CardTitle>Total de incidentes</CardTitle></CardHeader>
+                  <CardContent><p className="text-3xl font-bold">{incidentMetrics.total}</p></CardContent>
+                </Card>
+                <Card>
+                  <CardHeader><CardTitle>Severidad alta</CardTitle></CardHeader>
+                  <CardContent><p className="text-3xl font-bold">{incidentMetrics.highSeverity}</p></CardContent>
+                </Card>
+                <Card>
+                  <CardHeader><CardTitle>Severidad media/baja</CardTitle></CardHeader>
+                  <CardContent><p className="text-3xl font-bold">{incidentMetrics.lowMediumSeverity}</p></CardContent>
+                </Card>
+              </div>
+
+              <Card>
+                <CardHeader>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <CardTitle>{reportView === "types" ? "Incidentes por tipo" : "Severidad de incidentes"}</CardTitle>
+                      <CardDescription>
+                        {reportView === "types"
+                          ? "Clasificación basada en los tipos seleccionados en cada incidente registrado."
+                          : "Comparativo de eventos de severidad alta contra media/baja."}
+                      </CardDescription>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button size="sm" variant={reportView === "types" ? "default" : "outline"} onClick={() => setReportView("types")}>Tipos</Button>
+                      <Button size="sm" variant={reportView === "severity" ? "default" : "outline"} onClick={() => setReportView("severity")}>Severidad</Button>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {reportView === "types" ? (
+                    incidentMetrics.byType.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">No hay incidentes con tipología para mostrar.</p>
+                    ) : (
+                      incidentMetrics.byType.map(([type, count], idx) => {
+                        const pct = incidentMetrics.total ? Math.round((count / incidentMetrics.total) * 100) : 0
+                        return (
+                          <div key={type} className="space-y-1">
+                            <div className="flex items-center justify-between text-sm">
+                              <span>{type}</span>
+                              <span>{count} ({pct}%)</span>
+                            </div>
+                            <div className="h-2 rounded-full bg-slate-200 dark:bg-slate-700">
+                              <motion.div
+                                className="h-2 rounded-full bg-indigo-600"
+                                initial={{ width: 0 }}
+                                animate={{ width: `${pct}%` }}
+                                transition={{ duration: 0.6, delay: idx * 0.08 }}
+                              />
+                            </div>
+                          </div>
+                        )
+                      })
+                    )
+                  ) : (
+                    [
+                      { label: "Alta", value: incidentMetrics.highSeverity, color: "bg-red-600" },
+                      { label: "Media/Baja", value: incidentMetrics.lowMediumSeverity, color: "bg-emerald-600" },
+                    ].map((row, idx) => {
+                      const pct = incidentMetrics.total ? Math.round((row.value / incidentMetrics.total) * 100) : 0
+                      return (
+                        <div key={row.label} className="space-y-1">
+                          <div className="flex items-center justify-between text-sm">
+                            <span>{row.label}</span>
+                            <span>{row.value} ({pct}%)</span>
+                          </div>
+                          <div className="h-2 rounded-full bg-slate-200 dark:bg-slate-700">
+                            <motion.div
+                              className={`h-2 rounded-full ${row.color}`}
+                              initial={{ width: 0 }}
+                              animate={{ width: `${pct}%` }}
+                              transition={{ duration: 0.55, delay: idx * 0.12 }}
+                            />
+                          </div>
+                        </div>
+                      )
+                    })
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           ) : (
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
