@@ -59,7 +59,7 @@ export default function PrivacyNoticesReportsPage() {
         withEvidence += 1
       }
 
-      const dateCandidate = notice.metadata.updatedAt || notice.metadata.createdAt || notice.savedAt
+      const dateCandidate = notice.metadata.updatedAt || notice.metadata.createdAt || notice.uploadDate
       const parsedDate = dateCandidate ? new Date(String(dateCandidate)) : null
       if (parsedDate && !Number.isNaN(parsedDate.getTime())) {
         monthCount[parsedDate.getMonth()].value += 1
@@ -78,7 +78,7 @@ export default function PrivacyNoticesReportsPage() {
         month,
         type: type.name,
         value: notices.reduce((acc, notice) => {
-          const dateCandidate = notice.metadata.updatedAt || notice.metadata.createdAt || notice.savedAt
+          const dateCandidate = notice.metadata.updatedAt || notice.metadata.createdAt || notice.uploadDate
           const parsedDate = dateCandidate ? new Date(String(dateCandidate)) : null
           if (!parsedDate || Number.isNaN(parsedDate.getTime()) || parsedDate.getMonth() !== monthIndex) return acc
           const rawTypes = notice.metadata.noticeTypes
