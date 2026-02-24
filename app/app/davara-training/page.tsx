@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -156,6 +156,7 @@ export default function TrainingModule() {
   const [resourceFile, setResourceFile] = useState<File | null>(null)
   const [resourceFileData, setResourceFileData] = useState("")
   const [resourceLink, setResourceLink] = useState("")
+  const [activeSection, setActiveSection] = useState<"menu" | "registro" | "consulta">("menu")
 
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY)
@@ -543,6 +544,27 @@ export default function TrainingModule() {
   return (
     <div className="container mx-auto py-8">
       <h1 className="text-4xl font-semibold text-center mb-8">Programa de Capacitación y Evidencias</h1>
+      <div className="max-w-3xl mx-auto mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Registro de capacitación</CardTitle>
+            <CardDescription>Captura nuevas capacitaciones y evidencia documental.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button className="w-full" onClick={() => setActiveSection("registro")}>Ir a registro</Button>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Consulta de capacitación</CardTitle>
+            <CardDescription>Consulta, filtra y descarga evidencias registradas.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button variant="outline" className="w-full" onClick={() => setActiveSection("consulta")}>Ir a consulta</Button>
+          </CardContent>
+        </Card>
+      </div>
+      {activeSection !== "menu" && (
       <div className="max-w-md mx-auto mb-6">
         <ModuleStatisticsCard
           dataset="training"
@@ -552,6 +574,14 @@ export default function TrainingModule() {
           cta="Actualizar panel"
         />
       </div>
+      )}
+      {activeSection !== "menu" && (
+      <div className="max-w-3xl mx-auto flex items-center justify-end mb-4">
+        <Button variant="ghost" onClick={() => setActiveSection("menu")}>Volver al menú</Button>
+      </div>
+      )}
+      {activeSection !== "menu" && (
+      <>
       <div className="max-w-3xl mx-auto flex flex-col md:flex-row gap-2 mb-6">
         {isResourceTab ? (
           <>
@@ -685,6 +715,8 @@ export default function TrainingModule() {
           </TabsContent>
         </Tabs>
       </Card>
+      </>
+      )}
       {showResourceForm && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <Card className="w-full max-w-xl p-6 relative animate-in fade-in overflow-y-auto max-h-[90vh]">

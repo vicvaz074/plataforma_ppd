@@ -2,7 +2,6 @@
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ModuleStatisticsCard } from "@/components/module-statistics-card"
 import { FileText, ClipboardList, BarChart3 } from "lucide-react"
 import Link from "next/link"
 
@@ -11,7 +10,7 @@ export default function ThirdPartyContractsPage() {
     <div className="container mx-auto py-8">
       <h1 className="mb-8 text-3xl font-bold">Contratos con Terceros</h1>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         <Card className="flex h-full flex-col">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -81,15 +80,6 @@ export default function ThirdPartyContractsPage() {
             </Button>
           </CardFooter>
         </Card>
-
-
-        <ModuleStatisticsCard
-          dataset="contracts"
-          title="Panel estadístico de contratos"
-          description="Clasificación real por tipo de comunicación y estatus de contratos capturados."
-          href="/third-party-contracts/reportes"
-          cta="Abrir reportes"
-        />
       </div>
     </div>
   )

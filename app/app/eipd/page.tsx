@@ -1,7 +1,6 @@
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ModuleStatisticsCard } from "@/components/module-statistics-card"
 
 export default function EipdLandingPage() {
   return (
@@ -14,7 +13,7 @@ export default function EipdLandingPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         <Card className="flex h-full flex-col">
           <CardHeader>
             <CardTitle>Realizar nueva EIPD</CardTitle>
@@ -57,14 +56,6 @@ export default function EipdLandingPage() {
           </CardContent>
         </Card>
 
-
-        <ModuleStatisticsCard
-          dataset="eipd"
-          title="Panel estadístico EIPD"
-          description="Riesgo y vigencia con base en evaluaciones reales guardadas en el módulo."
-          href="/eipd/reportes"
-          cta="Abrir reportes"
-        />
       </div>
     </div>
   )

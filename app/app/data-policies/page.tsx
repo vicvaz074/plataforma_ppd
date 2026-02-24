@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ModuleStatisticsCard } from "@/components/module-statistics-card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -540,6 +540,7 @@ export default function PoliciesManager() {
   const [editingIndex, setEditingIndex] = useState<number | null>(null)
   const [showDialog, setShowDialog] = useState(false)
   const [viewIndex, setViewIndex] = useState<number | null>(null)
+  const [activeSection, setActiveSection] = useState<"menu" | "registro" | "consulta">("menu")
   const policyViewRef = useRef<HTMLDivElement>(null)
 
   // --- LOCALSTORAGE SYNC ---
@@ -577,16 +578,45 @@ export default function PoliciesManager() {
   // --- UI ---
   return (
     <div className="container max-w-4xl mx-auto py-8">
-      <div className="mb-6 max-w-md">
-        <ModuleStatisticsCard
-          dataset="policies"
-          title="Estadísticas de políticas"
-          description="Monitorea políticas registradas y su frecuencia de revisión con datos reales."
-          href="/data-policies"
-          cta="Actualizar panel"
-        />
+      <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+        <Card className="border-blue-100">
+          <CardHeader>
+            <CardTitle>Registro de políticas</CardTitle>
+            <CardDescription>Captura una nueva política y administra su vigencia.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button className="w-full" onClick={() => setActiveSection("registro")}>
+              Ir a registro
+            </Button>
+          </CardContent>
+        </Card>
+        <Card className="border-blue-100">
+          <CardHeader>
+            <CardTitle>Consulta de políticas</CardTitle>
+            <CardDescription>Consulta, edita y exporta políticas registradas.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button variant="outline" className="w-full" onClick={() => setActiveSection("consulta")}>
+              Ir a consulta
+            </Button>
+          </CardContent>
+        </Card>
       </div>
 
+      {activeSection !== "menu" && (
+        <div className="mb-6 max-w-md">
+          <ModuleStatisticsCard
+            dataset="policies"
+            title="Estadísticas de políticas"
+            description="Monitorea políticas registradas y su frecuencia de revisión con datos reales."
+            href="/data-policies"
+            cta="Actualizar panel"
+          />
+        </div>
+      )}
+
+      {activeSection !== "menu" && (
+      <>
       <div className="mb-8 rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-slate-50 p-6 shadow-sm">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
@@ -596,12 +626,22 @@ export default function PoliciesManager() {
               Centraliza tus políticas oficiales, adjunta los documentos firmados y mantén visible el estado de revisión.
             </p>
           </div>
-          <Button
-            className="w-full md:w-auto"
-            onClick={() => { setEditingIndex(null); setShowDialog(true) }}
-          >
-            <PlusCircle className="mr-2 h-4 w-4" /> Nueva política
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="ghost"
+              onClick={() => setActiveSection("menu")}
+            >
+              Volver al menú
+            </Button>
+            {activeSection === "registro" && (
+              <Button
+                className="w-full md:w-auto"
+                onClick={() => { setEditingIndex(null); setShowDialog(true) }}
+              >
+                <PlusCircle className="mr-2 h-4 w-4" /> Nueva política
+              </Button>
+            )}
+          </div>
         </div>
         <div className="mt-4 grid grid-cols-1 gap-3 text-sm text-slate-600 md:grid-cols-3">
           <div className="rounded-lg border border-blue-100 bg-white px-3 py-2 shadow-sm">
@@ -641,6 +681,9 @@ export default function PoliciesManager() {
       </div>
 
       {/* Dialog para crear/editar */}
+      </>
+      )}
+
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent className="max-h-[90vh] overflow-y-auto max-w-2xl">
           <DialogHeader>
