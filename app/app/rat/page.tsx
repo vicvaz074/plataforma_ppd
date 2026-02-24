@@ -13,6 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { ModuleStatisticsCard } from "@/components/module-statistics-card";
 
 export default function RATPage() {
   const { language } = useLanguage();
@@ -70,7 +71,7 @@ export default function RATPage() {
         <p className="text-muted-foreground">{t.description}</p>
       </motion.div>
 
-      <motion.div className="grid md:grid-cols-2 gap-6" variants={container} initial="hidden" animate="show">
+      <motion.div className="grid md:grid-cols-3 gap-6" variants={container} initial="hidden" animate="show">
         <motion.div variants={item}>
           <Card className="h-full flex flex-col hover:shadow-md transition-shadow">
             <CardHeader>
@@ -127,6 +128,16 @@ export default function RATPage() {
               </Button>
             </CardFooter>
           </Card>
+        </motion.div>
+
+        <motion.div variants={item}>
+          <ModuleStatisticsCard
+            dataset="inventories"
+            title="Estadísticas del inventario"
+            description="Clasificación automática por nivel de riesgo usando inventarios capturados."
+            href="/rat/informes"
+            cta={`${t.goTo} ${t.reportsTitle}`}
+          />
         </motion.div>
       </motion.div>
     </div>

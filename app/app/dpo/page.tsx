@@ -3,14 +3,15 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ClipboardCheck, FileText } from "lucide-react"
-import Link from "next/link" // <- Usa el Link de Next.js
+import Link from "next/link"
+import { ModuleStatisticsCard } from "@/components/module-statistics-card"
 
 export default function DPOPage() {
   return (
     <div className="container mx-auto py-8">
       <h1 className="text-3xl font-bold mb-8">Oficial de Protección de Datos</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Revisión de Cumplimiento */}
         <Card className="shadow-md hover:shadow-lg transition-shadow">
           <CardHeader className="bg-slate-50 dark:bg-slate-800">
@@ -66,6 +67,14 @@ export default function DPOPage() {
             </Button>
           </CardFooter>
         </Card>
+
+        <ModuleStatisticsCard
+          dataset="dpo"
+          title="Panel estadístico DPO"
+          description="Indicadores de informes y actas con base en los registros reales del módulo."
+          href="/dpo/reports"
+          cta="Ver panel de reportes"
+        />
       </div>
     </div>
   )
