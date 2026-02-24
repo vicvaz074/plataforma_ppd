@@ -4,8 +4,19 @@ import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { getFilesByCategory } from "@/lib/fileStorage"
 
-type SupportedDataset = "inventories" | "procedures" | "dpo"
+type SupportedDataset =
+  | "inventories"
+  | "procedures"
+  | "dpo"
+  | "privacy-notices"
+  | "contracts"
+  | "arco"
+  | "eipd"
+  | "policies"
+  | "training"
+  | "incidents"
 
 type Props = {
   dataset: SupportedDataset
@@ -17,35 +28,66 @@ type Props = {
 
 type Bucket = { label: string; value: number }
 
-const normalizeBuckets = (rows: Bucket[]) => rows.filter((row) => row.value > 0).sort((a, b) => b.value - a.value).slice(0, 3)
+const normalizeBuckets = (rows: Bucket[]) =>
+  rows
+    .filter((row) => row.value > 0)
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 3)
 
 function buildBuckets(dataset: SupportedDataset, items: unknown[]): Bucket[] {
-  if (dataset === "inventories") {
-    const counts = new Map<string, number>()
-    items.forEach((item) => {
-      const source = item as Record<string, unknown>
-      const risk = (source.riskLevel as string) || "Sin riesgo"
-      counts.set(risk, (counts.get(risk) || 0) + 1)
-    })
-    return normalizeBuckets(Array.from(counts.entries()).map(([label, value]) => ({ label, value })))
-  }
-
-  if (dataset === "procedures") {
-    const counts = new Map<string, number>()
-    items.forEach((item) => {
-      const source = item as Record<string, unknown>
-      const status = (source.status as string) || "Sin estatus"
-      counts.set(status, (counts.get(status) || 0) + 1)
-    })
-    return normalizeBuckets(Array.from(counts.entries()).map(([label, value]) => ({ label, value })))
-  }
-
   const counts = new Map<string, number>()
+
   items.forEach((item) => {
     const source = item as Record<string, unknown>
-    const type = (source.reportType as string) || (source.type as string) || "General"
-    counts.set(type, (counts.get(type) || 0) + 1)
+    let key = "Sin clasificar"
+
+    switch (dataset) {
+      case "inventories":
+        key = (source.riskLevel as string) || "Sin riesgo"
+        break
+      case "procedures":
+        key = (source.status as string) || "Sin estatus"
+        break
+      case "dpo":
+        key = (source.reportType as string) || (source.type as string) || "General"
+        break
+      case "privacy-notices": {
+        const metadata = (source.metadata as Record<string, unknown>) || {}
+        const noticeTypes = metadata.noticeTypes as string[] | undefined
+        key = noticeTypes?.[0] || (metadata.noticeTypeOther as string) || "Sin tipología"
+        break
+      }
+      case "contracts":
+        key = (source.communicationType as string) || "Sin comunicación"
+        break
+      case "arco":
+        key = (source.rightType as string) || "Sin derecho"
+        break
+      case "eipd": {
+        const partA = Array.isArray(source.selectedPartA) ? source.selectedPartA.length : 0
+        const partB = Array.isArray(source.selectedPartB) ? source.selectedPartB.length : 0
+        key = partA + partB >= 4 ? "Riesgo alto" : "Riesgo medio/bajo"
+        break
+      }
+      case "policies":
+        key = (source.reviewFrequency as string) || "Frecuencia no definida"
+        break
+      case "training":
+        key = (source.status as string) || "Sin estatus"
+        break
+      case "incidents": {
+        const data = (source.data as Record<string, unknown>) || {}
+        const incident = (data.evaluacionIncidente as Record<string, unknown>) || {}
+        key = (incident.esIncidente as string) || "Sin clasificar"
+        break
+      }
+      default:
+        key = "Sin clasificar"
+    }
+
+    counts.set(key, (counts.get(key) || 0) + 1)
   })
+
   return normalizeBuckets(Array.from(counts.entries()).map(([label, value]) => ({ label, value })))
 }
 
@@ -53,20 +95,45 @@ function loadItems(dataset: SupportedDataset) {
   if (typeof window === "undefined") return []
 
   try {
-    if (dataset === "dpo") {
-      const reports = JSON.parse(localStorage.getItem("dpo-reports") || "[]")
-      const actas = JSON.parse(localStorage.getItem("dpo-actas") || "[]")
-      return [...reports, ...actas]
+    switch (dataset) {
+      case "dpo": {
+        const reports = JSON.parse(localStorage.getItem("dpo-reports") || "[]")
+        const actas = JSON.parse(localStorage.getItem("dpo-actas") || "[]")
+        return [...reports, ...actas]
+      }
+      case "inventories":
+        return JSON.parse(localStorage.getItem("inventories") || "[]")
+      case "procedures":
+        return JSON.parse(localStorage.getItem("proceduresPDP") || "[]")
+      case "privacy-notices":
+        return getFilesByCategory("privacy-notice")
+      case "contracts":
+        return JSON.parse(localStorage.getItem("contractsHistory") || "[]")
+      case "arco":
+        return JSON.parse(localStorage.getItem("arcoRequests") || "[]")
+      case "eipd":
+        return JSON.parse(localStorage.getItem("eipd_forms") || "[]")
+      case "policies":
+        return JSON.parse(localStorage.getItem("security_policies") || "[]")
+      case "training":
+        return JSON.parse(localStorage.getItem("davara-trainings-v3") || "[]")
+      case "incidents":
+        return JSON.parse(localStorage.getItem("security_incidents_v1") || "[]")
+      default:
+        return []
     }
-
-    const key = dataset === "inventories" ? "inventories" : "proceduresPDP"
-    return JSON.parse(localStorage.getItem(key) || "[]")
   } catch {
     return []
   }
 }
 
-export function ModuleStatisticsCard({ dataset, title = "Estadísticas del módulo", description = "Resumen con datos reales capturados en la plataforma.", href, cta }: Props) {
+export function ModuleStatisticsCard({
+  dataset,
+  title = "Estadísticas del módulo",
+  description = "Resumen con datos reales capturados en la plataforma.",
+  href,
+  cta,
+}: Props) {
   const [items, setItems] = useState<unknown[]>([])
 
   useEffect(() => {
@@ -102,7 +169,10 @@ export function ModuleStatisticsCard({ dataset, title = "Estadísticas del módu
                   <span className="font-semibold text-foreground">{bucket.value}</span>
                 </div>
                 <div className="h-2 rounded-full bg-muted">
-                  <div className="h-2 rounded-full bg-primary" style={{ width: `${Math.max((bucket.value / max) * 100, 8)}%` }} />
+                  <div
+                    className="h-2 rounded-full bg-primary"
+                    style={{ width: `${Math.max((bucket.value / max) * 100, 8)}%` }}
+                  />
                 </div>
               </div>
             ))

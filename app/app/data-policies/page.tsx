@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { Card, CardContent } from "@/components/ui/card"
+import { ModuleStatisticsCard } from "@/components/module-statistics-card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -576,6 +577,16 @@ export default function PoliciesManager() {
   // --- UI ---
   return (
     <div className="container max-w-4xl mx-auto py-8">
+      <div className="mb-6 max-w-md">
+        <ModuleStatisticsCard
+          dataset="policies"
+          title="Estadísticas de políticas"
+          description="Monitorea políticas registradas y su frecuencia de revisión con datos reales."
+          href="/data-policies"
+          cta="Actualizar panel"
+        />
+      </div>
+
       <div className="mb-8 rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-slate-50 p-6 shadow-sm">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>

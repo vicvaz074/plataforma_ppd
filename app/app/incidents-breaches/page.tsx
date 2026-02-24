@@ -11,6 +11,7 @@ import autoTable from "jspdf-autotable"
 import { Button } from "@/components/ui/button"
 import { Form, FormItem, FormLabel, FormControl, FormField } from "@/components/ui/form"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { ModuleStatisticsCard } from "@/components/module-statistics-card"
 import { useToast } from "@/components/ui/use-toast"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Input } from "@/components/ui/input"
@@ -985,7 +986,7 @@ export default function IncidentsAndBreachesPage() {
               Seleccione una opción para comenzar el proceso de gestión de incidentes y brechas de seguridad.
             </CardDescription>
           </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Opción Revisión */}
             <div className="flex flex-col h-full">
               <Card className="flex-1 flex flex-col hover:shadow-lg transition-shadow duration-300">
@@ -1024,6 +1025,16 @@ export default function IncidentsAndBreachesPage() {
                   </Button>
                 </CardContent>
               </Card>
+            </div>
+
+            <div className="flex flex-col h-full">
+              <ModuleStatisticsCard
+                dataset="incidents"
+                title="Panel de incidentes"
+                description="Visualiza incidentes reales y su clasificación de evaluación registrada."
+                href="/incidents-breaches"
+                cta="Actualizar panel"
+              />
             </div>
           </CardContent>
         </Card>
