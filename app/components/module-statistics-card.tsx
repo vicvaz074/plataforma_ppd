@@ -39,55 +39,6 @@ export function ModuleStatisticsCard({
   const max = previewBuckets[0]?.value || 1
   const maxHeat = Math.max(...metrics.heatmap.flatMap((row) => row.monthCells.map((cell) => cell.value)), 1)
 
-  const monthly = useMemo(() => {
-    const counts = MONTHS.map((month) => ({ month, value: 0 }))
-
-    items.forEach((item) => {
-      const source = item as Record<string, unknown>
-      const dateCandidate = getDateCandidate(source)
-      if (!dateCandidate) return
-      const parsed = new Date(dateCandidate)
-      if (Number.isNaN(parsed.getTime())) return
-
-      const month = parsed.getMonth()
-      if (month >= 0 && month < counts.length) {
-        const current = counts[month]
-        counts[month] = { ...current, value: current.value + 1 }
-      }
-    })
-
-    return counts
-  }, [items])
-
-  const heatmap = useMemo(
-    () =>
-      buckets.map((bucket) => ({
-        label: bucket.label,
-        monthCells: monthly.map((entry) => ({
-          month: entry.month,
-          value: Math.max(Math.round((entry.value * bucket.value) / Math.max(items.length, 1)), 0),
-        })),
-      })),
-    [buckets, items.length, monthly],
-  )
-
-  const flowData = useMemo(() => {
-    const active = items.length
-    const passive = Math.max(items.length - Math.round(items.length * 0.62), 0)
-    const nodes = [{ name: "Registros" }, { name: "Activos" }, { name: "Pasivos" }, ...buckets.map((bucket) => ({ name: bucket.label }))]
-
-    const links = [
-      { source: 0, target: 1, value: Math.max(active - passive, 1) },
-      { source: 0, target: 2, value: Math.max(passive, 1) },
-      ...buckets.map((bucket, index) => ({ source: 1, target: index + 3, value: Math.max(Math.round(bucket.value * 0.7), 1) })),
-      ...buckets.map((bucket, index) => ({ source: 2, target: index + 3, value: Math.max(bucket.value - Math.round(bucket.value * 0.7), 1) })),
-    ]
-
-    return { nodes, links }
-  }, [buckets, items.length])
-
-  const maxHeat = Math.max(...heatmap.flatMap((row) => row.monthCells.map((cell) => cell.value)), 1)
-
   return (
     <Card className="relative flex h-full flex-col overflow-hidden border-primary/30 bg-gradient-to-br from-primary/15 via-background to-background">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(14,165,233,0.18),transparent_55%)]" />
