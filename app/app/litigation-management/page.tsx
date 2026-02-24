@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { ModuleStatisticsCard } from "@/components/module-statistics-card"
 
 export default function ProceduresPdpLandingPage() {
   return (
@@ -13,7 +14,7 @@ export default function ProceduresPdpLandingPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         <Card className="flex h-full flex-col">
           <CardHeader>
             <CardTitle>Registrar Procedimiento PDP</CardTitle>
@@ -41,6 +42,14 @@ export default function ProceduresPdpLandingPage() {
             </Button>
           </CardContent>
         </Card>
+
+        <ModuleStatisticsCard
+          dataset="procedures"
+          title="Reporte y gráficas"
+          description="Vista resumida por estatus de expedientes PDP registrada en tiempo real."
+          href="/litigation-management/consulta"
+          cta="Ver reportes del módulo"
+        />
       </div>
     </div>
   )

@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
+import { ModuleStatisticsCard } from "@/components/module-statistics-card"
 import { Download, FilePlus, Trash2, Eye } from "lucide-react"
 import { Document, Packer, Paragraph } from "docx"
 import type { FileChild } from "docx"
@@ -542,6 +543,15 @@ export default function TrainingModule() {
   return (
     <div className="container mx-auto py-8">
       <h1 className="text-4xl font-semibold text-center mb-8">Programa de Capacitación y Evidencias</h1>
+      <div className="max-w-md mx-auto mb-6">
+        <ModuleStatisticsCard
+          dataset="training"
+          title="Panel estadístico de capacitación"
+          description="Seguimiento por estatus con base en capacitaciones reales registradas."
+          href="/davara-training"
+          cta="Actualizar panel"
+        />
+      </div>
       <div className="max-w-3xl mx-auto flex flex-col md:flex-row gap-2 mb-6">
         {isResourceTab ? (
           <>

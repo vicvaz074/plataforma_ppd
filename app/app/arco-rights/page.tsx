@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ClipboardList, FileSpreadsheet, BookOpen } from "lucide-react"
+import { ModuleStatisticsCard } from "@/components/module-statistics-card"
 import { ArcoManagement } from "./components/arco-management"
 import { ArcoProcedures } from "./components/arco-procedures"
 import { ArcoReports } from "./components/arco-reports"
@@ -21,7 +22,7 @@ export default function ArcoRightsPage() {
               Seleccione una opción para comenzar la gestión de derechos ARCO.
             </CardDescription>
           </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <CardContent className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="flex flex-col h-full">
               <Card className="flex-1 flex flex-col hover:shadow-lg transition-shadow duration-300">
                 <CardHeader>
@@ -74,6 +75,16 @@ export default function ArcoRightsPage() {
                 </CardContent>
               </Card>
             </div>
+
+            <div className="flex flex-col h-full">
+              <ModuleStatisticsCard
+                dataset="arco"
+                title="Estadísticas ARCO"
+                description="Distribución real por tipo de derecho y total de solicitudes registradas."
+                href="/arco-rights"
+                cta="Actualizar panel"
+              />
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -104,4 +115,3 @@ export default function ArcoRightsPage() {
     </div>
   )
 }
-
