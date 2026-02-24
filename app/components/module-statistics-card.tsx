@@ -1,7 +1,9 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
+import { motion } from "framer-motion"
 import Link from "next/link"
+import { ArrowUpRight } from "lucide-react"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { getFilesByCategory } from "@/lib/fileStorage"
@@ -32,7 +34,7 @@ const normalizeBuckets = (rows: Bucket[]) =>
   rows
     .filter((row) => row.value > 0)
     .sort((a, b) => b.value - a.value)
-    .slice(0, 3)
+    .slice(0, 4)
 
 function buildBuckets(dataset: SupportedDataset, items: unknown[]): Bucket[] {
   const counts = new Map<string, number>()
@@ -147,39 +149,54 @@ export function ModuleStatisticsCard({
   const max = buckets[0]?.value || 1
 
   return (
-    <Card className="flex h-full flex-col border-primary/30 bg-gradient-to-br from-primary/5 to-background">
-      <CardHeader>
+    <Card className="relative flex h-full flex-col overflow-hidden border-primary/30 bg-gradient-to-br from-primary/10 via-background to-background">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(37,99,235,0.2),transparent_55%)]" />
+      <CardHeader className="relative">
         <CardTitle>{title}</CardTitle>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="rounded-md border bg-background/80 p-3">
+      <CardContent className="relative space-y-4">
+        <div className="rounded-md border bg-background/85 p-3 shadow-sm">
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Registros totales</p>
-          <p className="text-3xl font-bold text-foreground">{items.length}</p>
+          <div className="flex items-end justify-between">
+            <p className="text-3xl font-bold text-foreground">{items.length}</p>
+            <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-1 text-xs font-medium text-primary">
+              Vista activa
+              <ArrowUpRight className="h-3 w-3" />
+            </span>
+          </div>
         </div>
 
         <div className="space-y-2">
           {buckets.length === 0 ? (
             <p className="text-sm text-muted-foreground">Aún no hay datos suficientes para generar la gráfica.</p>
           ) : (
-            buckets.map((bucket) => (
-              <div key={bucket.label} className="space-y-1">
+            buckets.map((bucket, index) => (
+              <motion.div
+                key={bucket.label}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.05 }}
+                className="space-y-1"
+              >
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">{bucket.label}</span>
+                  <span className="truncate text-muted-foreground">{bucket.label}</span>
                   <span className="font-semibold text-foreground">{bucket.value}</span>
                 </div>
                 <div className="h-2 rounded-full bg-muted">
-                  <div
+                  <motion.div
                     className="h-2 rounded-full bg-primary"
-                    style={{ width: `${Math.max((bucket.value / max) * 100, 8)}%` }}
+                    initial={{ width: 0 }}
+                    animate={{ width: `${Math.max((bucket.value / max) * 100, 8)}%` }}
+                    transition={{ duration: 0.7, ease: "easeOut" }}
                   />
                 </div>
-              </div>
+              </motion.div>
             ))
           )}
         </div>
       </CardContent>
-      <CardFooter className="mt-auto">
+      <CardFooter className="relative mt-auto">
         <Button asChild variant="secondary" className="w-full">
           <Link href={href}>{cta}</Link>
         </Button>
