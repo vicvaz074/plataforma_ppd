@@ -2,15 +2,16 @@
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { FileText, ClipboardList, BarChart3 } from "lucide-react"
+import { FileText, ClipboardList } from "lucide-react"
 import Link from "next/link"
+import { ModuleStatisticsCard } from "@/components/module-statistics-card"
 
 export default function ThirdPartyContractsPage() {
   return (
     <div className="container mx-auto py-8">
       <h1 className="mb-8 text-3xl font-bold">Contratos con Terceros</h1>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <Card className="flex h-full flex-col">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -61,25 +62,15 @@ export default function ThirdPartyContractsPage() {
           </CardFooter>
         </Card>
 
-        <Card className="flex h-full flex-col">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5" />
-              Reportes de contratos
-            </CardTitle>
-            <CardDescription>
-              Consulte métricas y gráficas reales de contratos vigentes, vencimientos y comunicaciones de datos.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex-grow text-sm text-muted-foreground">
-            Esta vista utiliza el historial real capturado en el módulo para construir los indicadores.
-          </CardContent>
-          <CardFooter>
-            <Button asChild className="w-full" variant="secondary">
-              <Link href="/third-party-contracts/reportes">Abrir reportes</Link>
-            </Button>
-          </CardFooter>
-        </Card>
+        <div className="md:col-span-2">
+          <ModuleStatisticsCard
+            dataset="contracts"
+            title="Panel estadístico"
+            description="Consulte métricas y gráficas reales de contratos vigentes, vencimientos y comunicaciones de datos."
+            href="/third-party-contracts/reportes"
+            cta="Abrir reportes"
+          />
+        </div>
       </div>
     </div>
   )

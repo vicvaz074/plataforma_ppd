@@ -564,17 +564,15 @@ export default function TrainingModule() {
           </CardContent>
         </Card>
       </div>
-      {activeSection !== "menu" && (
-      <div className="max-w-md mx-auto mb-6">
+      <div className="mx-auto mb-6 w-full max-w-3xl">
         <ModuleStatisticsCard
           dataset="training"
-          title="Panel estadístico de capacitación"
+          title="Panel estadístico"
           description="Seguimiento por estatus con base en capacitaciones reales registradas."
           href="/davara-training"
           cta="Actualizar panel"
         />
       </div>
-      )}
       {activeSection !== "menu" && (
       <div className="max-w-3xl mx-auto flex items-center justify-end mb-4">
         <Button variant="ghost" onClick={() => setActiveSection("menu")}>Volver al menú</Button>
