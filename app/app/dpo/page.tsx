@@ -11,7 +11,7 @@ export default function DPOPage() {
     <div className="container mx-auto py-8">
       <h1 className="text-3xl font-bold mb-8">Oficial de Protección de Datos</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         {/* Revisión de Cumplimiento */}
         <Card className="shadow-md hover:shadow-lg transition-shadow">
           <CardHeader className="bg-slate-50 dark:bg-slate-800">
@@ -68,13 +68,15 @@ export default function DPOPage() {
           </CardFooter>
         </Card>
 
-        <ModuleStatisticsCard
-          dataset="dpo"
-          title="Panel estadístico DPO"
-          description="Indicadores de informes y actas con base en los registros reales del módulo."
-          href="/dpo/reports"
-          cta="Ver panel de reportes"
-        />
+        <div className="md:col-span-2">
+          <ModuleStatisticsCard
+            dataset="dpo"
+            title="Panel estadístico DPO"
+            description="Indicadores de informes y actas con base en los registros reales del módulo."
+            href="/dpo/reports"
+            cta="Ver panel de reportes"
+          />
+        </div>
       </div>
     </div>
   )

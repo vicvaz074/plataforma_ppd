@@ -22,7 +22,7 @@ export default function ArcoRightsPage() {
               Seleccione una opción para comenzar la gestión de derechos ARCO.
             </CardDescription>
           </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <CardContent className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div className="flex flex-col h-full">
               <Card className="flex-1 flex flex-col hover:shadow-lg transition-shadow duration-300">
                 <CardHeader>
@@ -76,7 +76,7 @@ export default function ArcoRightsPage() {
               </Card>
             </div>
 
-            <div className="flex flex-col h-full">
+            <div className="flex h-full flex-col md:col-span-2">
               <ModuleStatisticsCard
                 dataset="arco"
                 title="Estadísticas ARCO"

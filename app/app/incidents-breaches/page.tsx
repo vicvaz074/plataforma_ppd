@@ -986,7 +986,7 @@ export default function IncidentsAndBreachesPage() {
               Seleccione una opción para comenzar el proceso de gestión de incidentes y brechas de seguridad.
             </CardDescription>
           </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Opción Revisión */}
             <div className="flex flex-col h-full">
               <Card className="flex-1 flex flex-col hover:shadow-lg transition-shadow duration-300">
@@ -1027,7 +1027,7 @@ export default function IncidentsAndBreachesPage() {
               </Card>
             </div>
 
-            <div className="flex flex-col h-full">
+            <div className="flex h-full flex-col md:col-span-2">
               <ModuleStatisticsCard
                 dataset="incidents"
                 title="Panel de incidentes"

@@ -14,7 +14,7 @@ export default function ProceduresPdpLandingPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <Card className="flex h-full flex-col">
           <CardHeader>
             <CardTitle>Registrar Procedimiento PDP</CardTitle>
@@ -43,13 +43,15 @@ export default function ProceduresPdpLandingPage() {
           </CardContent>
         </Card>
 
-        <ModuleStatisticsCard
-          dataset="procedures"
-          title="Reporte y gráficas"
-          description="Vista resumida por estatus de expedientes PDP registrada en tiempo real."
-          href="/litigation-management/consulta"
-          cta="Ver reportes del módulo"
-        />
+        <div className="md:col-span-2">
+          <ModuleStatisticsCard
+            dataset="procedures"
+            title="Reporte y gráficas"
+            description="Vista resumida por estatus de expedientes PDP registrada en tiempo real."
+            href="/litigation-management/consulta"
+            cta="Ver reportes del módulo"
+          />
+        </div>
       </div>
     </div>
   )

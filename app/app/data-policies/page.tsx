@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { ModuleStatisticsCard } from "@/components/module-statistics-card"
 
 export default function DataPoliciesLandingPage() {
   return (
@@ -41,6 +42,15 @@ export default function DataPoliciesLandingPage() {
             </Button>
           </CardContent>
         </Card>
+        <div className="md:col-span-2">
+          <ModuleStatisticsCard
+            dataset="policies"
+            title="Panel estadístico"
+            description="Monitorea políticas registradas y su frecuencia de revisión con datos reales."
+            href="/data-policies/consulta"
+            cta="Ver panel del módulo"
+          />
+        </div>
       </div>
     </div>
   )

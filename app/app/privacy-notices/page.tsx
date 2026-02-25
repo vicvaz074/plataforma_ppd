@@ -14,7 +14,7 @@ export default function PrivacyNoticesLandingPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <Card className="flex h-full flex-col">
           <CardHeader>
             <CardTitle>Registrar nuevo aviso</CardTitle>
@@ -44,13 +44,15 @@ export default function PrivacyNoticesLandingPage() {
         </Card>
 
 
-        <ModuleStatisticsCard
-          dataset="privacy-notices"
-          title="Panel estadístico de avisos"
-          description="Tipologías y cobertura construidas con avisos reales registrados."
-          href="/privacy-notices/reportes"
-          cta="Abrir reportes"
-        />
+        <div className="md:col-span-2">
+          <ModuleStatisticsCard
+            dataset="privacy-notices"
+            title="Panel estadístico de avisos"
+            description="Tipologías y cobertura construidas con avisos reales registrados."
+            href="/privacy-notices/reportes"
+            cta="Abrir reportes"
+          />
+        </div>
       </div>
     </div>
   );
