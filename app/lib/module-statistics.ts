@@ -13,6 +13,7 @@ export type SupportedDataset =
   | "incidents"
 
 export type Bucket = { label: string; value: number }
+export type ModuleDimension = { id: string; label: string; buckets: Bucket[]; total: number }
 
 export const MONTHS = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
 
@@ -35,6 +36,8 @@ const normalizeBuckets = (rows: Bucket[]) =>
     .sort((a, b) => b.value - a.value)
     .slice(0, 6)
 
+const toText = (value: unknown) => (typeof value === "string" && value.trim().length > 0 ? value.trim() : "")
+
 const getDateCandidate = (record: Record<string, unknown>) => {
   const topLevelCandidates = [record.uploadDate, record.updatedAt, record.createdAt, record.nextReviewDate, record.fecha]
   for (const candidate of topLevelCandidates) {
@@ -53,59 +56,143 @@ const getDateCandidate = (record: Record<string, unknown>) => {
   return null
 }
 
+type DimensionConfig = {
+  id: string
+  label: string
+  resolve: (item: Record<string, unknown>) => string
+}
+
+const dimensionMap: Record<SupportedDataset, DimensionConfig[]> = {
+  inventories: [
+    { id: "risk", label: "Nivel de riesgo", resolve: (item) => toText(item.riskLevel) || "Sin riesgo" },
+    { id: "category", label: "Categoría", resolve: (item) => toText(item.category) || "Sin categoría" },
+  ],
+  procedures: [
+    { id: "kind", label: "Tipo de procedimiento", resolve: (item) => toText(item.type) || "Sin tipo" },
+    { id: "status", label: "Estatus", resolve: (item) => toText(item.status) || "Sin estatus" },
+  ],
+  dpo: [
+    { id: "reports", label: "Tipo de informe", resolve: (item) => toText(item.reportType) || toText(item.type) || "General" },
+    { id: "theme", label: "Tema", resolve: (item) => toText(item.topic) || toText(item.theme) || "Sin tema" },
+  ],
+  "privacy-notices": [
+    {
+      id: "notice-type",
+      label: "Tipo de aviso",
+      resolve: (item) => {
+        const metadata = ((item.metadata as Record<string, unknown>) || {}) as Record<string, unknown>
+        const noticeTypes = Array.isArray(metadata.noticeTypes) ? metadata.noticeTypes : []
+        return toText(noticeTypes[0]) || toText(metadata.noticeTypeOther) || "Sin tipología"
+      },
+    },
+    {
+      id: "data-categories",
+      label: "Tipos de datos",
+      resolve: (item) => {
+        const metadata = ((item.metadata as Record<string, unknown>) || {}) as Record<string, unknown>
+        const categories = Array.isArray(metadata.personalDataCategories) ? metadata.personalDataCategories : []
+        return toText(categories[0]) || "Sin tipo de dato"
+      },
+    },
+    {
+      id: "consent",
+      label: "Tipo de consentimiento",
+      resolve: (item) => {
+        const metadata = ((item.metadata as Record<string, unknown>) || {}) as Record<string, unknown>
+        return toText(metadata.consentType) || toText(metadata.consentRequired) || "Sin consentimiento definido"
+      },
+    },
+  ],
+  contracts: [
+    { id: "communication", label: "Comunicación de datos", resolve: (item) => toText(item.communicationType) || "Sin comunicación" },
+    { id: "provider", label: "Tipo de tercero", resolve: (item) => toText(item.providerType) || toText(item.vendorType) || "Sin prestador" },
+    { id: "service", label: "Tipo de prestación", resolve: (item) => toText(item.serviceType) || "Sin servicio" },
+  ],
+  arco: [
+    { id: "right", label: "Tipo de derecho", resolve: (item) => toText(item.rightType) || "Sin derecho" },
+    { id: "status", label: "Estatus", resolve: (item) => toText(item.status) || "Sin estatus" },
+    { id: "holder", label: "Tipo de titular", resolve: (item) => toText(item.requesterType) || toText(item.holderType) || "Sin titular" },
+  ],
+  eipd: [
+    {
+      id: "risk-level",
+      label: "Riesgo EIPD",
+      resolve: (item) => {
+        const partA = Array.isArray(item.selectedPartA) ? item.selectedPartA.length : 0
+        const partB = Array.isArray(item.selectedPartB) ? item.selectedPartB.length : 0
+        return partA + partB >= 7 ? "Riesgo alto" : partA + partB >= 4 ? "Riesgo medio" : "Riesgo bajo"
+      },
+    },
+    { id: "processing", label: "Tipo de tratamiento", resolve: (item) => toText(item.processingType) || toText(item.treatmentType) || "Sin tratamiento" },
+  ],
+  policies: [
+    { id: "measure-type", label: "Tipo de medida", resolve: (item) => toText(item.measureType) || toText(item.controlType) || "Sin tipo" },
+    { id: "risk", label: "Nivel de riesgo", resolve: (item) => toText(item.riskLevel) || "Sin riesgo" },
+    { id: "status", label: "Implementación", resolve: (item) => toText(item.status) || "Sin estatus" },
+  ],
+  training: [
+    { id: "employee", label: "Perfil de empleado", resolve: (item) => toText(item.audience) || toText(item.employeeProfile) || "Sin perfil" },
+    { id: "training-type", label: "Tipo de capacitación", resolve: (item) => toText(item.trainingType) || "Sin tipo" },
+    { id: "status", label: "Estatus", resolve: (item) => toText(item.status) || "Sin estatus" },
+  ],
+  incidents: [
+    {
+      id: "incident-type",
+      label: "Clasificación de incidente",
+      resolve: (item) => {
+        const data = ((item.data as Record<string, unknown>) || {}) as Record<string, unknown>
+        const incident = ((data.evaluacionIncidente as Record<string, unknown>) || {}) as Record<string, unknown>
+        return toText(incident.tipoIncidente) || toText(incident.esIncidente) || "Sin clasificar"
+      },
+    },
+    {
+      id: "severity",
+      label: "Gravedad",
+      resolve: (item) => {
+        const data = ((item.data as Record<string, unknown>) || {}) as Record<string, unknown>
+        const incident = ((data.evaluacionIncidente as Record<string, unknown>) || {}) as Record<string, unknown>
+        return toText(incident.gravedad) || "Sin gravedad"
+      },
+    },
+    {
+      id: "notify",
+      label: "Requiere notificación",
+      resolve: (item) => {
+        const data = ((item.data as Record<string, unknown>) || {}) as Record<string, unknown>
+        const incident = ((data.evaluacionIncidente as Record<string, unknown>) || {}) as Record<string, unknown>
+        return toText(incident.requiereNotificar) || "Sin definir"
+      },
+    },
+  ],
+}
+
 export function buildBuckets(dataset: SupportedDataset, items: unknown[]): Bucket[] {
+  const config = dimensionMap[dataset][0]
+  if (!config) return []
+
   const counts = new Map<string, number>()
-
   items.forEach((item) => {
-    const source = item as Record<string, unknown>
-    let key = "Sin clasificar"
-
-    switch (dataset) {
-      case "inventories":
-        key = (source.riskLevel as string) || "Sin riesgo"
-        break
-      case "procedures":
-        key = (source.status as string) || "Sin estatus"
-        break
-      case "dpo":
-        key = (source.reportType as string) || (source.type as string) || "General"
-        break
-      case "privacy-notices": {
-        const metadata = (source.metadata as Record<string, unknown>) || {}
-        const noticeTypes = metadata.noticeTypes as string[] | undefined
-        key = noticeTypes?.[0] || (metadata.noticeTypeOther as string) || "Sin tipología"
-        break
-      }
-      case "contracts":
-        key = (source.communicationType as string) || "Sin comunicación"
-        break
-      case "arco":
-        key = (source.rightType as string) || "Sin derecho"
-        break
-      case "eipd": {
-        const partA = Array.isArray(source.selectedPartA) ? source.selectedPartA.length : 0
-        const partB = Array.isArray(source.selectedPartB) ? source.selectedPartB.length : 0
-        key = partA + partB >= 4 ? "Riesgo alto" : "Riesgo medio/bajo"
-        break
-      }
-      case "policies":
-        key = (source.reviewFrequency as string) || "Frecuencia no definida"
-        break
-      case "training":
-        key = (source.status as string) || "Sin estatus"
-        break
-      case "incidents": {
-        const data = (source.data as Record<string, unknown>) || {}
-        const incident = (data.evaluacionIncidente as Record<string, unknown>) || {}
-        key = (incident.esIncidente as string) || "Sin clasificar"
-        break
-      }
-    }
-
+    const key = config.resolve(item as Record<string, unknown>)
     counts.set(key, (counts.get(key) || 0) + 1)
   })
 
   return normalizeBuckets(Array.from(counts.entries()).map(([label, value]) => ({ label, value })))
+}
+
+export function buildModuleDimensions(dataset: SupportedDataset, items: unknown[]): ModuleDimension[] {
+  const configs = dimensionMap[dataset] || []
+
+  return configs.map((config) => {
+    const counts = new Map<string, number>()
+
+    items.forEach((item) => {
+      const key = config.resolve(item as Record<string, unknown>)
+      counts.set(key, (counts.get(key) || 0) + 1)
+    })
+
+    const buckets = normalizeBuckets(Array.from(counts.entries()).map(([label, value]) => ({ label, value })))
+    return { id: config.id, label: config.label, buckets, total: buckets.reduce((acc, bucket) => acc + bucket.value, 0) }
+  })
 }
 
 export function loadItems(dataset: SupportedDataset) {
@@ -146,6 +233,7 @@ export function loadItems(dataset: SupportedDataset) {
 
 export function buildAdvancedMetrics(dataset: SupportedDataset, items: unknown[]) {
   const buckets = buildBuckets(dataset, items)
+  const dimensions = buildModuleDimensions(dataset, items)
   const monthly = MONTHS.map((month) => ({ month, value: 0 }))
 
   items.forEach((item) => {
@@ -180,5 +268,5 @@ export function buildAdvancedMetrics(dataset: SupportedDataset, items: unknown[]
     ],
   }
 
-  return { buckets, monthly, heatmap, flowData, total: items.length }
+  return { buckets, dimensions, monthly, heatmap, flowData, total: items.length }
 }

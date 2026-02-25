@@ -36,6 +36,7 @@ export function ModuleStatisticsCard({
 
   const metrics = useMemo(() => buildAdvancedMetrics(dataset, items), [dataset, items])
   const previewBuckets = metrics.buckets.slice(0, 4)
+  const moduleDimensions = metrics.dimensions.slice(0, 2)
   const max = previewBuckets[0]?.value || 1
   const maxHeat = Math.max(...metrics.heatmap.flatMap((row) => row.monthCells.map((cell) => cell.value)), 1)
 
@@ -59,6 +60,24 @@ export function ModuleStatisticsCard({
         </Link>
 
         <div className="space-y-2">
+          {moduleDimensions.length > 0 ? (
+            <div className="rounded-md border bg-background/80 p-2">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Indicadores del módulo</p>
+              <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                {moduleDimensions.map((dimension) => {
+                  const top = dimension.buckets[0]
+                  return (
+                    <div key={dimension.id} className="rounded border bg-background/80 p-2">
+                      <p className="text-[11px] text-muted-foreground">{dimension.label}</p>
+                      <p className="truncate text-sm font-semibold text-foreground">{top?.label || "Sin datos"}</p>
+                      <p className="text-[11px] text-muted-foreground">{top ? `${top.value} registros` : "No hay registros"}</p>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          ) : null}
+
           {previewBuckets.length === 0 ? (
             <p className="text-sm text-muted-foreground">Aún no hay datos suficientes para generar la gráfica.</p>
           ) : (
