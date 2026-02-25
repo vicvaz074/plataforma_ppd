@@ -44,6 +44,7 @@ export default function ModuleInsightsPageClient() {
   const datasetParam = params.dataset
   const [records, setRecords] = useState<unknown[]>([])
   const [topN, setTopN] = useState(4)
+  const [activeDimensionId, setActiveDimensionId] = useState<string>("")
 
   const dataset = isSupportedDataset(datasetParam) ? datasetParam : null
 
@@ -58,6 +59,18 @@ export default function ModuleInsightsPageClient() {
 
   const metrics = useMemo(() => (dataset ? buildAdvancedMetrics(dataset, records) : null), [dataset, records])
 
+  useEffect(() => {
+    if (!metrics?.dimensions.length) {
+      setActiveDimensionId("")
+      return
+    }
+
+    const exists = metrics.dimensions.some((dimension) => dimension.id === activeDimensionId)
+    if (!exists) {
+      setActiveDimensionId(metrics.dimensions[0].id)
+    }
+  }, [metrics, activeDimensionId])
+
   if (!dataset || !metrics) {
     return (
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-12">
@@ -70,6 +83,8 @@ export default function ModuleInsightsPageClient() {
   }
 
   const topBuckets = metrics.buckets.slice(0, topN)
+  const activeDimension = metrics.dimensions.find((dimension) => dimension.id === activeDimensionId) || metrics.dimensions[0]
+  const focusedBuckets = activeDimension?.buckets.slice(0, topN) || []
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-10">
@@ -107,18 +122,34 @@ export default function ModuleInsightsPageClient() {
         ))}
       </div>
 
+      {metrics.dimensions.length > 0 ? (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-sm text-muted-foreground">Micro-módulo activo:</span>
+          {metrics.dimensions.map((dimension) => (
+            <Button
+              key={dimension.id}
+              size="sm"
+              variant={activeDimension?.id === dimension.id ? "default" : "outline"}
+              onClick={() => setActiveDimensionId(dimension.id)}
+            >
+              {dimension.label}
+            </Button>
+          ))}
+        </div>
+      ) : null}
+
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader><CardTitle>Comparativo por categorías</CardTitle></CardHeader>
           <CardContent className="h-[340px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={topBuckets}>
+                <BarChart data={focusedBuckets}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="label" interval={0} angle={-14} textAnchor="end" height={58} />
                 <YAxis allowDecimals={false} />
                 <Tooltip />
                 <Bar dataKey="value" radius={[8, 8, 0, 0]} animationDuration={1200}>
-                  {topBuckets.map((row, i) => <Cell key={row.label} fill={COLORS[i % COLORS.length]} />)}
+                  {focusedBuckets.map((row, i) => <Cell key={row.label} fill={COLORS[i % COLORS.length]} />)}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
@@ -130,8 +161,8 @@ export default function ModuleInsightsPageClient() {
           <CardContent className="h-[340px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={topBuckets} dataKey="value" nameKey="label" outerRadius={110} innerRadius={62}>
-                  {topBuckets.map((row, i) => <Cell key={row.label} fill={COLORS[i % COLORS.length]} />)}
+                <Pie data={focusedBuckets} dataKey="value" nameKey="label" outerRadius={110} innerRadius={62}>
+                  {focusedBuckets.map((row, i) => <Cell key={row.label} fill={COLORS[i % COLORS.length]} />)}
                 </Pie>
                 <Tooltip />
               </PieChart>
@@ -160,7 +191,7 @@ export default function ModuleInsightsPageClient() {
           <CardHeader><CardTitle>Radar de categorías</CardTitle></CardHeader>
           <CardContent className="h-[320px]">
             <ResponsiveContainer width="100%" height="100%">
-              <RadarChart data={topBuckets}>
+              <RadarChart data={focusedBuckets}>
                 <PolarGrid />
                 <PolarAngleAxis dataKey="label" tick={{ fontSize: 11 }} />
                 <PolarRadiusAxis allowDecimals={false} />
