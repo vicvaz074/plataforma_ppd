@@ -23,7 +23,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts"
-import { ArrowLeft, Sparkles } from "lucide-react"
+import { ArrowLeft, Download, Sparkles, Wand2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -34,7 +34,7 @@ import {
   type SupportedDataset,
 } from "@/lib/module-statistics"
 
-const COLORS = ["#0ea5e9", "#2563eb", "#14b8a6", "#8b5cf6", "#f59e0b", "#ef4444"]
+const COLORS = ["#06b6d4", "#2563eb", "#a855f7", "#f97316", "#10b981", "#f43f5e", "#0ea5e9", "#84cc16"]
 
 const isSupportedDataset = (value: string): value is SupportedDataset =>
   ["inventories", "procedures", "dpo", "privacy-notices", "contracts", "arco", "eipd", "policies", "training", "incidents"].includes(value)
@@ -45,6 +45,8 @@ export default function ModuleInsightsPageClient() {
   const [records, setRecords] = useState<unknown[]>([])
   const [topN, setTopN] = useState(4)
   const [activeDimensionId, setActiveDimensionId] = useState<string>("")
+  const [radarMode, setRadarMode] = useState<"absolute" | "relative">("absolute")
+  const [flowMode, setFlowMode] = useState<"sankey" | "table">("sankey")
 
   const dataset = isSupportedDataset(datasetParam) ? datasetParam : null
 
@@ -85,22 +87,57 @@ export default function ModuleInsightsPageClient() {
   const topBuckets = metrics.buckets.slice(0, topN)
   const activeDimension = metrics.dimensions.find((dimension) => dimension.id === activeDimensionId) || metrics.dimensions[0]
   const focusedBuckets = activeDimension?.buckets.slice(0, topN) || []
+  const radarMax = Math.max(...focusedBuckets.map((bucket) => bucket.value), 1)
+  const radarData = focusedBuckets.map((bucket) => ({
+    ...bucket,
+    label: bucket.label.length > 22 ? `${bucket.label.slice(0, 22)}…` : bucket.label,
+    fullMark: radarMode === "relative" ? 100 : radarMax,
+    score: radarMode === "relative" ? Math.round((bucket.value / radarMax) * 100) : bucket.value,
+  }))
+
+  const monthPeak = [...metrics.monthly].sort((a, b) => b.value - a.value)[0]
+  const averagePerMonth = metrics.monthly.length ? Math.round(metrics.monthly.reduce((acc, row) => acc + row.value, 0) / metrics.monthly.length) : 0
+  const topBucketName = topBuckets[0]?.label ?? "N/A"
+
+  const handleExportSummary = () => {
+    const summary = {
+      dataset,
+      total: metrics.total,
+      topN,
+      activeDimension: activeDimension?.label ?? null,
+      topBuckets,
+      monthly: metrics.monthly,
+      generatedAt: new Date().toISOString(),
+    }
+    const blob = new Blob([JSON.stringify(summary, null, 2)], { type: "application/json" })
+    const url = URL.createObjectURL(blob)
+    const anchor = document.createElement("a")
+    anchor.href = url
+    anchor.download = `${dataset}-resumen-estadistico.json`
+    document.body.appendChild(anchor)
+    anchor.click()
+    anchor.remove()
+    URL.revokeObjectURL(url)
+  }
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-10">
-      <div className="rounded-2xl border border-primary/20 bg-gradient-to-r from-sky-500/10 via-indigo-500/10 to-cyan-500/10 p-5">
+      <div className="rounded-2xl border border-cyan-500/20 bg-gradient-to-r from-cyan-500/15 via-violet-500/10 to-emerald-500/10 p-5 shadow-sm">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-sm font-semibold text-muted-foreground">Panel analítico extendido</p>
             <h1 className="text-3xl font-semibold">{DATASET_LABELS[dataset]}</h1>
             <p className="text-sm text-muted-foreground">Vista completa con gráficas, comparativos, heatmap y flujo de datos.</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button asChild variant="outline">
               <Link href="/dashboard"><ArrowLeft className="mr-2 h-4 w-4" />Dashboard</Link>
             </Button>
             <Button asChild>
               <Link href={`/${dataset === "contracts" ? "third-party-contracts" : dataset}`}>Ir al módulo</Link>
+            </Button>
+            <Button variant="secondary" onClick={handleExportSummary}>
+              <Download className="mr-2 h-4 w-4" />Exportar resumen
             </Button>
           </div>
         </div>
@@ -109,17 +146,29 @@ export default function ModuleInsightsPageClient() {
       <div className="grid gap-4 md:grid-cols-4">
         <Card><CardHeader><CardDescription>Total registros</CardDescription><CardTitle className="text-3xl">{metrics.total}</CardTitle></CardHeader></Card>
         <Card><CardHeader><CardDescription>Categorías activas</CardDescription><CardTitle className="text-3xl">{metrics.buckets.length}</CardTitle></CardHeader></Card>
-        <Card><CardHeader><CardDescription>Mes más alto</CardDescription><CardTitle className="text-3xl">{[...metrics.monthly].sort((a,b)=>b.value-a.value)[0]?.month ?? "N/A"}</CardTitle></CardHeader></Card>
-        <Card><CardHeader><CardDescription>Insights</CardDescription><CardTitle className="flex items-center gap-2 text-lg"><Sparkles className="h-4 w-4 text-primary" /> Interactivo</CardTitle></CardHeader></Card>
+        <Card className="border-cyan-500/20 bg-gradient-to-br from-cyan-500/10 to-transparent"><CardHeader><CardDescription>Mes más alto</CardDescription><CardTitle className="text-3xl">{monthPeak?.month ?? "N/A"}</CardTitle></CardHeader></Card>
+        <Card className="border-violet-500/20 bg-gradient-to-br from-violet-500/10 to-transparent"><CardHeader><CardDescription>Insights</CardDescription><CardTitle className="flex items-center gap-2 text-lg"><Sparkles className="h-4 w-4 text-violet-500" /> Interactivo</CardTitle></CardHeader></Card>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card className="border-emerald-500/20"><CardHeader className="pb-2"><CardDescription>Promedio mensual</CardDescription><CardTitle className="text-2xl">{averagePerMonth}</CardTitle></CardHeader></Card>
+        <Card className="border-orange-500/20"><CardHeader className="pb-2"><CardDescription>Categoría dominante</CardDescription><CardTitle className="text-xl">{topBucketName}</CardTitle></CardHeader></Card>
+        <Card className="border-fuchsia-500/20"><CardHeader className="pb-2"><CardDescription>Modo de vista</CardDescription><CardTitle className="flex items-center gap-2 text-base"><Wand2 className="h-4 w-4 text-fuchsia-500" />Panel dinámico</CardTitle></CardHeader></Card>
       </div>
 
       <div className="flex items-center gap-2">
         <span className="text-sm text-muted-foreground">Comparar top:</span>
-        {[3, 4, 6].map((option) => (
+        {[3, 4, 6, 8].map((option) => (
           <Button key={option} size="sm" variant={topN === option ? "default" : "outline"} onClick={() => setTopN(option)}>
             {option}
           </Button>
         ))}
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-sm text-muted-foreground">Radar:</span>
+        <Button size="sm" variant={radarMode === "absolute" ? "default" : "outline"} onClick={() => setRadarMode("absolute")}>Valores reales</Button>
+        <Button size="sm" variant={radarMode === "relative" ? "default" : "outline"} onClick={() => setRadarMode("relative")}>Escala relativa (%)</Button>
       </div>
 
       {metrics.dimensions.length > 0 ? (
@@ -190,15 +239,23 @@ export default function ModuleInsightsPageClient() {
         <Card>
           <CardHeader><CardTitle>Radar de categorías</CardTitle></CardHeader>
           <CardContent className="h-[320px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <RadarChart data={focusedBuckets}>
-                <PolarGrid />
-                <PolarAngleAxis dataKey="label" tick={{ fontSize: 11 }} />
-                <PolarRadiusAxis allowDecimals={false} />
-                <Radar dataKey="value" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.35} />
-                <Tooltip />
-              </RadarChart>
-            </ResponsiveContainer>
+            {radarData.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No hay categorías suficientes para mostrar el radar.</p>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <RadarChart data={radarData} outerRadius="76%">
+                  <PolarGrid stroke="#64748b" strokeOpacity={0.25} />
+                  <PolarAngleAxis dataKey="label" tick={{ fontSize: 11, fill: "#334155" }} />
+                  <PolarRadiusAxis
+                    allowDecimals={false}
+                    domain={[0, radarMode === "relative" ? 100 : radarMax]}
+                    tickFormatter={(value) => (radarMode === "relative" ? `${value}%` : `${value}`)}
+                  />
+                  <Radar dataKey="score" stroke="#a855f7" fill="#06b6d4" fillOpacity={0.45} strokeWidth={2.5} dot={{ r: 3, fill: "#9333ea" }} />
+                  <Tooltip formatter={(value: number) => (radarMode === "relative" ? `${value}%` : `${value}`)} />
+                </RadarChart>
+              </ResponsiveContainer>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -228,14 +285,47 @@ export default function ModuleInsightsPageClient() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader><CardTitle>Mapa de flujo de datos</CardTitle><CardDescription>Distribución del volumen hacia categorías principales.</CardDescription></CardHeader>
-        <CardContent className="h-[360px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <Sankey data={metrics.flowData} nodePadding={26} link={{ stroke: "#0ea5e9", strokeOpacity: 0.25 }}>
-              <Tooltip />
-            </Sankey>
-          </ResponsiveContainer>
+      <Card className="border-cyan-500/20 bg-gradient-to-br from-cyan-500/5 via-background to-violet-500/5">
+        <CardHeader>
+          <CardTitle>Mapa de flujo de datos</CardTitle>
+          <CardDescription>Distribución del volumen hacia categorías principales con vista gráfica o tabular.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex flex-wrap gap-2">
+            <Button size="sm" variant={flowMode === "sankey" ? "default" : "outline"} onClick={() => setFlowMode("sankey")}>Vista de flujo</Button>
+            <Button size="sm" variant={flowMode === "table" ? "default" : "outline"} onClick={() => setFlowMode("table")}>Vista resumida</Button>
+          </div>
+
+          {flowMode === "sankey" ? (
+            <div className="h-[360px] rounded-xl border border-cyan-500/20 bg-background/60 p-2">
+              <ResponsiveContainer width="100%" height="100%">
+                <Sankey data={metrics.flowData} nodePadding={32} link={{ stroke: "#06b6d4", strokeOpacity: 0.35 }}>
+                  <Tooltip />
+                </Sankey>
+              </ResponsiveContainer>
+            </div>
+          ) : (
+            <div className="overflow-x-auto rounded-xl border border-violet-500/20">
+              <table className="w-full text-sm">
+                <thead className="bg-violet-500/10 text-left text-muted-foreground">
+                  <tr>
+                    <th className="px-3 py-2">Origen</th>
+                    <th className="px-3 py-2">Destino</th>
+                    <th className="px-3 py-2 text-right">Volumen</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {metrics.flowData.links.map((link, index) => (
+                    <tr key={`${link.source}-${link.target}-${index}`} className="border-t border-border/70">
+                      <td className="px-3 py-2">{metrics.flowData.nodes[link.source]?.name ?? "N/A"}</td>
+                      <td className="px-3 py-2">{metrics.flowData.nodes[link.target]?.name ?? "N/A"}</td>
+                      <td className="px-3 py-2 text-right font-semibold">{link.value}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
