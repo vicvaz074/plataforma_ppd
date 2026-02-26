@@ -81,6 +81,16 @@ type Measure = {
   type: "administrativa" | "fisica" | "tecnica";
 };
 
+type WorkPlanDecision = "Implementar" | "No aplicar";
+
+type WorkPlanItem = {
+  decision: WorkPlanDecision;
+  dueDate: string;
+  implementationPlan: string;
+  nonApplicabilityJustification: string;
+  evidence: string;
+};
+
 const measureTypes: Measure["type"][] = ["administrativa", "fisica", "tecnica"];
 
 const dataCategoryOptions = [
@@ -338,6 +348,7 @@ const SystemExperience = ({ adapters }: { adapters: SSAdapters }) => {
   const [expandedMeasureTypes, setExpandedMeasureTypes] = useState<Record<string, boolean>>({});
   const [showGapTable, setShowGapTable] = useState(false);
   const [showPlanTable, setShowPlanTable] = useState(false);
+  const [workPlan, setWorkPlan] = useState<Record<string, WorkPlanItem>>({});
   const [saveStatus, setSaveStatus] = useState<"idle" | "saved">("idle");
 
   useEffect(() => {
@@ -368,6 +379,30 @@ const SystemExperience = ({ adapters }: { adapters: SSAdapters }) => {
       if (next.has(id)) next.delete(id);
       else next.add(id);
       return next;
+    });
+  };
+
+  const getDefaultWorkPlanItem = (): WorkPlanItem => ({
+    decision: "Implementar",
+    dueDate: "",
+    implementationPlan: "",
+    nonApplicabilityJustification: "",
+    evidence: "",
+  });
+
+  const getWorkPlanItem = (measureId: string): WorkPlanItem =>
+    workPlan[measureId] ?? getDefaultWorkPlanItem();
+
+  const updateWorkPlan = (measureId: string, updates: Partial<WorkPlanItem>) => {
+    setWorkPlan((prev) => {
+      const current = prev[measureId] ?? getDefaultWorkPlanItem();
+      return {
+        ...prev,
+        [measureId]: {
+          ...current,
+          ...updates,
+        },
+      };
     });
   };
 
@@ -1701,7 +1736,8 @@ const SystemExperience = ({ adapters }: { adapters: SSAdapters }) => {
             Plan de trabajo para la implementación
           </div>
           <p className="text-sm text-slate-600">
-            Define qué medidas pendientes se implementarán, el plazo y responsables.
+            Solo se muestran controles pendientes. Para cada uno indica si se implementará o no
+            aplicará, junto con su evidencia.
           </p>
           <div className="overflow-hidden rounded-xl border">
             <table className="w-full text-sm">
@@ -1710,37 +1746,89 @@ const SystemExperience = ({ adapters }: { adapters: SSAdapters }) => {
                   <th className="px-4 py-3">Medida</th>
                   <th className="px-4 py-3">Decisión</th>
                   <th className="px-4 py-3">Plazo</th>
-                  <th className="px-4 py-3">Cómo se implementará</th>
+                  <th className="px-4 py-3">Detalle requerido</th>
+                  <th className="px-4 py-3">Evidencia</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
                 {missingMeasures.length === 0 ? (
                   <tr>
-                    <td className="px-4 py-3 text-sm text-slate-500" colSpan={4}>
+                    <td className="px-4 py-3 text-sm text-slate-500" colSpan={5}>
                       Todas las medidas aplicables están implementadas.
                     </td>
                   </tr>
                 ) : (
-                  (showPlanTable ? missingMeasures : missingMeasures.slice(0, 10)).map((measure) => (
-                    <tr key={measure.id}>
-                      <td className="px-4 py-3 text-slate-900">{measure.label}</td>
-                      <td className="px-4 py-3">
-                        <select className={inputClass} defaultValue="Implementar">
-                          <option>Implementar</option>
-                          <option>No aplicar</option>
-                        </select>
-                      </td>
-                      <td className="px-4 py-3">
-                        <input type="date" className={inputClass} />
-                      </td>
-                      <td className="px-4 py-3">
-                        <input
-                          className={inputClass}
-                          placeholder="Describe el plan, responsable y recursos"
-                        />
-                      </td>
-                    </tr>
-                  ))
+                  (showPlanTable ? missingMeasures : missingMeasures.slice(0, 10)).map((measure) => {
+                    const currentPlan = getWorkPlanItem(measure.id);
+                    const isImplementDecision = currentPlan.decision === "Implementar";
+
+                    return (
+                      <tr key={measure.id} className="align-top">
+                        <td className="px-4 py-3 text-slate-900">{measure.label}</td>
+                        <td className="px-4 py-3">
+                          <select
+                            className={inputClass}
+                            value={currentPlan.decision}
+                            onChange={(event) =>
+                              updateWorkPlan(measure.id, {
+                                decision: event.target.value as WorkPlanDecision,
+                              })
+                            }
+                          >
+                            <option>Implementar</option>
+                            <option>No aplicar</option>
+                          </select>
+                        </td>
+                        <td className="px-4 py-3">
+                          <input
+                            type="date"
+                            className={inputClass}
+                            value={currentPlan.dueDate}
+                            onChange={(event) =>
+                              updateWorkPlan(measure.id, { dueDate: event.target.value })
+                            }
+                          />
+                        </td>
+                        <td className="px-4 py-3">
+                          {isImplementDecision ? (
+                            <textarea
+                              className={`${inputClass} min-h-24 resize-y whitespace-pre-wrap break-words`}
+                              value={currentPlan.implementationPlan}
+                              onChange={(event) =>
+                                updateWorkPlan(measure.id, {
+                                  implementationPlan: event.target.value,
+                                })
+                              }
+                              placeholder="Cómo se implementará (responsables, actividades, recursos)"
+                            />
+                          ) : (
+                            <textarea
+                              className={`${inputClass} min-h-24 resize-y whitespace-pre-wrap break-words`}
+                              value={currentPlan.nonApplicabilityJustification}
+                              onChange={(event) =>
+                                updateWorkPlan(measure.id, {
+                                  nonApplicabilityJustification: event.target.value,
+                                })
+                              }
+                              placeholder="Justificación de no aplicabilidad"
+                            />
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
+                          <textarea
+                            className={`${inputClass} min-h-24 resize-y whitespace-pre-wrap break-words`}
+                            value={currentPlan.evidence}
+                            onChange={(event) =>
+                              updateWorkPlan(measure.id, {
+                                evidence: event.target.value,
+                              })
+                            }
+                            placeholder="Evidencia requerida (documentos, enlaces, folios, capturas)"
+                          />
+                        </td>
+                      </tr>
+                    );
+                  })
                 )}
               </tbody>
             </table>
