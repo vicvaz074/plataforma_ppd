@@ -150,6 +150,14 @@ const formatCategoryName = (category?: string) => {
   return finalValue.replace(/\s+/g, " ").replace(/^./, (c) => c.toUpperCase());
 };
 
+const hasValue = (value: unknown): boolean => {
+  if (typeof value === "string") return value.trim().length > 0;
+  if (typeof value === "number") return Number.isFinite(value);
+  if (typeof value === "boolean") return true;
+  if (Array.isArray(value)) return value.some((item) => hasValue(item));
+  return value !== null && value !== undefined;
+};
+
 const FIELD_LABELS: Record<string, string> = {
   databaseName: "Nombre de la base de datos",
   responsibleArea: "Área responsable",
@@ -1022,6 +1030,60 @@ export const generateInventoryPDF = (
     const baaLevelText = Number.isFinite(baaLevelValue)
       ? baaLevelValue.toString()
       : "N/A";
+    const requiredControls = controlProfile.lists.reduce(
+      (total, list) => total + list.required.length,
+      0,
+    );
+    const optionalControls = controlProfile.lists.reduce(
+      (total, list) => total + list.optional.length,
+      0,
+    );
+    const totalControls = requiredControls + optionalControls;
+    const coverageText =
+      totalControls > 0
+        ? `${requiredControls} requeridas · ${optionalControls} opcionales · ${totalControls} totales`
+        : "N/A";
+
+    const qaCriticalFields: Array<[string, unknown]> = [
+      ["Área responsable", sub.responsibleArea],
+      ["Volumen de titulares", sub.holdersVolume],
+      ["Entorno", sub.environment],
+      ["Accesibilidad", sub.accessibility],
+      ["Método de obtención", sub.obtainingMethod],
+      ["Fuente de obtención", sub.obtainingSource],
+      ["Sistema de tratamiento", sub.processingSystemName || sub.processingSystem],
+      ["Medio de almacenamiento", sub.storageMethod],
+      ["Plazo de conservación", sub.conservationTerm || sub.processingTime],
+      ["Método de supresión", sub.deletionMethod || sub.deletionMethods],
+    ];
+
+    const completedCriticalFields = qaCriticalFields.filter(([, value]) =>
+      hasValue(value),
+    );
+    const missingCriticalFields = qaCriticalFields
+      .filter(([, value]) => !hasValue(value))
+      .map(([label]) => label);
+    const qaScore = Math.round(
+      (completedCriticalFields.length / qaCriticalFields.length) * 100,
+    );
+    const qaScoreText = `${qaScore}% (${completedCriticalFields.length}/${qaCriticalFields.length} campos críticos completos)`;
+
+    const personalDataCount = Array.isArray(sub.personalData) ? sub.personalData.length : 0;
+    const primaryPurposesCount = new Set(
+      (sub.personalData || []).flatMap((item) => normalizePurposes(item.purposesPrimary)),
+    ).size;
+    const secondaryPurposesCount = new Set(
+      (sub.personalData || []).flatMap((item) => normalizePurposes(item.purposesSecondary)),
+    ).size;
+    const qaAlerts = [
+      personalDataCount === 0 ? "Sin tipos de datos personales documentados" : "",
+      primaryPurposesCount === 0 ? "Sin finalidades primarias documentadas" : "",
+      sub.consentRequired && !hasValue(sub.consentType)
+        ? "Consentimiento requerido sin tipo definido"
+        : "",
+      !sub.isBackedUp ? "Sin respaldo activo documentado" : "",
+    ].filter(Boolean);
+
     const listSummary =
       controlProfile.lists.length > 0
         ? Array.from(
@@ -1045,6 +1107,24 @@ export const generateInventoryPDF = (
         ["Análisis BAA - Nivel", baaLevelText],
         ["Entorno", formatEnvironmentValue(sub.environment)],
         ["Accesibilidad", formatAccessibilityValue(sub.accessibility)],
+        ["Cobertura de controles", coverageText],
+        ["Calidad de captura (QA)", qaScoreText],
+        [
+          "Datos y finalidades documentadas",
+          `${personalDataCount} tipos de datos · ${primaryPurposesCount} finalidades primarias · ${secondaryPurposesCount} finalidades secundarias`,
+        ],
+        [
+          "Alertas prioritarias",
+          qaAlerts.length > 0
+            ? qaAlerts.map((alert) => `• ${alert}`).join("\n")
+            : "Sin alertas críticas detectadas",
+        ],
+        [
+          "Campos críticos por completar",
+          missingCriticalFields.length > 0
+            ? missingCriticalFields.map((field) => `• ${field}`).join("\n")
+            : "Captura crítica completa",
+        ],
         ["Listas aplicables", listSummary],
       ],
       styles: { fontSize: 10, cellPadding: 2 },
@@ -1598,4 +1678,3 @@ export const generateInventoryPDF = (
     `inventario_${inventory.databaseName?.replace(/\s+/g, "_") || "export"}.pdf`,
   );
 };
-
