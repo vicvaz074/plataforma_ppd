@@ -412,7 +412,7 @@ export function PrivacyNoticesContent({ section }: PrivacyNoticesContentProps) {
   };
 
   const openFile = (fileContent: string) => {
-    const newWindow = window.open(fileContent, "_blank");
+    const newWindow = window.open(fileContent, "_blank", "noopener,noreferrer");
     if (!newWindow) {
       toast({
         title: "Error",
@@ -420,7 +420,9 @@ export function PrivacyNoticesContent({ section }: PrivacyNoticesContentProps) {
           "No se pudo abrir el documento. Verifique que no esté bloqueando ventanas emergentes.",
         variant: "destructive",
       });
+      return;
     }
+    newWindow.opener = null;
   };
 
   const handleViewDocument = (notice: StoredFile) => {
