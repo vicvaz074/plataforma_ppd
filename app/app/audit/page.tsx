@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Progress } from "@/components/ui/progress"
 import { SafeLink } from "@/components/SafeLink"
+import { secureRandomId } from "@/lib/secure-random"
 import {
   ArrowLeft,
   BadgeCheck,
@@ -573,7 +574,7 @@ function isBrowser() {
 }
 
 function generateId(prefix: string) {
-  return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+  return secureRandomId(prefix)
 }
 
 async function fileToUploaded(file: File): Promise<UploadedFile> {

@@ -28,6 +28,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { secureRandomInt } from "@/lib/secure-random"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
 // Definición de las secciones principales con sus estados
@@ -568,18 +569,18 @@ export const UserProgressDashboard = () => {
     setSections((prevSections) => {
       return prevSections.map((section) => {
         // Generar progreso aleatorio entre 0-100%
-        const randomProgress = Math.floor(Math.random() * 101)
+        const randomProgress = secureRandomInt(101)
         // Actualizar tareas según el progreso
         const updatedTasks = section.tasks.map((task) => {
           // Probabilidad de que la tarea esté completada basada en el progreso
-          const isCompleted = Math.random() * 100 < randomProgress
+          const isCompleted = secureRandomInt(100) < randomProgress
           return { ...task, completed: isCompleted }
         })
 
         // Determinar estado
         let newStatus: Section["status"] = "no-iniciado"
         if (randomProgress === 100) {
-          newStatus = Math.random() > 0.5 ? "completado" : "pendiente-revision"
+          newStatus = secureRandomInt(2) === 0 ? "completado" : "pendiente-revision"
         } else if (randomProgress > 0) {
           newStatus = "en-progreso"
         }

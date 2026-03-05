@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { secureRandomInt } from "@/lib/secure-random"
 import { Slot } from "@radix-ui/react-slot"
 import { VariantProps, cva } from "class-variance-authority"
 import { PanelLeft } from "lucide-react"
@@ -652,7 +653,7 @@ const SidebarMenuSkeleton = React.forwardRef<
 >(({ className, showIcon = false, ...props }, ref) => {
   // Random width between 50 to 90%.
   const width = React.useMemo(() => {
-    return `${Math.floor(Math.random() * 40) + 50}%`
+    return `${secureRandomInt(40) + 50}%`
   }, [])
 
   return (

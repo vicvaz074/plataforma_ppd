@@ -3,6 +3,7 @@
 import { Progress } from "@/components/ui/progress"
 
 import { useEffect, useMemo, useState } from "react"
+import { secureRandomId } from "@/lib/secure-random"
 import { useForm, useFieldArray, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -844,7 +845,7 @@ export default function IncidentsAndBreachesPage() {
       return
     }
     const updatedAt = new Date().toISOString()
-    const newIncidentId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+    const newIncidentId = secureRandomId("incident")
     const nextIncidents = activeIncidentId
       ? incidents.map((incident) =>
           incident.id === activeIncidentId

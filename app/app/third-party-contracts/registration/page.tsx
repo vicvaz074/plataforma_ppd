@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/dialog";
 import { ArrowLeft, Eye, FileDown, FileText, Plus, Search, Trash2 } from "lucide-react";
 import { SafeLink } from "@/components/SafeLink";
+import { secureRandomId } from "@/lib/secure-random";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -511,7 +512,7 @@ export default function ContractRegistrationPage() {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!event.target.files || event.target.files.length === 0) return;
     const files = Array.from(event.target.files).map((file) => ({
-      id: `${file.name}-${Date.now()}-${Math.random()}`,
+      id: secureRandomId(file.name),
       file,
       definition: "principal" as AttachmentDefinition,
     }));
@@ -522,7 +523,7 @@ export default function ContractRegistrationPage() {
   const handleAnnexChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!event.target.files || event.target.files.length === 0) return;
     const files = Array.from(event.target.files).map((file) => ({
-      id: `${file.name}-${Date.now()}-${Math.random()}`,
+      id: secureRandomId(file.name),
       file,
       definition: "anexo" as AttachmentDefinition,
     }));
@@ -588,7 +589,7 @@ export default function ContractRegistrationPage() {
   const onSubmit = async (values: FormValues) => {
     try {
       setIsSubmitting(true);
-      const contractId = `${values.contractMode}_${Date.now()}_${Math.random()}`;
+      const contractId = secureRandomId(values.contractMode);
 
       const attachments: AttachmentMeta[] = [];
 

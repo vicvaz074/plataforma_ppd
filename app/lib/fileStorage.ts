@@ -1,5 +1,7 @@
 // Servicio para almacenar archivos localmente usando localStorage
 
+import { secureRandomId } from "@/lib/secure-random"
+
 export interface StoredFile {
   id: string
   name: string
@@ -33,7 +35,7 @@ export const saveFile = async (
 
     // Crear objeto de archivo almacenado
     const storedFile: StoredFile = {
-      id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+      id: secureRandomId("stored-file"),
       name: file.name,
       type: file.type,
       size: file.size,
