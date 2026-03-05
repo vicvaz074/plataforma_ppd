@@ -4,10 +4,10 @@ const securityHeaders = [
     value: [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline'",
-      "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.cdnfonts.com",
-      "img-src 'self' data: blob: https:",
+      "style-src 'self' https://cdn.jsdelivr.net https://fonts.cdnfonts.com",
+      "img-src 'self' data: blob: https://hebbkx1anhila5yf.public.blob.vercel-storage.com",
       "font-src 'self' data: https://cdn.jsdelivr.net https://fonts.cdnfonts.com",
-      "connect-src 'self' https: wss:",
+      "connect-src 'self'",
       "media-src 'self' blob: data:",
       "frame-src 'none'",
       "frame-ancestors 'none'",
