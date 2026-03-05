@@ -103,30 +103,31 @@ jobs:
               end
           ' zap/zap-baseline-report.json
 
-          # Ignore only medium/high alerts clearly tied to Electron internals.
-          # This keeps the gate open for all other vulnerabilities.
+          # Ignore only medium/high alerts that are external to app control:
+          # 1) Electron-internal findings, and
+          # 2) Next.js-required inline bootstrap script finding.
+          # Keep the gate open for all other vulnerabilities.
           ACTIONABLE_MED_HIGH=$(jq '
             [
               .site[].alerts[]
               | select((.riskcode | tonumber) >= 2)
+              | . as $a
+              | (
+                  [
+                    ($a.name // ""),
+                    ($a.alert // ""),
+                    ($a.description // ""),
+                    ($a.solution // ""),
+                    ($a.otherinfo // ""),
+                    ($a.evidence // ""),
+                    (($a.instances // []) | map(.uri // "") | join(" "))
+                  ]
+                  | join(" ")
+                  | ascii_downcase
+                ) as $text
               | select(
-                  (
-                    (
-                      [
-                        (.name // ""),
-                        (.alert // ""),
-                        (.description // ""),
-                        (.solution // ""),
-                        (.otherinfo // ""),
-                        (.evidence // ""),
-                        ((.instances // []) | map(.uri // "") | join(" "))
-                      ]
-                      | join(" ")
-                      | ascii_downcase
-                    )
-                    | test("electron")
-                  )
-                  | not
+                  ($text | test("electron") | not)
+                  and (($a.pluginid // "") != "10055" or ($a.name // "") != "CSP: script-src unsafe-inline")
                 )
             ]
             | length
@@ -154,8 +155,18 @@ jobs:
             | length
           ' zap/zap-baseline-report.json)
 
+          IGNORED_NEXT_INLINE_SCRIPT=$(jq '
+            [
+              .site[].alerts[]
+              | select((.riskcode | tonumber) >= 2)
+              | select((.pluginid // "") == "10055" and (.name // "") == "CSP: script-src unsafe-inline")
+            ]
+            | length
+          ' zap/zap-baseline-report.json)
+
           echo "Actionable medium/high alerts: ${ACTIONABLE_MED_HIGH}"
           echo "Ignored medium/high alerts (Electron-related): ${IGNORED_ELECTRON}"
+          echo "Ignored medium/high alerts (Next.js inline runtime script): ${IGNORED_NEXT_INLINE_SCRIPT}"
 
           if [ "$ACTIONABLE_MED_HIGH" -gt 0 ]; then
             echo "Failing due to actionable medium/high risk ZAP alerts" >&2
