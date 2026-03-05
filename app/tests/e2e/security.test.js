@@ -36,5 +36,9 @@ describe("production security headers", () => {
     assert.ok(csp.includes("frame-ancestors 'none'"))
     assert.ok(csp.includes("object-src 'none'"))
     assert.ok(csp.includes("default-src 'self'"))
+
+    assert.ok(!csp.includes("'unsafe-inline'"), "CSP should not allow unsafe-inline")
+    assert.ok(!/(^|[ ;])https:(?=$|[ ;])/.test(csp), "CSP should avoid broad wildcard-like https: sources")
+    assert.ok(!/(^|[ ;])wss:(?=$|[ ;])/.test(csp), "CSP should avoid broad wildcard-like wss: sources")
   })
 })
