@@ -671,7 +671,7 @@ export default function TrainingModule() {
                         <a
                           href={resource.link}
                           target="_blank"
-                          rel="noreferrer"
+                          rel="noopener noreferrer"
                           className="text-sm text-blue-600 hover:underline"
                         >
                           Ver enlace relacionado
@@ -840,7 +840,7 @@ export default function TrainingModule() {
               {selectedResource.link && (
                 <div className="mb-2 text-sm">
                   <b>Enlace:</b>{" "}
-                  <a href={selectedResource.link} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">
+                  <a href={selectedResource.link} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
                     {selectedResource.link}
                   </a>
                 </div>

@@ -84,7 +84,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install semgrep
-          semgrep ci --config auto --json --output ../reports/semgrep/semgrep.json
+          semgrep scan --config .semgrep.yaml --metrics=off --json --output ../reports/semgrep/semgrep.json .
 
       - name: Upload Semgrep report
         uses: actions/upload-artifact@v4

@@ -43,9 +43,11 @@ export function AliciaAssistant({ form }: AliciaAssistantProps) {
             <li className="flex items-center">• Proporcionar referencias relevantes</li>
           </ul>
         </div>
-        <Button className="w-full" onClick={() => window.open("https://asistentelegal02.azurewebsites.net/", "_blank")}>
-          Consultar con Alicia
-          <ExternalLink className="ml-2 h-4 w-4" />
+        <Button className="w-full" asChild>
+          <a href="https://asistentelegal02.azurewebsites.net/" target="_blank" rel="noopener noreferrer">
+            Consultar con Alicia
+            <ExternalLink className="ml-2 h-4 w-4" />
+          </a>
         </Button>
         <FormField
           control={form.control}
@@ -68,4 +70,3 @@ export function AliciaAssistant({ form }: AliciaAssistantProps) {
     </Card>
   )
 }
-
