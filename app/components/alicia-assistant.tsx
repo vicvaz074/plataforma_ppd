@@ -13,6 +13,13 @@ interface AliciaAssistantProps {
 }
 
 export function AliciaAssistant({ form }: AliciaAssistantProps) {
+  const handleOpenAlicia = () => {
+    const openedWindow = window.open("https://asistentelegal02.azurewebsites.net/", "_blank", "noopener,noreferrer")
+    if (openedWindow) {
+      openedWindow.opener = null
+    }
+  }
+
   return (
     <Card className="mb-6">
       <CardHeader className="space-y-1">
