@@ -238,17 +238,12 @@ export function InventoryList({
       toast({ title: "Error", description: "No se pudo abrir el archivo.", variant: "destructive" })
       return
     }
-    const win = window.open("", "_blank")
+    const win = window.open(file.content, "_blank", "noopener,noreferrer")
     if (!win) {
       toast({ title: "Error", description: "Verifica bloqueo de ventanas emergentes.", variant: "destructive" })
       return
     }
-    win.document.write(`
-      <html><head><title>${file.name}</title></head>
-      <body style="margin:0;padding:0;">
-        <iframe src="${file.content}" style="width:100%;height:100vh;border:none;"></iframe>
-      </body></html>
-    `)
+    win.opener = null
   }
 
 const generatePDF = (inventory: Inventory) => {

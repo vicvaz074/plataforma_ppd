@@ -13,6 +13,13 @@ interface AliciaAssistantProps {
 }
 
 export function AliciaAssistant({ form }: AliciaAssistantProps) {
+  const handleOpenAlicia = () => {
+    const openedWindow = window.open("https://asistentelegal02.azurewebsites.net/", "_blank", "noopener,noreferrer")
+    if (openedWindow) {
+      openedWindow.opener = null
+    }
+  }
+
   return (
     <Card className="mb-6">
       <CardHeader className="space-y-1">
@@ -43,7 +50,7 @@ export function AliciaAssistant({ form }: AliciaAssistantProps) {
             <li className="flex items-center">• Proporcionar referencias relevantes</li>
           </ul>
         </div>
-        <Button className="w-full" onClick={() => window.open("https://asistentelegal02.azurewebsites.net/", "_blank")}>
+        <Button className="w-full" onClick={handleOpenAlicia}>
           Consultar con Alicia
           <ExternalLink className="ml-2 h-4 w-4" />
         </Button>
@@ -68,4 +75,3 @@ export function AliciaAssistant({ form }: AliciaAssistantProps) {
     </Card>
   )
 }
-
