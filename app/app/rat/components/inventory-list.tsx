@@ -238,12 +238,16 @@ export function InventoryList({
       toast({ title: "Error", description: "No se pudo abrir el archivo.", variant: "destructive" })
       return
     }
-    const win = window.open(file.content, "_blank", "noopener,noreferrer")
-    if (!win) {
-      toast({ title: "Error", description: "Verifica bloqueo de ventanas emergentes.", variant: "destructive" })
+    if (!file.content.startsWith("data:") && !file.content.startsWith("blob:")) {
+      toast({ title: "Error", description: "El formato del archivo no es válido.", variant: "destructive" })
       return
     }
-    win.opener = null
+
+    const anchor = document.createElement("a")
+    anchor.href = file.content
+    anchor.target = "_blank"
+    anchor.rel = "noopener noreferrer"
+    anchor.click()
   }
 
 const generatePDF = (inventory: Inventory) => {

@@ -412,17 +412,20 @@ export function PrivacyNoticesContent({ section }: PrivacyNoticesContentProps) {
   };
 
   const openFile = (fileContent: string) => {
-    const newWindow = window.open(fileContent, "_blank", "noopener,noreferrer");
-    if (!newWindow) {
+    if (!fileContent.startsWith("data:") && !fileContent.startsWith("blob:")) {
       toast({
         title: "Error",
-        description:
-          "No se pudo abrir el documento. Verifique que no esté bloqueando ventanas emergentes.",
+        description: "El formato del documento no es válido.",
         variant: "destructive",
       });
       return;
     }
-    newWindow.opener = null;
+
+    const anchor = document.createElement("a");
+    anchor.href = fileContent;
+    anchor.target = "_blank";
+    anchor.rel = "noopener noreferrer";
+    anchor.click();
   };
 
   const handleViewDocument = (notice: StoredFile) => {
