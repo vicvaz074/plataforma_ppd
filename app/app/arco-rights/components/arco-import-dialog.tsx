@@ -37,13 +37,14 @@ export function ArcoImportDialog({ onComplete }: ArcoImportDialogProps) {
     }
   }
 
-  const normalizeLevel = (value: any, options: string[]): string | undefined => {
+  type ExcelCellValue = string | number | boolean | Date | null | undefined
+  type ExcelRow = Record<string, ExcelCellValue>
+
+  const normalizeLevel = <T extends string>(value: ExcelCellValue, options: readonly T[]): T | undefined => {
     if (value === undefined || value === null) return undefined
     const normalized = value.toString().trim().toLowerCase()
     const match = options.find((opt) => opt.toLowerCase() === normalized)
     return match
-      ? match.charAt(0).toUpperCase() + match.slice(1).toLowerCase()
-      : undefined
   }
 
   const handleImport = async () => {
@@ -93,43 +94,152 @@ export function ArcoImportDialog({ onComplete }: ArcoImportDialogProps) {
               .normalize("NFD")
               .replace(/[^a-z0-9]/g, "")
 
-          const columnMap: Record<string, keyof ArcoRequest> = {
-            nombre: "name",
-            numerodecelular: "phone",
-            correo: "email",
-            fechaderecepcion: "receptionDate",
-            derechoarco: "rightType",
-            descripcion: "description",
-            esnecesariorequeririnformacionsino: "requiresInfo",
-            empresa: "company",
-            razonsocial: "company",
-            niveldeprioridad: "priorityLevel",
-            prioridad: "priorityLevel",
-            nivelderiesgo: "riskLevel",
-            riesgocomplejidad: "riskLevel",
-            fechadevencimientodeplazopararequeririnformacion5dias: "infoRequestDeadline",
-            fechadeenvioderequerimientodeinformacionporpartededavara: "infoRequestSentDate",
-            vencimientodelplazodecontestaciondesolicitudderequerimientodeinformacionporpartedeltitular10dias:
+          const columnMap: ReadonlyArray<readonly [string, keyof ArcoRequest]> = [
+            ["nombre", "name"],
+            ["numerodecelular", "phone"],
+            ["correo", "email"],
+            ["fechaderecepcion", "receptionDate"],
+            ["derechoarco", "rightType"],
+            ["descripcion", "description"],
+            ["esnecesariorequeririnformacionsino", "requiresInfo"],
+            ["empresa", "company"],
+            ["razonsocial", "company"],
+            ["niveldeprioridad", "priorityLevel"],
+            ["prioridad", "priorityLevel"],
+            ["nivelderiesgo", "riskLevel"],
+            ["riesgocomplejidad", "riskLevel"],
+            ["fechadevencimientodeplazopararequeririnformacion5dias", "infoRequestDeadline"],
+            ["fechadeenvioderequerimientodeinformacionporpartededavara", "infoRequestSentDate"],
+            [
+              "vencimientodelplazodecontestaciondesolicitudderequerimientodeinformacionporpartedeltitular10dias",
               "infoResponseDeadline",
-            fechaenlaqueeltitularcumpleconelrequerimiento: "infoProvidedDate",
-            cumpleconelrequerimientosino: "infoCompleted",
-            fechalimiterequerimientodeinformacionadicional5dias: "additionalInfoRequestDeadline",
-            fechaenquedavaramandaelrequerimientodemayorinformacion: "additionalInfoRequestSentDate",
-            vencimientodelplazodecontestaciondesolicitudderequerimientodeinformacionadicionalporpartedeltitular10dias:
+            ],
+            ["fechaenlaqueeltitularcumpleconelrequerimiento", "infoProvidedDate"],
+            ["cumpleconelrequerimientosino", "infoCompleted"],
+            ["fechalimiterequerimientodeinformacionadicional5dias", "additionalInfoRequestDeadline"],
+            ["fechaenquedavaramandaelrequerimientodemayorinformacion", "additionalInfoRequestSentDate"],
+            [
+              "vencimientodelplazodecontestaciondesolicitudderequerimientodeinformacionadicionalporpartedeltitular10dias",
               "additionalInfoResponseDeadline",
-            fechaenlaqueeltitularcumpleconelrequerimientoadicional: "additionalInfoProvidedDate",
-            lasolicitudprocedesi: "proceedsRequest",
-            identidadacreditadamediantinfotelcel: "identityVerified",
-            resolucionadoptada: "resolution",
-            fechalimiteparaampliaciondeplazoparacomunicarlaresolucionadoptada20dias: "resolutionExtensionDeadline",
-            fechalimiteparacomunicarlaresolucionadoptada20dias: "deadlineDate",
-            fechaenquesecomunicalarespuesta: "resolutionDate",
-            fechalimiteparaampliaciondeplazoparahacerefectivoelderechoarco15dias: "effectiveExtensionDeadline",
-            fechalimitedelplazoparahacerefectivoelderechoarco15dias: "effectiveDeadline",
-            fechaenlaquesehaceefectivoelderecho: "effectiveDate",
+            ],
+            ["fechaenlaqueeltitularcumpleconelrequerimientoadicional", "additionalInfoProvidedDate"],
+            ["lasolicitudprocedesi", "proceedsRequest"],
+            ["identidadacreditadamediantinfotelcel", "identityVerified"],
+            ["resolucionadoptada", "resolution"],
+            ["fechalimiteparaampliaciondeplazoparacomunicarlaresolucionadoptada20dias", "resolutionExtensionDeadline"],
+            ["fechalimiteparacomunicarlaresolucionadoptada20dias", "deadlineDate"],
+            ["fechaenquesecomunicalarespuesta", "resolutionDate"],
+            ["fechalimiteparaampliaciondeplazoparahacerefectivoelderechoarco15dias", "effectiveExtensionDeadline"],
+            ["fechalimitedelplazoparahacerefectivoelderechoarco15dias", "effectiveDeadline"],
+            ["fechaenlaquesehaceefectivoelderecho", "effectiveDate"],
+          ]
+
+          const assignFieldValue = (target: Partial<ArcoRequest>, field: keyof ArcoRequest, value: ExcelCellValue) => {
+            const normalizedText = value?.toString().trim() ?? ""
+            switch (field) {
+              case "receptionDate":
+                target.receptionDate = parseExcelDate(value)
+                return
+              case "infoRequestDeadline":
+                target.infoRequestDeadline = parseExcelDate(value)
+                return
+              case "infoRequestSentDate":
+                target.infoRequestSentDate = parseExcelDate(value)
+                return
+              case "infoResponseDeadline":
+                target.infoResponseDeadline = parseExcelDate(value)
+                return
+              case "infoProvidedDate":
+                target.infoProvidedDate = parseExcelDate(value)
+                return
+              case "additionalInfoRequestDeadline":
+                target.additionalInfoRequestDeadline = parseExcelDate(value)
+                return
+              case "additionalInfoRequestSentDate":
+                target.additionalInfoRequestSentDate = parseExcelDate(value)
+                return
+              case "additionalInfoResponseDeadline":
+                target.additionalInfoResponseDeadline = parseExcelDate(value)
+                return
+              case "additionalInfoProvidedDate":
+                target.additionalInfoProvidedDate = parseExcelDate(value)
+                return
+              case "resolutionExtensionDeadline":
+                target.resolutionExtensionDeadline = parseExcelDate(value)
+                return
+              case "deadlineDate":
+                target.deadlineDate = parseExcelDate(value)
+                return
+              case "resolutionDate":
+                target.resolutionDate = parseExcelDate(value)
+                return
+              case "effectiveExtensionDeadline":
+                target.effectiveExtensionDeadline = parseExcelDate(value)
+                return
+              case "effectiveDeadline":
+                target.effectiveDeadline = parseExcelDate(value)
+                return
+              case "effectiveDate":
+                target.effectiveDate = parseExcelDate(value)
+                return
+              case "requiresInfo":
+                target.requiresInfo = normalizedText.toUpperCase() === "SI"
+                return
+              case "infoCompleted":
+                target.infoCompleted = normalizedText.toUpperCase() === "SI"
+                return
+              case "proceedsRequest":
+                target.proceedsRequest = normalizedText.toUpperCase() === "SI"
+                return
+              case "identityVerified":
+                target.identityVerified = normalizedText.toUpperCase() === "SI"
+                return
+              case "priorityLevel": {
+                const normalized = normalizeLevel(value, ["Alta", "Media", "Baja"] as const)
+                if (normalized) target.priorityLevel = normalized
+                return
+              }
+              case "riskLevel": {
+                const normalized = normalizeLevel(value, ["Alto", "Medio", "Bajo"] as const)
+                if (normalized) target.riskLevel = normalized
+                return
+              }
+              case "company":
+                target.company = normalizedText
+                return
+              case "name":
+                target.name = normalizedText
+                return
+              case "phone":
+                target.phone = normalizedText
+                return
+              case "email":
+                target.email = normalizedText
+                return
+              case "rightType":
+                target.rightType = normalizedText
+                return
+              case "description":
+                target.description = normalizedText
+                return
+              case "resolution":
+                target.resolution = normalizedText
+                return
+              case "comments":
+                target.comments = normalizedText
+                return
+              case "status":
+                target.status = normalizedText
+                return
+              case "createdBy":
+                target.createdBy = normalizedText
+                return
+              default:
+                return
+            }
           }
 
-          const requests: Partial<ArcoRequest>[] = jsonData.map((row: any) => {
+          const requests: Partial<ArcoRequest>[] = (jsonData as ExcelRow[]).map((row) => {
             const result: Partial<ArcoRequest> = {}
             for (const [rawKey, value] of Object.entries(row)) {
               const key = normalizeHeader(rawKey as string)
@@ -139,47 +249,9 @@ export function ArcoImportDialog({ onComplete }: ArcoImportDialogProps) {
                 else result.effectiveExtended = boolVal
                 continue
               }
-              const field = columnMap[key]
+              const field = columnMap.find(([columnKey]) => columnKey === key)?.[1]
               if (!field) continue
-              if (
-                [
-                  "receptionDate",
-                  "infoRequestDeadline",
-                  "infoRequestSentDate",
-                  "infoResponseDeadline",
-                  "infoProvidedDate",
-                  "additionalInfoRequestDeadline",
-                  "additionalInfoRequestSentDate",
-                  "additionalInfoResponseDeadline",
-                  "additionalInfoProvidedDate",
-                  "resolutionExtensionDeadline",
-                  "deadlineDate",
-                  "resolutionDate",
-                  "effectiveExtensionDeadline",
-                  "effectiveDeadline",
-                  "effectiveDate",
-                ].includes(field)
-              ) {
-                ;(result as any)[field] = parseExcelDate(value)
-              } else if (
-                ["requiresInfo", "infoCompleted", "proceedsRequest", "identityVerified"].includes(field)
-              ) {
-                ;(result as any)[field] = String(value).trim().toUpperCase() === "SI"
-              } else if (field === "priorityLevel") {
-                const normalized = normalizeLevel(value, ["Alta", "Media", "Baja"])
-                if (normalized) {
-                  ;(result as any)[field] = normalized
-                }
-              } else if (field === "riskLevel") {
-                const normalized = normalizeLevel(value, ["Alto", "Medio", "Bajo"])
-                if (normalized) {
-                  ;(result as any)[field] = normalized
-                }
-              } else if (field === "company") {
-                ;(result as any)[field] = value?.toString().trim() || ""
-              } else {
-                ;(result as any)[field] = value?.toString() || ""
-              }
+              assignFieldValue(result, field, value)
             }
             return result
           })
@@ -215,7 +287,7 @@ export function ArcoImportDialog({ onComplete }: ArcoImportDialogProps) {
   }
 
   // Función para convertir fechas de Excel a formato local YYYY-MM-DD
-  const parseExcelDate = (excelDate: any): string | undefined => {
+  const parseExcelDate = (excelDate: ExcelCellValue): string | undefined => {
     if (!excelDate) return undefined
 
     try {
@@ -311,4 +383,3 @@ export function ArcoImportDialog({ onComplete }: ArcoImportDialogProps) {
     </div>
   )
 }
-

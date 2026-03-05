@@ -1,13 +1,14 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { writeFile } from "fs/promises"
-import { join } from "path"
+import { mkdir, open } from "fs/promises"
+import { basename, join } from "path"
 import crypto from "crypto"
 
 // Generate a secure filename
 function generateSecureFilename(originalFilename: string): string {
   const timestamp = Date.now()
   const random = crypto.randomBytes(8).toString("hex")
-  const extension = originalFilename.split(".").pop()
+  const safeFilename = basename(originalFilename)
+  const extension = safeFilename.includes(".") ? safeFilename.split(".").pop() : "bin"
   return `${timestamp}-${random}.${extension}`
 }
 
@@ -45,8 +46,17 @@ export async function POST(request: NextRequest) {
 
     // Save file to secure location
     // Note: In production, you should use a proper storage service like AWS S3
-    const path = join(process.cwd(), "uploads", secureFilename)
-    await writeFile(path, buffer)
+    const uploadsDir = join(process.cwd(), "uploads")
+    await mkdir(uploadsDir, { recursive: true })
+
+    const path = join(uploadsDir, secureFilename)
+    // eslint-disable-next-line security/detect-non-literal-fs-filename
+    const fileHandle = await open(path, "wx", 0o600)
+    try {
+      await fileHandle.writeFile(buffer)
+    } finally {
+      await fileHandle.close()
+    }
 
     // Save metadata to database
     // Note: In production, implement proper database storage

@@ -20,10 +20,11 @@ interface ArcoEvidenceUploaderProps {
 
 const formatFileSize = (bytes: number) => {
   if (!bytes) return "0 B"
-  const units = ["B", "KB", "MB", "GB"]
-  const exponent = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1)
+  const exponent = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), 3)
   const size = bytes / Math.pow(1024, exponent)
-  return `${size.toFixed(size >= 10 || exponent === 0 ? 0 : 1)} ${units[exponent]}`
+  const unit =
+    exponent === 0 ? "B" : exponent === 1 ? "KB" : exponent === 2 ? "MB" : "GB"
+  return `${size.toFixed(size >= 10 || exponent === 0 ? 0 : 1)} ${unit}`
 }
 
 const readFileAsDataUrl = (file: File): Promise<string> => {

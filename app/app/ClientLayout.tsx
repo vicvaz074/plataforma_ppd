@@ -12,7 +12,6 @@ import { Header } from "@/components/header"
 export function ClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const [hydrated, setHydrated] = useState(false)
-  const [isFile, setIsFile] = useState(false)
   const [authed, setAuthed] = useState(false)
 
   useEffect(() => {
@@ -21,7 +20,6 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
     setAuthed(authenticated)
 
     const fileProto = window.location.protocol === "file:"
-    setIsFile(fileProto)
 
     if (fileProto) {
       const depth = pathname.split("/").filter(Boolean).length
