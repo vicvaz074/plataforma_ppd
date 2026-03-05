@@ -1,0 +1,10 @@
+# Generated build artifacts
+out/
+.next/
+
+# Dependencies
+node_modules/
+
+# Coverage and reports
+coverage/
+reports/
