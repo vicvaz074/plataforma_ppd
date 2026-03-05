@@ -10,6 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { Paperclip, Trash2, UploadCloud, Download } from "lucide-react"
 import { type ArcoEvidenceFile } from "../utils/arco-storage"
+import { secureRandomId } from "@/lib/secure-random"
 
 interface ArcoEvidenceUploaderProps {
   files: ArcoEvidenceFile[]
@@ -48,7 +49,7 @@ export function ArcoEvidenceUploader({ files, onChange, label, description }: Ar
       setIsUploading(true)
       const selectedFiles = await Promise.all(
         Array.from(fileList).map(async (file) => ({
-          id: typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2),
+          id: secureRandomId("evidence"),
           name: file.name,
           size: file.size,
           type: file.type,
