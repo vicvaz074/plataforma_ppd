@@ -38,6 +38,8 @@ describe("production security headers", () => {
     assert.ok(csp.includes("default-src 'self'"))
 
     assert.ok(csp.includes("script-src 'self' 'unsafe-inline'"), "CSP should explicitly allow inline scripts required by Next.js runtime")
+    assert.ok(csp.includes("style-src 'self' 'sha256-skqujXORqzxt1aE0NNXxujEanPTX6raoqSscTV/Ww/Y=' https://cdn.jsdelivr.net https://fonts.cdnfonts.com"), "CSP should use a specific hash for required inline styles instead of unsafe-inline")
+    assert.ok(!csp.includes("style-src 'self' 'unsafe-inline'"), "CSP should not allow unsafe-inline styles")
     assert.ok(!/(^|[ ;])https:(?=$|[ ;])/.test(csp), "CSP should avoid broad wildcard-like https: sources")
     assert.ok(!/(^|[ ;])wss:(?=$|[ ;])/.test(csp), "CSP should avoid broad wildcard-like wss: sources")
   })
