@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
 import { useLanguage } from "@/lib/LanguageContext"
+import { useSidebar } from "@/lib/SidebarContext"
 import { useRouter, usePathname } from "next/navigation"
 import {
   DropdownMenu,
@@ -23,10 +24,12 @@ import { motion } from "framer-motion"
 import { useState, useEffect } from "react"
 import { Moon, Sun, Globe, User, ChevronDown, LogOut, LayoutDashboard } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
+import Image from "next/image"
 
 export function Header() {
   const { theme, setTheme } = useTheme()
   const { language, setLanguage } = useLanguage()
+  const { collapsed } = useSidebar()
   const router = useRouter()
   const pathname = usePathname()
   const t = translations[language]
@@ -71,8 +74,29 @@ export function Header() {
       className="sticky top-0 z-50 border-b bg-white dark:bg-gray-950"
     >
       <div className="flex h-16 items-center px-6 justify-between">
-        {/* Título */}
-        <div className="flex items-center gap-2">
+        {/* Left side: logo (when sidebar collapsed) + title */}
+        <div className="flex items-center gap-4">
+          {/* Logo shown only when sidebar is collapsed */}
+          <div
+            className="overflow-hidden transition-all duration-300 ease-in-out"
+            style={{
+              width: collapsed ? 150 : 0,
+              opacity: collapsed ? 1 : 0,
+            }}
+          >
+            <Link href="/" className="flex items-center">
+              <Image
+                src="/images/logo_davaragovernance.png"
+                alt="Davara Governance"
+                width={150}
+                height={50}
+                style={{ objectFit: "contain" }}
+                priority
+                unoptimized
+              />
+            </Link>
+          </div>
+
           <div className="hidden md:block">
             <h1 className="text-xl font-normal" style={{ fontFamily: "Futura PT Medium, sans-serif" }}>
               {t.welcomeMessage}
@@ -125,8 +149,8 @@ export function Header() {
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={handleLogout}>
                 <motion.div
-                  className="flex items-center" 
-                  whileHover={{ scale: 1.05 }} 
+                  className="flex items-center"
+                  whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
                   <LogOut className="mr-2 h-4 w-4" />
