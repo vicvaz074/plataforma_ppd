@@ -219,7 +219,7 @@ export function Sidebar() {
 
   return (
     <div
-      className={`sidebar-root h-screen sticky top-0 bg-sidebar text-sidebar-foreground flex flex-col flex-shrink-0 overflow-hidden transition-all duration-300 ease-in-out ${collapsed ? "sidebar-collapsed" : "sidebar-expanded"
+      className={`sidebar-root fixed top-0 left-0 h-screen bg-sidebar text-sidebar-foreground flex flex-col flex-shrink-0 overflow-hidden transition-all duration-300 ease-in-out z-40 ${collapsed ? "sidebar-collapsed" : "sidebar-expanded"
         }`}
       style={{ width: collapsed ? 70 : 260 }}
     >
