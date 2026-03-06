@@ -9,7 +9,8 @@
 /* Configuración base de tipografía */
 body {
   font-family: "Futura Std", sans-serif;
-  font-weight: 400; /* Peso base para todo el texto */
+  font-weight: 400;
+  /* Peso base para todo el texto */
 }
 
 @layer base {
@@ -67,7 +68,8 @@ body {
   .h1 {
     @apply text-4xl md:text-5xl;
     font-family: "Futura Std", sans-serif;
-    font-weight: 400 !important; /* Peso consistente para títulos principales */
+    font-weight: 400 !important;
+    /* Peso consistente para títulos principales */
     color: hsl(var(--primary));
   }
 
@@ -95,7 +97,8 @@ body {
   p,
   .body-text {
     font-family: "Futura Std", sans-serif;
-    font-weight: 400; /* Peso normal para texto del cuerpo */
+    font-weight: 400;
+    /* Peso normal para texto del cuerpo */
     @apply text-base md:text-lg;
   }
 
@@ -139,9 +142,6 @@ form h2,
 }
 
 /* Sidebar collapsible styles */
-.sidebar-root {
-  position: relative;
-}
 
 .sidebar-nav::-webkit-scrollbar {
   width: 4px;
@@ -190,6 +190,7 @@ form h2,
   0% {
     transform: translateX(-100%);
   }
+
   100% {
     transform: translateX(100%);
   }
@@ -198,4 +199,3 @@ form h2,
 .animate-progress-indeterminate {
   animation: progress-indeterminate 1.5s infinite linear;
 }
-
