@@ -5,10 +5,28 @@ import { usePathname } from "next/navigation"
 import { ThemeProvider } from "@/components/theme-provider"
 import { LanguageProvider } from "@/lib/LanguageContext"
 import { AppProvider } from "@/lib/AppContext"
-import { SidebarProvider } from "@/lib/SidebarContext"
+import { SidebarProvider, useSidebar } from "@/lib/SidebarContext"
 import "@/lib/zod-config"
 import { Sidebar } from "@/components/sidebar"
 import { Header } from "@/components/header"
+
+function SidebarAwareLayout({ authed, children }: { authed: boolean; children: React.ReactNode }) {
+  const { collapsed } = useSidebar()
+  const sidebarWidth = authed ? (collapsed ? 70 : 260) : 0
+
+  return (
+    <div className="min-h-screen">
+      {authed && <Sidebar />}
+      <div
+        className="flex flex-col min-h-screen transition-all duration-300"
+        style={{ marginLeft: sidebarWidth }}
+      >
+        {authed && <Header />}
+        <main className="flex-1">{children}</main>
+      </div>
+    </div>
+  )
+}
 
 export function ClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
@@ -59,13 +77,9 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
             {isLoginPage ? (
               <>{children}</>
             ) : (
-              <div className="flex min-h-screen">
-                {authed && <Sidebar />}
-                <div className="flex-1 flex flex-col min-w-0 transition-all duration-300">
-                  {authed && <Header />}
-                  <main className="flex-1">{children}</main>
-                </div>
-              </div>
+              <SidebarAwareLayout authed={authed}>
+                {children}
+              </SidebarAwareLayout>
             )}
           </SidebarProvider>
         </LanguageProvider>
