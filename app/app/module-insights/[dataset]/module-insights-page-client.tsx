@@ -23,7 +23,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts"
-import { ArrowLeft, Download, Sparkles, Wand2 } from "lucide-react"
+import { ArrowLeft, Download } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -121,13 +121,13 @@ export default function ModuleInsightsPageClient() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-10">
-      <div className="rounded-2xl border border-cyan-500/20 bg-gradient-to-r from-cyan-500/15 via-violet-500/10 to-emerald-500/10 p-5 shadow-sm">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-8">
+      <div className="rounded-2xl border border-cyan-500/20 bg-gradient-to-r from-cyan-500/10 via-violet-500/10 to-emerald-500/10 p-4 shadow-sm">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-sm font-semibold text-muted-foreground">Panel analítico extendido</p>
             <h1 className="text-3xl font-semibold">{DATASET_LABELS[dataset]}</h1>
-            <p className="text-sm text-muted-foreground">Vista completa con gráficas, comparativos, heatmap y flujo de datos.</p>
+            <p className="text-sm text-muted-foreground">Panel minimalista con visualizaciones avanzadas, color y animación.</p>
           </div>
           <div className="flex flex-wrap gap-2">
             <Button asChild variant="outline">
@@ -143,33 +143,44 @@ export default function ModuleInsightsPageClient() {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card><CardHeader><CardDescription>Total registros</CardDescription><CardTitle className="text-3xl">{metrics.total}</CardTitle></CardHeader></Card>
-        <Card><CardHeader><CardDescription>Categorías activas</CardDescription><CardTitle className="text-3xl">{metrics.buckets.length}</CardTitle></CardHeader></Card>
-        <Card className="border-cyan-500/20 bg-gradient-to-br from-cyan-500/10 to-transparent"><CardHeader><CardDescription>Mes más alto</CardDescription><CardTitle className="text-3xl">{monthPeak?.month ?? "N/A"}</CardTitle></CardHeader></Card>
-        <Card className="border-violet-500/20 bg-gradient-to-br from-violet-500/10 to-transparent"><CardHeader><CardDescription>Insights</CardDescription><CardTitle className="flex items-center gap-2 text-lg"><Sparkles className="h-4 w-4 text-violet-500" /> Interactivo</CardTitle></CardHeader></Card>
-      </div>
+      <Card className="border-border/70 bg-background/70">
+        <CardContent className="pt-6">
+          <div className="grid gap-3 md:grid-cols-3">
+            <div>
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">Total registros</p>
+              <p className="text-2xl font-semibold">{metrics.total}</p>
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">Categorías activas</p>
+              <p className="text-2xl font-semibold">{metrics.buckets.length}</p>
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">Mes más alto</p>
+              <p className="text-2xl font-semibold">{monthPeak?.month ?? "N/A"}</p>
+            </div>
+          </div>
+          <div className="mt-3 border-t pt-3">
+            <p className="text-sm text-muted-foreground">
+              Promedio mensual: <span className="font-medium text-foreground">{averagePerMonth}</span>
+              {" · "}Categoría dominante: <span className="font-medium text-foreground">{topBucketName}</span>
+            </p>
+          </div>
+        </CardContent>
+      </Card>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card className="border-emerald-500/20"><CardHeader className="pb-2"><CardDescription>Promedio mensual</CardDescription><CardTitle className="text-2xl">{averagePerMonth}</CardTitle></CardHeader></Card>
-        <Card className="border-orange-500/20"><CardHeader className="pb-2"><CardDescription>Categoría dominante</CardDescription><CardTitle className="text-xl">{topBucketName}</CardTitle></CardHeader></Card>
-        <Card className="border-fuchsia-500/20"><CardHeader className="pb-2"><CardDescription>Modo de vista</CardDescription><CardTitle className="flex items-center gap-2 text-base"><Wand2 className="h-4 w-4 text-fuchsia-500" />Panel dinámico</CardTitle></CardHeader></Card>
-      </div>
-
-      <div className="flex items-center gap-2">
-        <span className="text-sm text-muted-foreground">Comparar top:</span>
-        {[3, 4, 6, 8].map((option) => (
-          <Button key={option} size="sm" variant={topN === option ? "default" : "outline"} onClick={() => setTopN(option)}>
-            {option}
-          </Button>
-        ))}
-      </div>
-
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="text-sm text-muted-foreground">Radar:</span>
-        <Button size="sm" variant={radarMode === "absolute" ? "default" : "outline"} onClick={() => setRadarMode("absolute")}>Valores reales</Button>
-        <Button size="sm" variant={radarMode === "relative" ? "default" : "outline"} onClick={() => setRadarMode("relative")}>Escala relativa (%)</Button>
-      </div>
+      <Card className="border-primary/20 bg-background/80">
+        <CardContent className="flex flex-wrap items-center gap-3 pt-6">
+          <span className="text-sm text-muted-foreground">Comparar top:</span>
+          {[3, 4, 6, 8].map((option) => (
+            <Button key={option} size="sm" variant={topN === option ? "default" : "outline"} onClick={() => setTopN(option)}>
+              {option}
+            </Button>
+          ))}
+          <span className="ml-3 text-sm text-muted-foreground">Radar:</span>
+          <Button size="sm" variant={radarMode === "absolute" ? "default" : "outline"} onClick={() => setRadarMode("absolute")}>Real</Button>
+          <Button size="sm" variant={radarMode === "relative" ? "default" : "outline"} onClick={() => setRadarMode("relative")}>%</Button>
+        </CardContent>
+      </Card>
 
       {metrics.dimensions.length > 0 ? (
         <div className="flex flex-wrap items-center gap-2">
@@ -187,7 +198,7 @@ export default function ModuleInsightsPageClient() {
         </div>
       ) : null}
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-3 lg:grid-cols-2">
         <Card>
           <CardHeader><CardTitle>Comparativo por categorías</CardTitle></CardHeader>
           <CardContent className="h-[340px]">
@@ -210,7 +221,12 @@ export default function ModuleInsightsPageClient() {
           <CardContent className="h-[340px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={focusedBuckets} dataKey="value" nameKey="label" outerRadius={110} innerRadius={62}>
+                <defs>
+                  <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feDropShadow dx="0" dy="8" stdDeviation="8" floodColor="#0ea5e9" floodOpacity="0.25" />
+                  </filter>
+                </defs>
+                <Pie data={focusedBuckets} dataKey="value" nameKey="label" outerRadius={112} innerRadius={54} style={{ filter: "url(#softShadow)" }}>
                   {focusedBuckets.map((row, i) => <Cell key={row.label} fill={COLORS[i % COLORS.length]} />)}
                 </Pie>
                 <Tooltip />

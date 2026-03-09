@@ -1,10 +1,8 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { motion } from "framer-motion"
 import Link from "next/link"
-import { ArrowUpRight } from "lucide-react"
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Sankey, Tooltip, XAxis, YAxis } from "recharts"
+import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -35,117 +33,54 @@ export function ModuleStatisticsCard({
   }, [dataset])
 
   const metrics = useMemo(() => buildAdvancedMetrics(dataset, items), [dataset, items])
-  const previewBuckets = metrics.buckets.slice(0, 4)
-  const moduleDimensions = metrics.dimensions.slice(0, 2)
-  const max = previewBuckets[0]?.value || 1
-  const maxHeat = Math.max(...metrics.heatmap.flatMap((row) => row.monthCells.map((cell) => cell.value)), 1)
+  const compactMonths = metrics.monthly.slice(-6)
+  const topBuckets = metrics.buckets.slice(0, 3)
 
   return (
-    <Card className="relative flex h-full flex-col overflow-hidden border-primary/30 bg-gradient-to-br from-primary/15 via-background to-background">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(14,165,233,0.18),transparent_55%)]" />
-      <CardHeader className="relative">
-        <CardTitle>{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
-      </CardHeader>
-      <CardContent className="relative space-y-4">
-        <Link href={`/module-insights/${dataset}`} className="block rounded-md border bg-background/90 p-3 shadow-sm transition hover:shadow-md">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Vista previa interactiva</p>
-          <div className="flex items-end justify-between">
-            <p className="text-3xl font-bold text-foreground">{metrics.total}</p>
-            <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-1 text-xs font-medium text-primary">
-              Abrir panel completo
-              <ArrowUpRight className="h-3 w-3" />
-            </span>
+    <Card className="border-primary/20 bg-gradient-to-br from-background to-primary/5">
+      <CardHeader className="pb-2">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <CardTitle>{title}</CardTitle>
+            <CardDescription>{description}</CardDescription>
           </div>
-        </Link>
+          <Button asChild variant="outline" size="sm">
+            <Link href={`/module-insights/${dataset}`}>Ver panel</Link>
+          </Button>
+        </div>
+      </CardHeader>
 
-        <div className="space-y-2">
-          {moduleDimensions.length > 0 ? (
-            <div className="rounded-md border bg-background/80 p-2">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Indicadores del módulo</p>
-              <div className="mt-2 grid gap-2 sm:grid-cols-2">
-                {moduleDimensions.map((dimension) => {
-                  const top = dimension.buckets[0]
-                  return (
-                    <div key={dimension.id} className="rounded border bg-background/80 p-2">
-                      <p className="text-[11px] text-muted-foreground">{dimension.label}</p>
-                      <p className="truncate text-sm font-semibold text-foreground">{top?.label || "Sin datos"}</p>
-                      <p className="text-[11px] text-muted-foreground">{top ? `${top.value} registros` : "No hay registros"}</p>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-          ) : null}
+      <CardContent className="space-y-3 pt-0">
+        <div className="grid gap-3 md:grid-cols-[1fr_1.3fr]">
+          <div className="rounded-md border bg-background/80 px-3 py-2">
+            <p className="text-xs uppercase tracking-wide text-muted-foreground">Registros</p>
+            <p className="text-2xl font-semibold">{metrics.total}</p>
+          </div>
 
-          {previewBuckets.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Aún no hay datos suficientes para generar la gráfica.</p>
-          ) : (
-            previewBuckets.map((bucket, index) => (
-              <motion.div
-                key={bucket.label}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.05 }}
-                className="space-y-1"
-              >
-                <div className="flex items-center justify-between text-xs">
-                  <span className="truncate text-muted-foreground">{bucket.label}</span>
-                  <span className="font-semibold text-foreground">{bucket.value}</span>
-                </div>
-                <div className="h-2 rounded-full bg-muted">
-                  <motion.div
-                    className="h-2 rounded-full bg-primary"
-                    initial={{ width: 0 }}
-                    animate={{ width: `${Math.max((bucket.value / max) * 100, 8)}%` }}
-                    transition={{ duration: 0.7, ease: "easeOut" }}
-                  />
-                </div>
-              </motion.div>
-            ))
-          )}
+          <div className="h-20 rounded-md border bg-background/80 p-2">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={compactMonths} barSize={10}>
+                <XAxis dataKey="month" hide />
+                <YAxis hide />
+                <Tooltip />
+                <Bar dataKey="value" radius={[4, 4, 0, 0]} fill="#2563eb" animationDuration={900} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
 
-        {previewBuckets.length > 0 ? (
-          <>
-            <div className="h-32 rounded-md border bg-background/70 p-2">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={metrics.monthly}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" tick={{ fontSize: 10 }} interval={2} />
-                  <YAxis allowDecimals={false} width={20} />
-                  <Tooltip />
-                  <Bar dataKey="value" fill="#0ea5e9" radius={[4, 4, 0, 0]} animationDuration={1200} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-
-            <div className="space-y-1 rounded-md border bg-background/70 p-2">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Mapa de calor</p>
-              {metrics.heatmap.slice(0, 2).map((row) => (
-                <div key={row.label} className="grid grid-cols-[70px_repeat(12,minmax(0,1fr))] gap-1">
-                  <span className="truncate text-[10px] text-muted-foreground">{row.label}</span>
-                  {row.monthCells.map((cell) => {
-                    const opacity = cell.value === 0 ? 0.1 : Math.max(cell.value / maxHeat, 0.2)
-                    return <div key={`${row.label}-${cell.month}`} className="h-3 rounded-sm" style={{ backgroundColor: `rgba(14,165,233,${opacity})` }} />
-                  })}
-                </div>
-              ))}
-            </div>
-
-            <div className="h-28 rounded-md border bg-background/70 p-2">
-              <ResponsiveContainer width="100%" height="100%">
-                <Sankey data={metrics.flowData} nodePadding={8} link={{ stroke: "#0ea5e9", strokeOpacity: 0.25 }}>
-                  <Tooltip />
-                </Sankey>
-              </ResponsiveContainer>
-            </div>
-          </>
-        ) : null}
+        {topBuckets.length > 0 ? (
+          <div className="text-sm text-muted-foreground">
+            {topBuckets.map((bucket) => `${bucket.label}: ${bucket.value}`).join(" · ")}
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">Aún no hay datos suficientes para generar estadísticas.</p>
+        )}
       </CardContent>
-      <CardFooter className="relative mt-auto grid grid-cols-2 gap-2">
+
+      <CardFooter className="grid grid-cols-2 gap-2 border-t bg-background/40">
         <Button asChild variant="outline" className="w-full">
-          <Link href={`/module-insights/${dataset}`}>Ver análisis</Link>
+          <Link href={`/module-insights/${dataset}`}>Abrir análisis</Link>
         </Button>
         <Button asChild variant="secondary" className="w-full">
           <Link href={href}>{cta}</Link>
