@@ -23,7 +23,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts"
-import { ArrowLeft, Download, Sparkles } from "lucide-react"
+import { ArrowLeft, Download } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -143,18 +143,30 @@ export default function ModuleInsightsPageClient() {
         </div>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-4">
-        <Card><CardHeader><CardDescription>Total registros</CardDescription><CardTitle className="text-3xl">{metrics.total}</CardTitle></CardHeader></Card>
-        <Card><CardHeader><CardDescription>Categorías activas</CardDescription><CardTitle className="text-3xl">{metrics.buckets.length}</CardTitle></CardHeader></Card>
-        <Card className="border-cyan-500/20 bg-gradient-to-br from-cyan-500/10 to-transparent"><CardHeader><CardDescription>Mes más alto</CardDescription><CardTitle className="text-3xl">{monthPeak?.month ?? "N/A"}</CardTitle></CardHeader></Card>
-        <Card className="border-violet-500/20 bg-gradient-to-br from-violet-500/10 to-transparent"><CardHeader><CardDescription>Insights</CardDescription><CardTitle className="flex items-center gap-2 text-lg"><Sparkles className="h-4 w-4 text-violet-500" /> Interactivo</CardTitle></CardHeader></Card>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card className="border-emerald-500/20"><CardHeader className="pb-2"><CardDescription>Promedio mensual</CardDescription><CardTitle className="text-2xl">{averagePerMonth}</CardTitle></CardHeader></Card>
-        <Card className="border-orange-500/20"><CardHeader className="pb-2"><CardDescription>Categoría dominante</CardDescription><CardTitle className="text-xl">{topBucketName}</CardTitle></CardHeader></Card>
-        <Card className="border-fuchsia-500/20"><CardHeader className="pb-2"><CardDescription>Modo de vista</CardDescription><CardTitle className="text-base">Panel dinámico</CardTitle></CardHeader></Card>
-      </div>
+      <Card className="border-border/70 bg-background/70">
+        <CardContent className="pt-6">
+          <div className="grid gap-3 md:grid-cols-3">
+            <div>
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">Total registros</p>
+              <p className="text-2xl font-semibold">{metrics.total}</p>
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">Categorías activas</p>
+              <p className="text-2xl font-semibold">{metrics.buckets.length}</p>
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">Mes más alto</p>
+              <p className="text-2xl font-semibold">{monthPeak?.month ?? "N/A"}</p>
+            </div>
+          </div>
+          <div className="mt-3 border-t pt-3">
+            <p className="text-sm text-muted-foreground">
+              Promedio mensual: <span className="font-medium text-foreground">{averagePerMonth}</span>
+              {" · "}Categoría dominante: <span className="font-medium text-foreground">{topBucketName}</span>
+            </p>
+          </div>
+        </CardContent>
+      </Card>
 
       <Card className="border-primary/20 bg-background/80">
         <CardContent className="flex flex-wrap items-center gap-3 pt-6">
