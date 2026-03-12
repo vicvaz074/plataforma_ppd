@@ -24,17 +24,16 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useState, useEffect, useCallback, useRef } from "react"
 import { Moon, Sun, Globe, User, ChevronDown, LogOut, LayoutDashboard, Bell, ArrowRight } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
-import Image from "next/image"
 import {
   generateAllNotifications,
-  getRecentNotifications,
   markAsRead,
   markAllAsRead,
-  dismissNotification,
+  NOTIFICATIONS_CHANGED_EVENT,
   MODULE_LABELS,
   MODULE_ICONS,
   type PlatformNotification,
 } from "@/lib/notification-engine"
+import { DAVARA_STORAGE_EVENT, ensureBrowserStorageEvents } from "@/lib/browser-storage-events"
 
 export function Header() {
   const { theme, setTheme } = useTheme()
@@ -57,16 +56,30 @@ export function Header() {
     }
   }, [])
 
-  // Scan all modules on mount and every 60s
   const refreshNotifications = useCallback(() => {
     const fresh = generateAllNotifications()
     setNotifications(fresh)
   }, [])
 
   useEffect(() => {
+    ensureBrowserStorageEvents()
     refreshNotifications()
+
     const interval = setInterval(refreshNotifications, 60000)
-    return () => clearInterval(interval)
+
+    const handleStorageMutation = () => refreshNotifications()
+    const handleNotificationMutation = () => refreshNotifications()
+
+    window.addEventListener(DAVARA_STORAGE_EVENT, handleStorageMutation)
+    window.addEventListener(NOTIFICATIONS_CHANGED_EVENT, handleNotificationMutation)
+    window.addEventListener("focus", handleStorageMutation)
+
+    return () => {
+      clearInterval(interval)
+      window.removeEventListener(DAVARA_STORAGE_EVENT, handleStorageMutation)
+      window.removeEventListener(NOTIFICATIONS_CHANGED_EVENT, handleNotificationMutation)
+      window.removeEventListener("focus", handleStorageMutation)
+    }
   }, [refreshNotifications])
 
   // Also refresh when pathname changes (user navigates)

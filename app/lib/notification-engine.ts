@@ -1,13 +1,17 @@
 /**
- * Motor de Notificaciones Centralizado — Davara Governance
+ * Motor de notificaciones centralizado.
  *
- * Escanea localStorage de todos los módulos de la plataforma y genera
- * alertas automáticas basadas en condiciones reales de los datos.
- *
- * Cada módulo tiene múltiples condiciones de alerta.
+ * Genera alertas activas a partir del estado real de los módulos y
+ * conserva una bitácora de resoluciones manuales/automáticas.
  */
 
-export type NotificationPriority = "alta" | "media" | "baja";
+import {
+  createLinkedFileIndex,
+  summarizeInventoryCompliance,
+} from "@/app/rat/lib/compliance"
+
+export type NotificationPriority = "alta" | "media" | "baja"
+export type NotificationResolutionType = "manual" | "automatic"
 export type NotificationModule =
   | "inventarios"
   | "contratos"
@@ -21,922 +25,1223 @@ export type NotificationModule =
   | "politicas"
   | "eipd"
   | "avisos"
-  | "procedimientos";
+  | "procedimientos"
 
 export interface PlatformNotification {
-  id: string;
-  tipo: NotificationModule;
-  titulo: string;
-  descripcion: string;
-  prioridad: NotificationPriority;
-  ruta: string;
-  fecha: string; // ISO string
-  leida: boolean;
+  id: string
+  fingerprint: string
+  tipo: NotificationModule
+  titulo: string
+  descripcion: string
+  prioridad: NotificationPriority
+  ruta: string
+  fecha: string
+  leida: boolean
+  detalles?: string[]
+  sourceRecordId?: string
+  sourceRecordLabel?: string
 }
 
-const NOTIFICATIONS_STORAGE_KEY = "davara-notifications-v1";
-const DISMISSED_KEY = "davara-notifications-dismissed-v1";
-const isBrowser = typeof window !== "undefined";
+export interface ResolvedPlatformNotification extends PlatformNotification {
+  resolvedAt: string
+  resolvedBy: string
+  resolutionType: NotificationResolutionType
+}
 
-// ─── Helpers ────────────────────────────────────────────────────────
+type NotificationSeed = Omit<PlatformNotification, "leida">
+
+const NOTIFICATIONS_STORAGE_KEY = "davara-notifications-v2"
+const RESOLVED_LOG_STORAGE_KEY = "davara-notifications-resolved-v2"
+export const NOTIFICATIONS_CHANGED_EVENT = "davara:notifications-updated"
+
+const isBrowser = typeof window !== "undefined"
+
+const prioOrder: Record<NotificationPriority, number> = { alta: 0, media: 1, baja: 2 }
 
 function safeParseJSON<T>(key: string, fallback: T): T {
-  if (!isBrowser) return fallback;
+  if (!isBrowser) return fallback
   try {
-    const raw = localStorage.getItem(key);
-    if (!raw) return fallback;
-    const parsed = JSON.parse(raw);
-    return parsed ?? fallback;
+    const raw = localStorage.getItem(key)
+    if (!raw) return fallback
+    const parsed = JSON.parse(raw)
+    return parsed ?? fallback
   } catch {
-    return fallback;
+    return fallback
   }
 }
 
-function generateId(prefix: string, suffix: string): string {
-  return `${prefix}-${suffix}`;
+function normalizeForHash(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map((entry) => normalizeForHash(entry))
+  }
+  if (value && typeof value === "object") {
+    const normalizedEntries = Object.entries(value as Record<string, unknown>)
+      .filter(([, entry]) => entry !== undefined)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([key, entry]) => [key, normalizeForHash(entry)])
+    return Object.fromEntries(normalizedEntries)
+  }
+  return value
 }
 
-function getDismissedIds(): Set<string> {
-  const raw = safeParseJSON<string[]>(DISMISSED_KEY, []);
-  return new Set(raw);
+function hashString(input: string) {
+  let hash = 5381
+  for (let index = 0; index < input.length; index += 1) {
+    hash = (hash * 33) ^ input.charCodeAt(index)
+  }
+  return (hash >>> 0).toString(36)
 }
 
-export function dismissNotification(id: string): void {
-  if (!isBrowser) return;
-  const dismissed = getDismissedIds();
-  dismissed.add(id);
-  localStorage.setItem(DISMISSED_KEY, JSON.stringify([...dismissed]));
+function buildFingerprint(source: unknown) {
+  return hashString(JSON.stringify(normalizeForHash(source)))
 }
 
-export function markAsRead(id: string): void {
-  if (!isBrowser) return;
-  const cached = safeParseJSON<PlatformNotification[]>(NOTIFICATIONS_STORAGE_KEY, []);
-  const updated = cached.map(n => n.id === id ? { ...n, leida: true } : n);
-  localStorage.setItem(NOTIFICATIONS_STORAGE_KEY, JSON.stringify(updated));
+function buildNotificationId(
+  module: NotificationModule,
+  issueKey: string,
+  recordId: string = "global",
+) {
+  return `${module}:${issueKey}:${recordId}`
 }
 
-export function markAllAsRead(): void {
-  if (!isBrowser) return;
-  const cached = safeParseJSON<PlatformNotification[]>(NOTIFICATIONS_STORAGE_KEY, []);
-  const updated = cached.map(n => ({ ...n, leida: true }));
-  localStorage.setItem(NOTIFICATIONS_STORAGE_KEY, JSON.stringify(updated));
+function getItemIdentity(item: any, index: number) {
+  const candidates = [
+    item?.id,
+    item?.folio,
+    item?.requestId,
+    item?.databaseName,
+    item?.name,
+    item?.title,
+    item?.email,
+    item?.createdAt,
+    item?.fechaSolicitud,
+    `idx-${index}`,
+  ]
+
+  const selected = candidates.find((value) => typeof value === "string" && value.trim().length > 0)
+  return selected || `idx-${index}`
 }
 
-// ─── Scanner Functions ─────────────────────────────────────────────
+function summarizeItems(items: any[]) {
+  return items.map((item, index) => ({
+    id: getItemIdentity(item, index),
+    status: item?.status,
+    label:
+      item?.databaseName ||
+      item?.name ||
+      item?.title ||
+      item?.requesterName ||
+      item?.folio ||
+      item?.id ||
+      `Registro ${index + 1}`,
+    updatedAt:
+      item?.updatedAt ||
+      item?.createdAt ||
+      item?.dueDate ||
+      item?.endDate ||
+      item?.fechaSolicitud ||
+      null,
+  }))
+}
 
-function scanInventarios(): PlatformNotification[] {
-  const alerts: PlatformNotification[] = [];
-  const inventories = safeParseJSON<any[]>("inventories", []);
+function compareByPriorityAndDate(left: PlatformNotification, right: PlatformNotification) {
+  const prioDiff = prioOrder[left.prioridad] - prioOrder[right.prioridad]
+  if (prioDiff !== 0) return prioDiff
+
+  const rightDate = new Date(right.fecha).getTime()
+  const leftDate = new Date(left.fecha).getTime()
+  return rightDate - leftDate
+}
+
+function getCurrentActor() {
+  if (!isBrowser) return "Sistema"
+  const userName = localStorage.getItem("userName")?.trim()
+  return userName || "Sistema"
+}
+
+function emitNotificationsChanged() {
+  if (!isBrowser) return
+  window.dispatchEvent(new Event(NOTIFICATIONS_CHANGED_EVENT))
+}
+
+function writeStorageIfChanged(key: string, value: unknown) {
+  if (!isBrowser) return false
+  const nextValue = JSON.stringify(value)
+  if (localStorage.getItem(key) === nextValue) {
+    return false
+  }
+  localStorage.setItem(key, nextValue)
+  return true
+}
+
+function createNotification(options: {
+  module: NotificationModule
+  issueKey: string
+  recordId?: string
+  title: string
+  description: string
+  priority: NotificationPriority
+  route: string
+  date?: string
+  details?: string[]
+  fingerprintSource?: unknown
+  sourceRecordId?: string
+  sourceRecordLabel?: string
+}): NotificationSeed {
+  const {
+    module,
+    issueKey,
+    recordId,
+    title,
+    description,
+    priority,
+    route,
+    date,
+    details,
+    fingerprintSource,
+    sourceRecordId,
+    sourceRecordLabel,
+  } = options
+
+  return {
+    id: buildNotificationId(module, issueKey, recordId),
+    fingerprint: buildFingerprint(
+      fingerprintSource ?? {
+        issueKey,
+        title,
+        description,
+        details,
+      },
+    ),
+    tipo: module,
+    titulo: title,
+    descripcion: description,
+    prioridad: priority,
+    ruta: route,
+    fecha: date || new Date().toISOString(),
+    detalles: details,
+    sourceRecordId,
+    sourceRecordLabel,
+  }
+}
+
+function createCollectionNotification(options: {
+  module: NotificationModule
+  issueKey: string
+  title: string
+  description: string
+  priority: NotificationPriority
+  route: string
+  items: any[]
+  details?: string[]
+  date?: string
+}) {
+  return createNotification({
+    module: options.module,
+    issueKey: options.issueKey,
+    title: options.title,
+    description: options.description,
+    priority: options.priority,
+    route: options.route,
+    date: options.date,
+    details: options.details,
+    fingerprintSource: summarizeItems(options.items),
+  })
+}
+
+function getCachedNotifications(): PlatformNotification[] {
+  return safeParseJSON<PlatformNotification[]>(NOTIFICATIONS_STORAGE_KEY, [])
+}
+
+function getResolvedLog(): ResolvedPlatformNotification[] {
+  return safeParseJSON<ResolvedPlatformNotification[]>(RESOLVED_LOG_STORAGE_KEY, [])
+}
+
+function persistNotifications(active: PlatformNotification[], resolved: ResolvedPlatformNotification[]) {
+  const activeChanged = writeStorageIfChanged(
+    NOTIFICATIONS_STORAGE_KEY,
+    [...active].sort(compareByPriorityAndDate),
+  )
+  const resolvedChanged = writeStorageIfChanged(
+    RESOLVED_LOG_STORAGE_KEY,
+    [...resolved]
+      .sort((left, right) => new Date(right.resolvedAt).getTime() - new Date(left.resolvedAt).getTime())
+      .slice(0, 250),
+  )
+
+  if (activeChanged || resolvedChanged) {
+    emitNotificationsChanged()
+  }
+}
+
+function toResolvedNotification(
+  notification: PlatformNotification,
+  resolutionType: NotificationResolutionType,
+  resolvedBy: string,
+  resolvedAt: string = new Date().toISOString(),
+): ResolvedPlatformNotification {
+  return {
+    ...notification,
+    leida: true,
+    resolvedAt,
+    resolvedBy,
+    resolutionType,
+  }
+}
+
+function upsertResolvedNotification(
+  log: ResolvedPlatformNotification[],
+  notification: PlatformNotification,
+  resolutionType: NotificationResolutionType,
+  resolvedBy: string,
+  resolvedAt: string = new Date().toISOString(),
+) {
+  const existingEntry = log.find(
+    (entry) => entry.id === notification.id && entry.fingerprint === notification.fingerprint,
+  )
+  if (existingEntry?.resolutionType === "manual" && resolutionType === "automatic") {
+    return [existingEntry, ...log.filter((entry) => entry !== existingEntry)]
+  }
+
+  const filtered = log.filter(
+    (entry) => !(entry.id === notification.id && entry.fingerprint === notification.fingerprint),
+  )
+  return [toResolvedNotification(notification, resolutionType, resolvedBy, resolvedAt), ...filtered]
+}
+
+function isSuppressedByManualResolution(
+  notification: NotificationSeed,
+  resolvedLog: ResolvedPlatformNotification[],
+) {
+  return resolvedLog.some(
+    (entry) =>
+      entry.id === notification.id &&
+      entry.fingerprint === notification.fingerprint &&
+      entry.resolutionType === "manual",
+  )
+}
+
+function buildInventoryDescription(summary: ReturnType<typeof summarizeInventoryCompliance>, inventory: any) {
+  if (summary.subInventories.length === 0) {
+    return "El inventario no contiene subinventarios válidos. Registra al menos uno para completar el RAT."
+  }
+
+  const topIssues = summary.missingFields.slice(0, 3)
+  const issuesSuffix =
+    summary.missingFields.length > 3 ? ` y ${summary.missingFields.length - 3} pendiente(s) más` : ""
+  const fileMessage = summary.missingFileFields.length > 0
+    ? ` Incluye ${summary.missingFileFields.length} archivo(s) o evidencia(s) faltante(s).`
+    : ""
+  const completionMessage =
+    inventory?.status === "completado"
+      ? "Está marcado como completado, pero el análisis real todavía detecta brechas."
+      : "Aún tiene brechas de captura o cumplimiento."
+
+  return `${completionMessage} Cumplimiento estimado: ${summary.weightedCompliance}%. ${summary.missingSections.length} sección(es) afectada(s). ${topIssues.length > 0 ? `Pendientes principales: ${topIssues.join(", ")}${issuesSuffix}.` : ""}${fileMessage}`
+}
+
+function buildInventoryDetails(summary: ReturnType<typeof summarizeInventoryCompliance>) {
+  return summary.subInventories
+    .filter((subInventory) => !subInventory.isCompliant)
+    .map((subInventory) => {
+      const pending = subInventory.missingFields.slice(0, 4)
+      const pendingSuffix =
+        subInventory.missingFields.length > 4
+          ? ` y ${subInventory.missingFields.length - 4} pendiente(s) más`
+          : ""
+      return `${subInventory.databaseName}: ${pending.join(", ")}${pendingSuffix}`
+    })
+}
+
+function scanInventarios(): NotificationSeed[] {
+  const alerts: NotificationSeed[] = []
+  const inventories = safeParseJSON<any[]>("inventories", [])
+  const storedFiles = safeParseJSON<any[]>("storedFiles", [])
+  const linkedFiles = createLinkedFileIndex(storedFiles)
 
   if (inventories.length === 0) {
-    alerts.push({
-      id: generateId("inv", "empty"),
-      tipo: "inventarios",
-      titulo: "Sin inventarios registrados",
-      descripcion: "No se ha registrado ningún inventario de datos personales. Es obligatorio para cumplir con la LFPDPPP.",
-      prioridad: "alta",
-      ruta: "/rat/registro",
-      fecha: new Date().toISOString(),
-      leida: false,
-    });
+    alerts.push(
+      createNotification({
+        module: "inventarios",
+        issueKey: "empty",
+        title: "Sin inventarios registrados",
+        description:
+          "No se ha registrado ningún inventario de datos personales. Es obligatorio para cumplir con la LFPDPPP.",
+        priority: "alta",
+        route: "/rat/registro",
+        fingerprintSource: { state: "empty" },
+      }),
+    )
   } else {
-    // Check incomplete inventories (missing key fields)
-    const incomplete = inventories.filter((inv: any) =>
-      !inv.systemName || !inv.legalBasis || !inv.retentionPeriod || !inv.dataTypes || inv.dataTypes?.length === 0
-    );
-    if (incomplete.length > 0) {
-      alerts.push({
-        id: generateId("inv", `incomplete-${incomplete.length}`),
-        tipo: "inventarios",
-        titulo: `${incomplete.length} inventario(s) incompleto(s)`,
-        descripcion: `Hay inventarios sin nombre, base legal, periodo de retención o tipos de datos. Completa la información para cumplir con la normativa.`,
-        prioridad: "media",
-        ruta: "/rat",
-        fecha: new Date().toISOString(),
-        leida: false,
-      });
-    }
+    inventories.forEach((inventory, index) => {
+      const recordId = inventory?.id || `inventory-${index + 1}`
+      const summary = summarizeInventoryCompliance(inventory, linkedFiles)
 
-    // Check inventories without responsible area
-    const noResponsible = inventories.filter((inv: any) => !inv.responsibleArea);
-    if (noResponsible.length > 0) {
-      alerts.push({
-        id: generateId("inv", `no-responsible-${noResponsible.length}`),
-        tipo: "inventarios",
-        titulo: `${noResponsible.length} inventario(s) sin área responsable`,
-        descripcion: "Asigna un área responsable a cada inventario para establecer la rendición de cuentas.",
-        prioridad: "baja",
-        ruta: "/rat",
-        fecha: new Date().toISOString(),
-        leida: false,
-      });
-    }
+      if (!summary.isCompliant) {
+        const title =
+          inventory?.status === "completado"
+            ? `Inventario "${summary.inventoryName}" marcado como completado pero con brechas`
+            : `Inventario "${summary.inventoryName}" con información pendiente`
 
-    // Check inventories without transfer info when they have transfers
-    const noTransferJustification = inventories.filter((inv: any) =>
-      inv.hasInternationalTransfer && !inv.transferCountry
-    );
-    if (noTransferJustification.length > 0) {
-      alerts.push({
-        id: generateId("inv", `transfer-${noTransferJustification.length}`),
-        tipo: "inventarios",
-        titulo: `${noTransferJustification.length} transferencias internacionales sin país destino`,
-        descripcion: "Existen inventarios con transferencia internacional marcada pero sin país destino especificado.",
-        prioridad: "alta",
-        ruta: "/rat",
-        fecha: new Date().toISOString(),
-        leida: false,
-      });
-    }
-  }
-
-  // Check for saved progress (draft not submitted)
-  const hasProgress = safeParseJSON<any>("inventories_progress", null);
-  if (hasProgress) {
-    alerts.push({
-      id: generateId("inv", "draft"),
-      tipo: "inventarios",
-      titulo: "Inventario en borrador sin enviar",
-      descripcion: "Tienes un inventario guardado como borrador que no se ha completado. Retómalo para no perder el avance.",
-      prioridad: "baja",
-      ruta: "/rat/registro",
-      fecha: new Date().toISOString(),
-      leida: false,
-    });
-  }
-
-  return alerts;
-}
-
-function scanContratos(): PlatformNotification[] {
-  const alerts: PlatformNotification[] = [];
-  const contracts = safeParseJSON<any[]>("contractsHistory", []);
-
-  if (contracts.length === 0) return alerts;
-
-  const now = new Date();
-
-  // Contracts expiring within 30 days
-  const expiringSoon = contracts.filter((c: any) => {
-    if (!c.endDate) return false;
-    const end = new Date(c.endDate);
-    const daysLeft = Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-    return daysLeft > 0 && daysLeft <= 30;
-  });
-  if (expiringSoon.length > 0) {
-    alerts.push({
-      id: generateId("contract", `expiring-${expiringSoon.length}`),
-      tipo: "contratos",
-      titulo: `${expiringSoon.length} contrato(s) por vencer en 30 días`,
-      descripcion: "Revisa y renueva los contratos con terceros que están próximos a vencer para evitar interrupciones.",
-      prioridad: "alta",
-      ruta: "/third-party-contracts",
-      fecha: new Date().toISOString(),
-      leida: false,
-    });
-  }
-
-  // Already expired contracts
-  const expired = contracts.filter((c: any) => {
-    if (!c.endDate) return false;
-    return new Date(c.endDate) < now;
-  });
-  if (expired.length > 0) {
-    alerts.push({
-      id: generateId("contract", `expired-${expired.length}`),
-      tipo: "contratos",
-      titulo: `${expired.length} contrato(s) vencido(s)`,
-      descripcion: "Existen contratos con terceros que ya han expirado. Requiere acción inmediata para renovar o dar de baja.",
-      prioridad: "alta",
-      ruta: "/third-party-contracts",
-      fecha: new Date().toISOString(),
-      leida: false,
-    });
-  }
-
-  // Contracts without privacy clauses
-  const noClauses = contracts.filter((c: any) => !c.hasPrivacyClauses && c.status !== "terminado");
-  if (noClauses.length > 0) {
-    alerts.push({
-      id: generateId("contract", `no-clauses-${noClauses.length}`),
-      tipo: "contratos",
-      titulo: `${noClauses.length} contrato(s) sin cláusulas de privacidad`,
-      descripcion: "Algunos contratos activos no tienen cláusulas de protección de datos personales incorporadas.",
-      prioridad: "media",
-      ruta: "/third-party-contracts",
-      fecha: new Date().toISOString(),
-      leida: false,
-    });
-  }
-
-  // Contracts in draft status
-  const drafts = contracts.filter((c: any) => c.status === "borrador" || c.status === "draft");
-  if (drafts.length > 0) {
-    alerts.push({
-      id: generateId("contract", `drafts-${drafts.length}`),
-      tipo: "contratos",
-      titulo: `${drafts.length} contrato(s) en borrador`,
-      descripcion: "Hay contratos en estado de borrador que requieren finalización y firma.",
-      prioridad: "baja",
-      ruta: "/third-party-contracts",
-      fecha: new Date().toISOString(),
-      leida: false,
-    });
-  }
-
-  return alerts;
-}
-
-function scanSeguridad(): PlatformNotification[] {
-  const alerts: PlatformNotification[] = [];
-  const sgsdp = safeParseJSON<any>("davara-sgsdp-storage", null);
-  if (!sgsdp?.state) return alerts;
-
-  const state = sgsdp.state;
-  const medidas = state.medidasCatalogo || [];
-
-  // Controls not yet evaluated
-  const sinEvaluar = medidas.filter((m: any) => m.estado === "sin_evaluar");
-  if (sinEvaluar.length > 0) {
-    alerts.push({
-      id: generateId("sgsdp", `sin-evaluar-${sinEvaluar.length}`),
-      tipo: "seguridad",
-      titulo: `${sinEvaluar.length} controles sin evaluar`,
-      descripcion: "Hay controles del catálogo INAI que aún no han sido evaluados en el análisis de brecha. Completa la evaluación para obtener un score preciso.",
-      prioridad: sinEvaluar.length > 20 ? "alta" : "media",
-      ruta: "/security-system/fase-1-planificar",
-      fecha: new Date().toISOString(),
-      leida: false,
-    });
-  }
-
-  // Controls not implemented without justification
-  const sinJustificar = medidas.filter((m: any) =>
-    (m.estado === "no_implementado" || m.estado === "no_aplica") && !m.justificacion?.trim()
-  );
-  if (sinJustificar.length > 0) {
-    alerts.push({
-      id: generateId("sgsdp", `sin-justificar-${sinJustificar.length}`),
-      tipo: "seguridad",
-      titulo: `${sinJustificar.length} controles sin justificación`,
-      descripcion: "Existen controles marcados como no implementados o no aplica que no tienen justificación. La LFPDPPP exige documentar el motivo.",
-      prioridad: "alta",
-      ruta: "/security-system/fase-1-planificar",
-      fecha: new Date().toISOString(),
-      leida: false,
-    });
-  }
-
-  // Controls not implemented and no plan set
-  const sinPlan = medidas.filter((m: any) =>
-    m.estado === "no_implementado" && !m.seVaImplementar
-  );
-  if (sinPlan.length > 0) {
-    alerts.push({
-      id: generateId("sgsdp", `sin-plan-${sinPlan.length}`),
-      tipo: "seguridad",
-      titulo: `${sinPlan.length} controles sin plan de implementación`,
-      descripcion: "Hay controles no implementados sin plan definido. Decide si se van a implementar y establece fechas planeadas.",
-      prioridad: "media",
-      ruta: "/security-system/fase-1-planificar",
-      fecha: new Date().toISOString(),
-      leida: false,
-    });
-  }
-
-  // No risks registered
-  const riesgos = state.riesgos || [];
-  if (riesgos.length === 0) {
-    alerts.push({
-      id: generateId("sgsdp", "no-riesgos"),
-      tipo: "seguridad",
-      titulo: "Sin riesgos registrados en el SGSDP",
-      descripcion: "No se han identificado riesgos en el Paso 5 del SGSDP. Es fundamental para el análisis de brecha y el plan de tratamiento.",
-      prioridad: "alta",
-      ruta: "/security-system/fase-1-planificar",
-      fecha: new Date().toISOString(),
-      leida: false,
-    });
-  }
-
-  // No roles assigned
-  const roles = state.roles || [];
-  if (roles.length === 0) {
-    alerts.push({
-      id: generateId("sgsdp", "no-roles"),
-      tipo: "seguridad",
-      titulo: "Sin roles SGSDP asignados",
-      descripcion: "No se han asignado roles y responsabilidades en el SGSDP. Define el equipo de privacidad para cumplir con CTG-03.",
-      prioridad: "media",
-      ruta: "/security-system/fase-1-planificar",
-      fecha: new Date().toISOString(),
-      leida: false,
-    });
-  }
-
-  // No assets linked
-  const activos = state.activos || [];
-  if (activos.length === 0) {
-    alerts.push({
-      id: generateId("sgsdp", "no-activos"),
-      tipo: "seguridad",
-      titulo: "Sin activos vinculados al SGSDP",
-      descripcion: "No se han vinculado activos de información al SGSDP. Sincroniza con el módulo de inventarios.",
-      prioridad: "media",
-      ruta: "/security-system/fase-1-planificar",
-      fecha: new Date().toISOString(),
-      leida: false,
-    });
-  }
-
-  // Auditorias pending
-  const auditorias = state.auditorias || [];
-  const auditPendientes = auditorias.filter((a: any) => a.estado !== "Completada");
-  if (auditPendientes.length > 0) {
-    alerts.push({
-      id: generateId("sgsdp", `audit-pendientes-${auditPendientes.length}`),
-      tipo: "seguridad",
-      titulo: `${auditPendientes.length} auditoría(s) del SGSDP pendiente(s)`,
-      descripcion: "Hay auditorías internas del SGSDP que aún no se han completado en la Fase 3 - Verificar.",
-      prioridad: "media",
-      ruta: "/security-system/fase-3-verificar",
-      fecha: new Date().toISOString(),
-      leida: false,
-    });
-  }
-
-  // CAPAs vinculadas al SGSDP vencidas
-  const mejoras = state.mejoras || [];
-  const capasVencidas = mejoras.filter((m: any) => {
-    if (m.estado === "Cerrada" || m.estado === "Verificada") return false;
-    if (!m.fechaLimite) return false;
-    return new Date(m.fechaLimite) < new Date();
-  });
-  if (capasVencidas.length > 0) {
-    alerts.push({
-      id: generateId("sgsdp", `capa-vencidas-${capasVencidas.length}`),
-      tipo: "seguridad",
-      titulo: `${capasVencidas.length} Acción(es) CAPA vencida(s)`,
-      descripcion: "Existen acciones correctivas o preventivas del SGSDP que superaron su fecha límite de implementación recomendada. Actúa en el Paso 9.",
-      prioridad: "alta",
-      ruta: "/security-system/fase-4-actuar",
-      fecha: new Date().toISOString(),
-      leida: false,
-    });
-  }
-
-  return alerts;
-}
-
-function scanCapacitacion(): PlatformNotification[] {
-  const alerts: PlatformNotification[] = [];
-  const now = new Date();
-
-  // ── New Training Store (v1) ──
-  const trainStore = safeParseJSON<any>("davara-training-store-v1", null);
-  const state = trainStore?.state;
-
-  if (state) {
-    const programas = state.programas || [];
-    const sesiones = state.sesiones || [];
-    const constancias = state.constancias || [];
-    const resultados = state.resultados || [];
-    const matrizRolTemas = state.matrizRolTemas || [];
-
-    // 1. No programs registered
-    if (programas.length === 0) {
-      alerts.push({
-        id: generateId("cap", "no-programas"),
-        tipo: "capacitacion",
-        titulo: "Sin programas de capacitación",
-        descripcion: "No se han registrado programas en el catálogo. La formación del personal es obligatoria según CTG-05 del INAI y Art. 48 RLFPDPPP.",
-        prioridad: "alta",
-        ruta: "/davara-training",
-        fecha: now.toISOString(),
-        leida: false,
-      });
-    }
-
-    // 2. Constancias vencidas
-    const vencidas = constancias.filter((c: any) => {
-      if (c.estado === "vencida") return true;
-      if (c.fechaVencimiento && new Date(c.fechaVencimiento) < now) return true;
-      return false;
-    });
-    if (vencidas.length > 0) {
-      alerts.push({
-        id: generateId("cap", `const-vencidas-${vencidas.length}`),
-        tipo: "capacitacion",
-        titulo: `${vencidas.length} acreditación(es) vencida(s)`,
-        descripcion: "Hay constancias de capacitación cuyo periodo de vigencia ha expirado. El personal requiere refresh inmediato.",
-        prioridad: "alta",
-        ruta: "/davara-training",
-        fecha: now.toISOString(),
-        leida: false,
-      });
-    }
-
-    // 3. Refresh próximo a vencer (≤30 días)
-    const proximoVencer = constancias.filter((c: any) => {
-      if (!c.fechaVencimiento || c.estado === "vencida") return false;
-      const vence = new Date(c.fechaVencimiento);
-      const dias = Math.ceil((vence.getTime() - now.getTime()) / (1000*60*60*24));
-      return dias > 0 && dias <= 30;
-    });
-    if (proximoVencer.length > 0) {
-      alerts.push({
-        id: generateId("cap", `refresh-proximo-${proximoVencer.length}`),
-        tipo: "capacitacion",
-        titulo: `${proximoVencer.length} acreditación(es) próxima(s) a vencer`,
-        descripcion: "Hay acreditaciones que vencerán en los próximos 30 días. Programa sesiones de refresh.",
-        prioridad: "media",
-        ruta: "/davara-training",
-        fecha: now.toISOString(),
-        leida: false,
-      });
-    }
-
-    // 4. Sesiones próximas (≤3 días)
-    const sesionesProximas = sesiones.filter((s: any) => {
-      if (s.estado !== "programada") return false;
-      const f = new Date(s.fechaHoraProgramada);
-      const dias = Math.ceil((f.getTime() - now.getTime()) / (1000*60*60*24));
-      return dias >= 0 && dias <= 3;
-    });
-    if (sesionesProximas.length > 0) {
-      alerts.push({
-        id: generateId("cap", `sesion-proxima-${sesionesProximas.length}`),
-        tipo: "capacitacion",
-        titulo: `${sesionesProximas.length} sesión(es) en los próximos 3 días`,
-        descripcion: "Tienes sesiones de capacitación programadas para los próximos 3 días. Confirma asistencia y materiales.",
-        prioridad: "baja",
-        ruta: "/davara-training",
-        fecha: now.toISOString(),
-        leida: false,
-      });
-    }
-
-    // 5. Evaluaciones reprobadas sin reintento
-    const reprobadas = resultados.filter((r: any) => r.resultado === "no_acreditado");
-    const sinReintento = reprobadas.filter((r: any) => {
-      const reintentos = resultados.filter((r2: any) => 
-        r2.personaRolId === r.personaRolId && r2.programaId === r.programaId && r2.numeroIntento > r.numeroIntento
-      );
-      return reintentos.length === 0;
-    });
-    if (sinReintento.length > 0) {
-      alerts.push({
-        id: generateId("cap", `eval-reprobada-${sinReintento.length}`),
-        tipo: "capacitacion",
-        titulo: `${sinReintento.length} evaluación(es) reprobada(s) sin reintento`,
-        descripcion: "Hay personal que no acreditó su evaluación y aún no ha presentado un reintento. Programa nueva sesión.",
-        prioridad: "media",
-        ruta: "/davara-training",
-        fecha: now.toISOString(),
-        leida: false,
-      });
-    }
-
-    // 6. Sesiones extraordinarias pendientes
-    const extraordinarias = sesiones.filter((s: any) =>
-      (s.origenSesion === "hallazgo_auditoria" || s.origenSesion === "incidente_seguridad") && s.estado === "programada"
-    );
-    if (extraordinarias.length > 0) {
-      alerts.push({
-        id: generateId("cap", `extraordinaria-${extraordinarias.length}`),
-        tipo: "capacitacion",
-        titulo: `${extraordinarias.length} sesión(es) extraordinaria(s) pendiente(s)`,
-        descripcion: "Hay sesiones originadas por hallazgos de auditoría o incidentes que aún no se han completado.",
-        prioridad: "alta",
-        ruta: "/davara-training",
-        fecha: now.toISOString(),
-        leida: false,
-      });
-    }
-
-    // 7. DNC breaches from new store
-    const sgsdpState = safeParseJSON<any>("davara-sgsdp-storage", null);
-    if (sgsdpState?.state?.roles && matrizRolTemas.length > 0) {
-      const sgsdpRoles = sgsdpState.state.roles || [];
-      let rolesConBrecha50 = 0;
-      sgsdpRoles.forEach((rol: any) => {
-        const matriz = matrizRolTemas.find((m: any) => m.rolId === rol.id);
-        if (!matriz) return;
-        const requeridos = matriz.temasRequeridosIds || [];
-        if (requeridos.length === 0) return;
-        const constRol = constancias.filter((c: any) => c.personaRolId === rol.id && c.estado === "vigente");
-        const temas = new Set<string>();
-        constRol.forEach((c: any) => (c.temasCubiertosIds || []).forEach((t: string) => temas.add(t)));
-        const cubiertos = requeridos.filter((t: string) => temas.has(t)).length;
-        const pct = (cubiertos / requeridos.length) * 100;
-        if (pct < 50) rolesConBrecha50++;
-      });
-      if (rolesConBrecha50 > 0) {
-        alerts.push({
-          id: generateId("cap", `dnc-critico-${rolesConBrecha50}`),
-          tipo: "capacitacion",
-          titulo: `${rolesConBrecha50} rol(es) con brecha de capacitación >50%`,
-          descripcion: "Hay personal con menos del 50% de los temas requeridos cubiertos. Requiere acción urgente.",
-          prioridad: "alta",
-          ruta: "/davara-training",
-          fecha: now.toISOString(),
-          leida: false,
-        });
+        alerts.push(
+          createNotification({
+            module: "inventarios",
+            issueKey: "inventory-compliance",
+            recordId,
+            title,
+            description: buildInventoryDescription(summary, inventory),
+            priority:
+              inventory?.status === "completado" ||
+              summary.missingFileFields.length > 0 ||
+              summary.weightedCompliance < 70
+                ? "alta"
+                : "media",
+            route: "/rat/registro",
+            date: inventory?.updatedAt || inventory?.createdAt,
+            details: buildInventoryDetails(summary),
+            fingerprintSource: {
+              inventoryId: recordId,
+              inventoryStatus: inventory?.status,
+              weightedCompliance: summary.weightedCompliance,
+              missingFields: summary.missingFields,
+              missingFileFields: summary.missingFileFields,
+            },
+            sourceRecordId: recordId,
+            sourceRecordLabel: summary.inventoryName,
+          }),
+        )
       }
-    }
-  } else {
-    // Fallback: no new store yet, check legacy
-    alerts.push({
-      id: generateId("cap", "no-modulo"),
-      tipo: "capacitacion",
-      titulo: "Módulo de Capacitación sin datos",
-      descripcion: "No se ha inicializado el módulo de capacitación. Ingresa al módulo para configurar programas y sesiones.",
-      prioridad: "media",
-      ruta: "/davara-training",
-      fecha: now.toISOString(),
-      leida: false,
-    });
+    })
   }
 
-  return alerts;
+  const draftInventory = safeParseJSON<any>("inventories_progress", null)
+  if (draftInventory) {
+    const draftSummary = summarizeInventoryCompliance(draftInventory, linkedFiles)
+    const topDraftIssues = draftSummary.missingFields.slice(0, 3)
+    const draftDescription =
+      topDraftIssues.length > 0
+        ? `Existe un inventario en borrador sin finalizar. Pendientes principales: ${topDraftIssues.join(", ")}.`
+        : "Existe un inventario en borrador sin finalizar. Retómalo para no perder el avance."
+
+    alerts.push(
+      createNotification({
+        module: "inventarios",
+        issueKey: "draft-progress",
+        recordId: draftInventory?.id || "current",
+        title: "Inventario en borrador sin concluir",
+        description: draftDescription,
+        priority: draftSummary.totalIssues > 0 ? "media" : "baja",
+        route: "/rat/registro",
+        date: draftInventory?.updatedAt || draftInventory?.createdAt,
+        details: draftSummary.missingFields.slice(0, 5),
+        fingerprintSource: {
+          draftId: draftInventory?.id || "current",
+          missingFields: draftSummary.missingFields,
+          weightedCompliance: draftSummary.weightedCompliance,
+        },
+      }),
+    )
+  }
+
+  return alerts
 }
 
-function scanARCO(): PlatformNotification[] {
-  const alerts: PlatformNotification[] = [];
-  const requests = safeParseJSON<any[]>("arcoRequests", []);
+function scanContratos(): NotificationSeed[] {
+  const alerts: NotificationSeed[] = []
+  const contracts = safeParseJSON<any[]>("contractsHistory", [])
+  if (contracts.length === 0) return alerts
 
-  if (requests.length === 0) return alerts;
+  const now = new Date()
+  const expiringSoon = contracts.filter((contract) => {
+    if (!contract?.endDate) return false
+    const endDate = new Date(contract.endDate)
+    const daysLeft = Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+    return daysLeft > 0 && daysLeft <= 30
+  })
+  if (expiringSoon.length > 0) {
+    alerts.push(
+      createCollectionNotification({
+        module: "contratos",
+        issueKey: "expiring-soon",
+        title: `${expiringSoon.length} contrato(s) por vencer en 30 días`,
+        description:
+          "Revisa y renueva los contratos con terceros que están próximos a vencer para evitar interrupciones.",
+        priority: "alta",
+        route: "/third-party-contracts",
+        items: expiringSoon,
+        details: summarizeItems(expiringSoon).slice(0, 5).map((item) => `${item.label}: vence ${item.updatedAt || "sin fecha"}`),
+      }),
+    )
+  }
 
-  const now = new Date();
+  const expired = contracts.filter((contract) => contract?.endDate && new Date(contract.endDate) < now)
+  if (expired.length > 0) {
+    alerts.push(
+      createCollectionNotification({
+        module: "contratos",
+        issueKey: "expired",
+        title: `${expired.length} contrato(s) vencido(s)`,
+        description:
+          "Existen contratos con terceros que ya han expirado. Requiere acción inmediata para renovar o dar de baja.",
+        priority: "alta",
+        route: "/third-party-contracts",
+        items: expired,
+      }),
+    )
+  }
 
-  // Pending requests (not resolved)
-  const pendientes = requests.filter((r: any) =>
-    r.status === "pendiente" || r.status === "en-proceso" || r.status === "recibida"
-  );
+  const noClauses = contracts.filter(
+    (contract) => !contract?.hasPrivacyClauses && contract?.status !== "terminado",
+  )
+  if (noClauses.length > 0) {
+    alerts.push(
+      createCollectionNotification({
+        module: "contratos",
+        issueKey: "no-privacy-clauses",
+        title: `${noClauses.length} contrato(s) sin cláusulas de privacidad`,
+        description:
+          "Algunos contratos activos no tienen cláusulas de protección de datos personales incorporadas.",
+        priority: "media",
+        route: "/third-party-contracts",
+        items: noClauses,
+      }),
+    )
+  }
+
+  const drafts = contracts.filter((contract) => contract?.status === "borrador" || contract?.status === "draft")
+  if (drafts.length > 0) {
+    alerts.push(
+      createCollectionNotification({
+        module: "contratos",
+        issueKey: "drafts",
+        title: `${drafts.length} contrato(s) en borrador`,
+        description: "Hay contratos en estado de borrador que requieren finalización y firma.",
+        priority: "baja",
+        route: "/third-party-contracts",
+        items: drafts,
+      }),
+    )
+  }
+
+  return alerts
+}
+
+function scanSeguridad(): NotificationSeed[] {
+  const alerts: NotificationSeed[] = []
+  const sgsdp = safeParseJSON<any>("davara-sgsdp-storage", null)
+  if (!sgsdp?.state) return alerts
+
+  const state = sgsdp.state
+  const medidas = Array.isArray(state.medidasCatalogo) ? state.medidasCatalogo : []
+
+  const sinEvaluar = medidas.filter((medida: any) => medida?.estado === "sin_evaluar")
+  if (sinEvaluar.length > 0) {
+    alerts.push(
+      createCollectionNotification({
+        module: "seguridad",
+        issueKey: "controles-sin-evaluar",
+        title: `${sinEvaluar.length} controles sin evaluar`,
+        description:
+          "Hay controles del catálogo INAI que aún no han sido evaluados en el análisis de brecha. Completa la evaluación para obtener un score preciso.",
+        priority: sinEvaluar.length > 20 ? "alta" : "media",
+        route: "/security-system/fase-1-planificar",
+        items: sinEvaluar,
+      }),
+    )
+  }
+
+  const sinJustificar = medidas.filter(
+    (medida: any) =>
+      (medida?.estado === "no_implementado" || medida?.estado === "no_aplica") &&
+      !medida?.justificacion?.trim(),
+  )
+  if (sinJustificar.length > 0) {
+    alerts.push(
+      createCollectionNotification({
+        module: "seguridad",
+        issueKey: "controles-sin-justificacion",
+        title: `${sinJustificar.length} controles sin justificación`,
+        description:
+          "Existen controles marcados como no implementados o no aplica que no tienen justificación. La LFPDPPP exige documentar el motivo.",
+        priority: "alta",
+        route: "/security-system/fase-1-planificar",
+        items: sinJustificar,
+      }),
+    )
+  }
+
+  const sinPlan = medidas.filter((medida: any) => medida?.estado === "no_implementado" && !medida?.seVaImplementar)
+  if (sinPlan.length > 0) {
+    alerts.push(
+      createCollectionNotification({
+        module: "seguridad",
+        issueKey: "controles-sin-plan",
+        title: `${sinPlan.length} controles sin plan de implementación`,
+        description:
+          "Hay controles no implementados sin plan definido. Decide si se van a implementar y establece fechas planeadas.",
+        priority: "media",
+        route: "/security-system/fase-1-planificar",
+        items: sinPlan,
+      }),
+    )
+  }
+
+  const riesgos = Array.isArray(state.riesgos) ? state.riesgos : []
+  if (riesgos.length === 0) {
+    alerts.push(
+      createNotification({
+        module: "seguridad",
+        issueKey: "no-riesgos",
+        title: "Sin riesgos registrados en el SGSDP",
+        description:
+          "No se han identificado riesgos en el Paso 5 del SGSDP. Es fundamental para el análisis de brecha y el plan de tratamiento.",
+        priority: "alta",
+        route: "/security-system/fase-1-planificar",
+        fingerprintSource: { state: "no-risks" },
+      }),
+    )
+  }
+
+  const roles = Array.isArray(state.roles) ? state.roles : []
+  if (roles.length === 0) {
+    alerts.push(
+      createNotification({
+        module: "seguridad",
+        issueKey: "no-roles",
+        title: "Sin roles SGSDP asignados",
+        description:
+          "No se han asignado roles y responsabilidades en el SGSDP. Define el equipo de privacidad para cumplir con CTG-03.",
+        priority: "media",
+        route: "/security-system/fase-1-planificar",
+        fingerprintSource: { state: "no-roles" },
+      }),
+    )
+  }
+
+  const activos = Array.isArray(state.activos) ? state.activos : []
+  if (activos.length === 0) {
+    alerts.push(
+      createNotification({
+        module: "seguridad",
+        issueKey: "no-assets",
+        title: "Sin activos vinculados al SGSDP",
+        description: "No se han vinculado activos de información al SGSDP. Sincroniza con el módulo de inventarios.",
+        priority: "media",
+        route: "/security-system/fase-1-planificar",
+        fingerprintSource: { state: "no-assets" },
+      }),
+    )
+  }
+
+  const auditorias = Array.isArray(state.auditorias) ? state.auditorias : []
+  const auditPendientes = auditorias.filter((audit: any) => audit?.estado !== "Completada")
+  if (auditPendientes.length > 0) {
+    alerts.push(
+      createCollectionNotification({
+        module: "seguridad",
+        issueKey: "auditorias-pendientes",
+        title: `${auditPendientes.length} auditoría(s) del SGSDP pendiente(s)`,
+        description:
+          "Hay auditorías internas del SGSDP que aún no se han completado en la Fase 3 - Verificar.",
+        priority: "media",
+        route: "/security-system/fase-3-verificar",
+        items: auditPendientes,
+      }),
+    )
+  }
+
+  const mejoras = Array.isArray(state.mejoras) ? state.mejoras : []
+  const capasVencidas = mejoras.filter((mejora: any) => {
+    if (mejora?.estado === "Cerrada" || mejora?.estado === "Verificada") return false
+    if (!mejora?.fechaLimite) return false
+    return new Date(mejora.fechaLimite) < new Date()
+  })
+  if (capasVencidas.length > 0) {
+    alerts.push(
+      createCollectionNotification({
+        module: "seguridad",
+        issueKey: "capa-vencidas",
+        title: `${capasVencidas.length} acción(es) CAPA vencida(s)`,
+        description:
+          "Existen acciones correctivas o preventivas del SGSDP que superaron su fecha límite de implementación recomendada. Actúa en el Paso 9.",
+        priority: "alta",
+        route: "/security-system/fase-4-actuar",
+        items: capasVencidas,
+      }),
+    )
+  }
+
+  return alerts
+}
+
+function scanCapacitacion(): NotificationSeed[] {
+  const alerts: NotificationSeed[] = []
+  const now = new Date()
+  const trainStore = safeParseJSON<any>("davara-training-store-v1", null)
+  const state = trainStore?.state
+
+  if (!state) {
+    alerts.push(
+      createNotification({
+        module: "capacitacion",
+        issueKey: "module-empty",
+        title: "Módulo de Capacitación sin datos",
+        description:
+          "No se ha inicializado el módulo de capacitación. Ingresa al módulo para configurar programas y sesiones.",
+        priority: "media",
+        route: "/davara-training",
+        fingerprintSource: { state: "empty" },
+      }),
+    )
+    return alerts
+  }
+
+  const programas = Array.isArray(state.programas) ? state.programas : []
+  const sesiones = Array.isArray(state.sesiones) ? state.sesiones : []
+  const constancias = Array.isArray(state.constancias) ? state.constancias : []
+  const resultados = Array.isArray(state.resultados) ? state.resultados : []
+  const matrizRolTemas = Array.isArray(state.matrizRolTemas) ? state.matrizRolTemas : []
+
+  if (programas.length === 0) {
+    alerts.push(
+      createNotification({
+        module: "capacitacion",
+        issueKey: "no-programs",
+        title: "Sin programas de capacitación",
+        description:
+          "No se han registrado programas en el catálogo. La formación del personal es obligatoria según CTG-05 del INAI y Art. 48 RLFPDPPP.",
+        priority: "alta",
+        route: "/davara-training",
+        fingerprintSource: { state: "no-programs" },
+      }),
+    )
+  }
+
+  const vencidas = constancias.filter((constancia: any) => {
+    if (constancia?.estado === "vencida") return true
+    if (constancia?.fechaVencimiento && new Date(constancia.fechaVencimiento) < now) return true
+    return false
+  })
+  if (vencidas.length > 0) {
+    alerts.push(
+      createCollectionNotification({
+        module: "capacitacion",
+        issueKey: "constancias-vencidas",
+        title: `${vencidas.length} acreditación(es) vencida(s)`,
+        description:
+          "Hay constancias de capacitación cuyo periodo de vigencia ha expirado. El personal requiere refresh inmediato.",
+        priority: "alta",
+        route: "/davara-training",
+        items: vencidas,
+      }),
+    )
+  }
+
+  const proximas = constancias.filter((constancia: any) => {
+    if (!constancia?.fechaVencimiento || constancia?.estado === "vencida") return false
+    const days = Math.ceil((new Date(constancia.fechaVencimiento).getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+    return days > 0 && days <= 30
+  })
+  if (proximas.length > 0) {
+    alerts.push(
+      createCollectionNotification({
+        module: "capacitacion",
+        issueKey: "refresh-proximo",
+        title: `${proximas.length} acreditación(es) próxima(s) a vencer`,
+        description:
+          "Hay acreditaciones que vencerán en los próximos 30 días. Programa sesiones de refresh.",
+        priority: "media",
+        route: "/davara-training",
+        items: proximas,
+      }),
+    )
+  }
+
+  const sesionesProximas = sesiones.filter((sesion: any) => {
+    if (sesion?.estado !== "programada") return false
+    const days = Math.ceil((new Date(sesion.fechaHoraProgramada).getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+    return days >= 0 && days <= 3
+  })
+  if (sesionesProximas.length > 0) {
+    alerts.push(
+      createCollectionNotification({
+        module: "capacitacion",
+        issueKey: "sesiones-proximas",
+        title: `${sesionesProximas.length} sesión(es) en los próximos 3 días`,
+        description:
+          "Tienes sesiones de capacitación programadas para los próximos 3 días. Confirma asistencia y materiales.",
+        priority: "baja",
+        route: "/davara-training",
+        items: sesionesProximas,
+      }),
+    )
+  }
+
+  const reprobadas = resultados.filter((resultado: any) => resultado?.resultado === "no_acreditado")
+  const sinReintento = reprobadas.filter((resultado: any) => {
+    const reintentos = resultados.filter(
+      (candidate: any) =>
+        candidate?.personaRolId === resultado?.personaRolId &&
+        candidate?.programaId === resultado?.programaId &&
+        candidate?.numeroIntento > resultado?.numeroIntento,
+    )
+    return reintentos.length === 0
+  })
+  if (sinReintento.length > 0) {
+    alerts.push(
+      createCollectionNotification({
+        module: "capacitacion",
+        issueKey: "evaluaciones-reprobadas",
+        title: `${sinReintento.length} evaluación(es) reprobada(s) sin reintento`,
+        description:
+          "Hay personal que no acreditó su evaluación y aún no ha presentado un reintento. Programa nueva sesión.",
+        priority: "media",
+        route: "/davara-training",
+        items: sinReintento,
+      }),
+    )
+  }
+
+  const extraordinarias = sesiones.filter(
+    (sesion: any) =>
+      (sesion?.origenSesion === "hallazgo_auditoria" || sesion?.origenSesion === "incidente_seguridad") &&
+      sesion?.estado === "programada",
+  )
+  if (extraordinarias.length > 0) {
+    alerts.push(
+      createCollectionNotification({
+        module: "capacitacion",
+        issueKey: "sesiones-extraordinarias",
+        title: `${extraordinarias.length} sesión(es) extraordinaria(s) pendiente(s)`,
+        description:
+          "Hay sesiones originadas por hallazgos de auditoría o incidentes que aún no se han completado.",
+        priority: "alta",
+        route: "/davara-training",
+        items: extraordinarias,
+      }),
+    )
+  }
+
+  const sgsdpState = safeParseJSON<any>("davara-sgsdp-storage", null)
+  if (sgsdpState?.state?.roles && matrizRolTemas.length > 0) {
+    const roles = Array.isArray(sgsdpState.state.roles) ? sgsdpState.state.roles : []
+    const rolesCriticos = roles.filter((rol: any) => {
+      const matriz = matrizRolTemas.find((entry: any) => entry?.rolId === rol?.id)
+      if (!matriz) return false
+      const requeridos = Array.isArray(matriz.temasRequeridosIds) ? matriz.temasRequeridosIds : []
+      if (requeridos.length === 0) return false
+      const constanciasRol = constancias.filter((constancia: any) => constancia?.personaRolId === rol?.id && constancia?.estado === "vigente")
+      const cubiertos = new Set<string>()
+      constanciasRol.forEach((constancia: any) => {
+        const temas = Array.isArray(constancia?.temasCubiertosIds) ? constancia.temasCubiertosIds : []
+        temas.forEach((tema: string) => cubiertos.add(tema))
+      })
+      const porcentaje = (requeridos.filter((tema: string) => cubiertos.has(tema)).length / requeridos.length) * 100
+      return porcentaje < 50
+    })
+
+    if (rolesCriticos.length > 0) {
+      alerts.push(
+        createCollectionNotification({
+          module: "capacitacion",
+          issueKey: "brecha-critica",
+          title: `${rolesCriticos.length} rol(es) con brecha de capacitación >50%`,
+          description:
+            "Hay personal con menos del 50% de los temas requeridos cubiertos. Requiere acción urgente.",
+          priority: "alta",
+          route: "/davara-training",
+          items: rolesCriticos,
+        }),
+      )
+    }
+  }
+
+  return alerts
+}
+
+function scanARCO(): NotificationSeed[] {
+  const alerts: NotificationSeed[] = []
+  const requests = safeParseJSON<any[]>("arcoRequests", [])
+  if (requests.length === 0) return alerts
+
+  const now = new Date()
+  const pendientes = requests.filter((request) =>
+    request?.status === "pendiente" ||
+    request?.status === "en-proceso" ||
+    request?.status === "recibida",
+  )
   if (pendientes.length > 0) {
-    alerts.push({
-      id: generateId("arco", `pendientes-${pendientes.length}`),
-      tipo: "arco",
-      titulo: `${pendientes.length} solicitud(es) ARCO pendiente(s)`,
-      descripcion: "Hay solicitudes de derechos ARCO que requieren atención. El plazo legal es de 20 días hábiles.",
-      prioridad: "alta",
-      ruta: "/arco-rights",
-      fecha: new Date().toISOString(),
-      leida: false,
-    });
+    alerts.push(
+      createCollectionNotification({
+        module: "arco",
+        issueKey: "pendientes",
+        title: `${pendientes.length} solicitud(es) ARCO pendiente(s)`,
+        description:
+          "Hay solicitudes de derechos ARCO que requieren atención. El plazo legal es de 20 días hábiles.",
+        priority: "alta",
+        route: "/arco-rights",
+        items: pendientes,
+      }),
+    )
   }
 
-  // Overdue requests (more than 20 business days old, still pending)
-  const masDeVeinteDias = pendientes.filter((r: any) => {
-    if (!r.createdAt && !r.fechaSolicitud) return false;
-    const created = new Date(r.createdAt || r.fechaSolicitud);
-    const daysOld = Math.ceil((now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24));
-    return daysOld > 20;
-  });
-  if (masDeVeinteDias.length > 0) {
-    alerts.push({
-      id: generateId("arco", `vencidas-${masDeVeinteDias.length}`),
-      tipo: "arco",
-      titulo: `⚠️ ${masDeVeinteDias.length} solicitud(es) ARCO fuera de plazo legal`,
-      descripcion: "Existen solicitudes ARCO que han superado los 20 días hábiles sin respuesta. Riesgo de sanción regulatoria.",
-      prioridad: "alta",
-      ruta: "/arco-rights",
-      fecha: new Date().toISOString(),
-      leida: false,
-    });
+  const fueraDePlazo = pendientes.filter((request) => {
+    if (!request?.createdAt && !request?.fechaSolicitud) return false
+    const createdAt = new Date(request.createdAt || request.fechaSolicitud)
+    const daysOld = Math.ceil((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24))
+    return daysOld > 20
+  })
+  if (fueraDePlazo.length > 0) {
+    alerts.push(
+      createCollectionNotification({
+        module: "arco",
+        issueKey: "fuera-de-plazo",
+        title: `⚠️ ${fueraDePlazo.length} solicitud(es) ARCO fuera de plazo legal`,
+        description:
+          "Existen solicitudes ARCO que han superado los 20 días hábiles sin respuesta. Riesgo de sanción regulatoria.",
+        priority: "alta",
+        route: "/arco-rights",
+        items: fueraDePlazo,
+      }),
+    )
   }
 
-  // Requests missing required info
-  const incompletas = requests.filter((r: any) =>
-    !r.requesterName || !r.rightType || !r.description
-  );
+  const incompletas = requests.filter(
+    (request) => !request?.requesterName || !request?.rightType || !request?.description,
+  )
   if (incompletas.length > 0) {
-    alerts.push({
-      id: generateId("arco", `incompletas-${incompletas.length}`),
-      tipo: "arco",
-      titulo: `${incompletas.length} solicitud(es) ARCO con datos incompletos`,
-      descripcion: "Algunas solicitudes no tienen nombre del titular, tipo de derecho o descripción. Completa la información.",
-      prioridad: "media",
-      ruta: "/arco-rights",
-      fecha: new Date().toISOString(),
-      leida: false,
-    });
+    alerts.push(
+      createCollectionNotification({
+        module: "arco",
+        issueKey: "incompletas",
+        title: `${incompletas.length} solicitud(es) ARCO con datos incompletos`,
+        description:
+          "Algunas solicitudes no tienen nombre del titular, tipo de derecho o descripción. Completa la información.",
+        priority: "media",
+        route: "/arco-rights",
+        items: incompletas,
+      }),
+    )
   }
 
-  return alerts;
+  return alerts
 }
 
-function scanIncidentes(): PlatformNotification[] {
-  const alerts: PlatformNotification[] = [];
-  const incidents = safeParseJSON<any[]>("security_incidents_v1", []);
+function scanIncidentes(): NotificationSeed[] {
+  const alerts: NotificationSeed[] = []
+  const incidents = safeParseJSON<any[]>("security_incidents_v1", [])
+  if (incidents.length === 0) return alerts
 
-  if (incidents.length === 0) return alerts;
-
-  // Open incidents (not resolved)
-  const abiertos = incidents.filter((i: any) =>
-    i.status === "abierto" || i.status === "investigacion" || i.status === "en-curso" || i.status === "nuevo"
-  );
+  const abiertos = incidents.filter((incident) =>
+    incident?.status === "abierto" ||
+    incident?.status === "investigacion" ||
+    incident?.status === "en-curso" ||
+    incident?.status === "nuevo",
+  )
   if (abiertos.length > 0) {
-    alerts.push({
-      id: generateId("incident", `abiertos-${abiertos.length}`),
-      tipo: "incidentes",
-      titulo: `${abiertos.length} incidente(s) de seguridad abierto(s)`,
-      descripcion: "Hay incidentes de seguridad que requieren atención inmediata. Resuelve y documenta las acciones tomadas.",
-      prioridad: "alta",
-      ruta: "/incidents-breaches",
-      fecha: new Date().toISOString(),
-      leida: false,
-    });
+    alerts.push(
+      createCollectionNotification({
+        module: "incidentes",
+        issueKey: "abiertos",
+        title: `${abiertos.length} incidente(s) de seguridad abierto(s)`,
+        description:
+          "Hay incidentes de seguridad que requieren atención inmediata. Resuelve y documenta las acciones tomadas.",
+        priority: "alta",
+        route: "/incidents-breaches",
+        items: abiertos,
+      }),
+    )
   }
 
-  // Critical/high severity incidents
-  const criticos = incidents.filter((i: any) =>
-    (i.severity === "critico" || i.severity === "alto" || i.severity === "critical" || i.severity === "high") &&
-    i.status !== "cerrado" && i.status !== "resuelto"
-  );
+  const criticos = incidents.filter((incident) =>
+    (incident?.severity === "critico" ||
+      incident?.severity === "alto" ||
+      incident?.severity === "critical" ||
+      incident?.severity === "high") &&
+    incident?.status !== "cerrado" &&
+    incident?.status !== "resuelto",
+  )
   if (criticos.length > 0) {
-    alerts.push({
-      id: generateId("incident", `criticos-${criticos.length}`),
-      tipo: "incidentes",
-      titulo: `🔴 ${criticos.length} incidente(s) de severidad alta/crítica`,
-      descripcion: "Incidentes con severidad alta o crítica requieren escalamiento y notificación al INAI si afectan datos personales.",
-      prioridad: "alta",
-      ruta: "/incidents-breaches",
-      fecha: new Date().toISOString(),
-      leida: false,
-    });
+    alerts.push(
+      createCollectionNotification({
+        module: "incidentes",
+        issueKey: "criticos",
+        title: `🔴 ${criticos.length} incidente(s) de severidad alta/crítica`,
+        description:
+          "Incidentes con severidad alta o crítica requieren escalamiento y notificación al INAI si afectan datos personales.",
+        priority: "alta",
+        route: "/incidents-breaches",
+        items: criticos,
+      }),
+    )
   }
 
-  // Incidents not notified to owners
-  const sinNotificar = incidents.filter((i: any) =>
-    !i.notifiedOwners && i.status !== "cerrado"
-  );
+  const sinNotificar = incidents.filter((incident) => !incident?.notifiedOwners && incident?.status !== "cerrado")
   if (sinNotificar.length > 0) {
-    alerts.push({
-      id: generateId("incident", `sin-notificar-${sinNotificar.length}`),
-      tipo: "incidentes",
-      titulo: `${sinNotificar.length} incidente(s) sin notificar a titulares`,
-      descripcion: "La LFPDPPP requiere notificar a los titulares afectados cuando una vulneración comprometa sus derechos.",
-      prioridad: "alta",
-      ruta: "/incidents-breaches",
-      fecha: new Date().toISOString(),
-      leida: false,
-    });
+    alerts.push(
+      createCollectionNotification({
+        module: "incidentes",
+        issueKey: "sin-notificar",
+        title: `${sinNotificar.length} incidente(s) sin notificar a titulares`,
+        description:
+          "La LFPDPPP requiere notificar a los titulares afectados cuando una vulneración comprometa sus derechos.",
+        priority: "alta",
+        route: "/incidents-breaches",
+        items: sinNotificar,
+      }),
+    )
   }
 
-  return alerts;
+  return alerts
 }
 
-function scanRecordatorios(): PlatformNotification[] {
-  const alerts: PlatformNotification[] = [];
-  const reminders = safeParseJSON<any[]>("auditReminders", []);
+function scanRecordatorios(): NotificationSeed[] {
+  const alerts: NotificationSeed[] = []
+  const reminders = safeParseJSON<any[]>("auditReminders", [])
+  if (reminders.length === 0) return alerts
 
-  if (reminders.length === 0) return alerts;
-
-  const now = new Date();
-
-  // Overdue reminders
-  const vencidos = reminders.filter((r: any) =>
-    r.status !== "completada" && new Date(r.dueDate) < now
-  );
+  const now = new Date()
+  const vencidos = reminders.filter(
+    (reminder) => reminder?.status !== "completada" && reminder?.dueDate && new Date(reminder.dueDate) < now,
+  )
   if (vencidos.length > 0) {
-    alerts.push({
-      id: generateId("reminder", `vencidos-${vencidos.length}`),
-      tipo: "recordatorios",
-      titulo: `${vencidos.length} recordatorio(s) vencido(s)`,
-      descripcion: "Hay recordatorios que ya pasaron su fecha límite y no se han completado.",
-      prioridad: "alta",
-      ruta: "/audit-alarms",
-      fecha: new Date().toISOString(),
-      leida: false,
-    });
+    alerts.push(
+      createCollectionNotification({
+        module: "recordatorios",
+        issueKey: "vencidos",
+        title: `${vencidos.length} recordatorio(s) vencido(s)`,
+        description:
+          "Hay recordatorios que ya pasaron su fecha límite y no se han completado.",
+        priority: "alta",
+        route: "/audit-alarms",
+        items: vencidos,
+      }),
+    )
   }
 
-  // Upcoming in 7 days
-  const proximos = reminders.filter((r: any) => {
-    if (r.status === "completada") return false;
-    const due = new Date(r.dueDate);
-    const daysLeft = Math.ceil((due.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-    return daysLeft > 0 && daysLeft <= 7;
-  });
+  const proximos = reminders.filter((reminder) => {
+    if (reminder?.status === "completada" || !reminder?.dueDate) return false
+    const daysLeft = Math.ceil((new Date(reminder.dueDate).getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+    return daysLeft > 0 && daysLeft <= 7
+  })
   if (proximos.length > 0) {
-    alerts.push({
-      id: generateId("reminder", `proximos-${proximos.length}`),
-      tipo: "recordatorios",
-      titulo: `${proximos.length} recordatorio(s) próximo(s) a vencer`,
-      descripcion: "Hay recordatorios que vencen en los próximos 7 días. Revísalos y toma acción.",
-      prioridad: "media",
-      ruta: "/audit-alarms",
-      fecha: new Date().toISOString(),
-      leida: false,
-    });
+    alerts.push(
+      createCollectionNotification({
+        module: "recordatorios",
+        issueKey: "proximos",
+        title: `${proximos.length} recordatorio(s) próximo(s) a vencer`,
+        description: "Hay recordatorios que vencen en los próximos 7 días. Revísalos y toma acción.",
+        priority: "media",
+        route: "/audit-alarms",
+        items: proximos,
+      }),
+    )
   }
 
-  // High priority reminders pending
-  const altaPrioridad = reminders.filter((r: any) =>
-    r.priority === "alta" && r.status !== "completada"
-  );
+  const altaPrioridad = reminders.filter(
+    (reminder) => reminder?.priority === "alta" && reminder?.status !== "completada",
+  )
   if (altaPrioridad.length > 0) {
-    alerts.push({
-      id: generateId("reminder", `alta-${altaPrioridad.length}`),
-      tipo: "recordatorios",
-      titulo: `${altaPrioridad.length} recordatorio(s) de prioridad alta pendiente(s)`,
-      descripcion: "Recordatorios marcados como prioridad alta que requieren atención preferente.",
-      prioridad: "alta",
-      ruta: "/audit-alarms",
-      fecha: new Date().toISOString(),
-      leida: false,
-    });
+    alerts.push(
+      createCollectionNotification({
+        module: "recordatorios",
+        issueKey: "alta-prioridad",
+        title: `${altaPrioridad.length} recordatorio(s) de prioridad alta pendiente(s)`,
+        description: "Recordatorios marcados como prioridad alta que requieren atención preferente.",
+        priority: "alta",
+        route: "/audit-alarms",
+        items: altaPrioridad,
+      }),
+    )
   }
 
-  return alerts;
+  return alerts
 }
 
-function scanDPO(): PlatformNotification[] {
-  const alerts: PlatformNotification[] = [];
-
-  // DPO compliance tasks
-  const compliance = safeParseJSON<any>("dpo-compliance", null);
+function scanDPO(): NotificationSeed[] {
+  const alerts: NotificationSeed[] = []
+  const compliance = safeParseJSON<any>("dpo-compliance", null)
   if (compliance) {
-    const tasks = compliance.tasks || compliance.tareas || [];
-    const pendientes = tasks.filter((t: any) =>
-      t.status === "pendiente" || t.status === "en-progreso"
-    );
+    const tasks = Array.isArray(compliance?.tasks)
+      ? compliance.tasks
+      : Array.isArray(compliance?.tareas)
+        ? compliance.tareas
+        : []
+    const pendientes = tasks.filter((task: any) => task?.status === "pendiente" || task?.status === "en-progreso")
     if (pendientes.length > 0) {
-      alerts.push({
-        id: generateId("dpo", `tareas-${pendientes.length}`),
-        tipo: "dpo",
-        titulo: `${pendientes.length} tarea(s) del DPO pendiente(s)`,
-        descripcion: "El Oficial de Protección de Datos tiene tareas de cumplimiento sin completar.",
-        prioridad: "media",
-        ruta: "/dpo/compliance",
-        fecha: new Date().toISOString(),
-        leida: false,
-      });
+      alerts.push(
+        createCollectionNotification({
+          module: "dpo",
+          issueKey: "tareas-pendientes",
+          title: `${pendientes.length} tarea(s) del DPO pendiente(s)`,
+          description: "El Oficial de Protección de Datos tiene tareas de cumplimiento sin completar.",
+          priority: "media",
+          route: "/dpo/compliance",
+          items: pendientes,
+        }),
+      )
     }
   }
 
-  // DPO reports
-  const reports = safeParseJSON<any[]>("dpo-reports", []);
+  const reports = safeParseJSON<any[]>("dpo-reports", [])
   if (reports.length === 0) {
-    alerts.push({
-      id: generateId("dpo", "no-reports"),
-      tipo: "dpo",
-      titulo: "Sin reportes del DPO registrados",
-      descripcion: "No se han generado reportes del Oficial de Protección de Datos. Es recomendable documentar las actividades periódicamente.",
-      prioridad: "baja",
-      ruta: "/dpo/reports",
-      fecha: new Date().toISOString(),
-      leida: false,
-    });
+    alerts.push(
+      createNotification({
+        module: "dpo",
+        issueKey: "no-reports",
+        title: "Sin reportes del DPO registrados",
+        description:
+          "No se han generado reportes del Oficial de Protección de Datos. Es recomendable documentar las actividades periódicamente.",
+        priority: "baja",
+        route: "/dpo/reports",
+        fingerprintSource: { state: "no-reports" },
+      }),
+    )
   }
 
-  return alerts;
+  return alerts
 }
 
-function scanPoliticas(): PlatformNotification[] {
-  const alerts: PlatformNotification[] = [];
-  const policies = safeParseJSON<any>("security_policies", null);
+function scanPoliticas(): NotificationSeed[] {
+  const alerts: NotificationSeed[] = []
+  const policies = safeParseJSON<any>("security_policies", null)
+  const hasPolicies = Array.isArray(policies) ? policies.length > 0 : Boolean(policies)
 
-  if (!policies) {
-    alerts.push({
-      id: generateId("pol", "empty"),
-      tipo: "politicas",
-      titulo: "Sin políticas de protección de datos",
-      descripcion: "No se han configurado políticas de protección de datos. Son la base del programa de cumplimiento.",
-      prioridad: "alta",
-      ruta: "/data-policies",
-      fecha: new Date().toISOString(),
-      leida: false,
-    });
+  if (!hasPolicies) {
+    alerts.push(
+      createNotification({
+        module: "politicas",
+        issueKey: "empty",
+        title: "Sin políticas de protección de datos",
+        description:
+          "No se han configurado políticas de protección de datos. Son la base del programa de cumplimiento.",
+        priority: "alta",
+        route: "/data-policies",
+        fingerprintSource: { state: "empty" },
+      }),
+    )
   }
 
-  return alerts;
+  return alerts
 }
 
-function scanEIPD(): PlatformNotification[] {
-  const alerts: PlatformNotification[] = [];
-  const forms = safeParseJSON<any[]>("eipd-forms", []);
+function scanEIPD(): NotificationSeed[] {
+  const alerts: NotificationSeed[] = []
+  const forms = safeParseJSON<any[]>("eipd_forms", [])
+  if (forms.length === 0) return alerts
 
-  if (forms.length === 0) return alerts;
-
-  // EIPDs in draft
-  const borradores = forms.filter((f: any) => f.status === "borrador" || f.status === "draft" || !f.status);
+  const borradores = forms.filter((form) => form?.status === "borrador" || form?.status === "draft" || !form?.status)
   if (borradores.length > 0) {
-    alerts.push({
-      id: generateId("eipd", `borradores-${borradores.length}`),
-      tipo: "eipd",
-      titulo: `${borradores.length} evaluación(es) de impacto en borrador`,
-      descripcion: "Hay evaluaciones de impacto en protección de datos iniciadas pero no completadas.",
-      prioridad: "media",
-      ruta: "/eipd",
-      fecha: new Date().toISOString(),
-      leida: false,
-    });
+    alerts.push(
+      createCollectionNotification({
+        module: "eipd",
+        issueKey: "borradores",
+        title: `${borradores.length} evaluación(es) de impacto en borrador`,
+        description:
+          "Hay evaluaciones de impacto en protección de datos iniciadas pero no completadas.",
+        priority: "media",
+        route: "/eipd/consultar",
+        items: borradores,
+      }),
+    )
   }
 
-  // High risk EIPDs
-  const altoRiesgo = forms.filter((f: any) =>
-    f.riskLevel === "alto" || f.riskLevel === "critico" || f.nivelRiesgo === "alto"
-  );
+  const altoRiesgo = forms.filter(
+    (form) =>
+      form?.riskLevel === "alto" ||
+      form?.riskLevel === "critico" ||
+      form?.nivelRiesgo === "alto",
+  )
   if (altoRiesgo.length > 0) {
-    alerts.push({
-      id: generateId("eipd", `alto-riesgo-${altoRiesgo.length}`),
-      tipo: "eipd",
-      titulo: `${altoRiesgo.length} EIPD con nivel de riesgo alto`,
-      descripcion: "Evaluaciones de impacto con riesgo alto requieren medidas de mitigación obligatorias y seguimiento.",
-      prioridad: "alta",
-      ruta: "/eipd",
-      fecha: new Date().toISOString(),
-      leida: false,
-    });
+    alerts.push(
+      createCollectionNotification({
+        module: "eipd",
+        issueKey: "alto-riesgo",
+        title: `${altoRiesgo.length} EIPD con nivel de riesgo alto`,
+        description:
+          "Evaluaciones de impacto con riesgo alto requieren medidas de mitigación obligatorias y seguimiento.",
+        priority: "alta",
+        route: "/eipd/consultar",
+        items: altoRiesgo,
+      }),
+    )
   }
 
-  return alerts;
+  return alerts
 }
 
-function scanProcedimientos(): PlatformNotification[] {
-  const alerts: PlatformNotification[] = [];
-  const procedures = safeParseJSON<any[]>("litigation-procedures", []);
+function scanProcedimientos(): NotificationSeed[] {
+  const alerts: NotificationSeed[] = []
+  const procedures = safeParseJSON<any[]>("proceduresPDP", [])
+  if (procedures.length === 0) return alerts
 
-  if (procedures.length === 0) return alerts;
-
-  const activos = procedures.filter((p: any) =>
-    p.status === "activo" || p.status === "en-curso" || p.status === "abierto"
-  );
+  const activos = procedures.filter(
+    (procedure) =>
+      procedure?.status === "activo" ||
+      procedure?.status === "en-curso" ||
+      procedure?.status === "abierto",
+  )
   if (activos.length > 0) {
-    alerts.push({
-      id: generateId("proc", `activos-${activos.length}`),
-      tipo: "procedimientos",
-      titulo: `${activos.length} procedimiento(s) legal(es) activo(s)`,
-      descripcion: "Hay procedimientos legales en curso que requieren seguimiento y documentación.",
-      prioridad: "alta",
-      ruta: "/litigation-management",
-      fecha: new Date().toISOString(),
-      leida: false,
-    });
+    alerts.push(
+      createCollectionNotification({
+        module: "procedimientos",
+        issueKey: "activos",
+        title: `${activos.length} procedimiento(s) legal(es) activo(s)`,
+        description: "Hay procedimientos legales en curso que requieren seguimiento y documentación.",
+        priority: "alta",
+        route: "/litigation-management",
+        items: activos,
+      }),
+    )
   }
 
-  return alerts;
+  return alerts
 }
 
-function scanAuditoria(): PlatformNotification[] {
-  const alerts: PlatformNotification[] = [];
-  const audits = safeParseJSON<any[] | any>("audit-davara", null);
+function scanAuditoria(): NotificationSeed[] {
+  const alerts: NotificationSeed[] = []
+  const answers = safeParseJSON<Record<string, { option?: string }>>("audit_assessment_answers_v1", {})
+  const answeredCount = Object.values(answers).filter((answer) => Boolean(answer?.option)).length
 
-  if (!audits) return alerts;
-
-  const auditList = Array.isArray(audits) ? audits : audits.auditorias || [];
-
-  // Pending audits
-  const pendientes = auditList.filter((a: any) =>
-    a.status === "pendiente" || a.status === "planificada" || a.status === "en-progreso"
-  );
-  if (pendientes.length > 0) {
-    alerts.push({
-      id: generateId("audit", `pendientes-${pendientes.length}`),
-      tipo: "auditoria",
-      titulo: `${pendientes.length} auditoría(s) pendiente(s)`,
-      descripcion: "Hay auditorías de protección de datos que no se han completado.",
-      prioridad: "media",
-      ruta: "/audit",
-      fecha: new Date().toISOString(),
-      leida: false,
-    });
+  if (answeredCount === 0) {
+    alerts.push(
+      createNotification({
+        module: "auditoria",
+        issueKey: "sin-evaluacion",
+        title: "Sin evaluación de auditoría registrada",
+        description:
+          "El módulo de auditoría aún no tiene respuestas capturadas. Completa la evaluación para documentar el cumplimiento.",
+        priority: "media",
+        route: "/audit",
+        fingerprintSource: { state: "empty" },
+      }),
+    )
   }
 
-  // Audits with findings unresolved
-  const conHallazgos = auditList.filter((a: any) =>
-    a.findings && a.findings.some((f: any) => f.status !== "resuelto" && f.status !== "cerrado")
-  );
-  if (conHallazgos.length > 0) {
-    alerts.push({
-      id: generateId("audit", `hallazgos-${conHallazgos.length}`),
-      tipo: "auditoria",
-      titulo: `${conHallazgos.length} auditoría(s) con hallazgos sin resolver`,
-      descripcion: "Auditorías con hallazgos o no conformidades pendientes de corrección.",
-      prioridad: "alta",
-      ruta: "/audit",
-      fecha: new Date().toISOString(),
-      leida: false,
-    });
+  const hallazgos = Object.entries(answers)
+    .filter(([, answer]) => answer?.option === "no")
+    .map(([id, answer]) => ({ id, status: answer?.option }))
+
+  if (hallazgos.length > 0) {
+    alerts.push(
+      createCollectionNotification({
+        module: "auditoria",
+        issueKey: "hallazgos-abiertos",
+        title: `${hallazgos.length} hallazgo(s) de auditoría pendiente(s)`,
+        description:
+          "La evaluación de auditoría contiene respuestas negativas que requieren seguimiento y evidencia correctiva.",
+        priority: "alta",
+        route: "/audit",
+        items: hallazgos,
+      }),
+    )
   }
 
-  return alerts;
+  return alerts
 }
 
-// ─── Main Scanner ───────────────────────────────────────────────────
-
-/**
- * Escanea todos los módulos y genera notificaciones frescas.
- * Se puede llamar desde cualquier componente.
- */
-export function generateAllNotifications(): PlatformNotification[] {
-  if (!isBrowser) return [];
-
-  const dismissed = getDismissedIds();
-
-  const all: PlatformNotification[] = [
+function scanAllNotifications() {
+  return [
     ...scanInventarios(),
     ...scanContratos(),
     ...scanSeguridad(),
@@ -949,44 +1254,113 @@ export function generateAllNotifications(): PlatformNotification[] {
     ...scanEIPD(),
     ...scanProcedimientos(),
     ...scanAuditoria(),
-  ].filter(n => !dismissed.has(n.id));
+  ]
+}
 
-  // Sort: alta first, then media, then baja
-  const prioOrder: Record<NotificationPriority, number> = { alta: 0, media: 1, baja: 2 };
-  all.sort((a, b) => prioOrder[a.prioridad] - prioOrder[b.prioridad]);
+export function resolveNotification(id: string): void {
+  if (!isBrowser) return
 
-  // Cache in localStorage
-  localStorage.setItem(NOTIFICATIONS_STORAGE_KEY, JSON.stringify(all));
+  const activeNotifications = getCachedNotifications()
+  const target = activeNotifications.find((notification) => notification.id === id)
+  if (!target) return
 
-  return all;
+  const nextActive = activeNotifications.filter((notification) => notification.id !== id)
+  const nextResolved = upsertResolvedNotification(
+    getResolvedLog(),
+    target,
+    "manual",
+    getCurrentActor(),
+  )
+
+  persistNotifications(nextActive, nextResolved)
+}
+
+export function dismissNotification(id: string): void {
+  resolveNotification(id)
+}
+
+export function markAsRead(id: string): void {
+  if (!isBrowser) return
+  const activeNotifications = getCachedNotifications()
+  const updated = activeNotifications.map((notification) =>
+    notification.id === id ? { ...notification, leida: true } : notification,
+  )
+  persistNotifications(updated, getResolvedLog())
+}
+
+export function markAllAsRead(): void {
+  if (!isBrowser) return
+  const activeNotifications = getCachedNotifications().map((notification) => ({
+    ...notification,
+    leida: true,
+  }))
+  persistNotifications(activeNotifications, getResolvedLog())
 }
 
 /**
- * Get cached notifications (fast, no re-scan).
+ * Escanea todos los módulos y genera notificaciones frescas.
  */
-export function getCachedNotifications(): PlatformNotification[] {
-  return safeParseJSON<PlatformNotification[]>(NOTIFICATIONS_STORAGE_KEY, []);
+export function generateAllNotifications(): PlatformNotification[] {
+  if (!isBrowser) return []
+
+  const previousActive = getCachedNotifications()
+  const resolvedLog = getResolvedLog()
+  const previousById = new Map(previousActive.map((notification) => [notification.id, notification]))
+  let nextResolved: ResolvedPlatformNotification[] = [...resolvedLog]
+  const nextActive: PlatformNotification[] = []
+
+  scanAllNotifications().forEach((notification) => {
+    const previous = previousById.get(notification.id)
+    const isManuallySuppressed = isSuppressedByManualResolution(notification, resolvedLog)
+
+    if (isManuallySuppressed) {
+      if (previous && previous.fingerprint === notification.fingerprint) {
+        previousById.delete(notification.id)
+      }
+      return
+    }
+
+    if (previous) {
+      previousById.delete(notification.id)
+    }
+
+    nextActive.push({
+      ...notification,
+      leida: previous && previous.fingerprint === notification.fingerprint ? previous.leida : false,
+    })
+  })
+
+  const resolvedAt = new Date().toISOString()
+  previousById.forEach((notification) => {
+    nextResolved = upsertResolvedNotification(
+      nextResolved,
+      notification,
+      "automatic",
+      getCurrentActor(),
+      resolvedAt,
+    )
+  })
+
+  const sortedActive = [...nextActive].sort(compareByPriorityAndDate)
+  persistNotifications(sortedActive, nextResolved)
+  return sortedActive
 }
 
-/**
- * Get just the unread count.
- */
 export function getUnreadCount(): number {
-  const cached = getCachedNotifications();
-  return cached.filter(n => !n.leida).length;
+  return getCachedNotifications().filter((notification) => !notification.leida).length
 }
 
-/**
- * Get most recent N notifications.
- */
-export function getRecentNotifications(n: number = 5): PlatformNotification[] {
-  const all = getCachedNotifications();
-  return all.slice(0, n);
+export function getRecentNotifications(limit: number = 5): PlatformNotification[] {
+  return getCachedNotifications().slice(0, limit)
 }
 
-/**
- * Module labels for display.
- */
+export function getResolvedNotifications(limit?: number): ResolvedPlatformNotification[] {
+  const all = [...getResolvedLog()].sort(
+    (left, right) => new Date(right.resolvedAt).getTime() - new Date(left.resolvedAt).getTime(),
+  )
+  return typeof limit === "number" ? all.slice(0, limit) : all
+}
+
 export const MODULE_LABELS: Record<NotificationModule, string> = {
   inventarios: "Inventarios",
   contratos: "Contratos Terceros",
@@ -1001,7 +1375,7 @@ export const MODULE_LABELS: Record<NotificationModule, string> = {
   eipd: "Evaluación de Impacto",
   avisos: "Avisos de Privacidad",
   procedimientos: "Procedimientos PDP",
-};
+}
 
 export const MODULE_ICONS: Record<NotificationModule, string> = {
   inventarios: "📋",
@@ -1017,4 +1391,4 @@ export const MODULE_ICONS: Record<NotificationModule, string> = {
   eipd: "⚖️",
   avisos: "📢",
   procedimientos: "⚖️",
-};
+}
