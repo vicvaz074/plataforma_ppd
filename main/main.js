@@ -94,11 +94,11 @@ async function createServer() {
     expApp.get("*/manifest.json", (req, res) => {
       res.sendFile(path.join(outDir, "manifest.json"))
     })
-    expApp.get("*/icon-192x192.png", (req, res) => {
-      res.sendFile(path.join(outDir, "icon-192x192.png"))
+    expApp.get("*/icon-192x192.svg", (req, res) => {
+      res.sendFile(path.join(outDir, "icon-192x192.svg"))
     })
-    expApp.get("*/icon-512x512.png", (req, res) => {
-      res.sendFile(path.join(outDir, "icon-512x512.png"))
+    expApp.get("*/icon-512x512.svg", (req, res) => {
+      res.sendFile(path.join(outDir, "icon-512x512.svg"))
     })
 
     // 2) Sirve carpeta _next estática
