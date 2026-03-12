@@ -1,11 +1,11 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { CalendarPlus, ExternalLink, AlertCircle, CheckCircle2, XCircle, ArrowRight } from "lucide-react"
+import { CalendarPlus, ExternalLink, AlertCircle, CheckCircle2, ArrowRight } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
@@ -31,11 +31,15 @@ import { FilterBar } from "./components/filter-bar"
 import { ReminderForm } from "./components/reminder-form"
 import {
   generateAllNotifications,
-  dismissNotification,
+  getResolvedNotifications,
+  resolveNotification,
+  NOTIFICATIONS_CHANGED_EVENT,
   MODULE_LABELS,
   MODULE_ICONS,
   type PlatformNotification,
+  type ResolvedPlatformNotification,
 } from "@/lib/notification-engine"
+import { DAVARA_STORAGE_EVENT, ensureBrowserStorageEvents } from "@/lib/browser-storage-events"
 
 export default function AuditAlarms() {
   const { toast } = useToast()
@@ -51,17 +55,41 @@ export default function AuditAlarms() {
 
   // Auto-generated notifications
   const [autoNotifications, setAutoNotifications] = useState<PlatformNotification[]>([])
-  useEffect(() => {
+  const [resolvedNotifications, setResolvedNotifications] = useState<ResolvedPlatformNotification[]>([])
+
+  const refreshAutoNotifications = useCallback(() => {
     setAutoNotifications(generateAllNotifications())
+    setResolvedNotifications(getResolvedNotifications())
   }, [])
 
-  const handleDismissNotification = (id: string) => {
-    dismissNotification(id)
-    setAutoNotifications(generateAllNotifications())
+  useEffect(() => {
+    ensureBrowserStorageEvents()
+    refreshAutoNotifications()
+
+    const handleMutation = () => refreshAutoNotifications()
+
+    window.addEventListener(DAVARA_STORAGE_EVENT, handleMutation)
+    window.addEventListener(NOTIFICATIONS_CHANGED_EVENT, handleMutation)
+    window.addEventListener("focus", handleMutation)
+
+    return () => {
+      window.removeEventListener(DAVARA_STORAGE_EVENT, handleMutation)
+      window.removeEventListener(NOTIFICATIONS_CHANGED_EVENT, handleMutation)
+      window.removeEventListener("focus", handleMutation)
+    }
+  }, [refreshAutoNotifications])
+
+  const handleResolveNotification = (id: string) => {
+    resolveNotification(id)
+    refreshAutoNotifications()
+    toast({
+      title: "Alerta resuelta",
+      description: "La alerta se movió a la bitácora con fecha y usuario de resolución.",
+    })
   }
 
   const handleAddReminder = (reminderData: Omit<AuditReminder, "id" | "createdAt" | "completedAt">) => {
-    const newReminder = addAuditReminder(reminderData)
+    addAuditReminder(reminderData)
     setReminders(getAuditReminders())
     toast({
       title: "Recordatorio creado",
@@ -212,7 +240,7 @@ export default function AuditAlarms() {
                   Alertas automáticas del sistema
                 </h2>
                 <p className="text-sm text-muted-foreground">
-                  {autoNotifications.length} alerta(s) detectada(s) a partir del estado actual de los módulos.
+                  {autoNotifications.length} alerta(s) activa(s) detectada(s) a partir del estado actual de los módulos.
                 </p>
               </div>
             </div>
@@ -247,6 +275,15 @@ export default function AuditAlarms() {
                     </div>
                     <p className="text-sm font-semibold">{n.titulo}</p>
                     <p className="text-xs text-muted-foreground mt-0.5">{n.descripcion}</p>
+                    {n.detalles && n.detalles.length > 0 && (
+                      <div className="mt-2 space-y-1">
+                        {n.detalles.slice(0, 3).map((detalle) => (
+                          <p key={detalle} className="text-[11px] text-muted-foreground">
+                            {detalle}
+                          </p>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
                     <Link href={n.ruta}>
@@ -257,13 +294,71 @@ export default function AuditAlarms() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-7 w-7 p-0 text-muted-foreground hover:text-red-500"
-                      onClick={() => handleDismissNotification(n.id)}
+                      className="h-7 w-7 p-0 text-muted-foreground hover:text-emerald-600"
+                      onClick={() => handleResolveNotification(n.id)}
+                      aria-label="Resolver alerta"
                     >
-                      <XCircle className="h-3.5 w-3.5" />
+                      <CheckCircle2 className="h-3.5 w-3.5" />
                     </Button>
                   </div>
                 </motion.div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {resolvedNotifications.length > 0 && (
+        <Card className="mb-6 border-none shadow-lg">
+          <CardHeader className="pb-2">
+            <div>
+              <h2 className="text-xl font-semibold flex items-center gap-2">
+                <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+                Bitácora de alertas resueltas
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Historial de resolución con fecha, usuario y contexto de la alerta.
+              </p>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {resolvedNotifications.slice(0, 20).map((notification) => (
+                <div
+                  key={`${notification.id}-${notification.fingerprint}-${notification.resolvedAt}`}
+                  className="flex items-start gap-3 rounded-lg border border-emerald-200 bg-emerald-50/30 p-3 dark:border-emerald-900/30 dark:bg-emerald-950/10"
+                >
+                  <span className="mt-0.5 shrink-0 text-xl">{MODULE_ICONS[notification.tipo]}</span>
+                  <div className="min-w-0 flex-1">
+                    <div className="mb-0.5 flex items-center gap-2">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                        {MODULE_LABELS[notification.tipo]}
+                      </span>
+                      <Badge variant="outline" className="border-emerald-300 text-[9px] text-emerald-700 dark:text-emerald-400">
+                        {notification.resolutionType === "manual" ? "manual" : "automática"}
+                      </Badge>
+                    </div>
+                    <p className="text-sm font-semibold">{notification.titulo}</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">{notification.descripcion}</p>
+                    {notification.detalles && notification.detalles.length > 0 && (
+                      <div className="mt-2 space-y-1">
+                        {notification.detalles.slice(0, 3).map((detalle) => (
+                          <p key={detalle} className="text-[11px] text-muted-foreground">
+                            {detalle}
+                          </p>
+                        ))}
+                      </div>
+                    )}
+                    <p className="mt-2 text-[11px] font-medium text-emerald-700 dark:text-emerald-400">
+                      Resuelta el {new Date(notification.resolvedAt).toLocaleString("es-MX")} por {notification.resolvedBy}
+                    </p>
+                  </div>
+                  <Link href={notification.ruta}>
+                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </Button>
+                  </Link>
+                </div>
               ))}
             </div>
           </CardContent>
