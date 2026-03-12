@@ -58,6 +58,9 @@ const unique = <T,>(items: T[]) => Array.from(new Set(items))
 const isFileField = (field: string) =>
   FILE_FIELD_LABELS.has(field) || /archivo|evidencia/i.test(field)
 
+const hasText = (value: unknown): value is string =>
+  typeof value === "string" && value.trim() !== ""
+
 export function createLinkedFileIndex(
   files: Array<{ id?: string; name?: string }> = [],
 ): LinkedFileIndex {
@@ -150,10 +153,10 @@ export function evaluateSubInventoryCompliance(
   const additionalTransfersIssues = additionalTransfers.flatMap((transfer, index) => {
     const issues: string[] = []
 
-    if (!transfer.recipient?.trim()) {
+    if (!hasText(transfer.recipient)) {
       issues.push(`Transferencia adicional #${index + 1}: falta receptor`)
     }
-    if (!transfer.purposes?.trim()) {
+    if (!hasText(transfer.purposes)) {
       issues.push(`Transferencia adicional #${index + 1}: falta finalidades`)
     }
     if (typeof transfer.consentRequired !== "boolean") {
@@ -219,8 +222,8 @@ export function evaluateSubInventoryCompliance(
         additionalTransfersComplete)
 
   const baseTransferMissing = [
-    !subInventory.transferRecipient?.trim() ? "Tercero receptor" : "",
-    !subInventory.transferPurposes?.trim() ? "Finalidades de la transferencia" : "",
+    !hasText(subInventory.transferRecipient) ? "Tercero receptor" : "",
+    !hasText(subInventory.transferPurposes) ? "Finalidades de la transferencia" : "",
     typeof subInventory.transferConsentRequired !== "boolean" ? "Consentimiento de transferencia" : "",
     !Array.isArray(subInventory.transferLegalInstrument) || subInventory.transferLegalInstrument.length === 0
       ? "Instrumento jurídico"
@@ -254,7 +257,7 @@ export function evaluateSubInventoryCompliance(
   const additionalRemissionsIssues = additionalRemissions.flatMap((remission, index) => {
     const issues: string[] = []
 
-    if (!remission.recipient?.trim()) {
+    if (!hasText(remission.recipient)) {
       issues.push(`Remisión adicional #${index + 1}: falta denominación`)
     }
     if (!Array.isArray(remission.purposes) || remission.purposes.length === 0) {
@@ -309,7 +312,7 @@ export function evaluateSubInventoryCompliance(
         additionalRemissionsComplete)
 
   const baseRemissionMissing = [
-    !subInventory.remissionRecipient?.trim() ? "Denominación social o nombre comercial" : "",
+    !hasText(subInventory.remissionRecipient) ? "Denominación social o nombre comercial" : "",
     !Array.isArray(subInventory.remissionPurposes) || subInventory.remissionPurposes.length === 0
       ? "Finalidades de remisión"
       : "",
