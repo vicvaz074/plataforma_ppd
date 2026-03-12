@@ -285,8 +285,8 @@ const initialSections: Section[] = [
   },
   {
     id: "recordatorios-auditoria",
-    title: "Recordatorios de Auditoría",
-    description: "Gestiona alertas y recordatorios para revisiones periódicas y auditorías.",
+    title: "Recordatorios",
+    description: "Gestiona alertas, recordatorios y notificaciones automáticas de todos los módulos.",
     path: "/audit-alarms",
     progress: 0,
     status: "no-iniciado",

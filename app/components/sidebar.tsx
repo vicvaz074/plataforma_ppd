@@ -93,7 +93,7 @@ const translations: Record<"en" | "es", Record<TranslationKey, string>> = {
     proceduresManagement: "PDP Procedures",
     auditProgram: "Data Protection Audit",
     securityIncidentManagement: "Security Incident Management",
-    auditAlarms: "Audit Reminders",
+    auditAlarms: "Reminders",
   },
   es: {
     dataInventory: "Inventarios de datos personales",
@@ -109,7 +109,7 @@ const translations: Record<"en" | "es", Record<TranslationKey, string>> = {
     proceduresManagement: "Procedimientos PDP",
     auditProgram: "Auditoría en protección de datos",
     securityIncidentManagement: "Gestión de incidentes de seguridad",
-    auditAlarms: "Recordatorios Auditoría",
+    auditAlarms: "Recordatorios",
   },
 };
 
@@ -215,7 +215,11 @@ export function Sidebar() {
       },
     ]
 
-  const isActive = (route: string) => pathname && pathname.startsWith(route)
+  const isActive = (route: string) => {
+    if (!pathname) return false;
+    // Exact match or starts with route + "/"
+    return pathname === route || pathname.startsWith(route + "/");
+  }
 
   return (
     <div
@@ -234,17 +238,16 @@ export function Sidebar() {
           }}
         >
           <Link href="/" className="flex items-center">
-            <Image
+            <img
               src="/images/logo_davaragovernance.png"
               alt="Davara Governance"
               width={180}
-              height={60}
               style={{
                 objectFit: "contain",
+                width: "180px",
+                height: "auto",
                 filter: "invert(1) brightness(100%) contrast(100%)",
               }}
-              priority
-              unoptimized
             />
           </Link>
         </div>
