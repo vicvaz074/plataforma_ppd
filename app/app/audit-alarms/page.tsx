@@ -1,11 +1,11 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { CalendarPlus, ExternalLink } from "lucide-react"
+import { CalendarPlus, ExternalLink, AlertCircle, CheckCircle2, XCircle, ArrowRight } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
@@ -29,6 +29,13 @@ import { ReminderCard } from "./components/reminder-card"
 import { StatsPanel } from "./components/stats-panel"
 import { FilterBar } from "./components/filter-bar"
 import { ReminderForm } from "./components/reminder-form"
+import {
+  generateAllNotifications,
+  dismissNotification,
+  MODULE_LABELS,
+  MODULE_ICONS,
+  type PlatformNotification,
+} from "@/lib/notification-engine"
 
 export default function AuditAlarms() {
   const { toast } = useToast()
@@ -41,6 +48,17 @@ export default function AuditAlarms() {
   const [formOpen, setFormOpen] = useState(false)
   const [editingReminder, setEditingReminder] = useState<AuditReminder | undefined>(undefined)
   const modules = useMemo(() => getAuditModules(), [])
+
+  // Auto-generated notifications
+  const [autoNotifications, setAutoNotifications] = useState<PlatformNotification[]>([])
+  useEffect(() => {
+    setAutoNotifications(generateAllNotifications())
+  }, [])
+
+  const handleDismissNotification = (id: string) => {
+    dismissNotification(id)
+    setAutoNotifications(generateAllNotifications())
+  }
 
   const handleAddReminder = (reminderData: Omit<AuditReminder, "id" | "createdAt" | "completedAt">) => {
     const newReminder = addAuditReminder(reminderData)
@@ -161,10 +179,10 @@ export default function AuditAlarms() {
       >
         <div>
           <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">
-            Alarmas de Auditoría
+            Centro de Recordatorios y Alertas
           </h1>
           <p className="text-muted-foreground mt-1">
-            Gestiona los recordatorios y plazos de auditorías de protección de datos
+            Gestiona recordatorios, alertas automáticas y plazos de todos los módulos de cumplimiento
           </p>
         </div>
         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="mt-4 sm:mt-0">
@@ -182,6 +200,87 @@ export default function AuditAlarms() {
       </motion.div>
 
       <StatsPanel reminders={reminders} />
+
+      {/* Auto-generated Notifications Panel */}
+      {autoNotifications.length > 0 && (
+        <Card className="mb-6 border-none shadow-lg">
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-semibold flex items-center gap-2">
+                  <AlertCircle className="h-5 w-5 text-amber-500" />
+                  Alertas automáticas del sistema
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  {autoNotifications.length} alerta(s) detectada(s) a partir del estado actual de los módulos.
+                </p>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {autoNotifications.map((n) => (
+                <motion.div
+                  key={n.id}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 10 }}
+                  className={`flex items-start gap-3 p-3 rounded-lg border transition-colors hover:bg-muted/50 ${
+                    n.prioridad === 'alta' ? 'border-red-200 bg-red-50/30 dark:bg-red-950/10 dark:border-red-900/30'
+                    : n.prioridad === 'media' ? 'border-amber-200 bg-amber-50/30 dark:bg-amber-950/10 dark:border-amber-900/30'
+                    : 'border-blue-200 bg-blue-50/30 dark:bg-blue-950/10 dark:border-blue-900/30'
+                  }`}
+                >
+                  <span className="text-xl shrink-0 mt-0.5">{MODULE_ICONS[n.tipo]}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                        {MODULE_LABELS[n.tipo]}
+                      </span>
+                      <Badge variant="outline" className={`text-[9px] px-1.5 py-0 ${
+                        n.prioridad === 'alta' ? 'border-red-300 text-red-600 dark:text-red-400'
+                        : n.prioridad === 'media' ? 'border-amber-300 text-amber-600 dark:text-amber-400'
+                        : 'border-blue-300 text-blue-600 dark:text-blue-400'
+                      }`}>
+                        {n.prioridad}
+                      </Badge>
+                    </div>
+                    <p className="text-sm font-semibold">{n.titulo}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{n.descripcion}</p>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <Link href={n.ruta}>
+                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                        <ArrowRight className="h-3.5 w-3.5" />
+                      </Button>
+                    </Link>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 w-7 p-0 text-muted-foreground hover:text-red-500"
+                      onClick={() => handleDismissNotification(n.id)}
+                    >
+                      <XCircle className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {autoNotifications.length === 0 && (
+        <Card className="mb-6 border-none shadow-lg">
+          <CardContent className="flex items-center justify-center py-8 gap-3">
+            <CheckCircle2 className="h-6 w-6 text-green-500" />
+            <div>
+              <p className="font-semibold text-green-700 dark:text-green-400">Todo en orden</p>
+              <p className="text-sm text-muted-foreground">No se detectaron alertas automáticas. Todos los módulos están al día.</p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Card className="mb-6 border-none shadow-lg">
         <CardHeader className="pb-2">

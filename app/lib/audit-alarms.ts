@@ -126,8 +126,8 @@ export const auditModules: AuditModule[] = [
   },
   {
     id: "recordatorios-auditoria",
-    name: "Recordatorios de Auditoría",
-    description: "Alertas personalizadas y cronogramas de revisión.",
+    name: "Recordatorios",
+    description: "Alertas personalizadas, cronogramas de revisión y notificaciones automáticas.",
     path: "/audit-alarms",
     owner: "Cumplimiento",
     area: "Cumplimiento",

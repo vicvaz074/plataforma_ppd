@@ -20,11 +20,21 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { translations } from "@/lib/translations"
-import { motion } from "framer-motion"
-import { useState, useEffect } from "react"
-import { Moon, Sun, Globe, User, ChevronDown, LogOut, LayoutDashboard } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
+import { useState, useEffect, useCallback, useRef } from "react"
+import { Moon, Sun, Globe, User, ChevronDown, LogOut, LayoutDashboard, Bell, ArrowRight } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
 import Image from "next/image"
+import {
+  generateAllNotifications,
+  getRecentNotifications,
+  markAsRead,
+  markAllAsRead,
+  dismissNotification,
+  MODULE_LABELS,
+  MODULE_ICONS,
+  type PlatformNotification,
+} from "@/lib/notification-engine"
 
 export function Header() {
   const { theme, setTheme } = useTheme()
@@ -35,12 +45,60 @@ export function Header() {
   const t = translations[language]
   const [userName, setUserName] = useState("")
 
+  // Notifications state
+  const [notifications, setNotifications] = useState<PlatformNotification[]>([])
+  const [showNotifications, setShowNotifications] = useState(false)
+  const bellRef = useRef<HTMLDivElement>(null)
+
   useEffect(() => {
     const storedUserName = localStorage.getItem("userName")
     if (storedUserName) {
       setUserName(storedUserName)
     }
   }, [])
+
+  // Scan all modules on mount and every 60s
+  const refreshNotifications = useCallback(() => {
+    const fresh = generateAllNotifications()
+    setNotifications(fresh)
+  }, [])
+
+  useEffect(() => {
+    refreshNotifications()
+    const interval = setInterval(refreshNotifications, 60000)
+    return () => clearInterval(interval)
+  }, [refreshNotifications])
+
+  // Also refresh when pathname changes (user navigates)
+  useEffect(() => {
+    refreshNotifications()
+  }, [pathname, refreshNotifications])
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (bellRef.current && !bellRef.current.contains(event.target as Node)) {
+        setShowNotifications(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
+  const unreadCount = notifications.filter(n => !n.leida).length
+  const recent = notifications.slice(0, 5)
+
+  const handleNotificationClick = (n: PlatformNotification) => {
+    markAsRead(n.id)
+    setShowNotifications(false)
+    refreshNotifications()
+    router.push(n.ruta)
+  }
+
+  const handleMarkAllRead = () => {
+    markAllAsRead()
+    refreshNotifications()
+  }
 
   const handleLogout = () => {
     localStorage.removeItem("isAuthenticated")
@@ -67,6 +125,18 @@ export function Header() {
     pathname === "/dashboard" ||
     pathname?.startsWith("/dashboard/")
 
+  const prioColor = (p: string) => {
+    if (p === "alta") return "bg-red-500"
+    if (p === "media") return "bg-amber-500"
+    return "bg-blue-400"
+  }
+
+  const prioBorder = (p: string) => {
+    if (p === "alta") return "border-l-red-500"
+    if (p === "media") return "border-l-amber-400"
+    return "border-l-blue-300"
+  }
+
   return (
     <motion.header
       initial={{ opacity: 0, y: -20 }}
@@ -85,14 +155,11 @@ export function Header() {
             }}
           >
             <Link href="/" className="flex items-center">
-              <Image
+              <img
                 src="/images/logo_davaragovernance.png"
                 alt="Davara Governance"
                 width={150}
-                height={50}
-                style={{ objectFit: "contain" }}
-                priority
-                unoptimized
+                style={{ objectFit: "contain", width: "150px", height: "auto" }}
               />
             </Link>
           </div>
@@ -128,6 +195,123 @@ export function Header() {
               <span className="hidden sm:inline">{t.dashboard}</span>
             </Button>
           </Link>
+
+          {/* ─── Bell Icon — Notificaciones ─── */}
+          <div ref={bellRef} className="relative">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative"
+              onClick={() => setShowNotifications(!showNotifications)}
+              aria-label="Notificaciones"
+            >
+              <Bell className="h-5 w-5" />
+              {unreadCount > 0 && (
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="absolute -top-1 -right-1 flex items-center justify-center h-5 min-w-5 px-1 text-[10px] font-bold text-white bg-red-500 rounded-full"
+                >
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </motion.span>
+              )}
+            </Button>
+
+            {/* Notification Dropdown */}
+            <AnimatePresence>
+              {showNotifications && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -8, scale: 0.95 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute right-0 top-12 w-96 bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-slate-200 dark:border-gray-700 overflow-hidden z-[9999]"
+                >
+                  {/* Header */}
+                  <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-gray-700 bg-slate-50 dark:bg-gray-800">
+                    <div className="flex items-center gap-2">
+                      <Bell className="h-4 w-4 text-primary" />
+                      <span className="text-sm font-bold text-slate-900 dark:text-white">
+                        Notificaciones
+                      </span>
+                      {notifications.length > 0 && (
+                        <span className="text-[10px] font-bold bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">
+                          {notifications.length}
+                        </span>
+                      )}
+                    </div>
+                    {unreadCount > 0 && (
+                      <button
+                        onClick={handleMarkAllRead}
+                        className="text-[11px] font-semibold text-primary hover:underline"
+                      >
+                        Marcar leídas
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Notification List */}
+                  <div className="max-h-80 overflow-y-auto">
+                    {recent.length === 0 ? (
+                      <div className="py-8 text-center">
+                        <Bell className="h-8 w-8 text-slate-300 dark:text-gray-600 mx-auto mb-2" />
+                        <p className="text-sm text-slate-500 dark:text-gray-400 font-medium">
+                          Sin notificaciones
+                        </p>
+                        <p className="text-xs text-slate-400 dark:text-gray-500 mt-1">
+                          Todo está en orden
+                        </p>
+                      </div>
+                    ) : (
+                      recent.map((n) => (
+                        <button
+                          key={n.id}
+                          onClick={() => handleNotificationClick(n)}
+                          className={`w-full text-left px-4 py-3 border-b border-slate-50 dark:border-gray-800 last:border-0 hover:bg-slate-50 dark:hover:bg-gray-800 transition-colors border-l-[3px] ${prioBorder(n.prioridad)} ${!n.leida ? "bg-primary/[0.03]" : ""
+                            }`}
+                        >
+                          <div className="flex items-start gap-3">
+                            <span className="text-lg shrink-0 mt-0.5">
+                              {MODULE_ICONS[n.tipo]}
+                            </span>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-0.5">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-gray-500">
+                                  {MODULE_LABELS[n.tipo]}
+                                </span>
+                                <span className={`h-1.5 w-1.5 rounded-full ${prioColor(n.prioridad)}`} />
+                                {!n.leida && (
+                                  <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+                                )}
+                              </div>
+                              <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">
+                                {n.titulo}
+                              </p>
+                              <p className="text-xs text-slate-500 dark:text-gray-400 mt-0.5 line-clamp-2">
+                                {n.descripcion}
+                              </p>
+                            </div>
+                          </div>
+                        </button>
+                      ))
+                    )}
+                  </div>
+
+                  {/* Footer */}
+                  {notifications.length > 0 && (
+                    <Link
+                      href="/audit-alarms"
+                      onClick={() => setShowNotifications(false)}
+                      className="flex items-center justify-center gap-2 px-4 py-3 text-sm font-semibold text-primary hover:bg-primary/5 border-t border-slate-100 dark:border-gray-700 transition-colors"
+                    >
+                      Ver todas ({notifications.length})
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
 
           {/* Menú de usuario */}
           <DropdownMenu>

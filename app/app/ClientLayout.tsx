@@ -10,21 +10,30 @@ import "@/lib/zod-config"
 import { Sidebar } from "@/components/sidebar"
 import { Header } from "@/components/header"
 
-function SidebarAwareLayout({ authed, children }: { authed: boolean; children: React.ReactNode }) {
+function AppShell({ authed, children }: { authed: boolean; children: React.ReactNode }) {
   const { collapsed } = useSidebar()
-  const sidebarWidth = authed ? (collapsed ? 70 : 260) : 0
+  const sidebarWidth = collapsed ? 70 : 260
 
-  return (
-    <div className="min-h-screen">
-      {authed && <Sidebar />}
-      <div
-        className="flex flex-col min-h-screen transition-all duration-300"
-        style={{ marginLeft: sidebarWidth }}
-      >
-        {authed && <Header />}
+  if (!authed) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
         <main className="flex-1">{children}</main>
       </div>
-    </div>
+    )
+  }
+
+  return (
+    <>
+      <Sidebar />
+      <div
+        className="min-h-screen flex flex-col transition-all duration-300 ease-in-out"
+        style={{ paddingLeft: sidebarWidth }}
+      >
+        <Header />
+        <main className="flex-1">{children}</main>
+      </div>
+    </>
   )
 }
 
@@ -77,9 +86,9 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
             {isLoginPage ? (
               <>{children}</>
             ) : (
-              <SidebarAwareLayout authed={authed}>
+              <AppShell authed={authed}>
                 {children}
-              </SidebarAwareLayout>
+              </AppShell>
             )}
           </SidebarProvider>
         </LanguageProvider>
