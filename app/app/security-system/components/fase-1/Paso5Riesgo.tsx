@@ -1,240 +1,1278 @@
 "use client";
 
-import React, { useState } from "react";
-import { AlertTriangle, Plus, ShieldAlert, Target, TrendingUp } from "lucide-react";
+import Link from "next/link";
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  ArrowRight,
+  Bell,
+  CheckCircle2,
+  Database,
+  ExternalLink,
+  FileText,
+  LayoutDashboard,
+  Link2,
+  Map as MapIcon,
+  RefreshCw,
+  ShieldAlert,
+  ShieldCheck,
+  Sparkles,
+  Target,
+  Trash2,
+} from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
+import { DAVARA_STORAGE_EVENT, ensureBrowserStorageEvents } from "@/lib/browser-storage-events";
+import {
+  getAuditReminders,
+  type AuditReminder,
+  upsertAuditReminderByReferenceKey,
+} from "@/lib/audit-alarms";
+import { readRATInventories } from "../../lib/rat-integration";
 import { useSgsdpStore } from "../../lib/store/sgsdp.store";
-import { SgsdpRiesgo } from "../../lib/models/sgsdp.types";
+import type {
+  CriticidadRiesgo,
+  MetodologiaRiesgo,
+  OpcionTratamiento,
+  SgsdpRiesgo,
+} from "../../lib/models/sgsdp.types";
+import {
+  buildConnectedRiskSources,
+  buildRiskHeatmap,
+  getDefaultThreatCatalogItem,
+  getRiskLevelMeta,
+  getThreatCatalogItem,
+  normalizeExistingRiskLevel,
+  readEipdForms,
+  SGSDP_THREAT_CATALOG,
+  type ConnectedRiskSource,
+  type ThreatCategory,
+} from "../../lib/risk-integration";
+
+type SectionId =
+  | "dashboard"
+  | "metodologia"
+  | "bases"
+  | "riesgos"
+  | "mapa"
+  | "medidas"
+  | "reporte";
+
+type RiskDraft = {
+  activoId: string;
+  amenazaId: string;
+  amenazaManual: string;
+  vulnerabilidad: string;
+  escenario: string;
+  probabilidad: number;
+  impacto: number;
+  tratamiento: OpcionTratamiento;
+  fechaRevision: string;
+  fuente: "manual" | "rat" | "eipd";
+  fuenteRef?: string;
+  categoriaAmenaza?: ThreatCategory | "Operacional";
+  metodologia: MetodologiaRiesgo;
+};
+
+const SECTION_ITEMS: { id: SectionId; label: string; icon: React.ReactNode }[] = [
+  { id: "dashboard", label: "Dashboard", icon: <LayoutDashboard className="h-4 w-4" /> },
+  { id: "metodologia", label: "Metodología", icon: <Sparkles className="h-4 w-4" /> },
+  { id: "bases", label: "Bases de Datos", icon: <Database className="h-4 w-4" /> },
+  { id: "riesgos", label: "Riesgos", icon: <ShieldAlert className="h-4 w-4" /> },
+  { id: "mapa", label: "Mapa de Calor", icon: <MapIcon className="h-4 w-4" /> },
+  { id: "medidas", label: "Medidas de Seguridad", icon: <ShieldCheck className="h-4 w-4" /> },
+  { id: "reporte", label: "Reporte", icon: <FileText className="h-4 w-4" /> },
+];
+
+const METHODOLOGY_CONFIG: Record<
+  MetodologiaRiesgo,
+  { label: string; description: string; helper: string; sourceLabel: string }
+> = {
+  baa: {
+    label: "BAA",
+    description: "Usa inventarios RAT, volumen, exposición y nivel de datos para priorizar el riesgo operativo.",
+    helper: "Vista pensada para consolidar el análisis BAA sin mezclarlo con la lógica de impacto del EIPD.",
+    sourceLabel: "Inventarios RAT",
+  },
+  eipd: {
+    label: "EIPD",
+    description: "Usa amenazas evaluadas, riesgo residual y fechas de revisión provenientes del módulo EIPD.",
+    helper: "Vista pensada para escalar al SGSDP sólo los hallazgos ya documentados en una EIPD.",
+    sourceLabel: "Evaluaciones EIPD",
+  },
+};
+
+function createDraft(methodology: MetodologiaRiesgo): RiskDraft {
+  const threat = getDefaultThreatCatalogItem();
+  return {
+    activoId: "",
+    amenazaId: threat.id,
+    amenazaManual: "",
+    vulnerabilidad: threat.vulnerabilityHint,
+    escenario: "",
+    probabilidad: 2,
+    impacto: 2,
+    tratamiento: threat.treatment,
+    fechaRevision: "",
+    fuente: "manual",
+    metodologia: methodology,
+    categoriaAmenaza: threat.category,
+  };
+}
+
+function formatDate(value?: string) {
+  if (!value) return "Sin fecha";
+  return new Date(value).toLocaleDateString("es-MX");
+}
+
+function inferRiskMethodology(risk: SgsdpRiesgo): MetodologiaRiesgo {
+  if (risk.metodologia) return risk.metodologia;
+  return risk.fuente === "eipd" ? "eipd" : "baa";
+}
+
+function getReminderPriority(level: CriticidadRiesgo): AuditReminder["priority"] {
+  if (level === "Crítico" || level === "Alto") return "alta";
+  if (level === "Medio") return "media";
+  return "baja";
+}
+
+function getReminderDueDate(risk: SgsdpRiesgo) {
+  if (risk.fechaRevision) return risk.fechaRevision;
+  const dueDate = new Date();
+  if (risk.criticidad === "Crítico") {
+    dueDate.setDate(dueDate.getDate() + 7);
+  } else if (risk.criticidad === "Alto") {
+    dueDate.setDate(dueDate.getDate() + 14);
+  } else {
+    dueDate.setDate(dueDate.getDate() + 30);
+  }
+  return dueDate.toISOString().slice(0, 10);
+}
+
+function getRiskBadge(level: CriticidadRiesgo) {
+  const styles = getRiskLevelMeta(level);
+  return (
+    <span className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-black tracking-widest ${styles.badge}`}>
+      {level.toUpperCase()}
+    </span>
+  );
+}
 
 export default function Paso5Riesgo() {
-  const { riesgos, activos, addRiesgo } = useSgsdpStore();
-  const [showAnalysis, setShowAnalysis] = useState(false);
+  const { toast } = useToast();
+  const {
+    activos,
+    riesgos,
+    medidasCatalogo,
+    addRiesgo,
+    updateRiesgo,
+    removeRiesgo,
+    syncActivosFromRat,
+  } = useSgsdpStore();
+  const [activeSection, setActiveSection] = useState<SectionId>("dashboard");
+  const [methodology, setMethodology] = useState<MetodologiaRiesgo>("baa");
+  const [inventoriesCount, setInventoriesCount] = useState(0);
+  const [eipdCount, setEipdCount] = useState(0);
+  const [sources, setSources] = useState<ReturnType<typeof buildConnectedRiskSources>>();
+  const [reminders, setReminders] = useState<AuditReminder[]>([]);
+  const [lastSyncAt, setLastSyncAt] = useState("");
+  const [selectedSourceId, setSelectedSourceId] = useState("");
+  const [selectedRiskId, setSelectedRiskId] = useState("");
+  const [draft, setDraft] = useState<RiskDraft>(() => createDraft("baa"));
 
-  // Formulario para nuevo riesgo
-  const [activoSelect, setActivoSelect] = useState("");
-  const [amenazaDesc, setAmenazaDesc] = useState("");
-  const [vulnDesc, setVulnDesc] = useState("");
-  const [escenarioDesc, setEscenarioDesc] = useState("");
-  const [probabilidad, setProbabilidad] = useState(1);
-  const [impacto, setImpacto] = useState(1);
+  const refreshSources = () => {
+    const ratInventories = readRATInventories();
+    const eipdForms = readEipdForms();
+    syncActivosFromRat(ratInventories);
+    setInventoriesCount(ratInventories.length);
+    setEipdCount(eipdForms.length);
+    setSources(
+      buildConnectedRiskSources({
+        inventories: ratInventories,
+        eipdForms,
+        activos: useSgsdpStore.getState().activos,
+        riesgos: useSgsdpStore.getState().riesgos,
+      }),
+    );
+    setReminders(getAuditReminders());
+    setLastSyncAt(new Date().toISOString());
+  };
 
-  const calculatedRisk = probabilidad * impacto;
-  
-  const handleAddRisk = () => {
-    if (!activoSelect || !amenazaDesc || !vulnDesc) return;
-    
+  useEffect(() => {
+    ensureBrowserStorageEvents();
+    refreshSources();
+
+    const handleRefresh = () => refreshSources();
+    window.addEventListener("storage", handleRefresh);
+    window.addEventListener(DAVARA_STORAGE_EVENT, handleRefresh);
+    window.addEventListener("focus", handleRefresh);
+
+    return () => {
+      window.removeEventListener("storage", handleRefresh);
+      window.removeEventListener(DAVARA_STORAGE_EVENT, handleRefresh);
+      window.removeEventListener("focus", handleRefresh);
+    };
+  }, [syncActivosFromRat]);
+
+  useEffect(() => {
+    setDraft(createDraft(methodology));
+  }, [methodology]);
+
+  const methodologySources = useMemo(() => {
+    if (!sources) return [];
+    return methodology === "baa" ? sources.ratSources : sources.eipdSources;
+  }, [methodology, sources]);
+
+  const methodologyRisks = useMemo(() => {
+    return riesgos.filter((risk) => inferRiskMethodology(risk) === methodology);
+  }, [methodology, riesgos]);
+
+  const reminderLookup = useMemo(() => {
+    return new Map(
+      reminders
+        .filter((reminder) => reminder.referenceKey?.startsWith("sgsdp-risk:"))
+        .map((reminder) => [reminder.referenceKey as string, reminder]),
+    );
+  }, [reminders]);
+
+  const criticalSourceCount = methodologySources.filter((source) => ["Crítico", "Alto"].includes(source.criticidad)).length;
+  const pendingSources = methodologySources.filter((source) => !source.linkedRiskId).length;
+  const activeReminders = methodologyRisks.filter((risk) =>
+    Boolean(risk.reminderReferenceKey && reminderLookup.get(risk.reminderReferenceKey)),
+  ).length;
+  const openMethodologyRisks = methodologyRisks.filter((risk) => risk.estadoSeguimiento !== "mitigado");
+  const heatmap = useMemo(() => buildRiskHeatmap(methodologyRisks), [methodologyRisks]);
+  const linkedCoverage = methodologySources.length === 0
+    ? 0
+    : Math.round((methodologySources.filter((source) => source.linkedRiskId).length / methodologySources.length) * 100);
+  const riskDistribution = methodologyRisks.reduce<Record<CriticidadRiesgo, number>>(
+    (acc, risk) => {
+      acc[risk.criticidad] += 1;
+      return acc;
+    },
+    { Crítico: 0, Alto: 0, Medio: 0, Bajo: 0 },
+  );
+
+  useEffect(() => {
+    if (methodologySources.length === 0) {
+      setSelectedSourceId("");
+      return;
+    }
+    if (selectedSourceId && !methodologySources.some((source) => source.id === selectedSourceId)) {
+      setSelectedSourceId("");
+    }
+  }, [methodologySources, selectedSourceId]);
+
+  useEffect(() => {
+    if (methodologyRisks.length === 0) {
+      setSelectedRiskId("");
+      return;
+    }
+    if (!methodologyRisks.some((risk) => risk.id === selectedRiskId)) {
+      setSelectedRiskId(methodologyRisks[0].id);
+    }
+  }, [methodologyRisks, selectedRiskId]);
+
+  const selectedSource = methodologySources.find((source) => source.id === selectedSourceId) || null;
+  const selectedRisk = methodologyRisks.find((risk) => risk.id === selectedRiskId) || null;
+
+  const selectedMeasures = useMemo(() => {
+    if (selectedRisk?.medidasSugeridas && selectedRisk.medidasSugeridas.length > 0) {
+      return selectedRisk.medidasSugeridas;
+    }
+    const threatItem = getThreatCatalogItem(
+      draft.amenazaId !== "custom" ? draft.amenazaId : undefined,
+    );
+    return threatItem?.suggestedMeasures || [];
+  }, [draft.amenazaId, selectedRisk]);
+
+  const implementedControls = medidasCatalogo.filter(
+    (item) => item.estado === "implementado" || item.estado === "parcial",
+  ).length;
+  const pendingControls = medidasCatalogo.filter((item) => item.estado === "sin_evaluar" || item.estado === "no_implementado").length;
+
+  const loadSourceIntoDraft = (source: ConnectedRiskSource) => {
+    const threatItem = getThreatCatalogItem(source.threatId) || getDefaultThreatCatalogItem();
+    setSelectedSourceId(source.id);
+    setDraft({
+      activoId: source.linkedAssetId || "",
+      amenazaId: source.threatId || "custom",
+      amenazaManual: source.threatId ? "" : source.threatLabel,
+      vulnerabilidad: source.vulnerability,
+      escenario: source.scenario,
+      probabilidad: source.probability,
+      impacto: source.impact,
+      tratamiento: source.treatment,
+      fechaRevision: source.reviewDate || "",
+      fuente: source.sourceType,
+      fuenteRef: source.id,
+      metodologia: methodology,
+      categoriaAmenaza: threatItem.category,
+    });
+    setActiveSection("riesgos");
+  };
+
+  const handleDraftThreatChange = (threatId: string) => {
+    const threatItem = getThreatCatalogItem(threatId);
+    setDraft((current) => ({
+      ...current,
+      amenazaId: threatId,
+      vulnerabilidad: threatItem?.vulnerabilityHint || current.vulnerabilidad,
+      tratamiento: threatItem?.treatment || current.tratamiento,
+      categoriaAmenaza: threatItem?.category || current.categoriaAmenaza,
+    }));
+  };
+
+  const handleSaveRisk = () => {
+    const threatItem = getThreatCatalogItem(draft.amenazaId !== "custom" ? draft.amenazaId : undefined);
+    const threatLabel = draft.amenazaId === "custom" ? draft.amenazaManual.trim() : threatItem?.label || "";
+
+    if (!draft.activoId || !threatLabel || !draft.vulnerabilidad.trim() || !draft.escenario.trim()) {
+      toast({
+        title: "Completa los campos clave",
+        description: "Debes seleccionar un activo y describir amenaza, vulnerabilidad y escenario.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (draft.fuenteRef && methodologyRisks.some((risk) => risk.fuenteRef === draft.fuenteRef)) {
+      toast({
+        title: "Riesgo ya consolidado",
+        description: "La fuente seleccionada ya tiene un riesgo registrado en el SGSDP.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     addRiesgo({
-      activoId: activoSelect,
-      amenaza: amenazaDesc,
-      vulnerabilidad: vulnDesc,
-      escenario: escenarioDesc,
-      probabilidad,
-      impacto
+      activoId: draft.activoId,
+      amenaza: threatLabel,
+      vulnerabilidad: draft.vulnerabilidad.trim(),
+      escenario: draft.escenario.trim(),
+      probabilidad: draft.probabilidad,
+      impacto: draft.impacto,
+      fuente: draft.fuente,
+      fuenteRef: draft.fuenteRef,
+      categoriaAmenaza: threatItem?.category || draft.categoriaAmenaza || "Operacional",
+      tratamiento: draft.tratamiento,
+      medidasSugeridas: threatItem?.suggestedMeasures || [],
+      fechaRevision: draft.fechaRevision,
+      estadoSeguimiento: "pendiente",
+      metodologia: draft.metodologia,
     });
 
-    // Reset and close
-    setShowAnalysis(false);
-    setActivoSelect("");
-    setAmenazaDesc("");
-    setVulnDesc("");
-    setEscenarioDesc("");
-    setProbabilidad(1);
-    setImpacto(1);
+    toast({
+      title: "Riesgo registrado",
+      description: `El riesgo se consolidó bajo la metodología ${METHODOLOGY_CONFIG[draft.metodologia].label}.`,
+    });
+    refreshSources();
+    setDraft(createDraft(methodology));
+    setSelectedSourceId("");
   };
 
-  const getNivelRiesgo = (val: number) => {
-    if (val >= 20) return { label: "CRÍTICO", colors: "bg-red-600 text-white", border: "border-red-600" };
-    if (val >= 10) return { label: "ALTO", colors: "bg-orange-500 text-white", border: "border-orange-500" };
-    if (val >= 5) return { label: "MEDIO", colors: "bg-amber-400 text-amber-900", border: "border-amber-400" };
-    return { label: "BAJO", colors: "bg-emerald-500 text-white", border: "border-emerald-500" };
+  const handleCreateReminder = (risk: SgsdpRiesgo) => {
+    const asset = activos.find((item) => item.id === risk.activoId);
+    const dueDate = getReminderDueDate(risk);
+    const referenceKey = risk.reminderReferenceKey || `sgsdp-risk:${risk.id}`;
+    const existing = reminderLookup.get(referenceKey);
+
+    const reminder = upsertAuditReminderByReferenceKey(referenceKey, {
+      title: `Seguimiento de riesgo ${risk.criticidad.toLowerCase()} · ${risk.amenaza}`,
+      description:
+        risk.escenario || "Dar seguimiento al riesgo registrado en el Paso 5 del SGSDP y validar tratamiento.",
+      dueDate: new Date(`${dueDate}T09:00:00`),
+      priority: getReminderPriority(risk.criticidad),
+      status: existing?.status || "pendiente",
+      assignedTo: asset?.custodioId ? [asset.custodioId] : ["Equipo SGSDP"],
+      category: methodology === "baa" ? "Riesgo BAA" : "Riesgo EIPD",
+      moduleId: "sistema-seguridad",
+      notes: `Riesgo ${risk.id} · ${risk.amenaza}`,
+      referenceKey,
+    });
+
+    updateRiesgo(risk.id, {
+      reminderReferenceKey: referenceKey,
+      fechaRevision: dueDate,
+    });
+
+    toast({
+      title: existing ? "Recordatorio actualizado" : "Recordatorio creado",
+      description: `Vence el ${formatDate(reminder?.dueDate?.toISOString())}.`,
+    });
+    refreshSources();
   };
 
-  const getRiskBadge = (criticidad: string) => {
-    let colors = "";
-    let label = "";
-    switch (criticidad) {
-      case "Crítico":
-        colors = "bg-red-600 text-white";
-        label = "CRÍTICO";
-        break;
-      case "Alto":
-        colors = "bg-orange-500 text-white";
-        label = "ALTO";
-        break;
-      case "Medio":
-        colors = "bg-amber-400 text-amber-900";
-        label = "MEDIO";
-        break;
-      case "Bajo":
-        colors = "bg-emerald-500 text-white";
-        label = "BAJO";
-        break;
-      default:
-        colors = "bg-slate-200 text-slate-700";
-        label = "N/A";
-    }
-    return (
-      <span className={`px-3 py-1 rounded-full text-xs font-black tracking-widest ${colors} shadow-sm`}>
-        {label}
-      </span>
+  const handleCreatePriorityReminders = () => {
+    const candidates = methodologyRisks.filter(
+      (risk) =>
+        ["Crítico", "Alto"].includes(risk.criticidad) &&
+        risk.estadoSeguimiento !== "mitigado" &&
+        !risk.reminderReferenceKey,
     );
+
+    if (candidates.length === 0) {
+      toast({
+        title: "Sin pendientes prioritarios",
+        description: "Todos los riesgos altos y críticos ya cuentan con seguimiento o están mitigados.",
+      });
+      return;
+    }
+
+    candidates.forEach((risk) => handleCreateReminder(risk));
+    toast({
+      title: "Seguimiento programado",
+      description: `Se atendieron ${candidates.length} riesgo(s) prioritario(s) con recordatorio.`,
+    });
   };
 
-  const currentLevel = getNivelRiesgo(calculatedRisk);
+  const methodologyLabel = METHODOLOGY_CONFIG[methodology].label;
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-bold text-slate-900">Análisis y Valoración de Riesgo</h2>
-          <p className="text-sm text-slate-600 mt-1">Conforme al Art. 60 del Reglamento de la LFPDPPP.</p>
-        </div>
-        {!showAnalysis && (
-          <button 
-            onClick={() => setShowAnalysis(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg shadow-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+      <div className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <h2 className="text-xl font-bold text-slate-900">Análisis de Riesgo y Priorización</h2>
+            <p className="mt-1 max-w-3xl text-sm text-slate-600">
+              Selecciona una metodología, consolida únicamente esa fuente y usa el SGSDP como registro ejecutivo y de seguimiento.
+            </p>
+          </div>
+          <button
+            onClick={refreshSources}
+            className="inline-flex items-center gap-2 self-start rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
           >
-            <Plus className="h-4 w-4" /> Nuevo Riesgo
+            <RefreshCw className="h-4 w-4" /> Sincronizar fuentes
           </button>
-        )}
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-2">
+          {(["baa", "eipd"] as MetodologiaRiesgo[]).map((option) => {
+            const isActive = methodology === option;
+            return (
+              <button
+                key={option}
+                onClick={() => setMethodology(option)}
+                className={`rounded-2xl border p-4 text-left transition-all ${
+                  isActive
+                    ? "border-primary bg-primary/5 shadow-sm"
+                    : "border-slate-200 bg-slate-50 hover:border-slate-300 hover:bg-white"
+                }`}
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Metodología</p>
+                    <h3 className="mt-1 text-lg font-bold text-slate-900">{METHODOLOGY_CONFIG[option].label}</h3>
+                  </div>
+                  {isActive && (
+                    <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-primary text-white">
+                      <CheckCircle2 className="h-4 w-4" />
+                    </span>
+                  )}
+                </div>
+                <p className="mt-2 text-sm text-slate-600">{METHODOLOGY_CONFIG[option].description}</p>
+                <p className="mt-2 text-xs text-slate-500">{METHODOLOGY_CONFIG[option].helper}</p>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-600">
+          Activos sincronizados desde RAT: <b className="text-slate-900">{activos.filter((item) => item.inventarioRatRef).length}</b>
+          {" · "}
+          Fuentes BAA detectadas: <b className="text-slate-900">{inventoriesCount}</b>
+          {" · "}
+          Fuentes EIPD detectadas: <b className="text-slate-900">{eipdCount}</b>
+          {lastSyncAt && (
+            <>
+              {" · "}
+              Última sincronización: <b className="text-slate-900">{new Date(lastSyncAt).toLocaleTimeString("es-MX")}</b>
+            </>
+          )}
+        </div>
       </div>
 
-      {showAnalysis && (
-        <div className="grid lg:grid-cols-3 gap-6">
-          
-          {/* Formulario de Evaluación */}
-          <div className="lg:col-span-2 space-y-6">
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-5">
-              <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-3">1. Selección y Escenario</h3>
-              
-              <div className="col-span-1 border-r border-slate-100 p-6 space-y-5">
-                <div className="space-y-4">
-                  <label className="block">
-                    <span className="text-sm font-semibold text-slate-700">Activo Afectado</span>
-                    <select 
-                      value={activoSelect}
-                      onChange={e => setActivoSelect(e.target.value)}
-                      className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus:border-primary focus:bg-white focus:ring-1 focus:ring-primary outline-none transition-all"
-                    >
-                      <option value="">-- Seleccionar Activo del Inventario --</option>
-                      {activos.map(a => (
-                        <option key={a.id} value={a.id}>{a.nombreSistema} ({a.tiposDatos.join(", ")})</option>
-                      ))}
-                    </select>
-                  </label>
-                  
-                  <label className="block">
-                    <span className="text-sm font-semibold text-slate-700">Amenaza Identificada</span>
-                    <input 
-                      type="text" 
-                      value={amenazaDesc}
-                      onChange={e => setAmenazaDesc(e.target.value)}
-                      placeholder="Ej. Acceso no autorizado" 
-                      className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-primary" 
-                    />
-                  </label>
-
-                  <label className="block">
-                    <span className="text-sm font-semibold text-slate-700">Vulnerabilidad</span>
-                    <input 
-                      type="text" 
-                      value={vulnDesc}
-                      onChange={e => setVulnDesc(e.target.value)}
-                      placeholder="Ej. Falta de MFA" 
-                      className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-primary" 
-                    />
-                  </label>
-
-                  <label className="block">
-                    <span className="text-sm font-semibold text-slate-700">Escenario de Riesgo (Descriptivo)</span>
-                    <textarea 
-                      rows={3}
-                      value={escenarioDesc}
-                      onChange={e => setEscenarioDesc(e.target.value)}
-                      placeholder="Describa qué pasaría si la amenaza explota la vulnerabilidad..." 
-                      className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-primary" 
-                    />
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-6">
-              <h3 className="font-bold text-slate-900 border-b border-slate-100 pb-3 flex justify-between items-center">
-                <span>2. Valoración P × I</span>
-                <span className="text-xs font-medium text-slate-500 flex items-center gap-1.5"><AlertTriangle className="h-4 w-4"/> Impacto en Titulares</span>
-              </h3>
-
-              <div>
-                <div className="flex justify-between items-end mb-2">
-                  <label className="text-sm font-semibold text-slate-700">Probabilidad de Ocurrencia (1-5)</label>
-                  <span className="text-xl font-black text-slate-900 bg-slate-100 h-10 w-10 flex items-center justify-center rounded-lg">{probabilidad}</span>
-                </div>
-                <input 
-                  type="range" min="1" max="5" step="1" 
-                  value={probabilidad}
-                  onChange={(e) => setProbabilidad(Number(e.target.value))}
-                  className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-primary" 
-                />
-                <div className="flex justify-between text-xs text-slate-400 font-medium mt-2 px-1">
-                  <span>Rara vez (1)</span><span>Improbable (2)</span><span>Posible (3)</span><span>Probable (4)</span><span>Casi Certero (5)</span>
-                </div>
-              </div>
-
-              <div className="pt-4">
-                <div className="flex justify-between items-end mb-2">
-                  <label className="text-sm font-semibold text-slate-700">Impacto a Titulares / Empresa (1-5)</label>
-                  <span className="text-xl font-black text-slate-900 bg-slate-100 h-10 w-10 flex items-center justify-center rounded-lg">{impacto}</span>
-                </div>
-                <input 
-                  type="range" min="1" max="5" step="1" 
-                  value={impacto}
-                  onChange={(e) => setImpacto(Number(e.target.value))}
-                  className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-primary" 
-                />
-                <div className="flex justify-between text-xs text-slate-400 font-medium mt-2 px-1">
-                  <span>Insignificante (1)</span><span>Menor (2)</span><span>Moderado (3)</span><span>Mayor (4)</span><span>Catastrófico (5)</span>
-                </div>
-              </div>
-            </div>
+      <div className="grid gap-6 xl:grid-cols-[260px_minmax(0,1fr)]">
+        <aside className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+          <div className="mb-3 rounded-xl bg-slate-900 px-4 py-3 text-white">
+            <p className="text-[11px] font-black uppercase tracking-[0.2em] text-white/70">Vista activa</p>
+            <p className="mt-1 text-lg font-bold">{methodologyLabel}</p>
+            <p className="mt-1 text-xs text-white/75">{METHODOLOGY_CONFIG[methodology].sourceLabel}</p>
           </div>
+          <div className="space-y-1">
+            {SECTION_ITEMS.map((section) => (
+              <button
+                key={section.id}
+                onClick={() => setActiveSection(section.id)}
+                className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-semibold transition-colors ${
+                  activeSection === section.id
+                    ? "bg-primary text-white shadow-sm"
+                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                }`}
+              >
+                {section.icon}
+                {section.label}
+              </button>
+            ))}
+          </div>
+        </aside>
 
-          {/* Panel de Resultado Calculado */}
-          <div className="space-y-6">
-            <div className={`rounded-2xl border-2 ${currentLevel.border} p-6 sticky top-24 transition-colors duration-300`}>
-              <div className="flex justify-between items-start mb-6">
-                <div className="h-12 w-12 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center">
-                  <Target className="h-6 w-6 text-slate-700" />
+        <div className="space-y-6">
+          {activeSection === "dashboard" && (
+            <div className="space-y-6">
+              <div className="grid gap-3 md:grid-cols-4">
+                <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                  <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Fuentes</p>
+                  <p className="mt-3 text-3xl font-black text-slate-900">{methodologySources.length}</p>
+                  <p className="mt-1 text-xs text-slate-500">{METHODOLOGY_CONFIG[methodology].sourceLabel}</p>
                 </div>
-                <span className={`px-4 py-1.5 rounded-full text-xs font-black tracking-widest ${currentLevel.colors} shadow-sm`}>
-                  RIESGO {currentLevel.label}
-                </span>
+                <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                  <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Cobertura</p>
+                  <p className="mt-3 text-3xl font-black text-slate-900">{linkedCoverage}%</p>
+                  <p className="mt-1 text-xs text-slate-500">Fuentes ya consolidadas en SGSDP</p>
+                </div>
+                <div className="rounded-2xl border border-red-200 bg-red-50 p-4 shadow-sm">
+                  <p className="text-xs font-black uppercase tracking-[0.2em] text-red-600">Prioritarios</p>
+                  <p className="mt-3 text-3xl font-black text-red-700">{criticalSourceCount}</p>
+                  <p className="mt-1 text-xs text-red-700">Fuentes con atención alta o crítica</p>
+                </div>
+                <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                  <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Recordatorios</p>
+                  <p className="mt-3 text-3xl font-black text-slate-900">{activeReminders}</p>
+                  <p className="mt-1 text-xs text-slate-500">Seguimientos activos vinculados</p>
+                </div>
               </div>
 
-              <div className="text-center py-6 border-y border-slate-100/50 my-6">
-                  <p className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-1">Valor Calculado</p>
-                  <div className="text-6xl font-black text-slate-900 tabular-nums tracking-tighter">
-                    {calculatedRisk}
+              <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <h3 className="text-lg font-bold text-slate-900">Progreso del tratamiento</h3>
+                      <p className="mt-1 text-sm text-slate-600">
+                        Esta vista sólo considera la metodología <b>{methodologyLabel}</b> para evitar mezclar criterios.
+                      </p>
+                    </div>
+                    <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">
+                      {openMethodologyRisks.length} riesgo(s) abierto(s)
+                    </span>
                   </div>
-                  <p className="text-xs text-slate-400 font-medium mt-2">(Probabilidad × Impacto)</p>
+                  <div className="mt-5 h-3 rounded-full bg-slate-100">
+                    <div
+                      className="h-3 rounded-full bg-primary transition-all"
+                      style={{ width: `${linkedCoverage}%` }}
+                    />
+                  </div>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <button
+                      onClick={() => setActiveSection("bases")}
+                      className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-slate-800"
+                    >
+                      Revisar fuentes <ArrowRight className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={handleCreatePriorityReminders}
+                      className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+                    >
+                      <Bell className="h-4 w-4" /> Programar recordatorios críticos
+                    </button>
+                    <Link
+                      href="/audit-alarms"
+                      className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+                    >
+                      Abrir recordatorios <ExternalLink className="h-4 w-4" />
+                    </Link>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                  <h3 className="text-lg font-bold text-slate-900">Acciones rápidas</h3>
+                  <div className="mt-4 space-y-3">
+                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                      <p className="text-sm font-semibold text-slate-900">{pendingSources} fuente(s) sin consolidar</p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        Usa la metodología activa para registrar sólo los riesgos realmente pertinentes.
+                      </p>
+                    </div>
+                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                      <p className="text-sm font-semibold text-slate-900">{implementedControls} control(es) ya evaluado(s)</p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        El Paso 6 puede tomar estos hallazgos para cerrar brechas y planificar tratamiento.
+                      </p>
+                    </div>
+                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                      <p className="text-sm font-semibold text-slate-900">{pendingControls} control(es) pendiente(s)</p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        Si el riesgo queda alto o crítico, conviene revisar brechas antes de cerrar el plan.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeSection === "metodologia" && (
+            <div className="space-y-4">
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <h3 className="text-lg font-bold text-slate-900">Metodología {methodologyLabel}</h3>
+                <p className="mt-2 text-sm text-slate-600">{METHODOLOGY_CONFIG[methodology].description}</p>
+                <p className="mt-2 text-sm text-slate-600">{METHODOLOGY_CONFIG[methodology].helper}</p>
               </div>
 
-              {calculatedRisk >= 20 && (
-                <div className="bg-red-50 text-red-800 text-xs rounded-xl p-3 flex gap-2 mb-6 border border-red-100 font-medium">
-                  <ShieldAlert className="h-4 w-4 shrink-0 mt-0.5" />
-                  Alerta: El sistema bloqueará el avance de Fases hasta que este riesgo cuente con un plan de tratamiento activo.
+              <div className="grid gap-4 lg:grid-cols-2">
+                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                  <h4 className="font-bold text-slate-900">Cómo se prioriza</h4>
+                  {methodology === "baa" ? (
+                    <div className="mt-4 space-y-3 text-sm text-slate-600">
+                      <p>1. Se leen inventarios RAT y se sincronizan activos faltantes hacia el SGSDP.</p>
+                      <p>2. Se sugiere probabilidad por exposición y accesibilidad; el impacto se ajusta con el nivel BAA.</p>
+                      <p>3. Sólo se consolidan al registro los inventarios que realmente requieran seguimiento en SGSDP.</p>
+                    </div>
+                  ) : (
+                    <div className="mt-4 space-y-3 text-sm text-slate-600">
+                      <p>1. Se leen amenazas y controles ya evaluados en cada EIPD.</p>
+                      <p>2. Se eleva al SGSDP el riesgo residual más relevante de cada evaluación.</p>
+                      <p>3. Se priorizan revisiones y mitigaciones sin volver a mezclar lógica BAA en la misma vista.</p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                  <h4 className="font-bold text-slate-900">Matriz operativa 4 × 4</h4>
+                  <p className="mt-1 text-xs text-slate-500">Visual de priorización para esta vista metodológica.</p>
+                  <div className="mt-4 grid grid-cols-4 gap-2">
+                    {[
+                      { score: 1, label: "Bajo", level: "Bajo" as CriticidadRiesgo },
+                      { score: 4, label: "Medio", level: "Medio" as CriticidadRiesgo },
+                      { score: 8, label: "Alto", level: "Alto" as CriticidadRiesgo },
+                      { score: 12, label: "Crítico", level: "Crítico" as CriticidadRiesgo },
+                    ].map((item) => {
+                      const styles = getRiskLevelMeta(item.level);
+                      return (
+                        <div
+                          key={item.label}
+                          className={`rounded-xl border px-3 py-4 text-center ${styles.soft}`}
+                        >
+                          <p className="text-xl font-black">{item.score}</p>
+                          <p className="mt-1 text-xs font-bold uppercase tracking-widest">{item.label}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeSection === "bases" && (
+            <div className="space-y-4">
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <h3 className="text-lg font-bold text-slate-900">{METHODOLOGY_CONFIG[methodology].sourceLabel}</h3>
+                    <p className="mt-1 text-sm text-slate-600">
+                      Se listan sólo las fuentes de la metodología seleccionada para que la consolidación sea coherente.
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">
+                    {methodologySources.length} fuente(s)
+                  </span>
+                </div>
+              </div>
+
+              {methodologySources.length === 0 ? (
+                <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center text-sm text-slate-500 shadow-sm">
+                  No hay fuentes disponibles para la metodología {methodologyLabel}. Registra información en el módulo correspondiente y vuelve a sincronizar.
+                </div>
+              ) : (
+                <div className="grid gap-4 xl:grid-cols-2">
+                  {methodologySources.map((source) => {
+                    const styles = getRiskLevelMeta(source.criticidad);
+                    return (
+                      <div key={source.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">{source.subtitle}</p>
+                            <h4 className="mt-1 text-lg font-bold text-slate-900">{source.title}</h4>
+                          </div>
+                          <span className={`rounded-full px-3 py-1 text-[11px] font-black tracking-widest ${styles.badge}`}>
+                            {source.criticidad.toUpperCase()}
+                          </span>
+                        </div>
+                        <p className="mt-3 text-sm text-slate-600">{source.summary}</p>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {source.tags.map((tag) => (
+                            <span key={tag} className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-600">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                        <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+                          <p><b className="text-slate-900">Amenaza sugerida:</b> {source.threatLabel}</p>
+                          <p className="mt-1"><b className="text-slate-900">Vulnerabilidad:</b> {source.vulnerability}</p>
+                          {source.reviewDate && (
+                            <p className="mt-1"><b className="text-slate-900">Próxima revisión:</b> {formatDate(source.reviewDate)}</p>
+                          )}
+                        </div>
+                        <div className="mt-4 flex flex-wrap gap-2">
+                          <button
+                            onClick={() => loadSourceIntoDraft(source)}
+                            disabled={Boolean(source.linkedRiskId)}
+                            className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
+                          >
+                            {source.linkedRiskId ? "Riesgo ya consolidado" : "Preparar riesgo"}
+                          </button>
+                          <Link
+                            href={source.route}
+                            className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+                          >
+                            Abrir módulo <ExternalLink className="h-4 w-4" />
+                          </Link>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
-
-              <button 
-                onClick={handleAddRisk}
-                className="w-full py-3.5 bg-slate-900 text-white text-sm font-bold rounded-xl hover:bg-slate-800 transition-colors shadow-sm flex items-center justify-center gap-2"
-              >
-                Registrar Riesgo <TrendingUp className="h-4 w-4" />
-              </button>
             </div>
-          </div>
+          )}
+
+          {activeSection === "riesgos" && (
+            <div className="space-y-6">
+              <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <h3 className="text-lg font-bold text-slate-900">Registrar riesgo SGSDP</h3>
+                      <p className="mt-1 text-sm text-slate-600">
+                        Consolida sólo hallazgos bajo metodología <b>{methodologyLabel}</b>. Puedes iniciar desde una fuente o capturar el riesgo manualmente.
+                      </p>
+                    </div>
+                    {selectedSource && (
+                      <button
+                        onClick={() => loadSourceIntoDraft(selectedSource)}
+                        className="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary"
+                      >
+                        Fuente activa: {selectedSource.title}
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="mt-6 grid gap-4">
+                    <label className="block">
+                      <span className="text-sm font-semibold text-slate-700">Activo afectado</span>
+                      <select
+                        value={draft.activoId}
+                        onChange={(event) => setDraft((current) => ({ ...current, activoId: event.target.value }))}
+                        className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition-all focus:border-primary"
+                      >
+                        <option value="">Selecciona un activo sincronizado</option>
+                        {activos.map((activo) => (
+                          <option key={activo.id} value={activo.id}>
+                            {activo.nombreSistema} · {activo.nivelSensibilidad}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <label className="block">
+                        <span className="text-sm font-semibold text-slate-700">Amenaza del catálogo</span>
+                        <select
+                          value={draft.amenazaId}
+                          onChange={(event) => handleDraftThreatChange(event.target.value)}
+                          className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition-all focus:border-primary"
+                        >
+                          {SGSDP_THREAT_CATALOG.map((threat) => (
+                            <option key={threat.id} value={threat.id}>
+                              {threat.label}
+                            </option>
+                          ))}
+                          <option value="custom">Otra amenaza específica</option>
+                        </select>
+                      </label>
+                      <label className="block">
+                        <span className="text-sm font-semibold text-slate-700">Tratamiento sugerido</span>
+                        <select
+                          value={draft.tratamiento}
+                          onChange={(event) =>
+                            setDraft((current) => ({ ...current, tratamiento: event.target.value as OpcionTratamiento }))
+                          }
+                          className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition-all focus:border-primary"
+                        >
+                          <option value="reducir">Reducir</option>
+                          <option value="retener">Retener</option>
+                          <option value="evitar">Evitar</option>
+                          <option value="compartir">Compartir</option>
+                        </select>
+                      </label>
+                    </div>
+
+                    {draft.amenazaId === "custom" && (
+                      <label className="block">
+                        <span className="text-sm font-semibold text-slate-700">Amenaza específica</span>
+                        <input
+                          type="text"
+                          value={draft.amenazaManual}
+                          onChange={(event) =>
+                            setDraft((current) => ({ ...current, amenazaManual: event.target.value }))
+                          }
+                          className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition-all focus:border-primary"
+                          placeholder="Describe la amenaza si no aplica el catálogo base"
+                        />
+                      </label>
+                    )}
+
+                    <label className="block">
+                      <span className="text-sm font-semibold text-slate-700">Vulnerabilidad</span>
+                      <textarea
+                        rows={3}
+                        value={draft.vulnerabilidad}
+                        onChange={(event) =>
+                          setDraft((current) => ({ ...current, vulnerabilidad: event.target.value }))
+                        }
+                        className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition-all focus:border-primary"
+                      />
+                    </label>
+
+                    <label className="block">
+                      <span className="text-sm font-semibold text-slate-700">Escenario de riesgo</span>
+                      <textarea
+                        rows={4}
+                        value={draft.escenario}
+                        onChange={(event) =>
+                          setDraft((current) => ({ ...current, escenario: event.target.value }))
+                        }
+                        className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition-all focus:border-primary"
+                        placeholder="Describe el impacto operativo y en titulares si la amenaza se materializa"
+                      />
+                    </label>
+
+                    <div className="grid gap-4 md:grid-cols-3">
+                      <label className="block">
+                        <span className="text-sm font-semibold text-slate-700">Probabilidad</span>
+                        <select
+                          value={String(draft.probabilidad)}
+                          onChange={(event) =>
+                            setDraft((current) => ({ ...current, probabilidad: Number(event.target.value) }))
+                          }
+                          className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition-all focus:border-primary"
+                        >
+                          <option value="1">Baja (1)</option>
+                          <option value="2">Media (2)</option>
+                          <option value="3">Alta (3)</option>
+                          <option value="4">Muy alta (4)</option>
+                        </select>
+                      </label>
+                      <label className="block">
+                        <span className="text-sm font-semibold text-slate-700">Impacto</span>
+                        <select
+                          value={String(draft.impacto)}
+                          onChange={(event) =>
+                            setDraft((current) => ({ ...current, impacto: Number(event.target.value) }))
+                          }
+                          className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition-all focus:border-primary"
+                        >
+                          <option value="1">Bajo (1)</option>
+                          <option value="2">Medio (2)</option>
+                          <option value="3">Alto (3)</option>
+                          <option value="4">Muy alto (4)</option>
+                        </select>
+                      </label>
+                      <label className="block">
+                        <span className="text-sm font-semibold text-slate-700">Próxima revisión</span>
+                        <input
+                          type="date"
+                          value={draft.fechaRevision}
+                          onChange={(event) =>
+                            setDraft((current) => ({ ...current, fechaRevision: event.target.value }))
+                          }
+                          className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition-all focus:border-primary"
+                        />
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 flex flex-wrap gap-2">
+                    <button
+                      onClick={handleSaveRisk}
+                      className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-slate-800"
+                    >
+                      Registrar riesgo <Target className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => setDraft(createDraft(methodology))}
+                      className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+                    >
+                      Reiniciar captura
+                    </button>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                  <h3 className="text-lg font-bold text-slate-900">Resultado esperado</h3>
+                  <p className="mt-1 text-sm text-slate-600">
+                    El riesgo registrado conserva la metodología seleccionada, el seguimiento y las medidas sugeridas.
+                  </p>
+                  <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+                    <div className="flex items-center justify-between gap-4">
+                      <div>
+                        <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Nivel estimado</p>
+                        <p className="mt-2 text-4xl font-black text-slate-900">{draft.probabilidad * draft.impacto}</p>
+                        <p className="mt-1 text-xs text-slate-500">Probabilidad × Impacto</p>
+                      </div>
+                      {getRiskBadge(normalizeExistingRiskLevel({
+                        id: "preview",
+                        activoId: "",
+                        amenaza: "",
+                        vulnerabilidad: "",
+                        escenario: "",
+                        probabilidad: draft.probabilidad,
+                        impacto: draft.impacto,
+                        valorCalculado: draft.probabilidad * draft.impacto,
+                        criticidad: "Bajo",
+                      } as SgsdpRiesgo).criticidad)}
+                    </div>
+                    <div className="mt-4 rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-600">
+                      <p><b className="text-slate-900">Metodología:</b> {methodologyLabel}</p>
+                      <p className="mt-1"><b className="text-slate-900">Fuente:</b> {draft.fuenteRef || "Registro manual"}</p>
+                      <p className="mt-1"><b className="text-slate-900">Tratamiento:</b> {draft.tratamiento}</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-5 rounded-xl border border-slate-200 bg-white p-4">
+                    <p className="text-sm font-semibold text-slate-900">Medidas sugeridas</p>
+                    <div className="mt-3 space-y-2">
+                      {selectedMeasures.length === 0 ? (
+                        <p className="text-sm text-slate-500">Selecciona una amenaza para recibir sugerencias.</p>
+                      ) : (
+                        selectedMeasures.map((measure) => (
+                          <div key={measure} className="flex items-start gap-2 text-sm text-slate-600">
+                            <span className="mt-1 h-2 w-2 rounded-full bg-primary" />
+                            <span>{measure}</span>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <h3 className="text-lg font-bold text-slate-900">Registro de riesgos {methodologyLabel}</h3>
+                    <p className="mt-1 text-sm text-slate-600">
+                      Sólo se muestran riesgos de la metodología activa para mantener una lectura útil.
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">
+                    {methodologyRisks.length} registro(s)
+                  </span>
+                </div>
+
+                {methodologyRisks.length === 0 ? (
+                  <div className="mt-6 rounded-xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">
+                    Aún no hay riesgos consolidados bajo la metodología {methodologyLabel}.
+                  </div>
+                ) : (
+                  <div className="mt-5 space-y-3">
+                    {methodologyRisks
+                      .slice()
+                      .sort((left, right) => right.valorCalculado - left.valorCalculado)
+                      .map((risk) => {
+                        const asset = activos.find((item) => item.id === risk.activoId);
+                        const reminder = risk.reminderReferenceKey
+                          ? reminderLookup.get(risk.reminderReferenceKey)
+                          : null;
+                        return (
+                          <div
+                            key={risk.id}
+                            className={`rounded-2xl border p-4 transition-colors ${
+                              selectedRiskId === risk.id ? "border-primary bg-primary/5" : "border-slate-200 bg-white"
+                            }`}
+                          >
+                            <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                              <div>
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <button
+                                    onClick={() => setSelectedRiskId(risk.id)}
+                                    className="text-left text-base font-bold text-slate-900"
+                                  >
+                                    {risk.amenaza}
+                                  </button>
+                                  {getRiskBadge(risk.criticidad)}
+                                  <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-600">
+                                    {inferRiskMethodology(risk).toUpperCase()}
+                                  </span>
+                                </div>
+                                <p className="mt-2 text-sm text-slate-600">{risk.escenario}</p>
+                                <div className="mt-3 flex flex-wrap gap-2 text-xs text-slate-500">
+                                  <span className="rounded-full bg-slate-100 px-2.5 py-1">Activo: {asset?.nombreSistema || "Sin activo"}</span>
+                                  <span className="rounded-full bg-slate-100 px-2.5 py-1">Seguimiento: {risk.estadoSeguimiento || "pendiente"}</span>
+                                  {risk.fechaRevision && (
+                                    <span className="rounded-full bg-slate-100 px-2.5 py-1">
+                                      Revisión: {formatDate(risk.fechaRevision)}
+                                    </span>
+                                  )}
+                                  {risk.fuenteRef && (
+                                    <span className="rounded-full bg-slate-100 px-2.5 py-1">Fuente: {risk.fuenteRef}</span>
+                                  )}
+                                </div>
+                              </div>
+
+                              <div className="flex flex-wrap gap-2">
+                                <select
+                                  value={risk.estadoSeguimiento || "pendiente"}
+                                  onChange={(event) =>
+                                    updateRiesgo(risk.id, {
+                                      estadoSeguimiento: event.target.value as SgsdpRiesgo["estadoSeguimiento"],
+                                    })
+                                  }
+                                  className="rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 outline-none focus:border-primary"
+                                >
+                                  <option value="pendiente">Pendiente</option>
+                                  <option value="en_tratamiento">En tratamiento</option>
+                                  <option value="mitigado">Mitigado</option>
+                                </select>
+
+                                <button
+                                  onClick={() => handleCreateReminder(risk)}
+                                  className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+                                >
+                                  <Bell className="h-3.5 w-3.5" />
+                                  {reminder ? "Actualizar recordatorio" : "Crear recordatorio"}
+                                </button>
+
+                                <button
+                                  onClick={() => removeRiesgo(risk.id)}
+                                  className="inline-flex items-center gap-2 rounded-full border border-red-200 bg-white px-3 py-2 text-xs font-semibold text-red-600 transition-colors hover:bg-red-50"
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" /> Quitar
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {activeSection === "mapa" && (
+            <div className="space-y-4">
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <h3 className="text-lg font-bold text-slate-900">Mapa de calor {methodologyLabel}</h3>
+                    <p className="mt-1 text-sm text-slate-600">
+                      La matriz se filtra por metodología para que cada celda tenga sentido operativo.
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">
+                    {methodologyRisks.length} riesgo(s)
+                  </span>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <div className="grid grid-cols-[120px_repeat(4,minmax(0,1fr))] gap-2 text-center text-xs">
+                  <div />
+                  {[1, 2, 3, 4].map((probability) => (
+                    <div key={probability} className="rounded-xl bg-slate-100 px-3 py-2 font-bold text-slate-600">
+                      Prob. {probability}
+                    </div>
+                  ))}
+                  {heatmap.map((row) => (
+                    <React.Fragment key={`impact-${row[0].impact}`}>
+                      <div className="flex items-center justify-center rounded-xl bg-slate-100 px-3 py-2 font-bold text-slate-600">
+                        Impacto {row[0].impact}
+                      </div>
+                      {row.map((cell) => {
+                        const level = normalizeExistingRiskLevel({
+                          id: cell.riskIds[0] || "heat",
+                          activoId: "",
+                          amenaza: "",
+                          vulnerabilidad: "",
+                          escenario: "",
+                          probabilidad: cell.probability,
+                          impacto: cell.impact,
+                          valorCalculado: cell.probability * cell.impact,
+                          criticidad: "Bajo",
+                        } as SgsdpRiesgo).criticidad;
+                        const styles = getRiskLevelMeta(level);
+                        return (
+                          <div
+                            key={`${cell.impact}-${cell.probability}`}
+                            className={`rounded-2xl border p-4 ${styles.soft}`}
+                          >
+                            <p className="text-2xl font-black">{cell.count}</p>
+                            <p className="mt-1 text-[11px] font-bold uppercase tracking-widest">
+                              {cell.count === 0 ? "Vacío" : level}
+                            </p>
+                          </div>
+                        );
+                      })}
+                    </React.Fragment>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeSection === "medidas" && (
+            <div className="space-y-4">
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <h3 className="text-lg font-bold text-slate-900">Medidas de seguridad recomendadas</h3>
+                <p className="mt-1 text-sm text-slate-600">
+                  Recomendaciones asociadas al riesgo activo o a la amenaza que estás capturando.
+                </p>
+              </div>
+
+              <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Referencia actual</p>
+                      <h4 className="mt-1 text-lg font-bold text-slate-900">
+                        {selectedRisk ? selectedRisk.amenaza : draft.amenazaId === "custom" ? draft.amenazaManual || "Amenaza específica" : getThreatCatalogItem(draft.amenazaId)?.label}
+                      </h4>
+                    </div>
+                    {selectedRisk && getRiskBadge(selectedRisk.criticidad)}
+                  </div>
+
+                  <div className="mt-5 space-y-3">
+                    {selectedMeasures.length === 0 ? (
+                      <p className="text-sm text-slate-500">Aún no hay medidas sugeridas para la selección actual.</p>
+                    ) : (
+                      selectedMeasures.map((measure) => (
+                        <div key={measure} className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+                          {measure}
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                  <h4 className="font-bold text-slate-900">Conexión con el Paso 6</h4>
+                  <div className="mt-4 space-y-3">
+                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                      <p className="text-sm font-semibold text-slate-900">{implementedControls} controles evaluados</p>
+                      <p className="mt-1 text-xs text-slate-500">Ya puedes contrastar parte del tratamiento contra el GAP analysis.</p>
+                    </div>
+                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                      <p className="text-sm font-semibold text-slate-900">{pendingControls} controles pendientes</p>
+                      <p className="mt-1 text-xs text-slate-500">Si el riesgo sigue alto o crítico, conviene cerrar brechas antes de pasar a ejecución.</p>
+                    </div>
+                  </div>
+                  <Link
+                    href="/security-system/fase-1-planificar"
+                    className="mt-4 inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-slate-800"
+                  >
+                    Continuar con medidas <Link2 className="h-4 w-4" />
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeSection === "reporte" && (
+            <div className="space-y-4">
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                  <div>
+                    <h3 className="text-lg font-bold text-slate-900">Reporte ejecutivo {methodologyLabel}</h3>
+                    <p className="mt-1 text-sm text-slate-600">
+                      Resumen orientado a decisión, con foco en riesgos pendientes y seguimiento.
+                    </p>
+                  </div>
+                  <Link
+                    href="/audit-alarms"
+                    className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+                  >
+                    Ver recordatorios <ExternalLink className="h-4 w-4" />
+                  </Link>
+                </div>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                {([
+                  { label: "Riesgo crítico", value: riskDistribution.Crítico, level: "Crítico" as CriticidadRiesgo },
+                  { label: "Riesgo alto", value: riskDistribution.Alto, level: "Alto" as CriticidadRiesgo },
+                  { label: "Riesgo medio", value: riskDistribution.Medio, level: "Medio" as CriticidadRiesgo },
+                  { label: "Riesgo bajo", value: riskDistribution.Bajo, level: "Bajo" as CriticidadRiesgo },
+                ]).map((item) => {
+                  const styles = getRiskLevelMeta(item.level);
+                  return (
+                    <div key={item.label} className={`rounded-2xl border p-4 shadow-sm ${styles.soft}`}>
+                      <p className="text-xs font-black uppercase tracking-[0.2em]">{item.label}</p>
+                      <p className="mt-3 text-3xl font-black">{item.value}</p>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                  <h4 className="font-bold text-slate-900">Alertas pendientes</h4>
+                  <div className="mt-4 space-y-3">
+                    {openMethodologyRisks.length === 0 ? (
+                      <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700">
+                        No hay riesgos abiertos bajo la metodología {methodologyLabel}.
+                      </div>
+                    ) : (
+                      openMethodologyRisks
+                        .slice()
+                        .sort((left, right) => right.valorCalculado - left.valorCalculado)
+                        .slice(0, 5)
+                        .map((risk) => (
+                          <div key={risk.id} className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                            <div className="flex flex-wrap items-center gap-2">
+                              {getRiskBadge(risk.criticidad)}
+                              <span className="text-sm font-semibold text-slate-900">{risk.amenaza}</span>
+                            </div>
+                            <p className="mt-2 text-sm text-slate-600">{risk.escenario}</p>
+                            <div className="mt-3 flex flex-wrap gap-2 text-xs text-slate-500">
+                              <span className="rounded-full bg-white px-2.5 py-1">Seguimiento: {risk.estadoSeguimiento || "pendiente"}</span>
+                              {risk.fechaRevision && (
+                                <span className="rounded-full bg-white px-2.5 py-1">Revisión: {formatDate(risk.fechaRevision)}</span>
+                              )}
+                            </div>
+                          </div>
+                        ))
+                    )}
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                  <h4 className="font-bold text-slate-900">Distribución y seguimiento</h4>
+                  <div className="mt-4 space-y-3">
+                    {([
+                      { label: "Fuentes consolidadas", value: methodologySources.filter((source) => source.linkedRiskId).length, total: methodologySources.length, color: "bg-primary" },
+                      { label: "Riesgos con recordatorio", value: activeReminders, total: Math.max(methodologyRisks.length, 1), color: "bg-slate-900" },
+                      { label: "Riesgos mitigados", value: methodologyRisks.filter((risk) => risk.estadoSeguimiento === "mitigado").length, total: Math.max(methodologyRisks.length, 1), color: "bg-emerald-500" },
+                    ]).map((row) => {
+                      const pct = row.total === 0 ? 0 : Math.round((row.value / row.total) * 100);
+                      return (
+                        <div key={row.label} className="space-y-2">
+                          <div className="flex justify-between text-sm">
+                            <span className="text-slate-600">{row.label}</span>
+                            <span className="font-semibold text-slate-900">{row.value} ({pct}%)</span>
+                          </div>
+                          <div className="h-2 rounded-full bg-slate-100">
+                            <div className={`h-2 rounded-full ${row.color}`} style={{ width: `${pct}%` }} />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }

@@ -9,6 +9,7 @@ import {
   createLinkedFileIndex,
   summarizeInventoryCompliance,
 } from "@/app/rat/lib/compliance"
+import { summarizeEipdForNotifications } from "@/app/security-system/lib/risk-integration"
 
 export type NotificationPriority = "alta" | "media" | "baja"
 export type NotificationResolutionType = "manual" | "automatic"
@@ -602,6 +603,66 @@ function scanSeguridad(): NotificationSeed[] {
     )
   }
 
+  const riesgosPrioritarios = riesgos.filter(
+    (riesgo: any) =>
+      (riesgo?.criticidad === "Crítico" || riesgo?.criticidad === "Alto") &&
+      riesgo?.estadoSeguimiento !== "mitigado",
+  )
+  if (riesgosPrioritarios.length > 0) {
+    alerts.push(
+      createCollectionNotification({
+        module: "seguridad",
+        issueKey: "riesgos-prioritarios",
+        title: `${riesgosPrioritarios.length} riesgo(s) SGSDP alto/crítico pendiente(s)`,
+        description:
+          "Existen riesgos priorizados en el Paso 5 sin marcar como mitigados. Revisa tratamiento, responsables y seguimiento.",
+        priority: "alta",
+        route: "/security-system/fase-1-planificar",
+        items: riesgosPrioritarios,
+      }),
+    )
+  }
+
+  const revisionesVencidas = riesgos.filter((riesgo: any) => {
+    if (!riesgo?.fechaRevision || riesgo?.estadoSeguimiento === "mitigado") return false
+    return new Date(riesgo.fechaRevision) < new Date()
+  })
+  if (revisionesVencidas.length > 0) {
+    alerts.push(
+      createCollectionNotification({
+        module: "seguridad",
+        issueKey: "riesgos-revision-vencida",
+        title: `${revisionesVencidas.length} revisión(es) de riesgo vencida(s)`,
+        description:
+          "Hay riesgos del SGSDP cuya fecha de revisión ya venció. Actualiza su estado o reprograma seguimiento.",
+        priority: "media",
+        route: "/security-system/fase-1-planificar",
+        items: revisionesVencidas,
+      }),
+    )
+  }
+
+  const sinRecordatorio = riesgos.filter(
+    (riesgo: any) =>
+      (riesgo?.criticidad === "Crítico" || riesgo?.criticidad === "Alto") &&
+      riesgo?.estadoSeguimiento !== "mitigado" &&
+      !riesgo?.reminderReferenceKey,
+  )
+  if (sinRecordatorio.length > 0) {
+    alerts.push(
+      createCollectionNotification({
+        module: "seguridad",
+        issueKey: "riesgos-sin-recordatorio",
+        title: `${sinRecordatorio.length} riesgo(s) prioritario(s) sin recordatorio`,
+        description:
+          "Hay riesgos SGSDP de atención prioritaria que aún no cuentan con seguimiento programado en recordatorios.",
+        priority: "alta",
+        route: "/security-system/fase-1-planificar",
+        items: sinRecordatorio,
+      }),
+    )
+  }
+
   const roles = Array.isArray(state.roles) ? state.roles : []
   if (roles.length === 0) {
     alerts.push(
@@ -1130,39 +1191,58 @@ function scanEIPD(): NotificationSeed[] {
   const forms = safeParseJSON<any[]>("eipd_forms", [])
   if (forms.length === 0) return alerts
 
-  const borradores = forms.filter((form) => form?.status === "borrador" || form?.status === "draft" || !form?.status)
-  if (borradores.length > 0) {
-    alerts.push(
-      createCollectionNotification({
-        module: "eipd",
-        issueKey: "borradores",
-        title: `${borradores.length} evaluación(es) de impacto en borrador`,
-        description:
-          "Hay evaluaciones de impacto en protección de datos iniciadas pero no completadas.",
-        priority: "media",
-        route: "/eipd/consultar",
-        items: borradores,
-      }),
-    )
-  }
+  const analyzedForms = summarizeEipdForNotifications(forms)
 
-  const altoRiesgo = forms.filter(
-    (form) =>
-      form?.riskLevel === "alto" ||
-      form?.riskLevel === "critico" ||
-      form?.nivelRiesgo === "alto",
-  )
+  const altoRiesgo = analyzedForms
+    .filter((item) => item.highestResidual === "Crítico" || item.highestResidual === "Alto")
+    .map((item) => item.form)
   if (altoRiesgo.length > 0) {
     alerts.push(
       createCollectionNotification({
         module: "eipd",
         issueKey: "alto-riesgo",
-        title: `${altoRiesgo.length} EIPD con nivel de riesgo alto`,
+        title: `${altoRiesgo.length} EIPD con riesgo residual alto/crítico`,
         description:
-          "Evaluaciones de impacto con riesgo alto requieren medidas de mitigación obligatorias y seguimiento.",
+          "Evaluaciones de impacto con riesgo residual alto o crítico requieren mitigación adicional y seguimiento.",
         priority: "alta",
         route: "/eipd/consultar",
         items: altoRiesgo,
+      }),
+    )
+  }
+
+  const sinMedidasAdicionales = analyzedForms
+    .filter((item) => item.requiresAdditionalMeasures)
+    .map((item) => item.form)
+  if (sinMedidasAdicionales.length > 0) {
+    alerts.push(
+      createCollectionNotification({
+        module: "eipd",
+        issueKey: "sin-medidas-adicionales",
+        title: `${sinMedidasAdicionales.length} EIPD con mitigación adicional pendiente`,
+        description:
+          "Hay EIPD con riesgo residual alto o crítico que todavía no documentan medidas adicionales.",
+        priority: "alta",
+        route: "/eipd/consultar",
+        items: sinMedidasAdicionales,
+      }),
+    )
+  }
+
+  const revisionesVencidas = analyzedForms
+    .filter((item) => item.overdueReview)
+    .map((item) => item.form)
+  if (revisionesVencidas.length > 0) {
+    alerts.push(
+      createCollectionNotification({
+        module: "eipd",
+        issueKey: "revision-vencida",
+        title: `${revisionesVencidas.length} EIPD con revisión vencida`,
+        description:
+          "Existen evaluaciones de impacto cuya fecha de próxima revisión ya expiró.",
+        priority: "media",
+        route: "/eipd/consultar",
+        items: revisionesVencidas,
       }),
     )
   }

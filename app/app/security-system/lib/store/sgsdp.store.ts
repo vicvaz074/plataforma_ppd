@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import * as Types from '../models/sgsdp.types';
 import { CATALOGO_CONTROLES } from '../catalogo-controles';
+import type { Inventory } from '@/app/rat/types';
 
 // Defaults vacíos — el usuario construye todo desde cero
 const defaultInstancia: Types.SgsdpInstancia = {
@@ -77,8 +78,11 @@ interface SgsdpState {
   removeRol: (id: string) => void;
 
   addActivo: (activo: Omit<Types.SgsdpActivo, "id">) => void;
+  syncActivosFromRat: (inventories: Inventory[]) => { added: number; updated: number };
 
   addRiesgo: (riesgo: Omit<Types.SgsdpRiesgo, "id" | "valorCalculado" | "criticidad">) => void;
+  updateRiesgo: (id: string, data: Partial<Types.SgsdpRiesgo>) => void;
+  removeRiesgo: (id: string) => void;
   
   // Acciones: Catálogo de Medidas (Step 6 Gap Analysis)
   updateMedidaCatalogo: (controlId: string, data: Partial<Types.MedidaCatalogo>) => void;
@@ -127,6 +131,55 @@ function calcCriticidad(valor: number): Types.CriticidadRiesgo {
   if (valor >= 10) return "Alto";
   if (valor >= 5) return "Medio";
   return "Bajo";
+}
+
+function mapInventoryRiskToSensibilidad(risk: string): Types.SgsdpActivo["nivelSensibilidad"] {
+  const normalized = (risk || "bajo").toLowerCase();
+  if (normalized === "reforzado") return "Especial";
+  if (normalized === "alto") return "Sensible";
+  return "Estándar";
+}
+
+function deriveInventoryRisk(inventory: Inventory): string {
+  const risks = (inventory.subInventories || []).flatMap((sub) =>
+    (sub.personalData || []).map((personalData) => personalData.riesgo || "bajo")
+  );
+  if (risks.some((risk) => risk === "reforzado")) return "reforzado";
+  if (risks.some((risk) => risk === "alto")) return "alto";
+  if (risks.some((risk) => risk === "medio")) return "medio";
+  return (inventory.riskLevel || "bajo").toString().toLowerCase();
+}
+
+function buildAssetDataFromInventory(inventory: Inventory): Omit<Types.SgsdpActivo, "id"> {
+  const categories = Array.from(
+    new Set(
+      (inventory.subInventories || []).flatMap((sub) =>
+        (sub.personalData || []).map((personalData) => personalData.category || personalData.name).filter(Boolean)
+      )
+    )
+  ).slice(0, 6);
+  const responsibleArea = (inventory.subInventories || [])
+    .map((sub) => sub.responsibleArea)
+    .find(Boolean);
+  const risk = deriveInventoryRisk(inventory);
+
+  return {
+    nombreSistema: inventory.databaseName || inventory.id,
+    tiposDatos: categories.length > 0 ? categories : ["Sin clasificar"],
+    nivelSensibilidad: mapInventoryRiskToSensibilidad(risk),
+    custodioId: inventory.responsible || responsibleArea || "Sin asignar",
+    inventarioRatRef: inventory.id,
+  };
+}
+
+function hasAssetChanged(current: Types.SgsdpActivo, next: Omit<Types.SgsdpActivo, "id">) {
+  return (
+    current.nombreSistema !== next.nombreSistema ||
+    current.nivelSensibilidad !== next.nivelSensibilidad ||
+    current.custodioId !== next.custodioId ||
+    current.inventarioRatRef !== next.inventarioRatRef ||
+    current.tiposDatos.join("|") !== next.tiposDatos.join("|")
+  );
 }
 
 export const useSgsdpStore = create<SgsdpState>()(
@@ -204,11 +257,68 @@ export const useSgsdpStore = create<SgsdpState>()(
         activos: [...state.activos, { ...activo, id: `ACT-${Date.now()}` }]
       })),
 
+      syncActivosFromRat: (inventories) => {
+        const existing = get().activos;
+        const nextActivos = [...existing];
+        let added = 0;
+        let updated = 0;
+
+        inventories.forEach((inventory, index) => {
+          const assetData = buildAssetDataFromInventory(inventory);
+          const existingIndex = nextActivos.findIndex((activo) => activo.inventarioRatRef === inventory.id);
+
+          if (existingIndex === -1) {
+            nextActivos.push({
+              ...assetData,
+              id: `ACT-${Date.now()}-${index}`,
+            });
+            added += 1;
+            return;
+          }
+
+          if (hasAssetChanged(nextActivos[existingIndex], assetData)) {
+            nextActivos[existingIndex] = {
+              ...nextActivos[existingIndex],
+              ...assetData,
+            };
+            updated += 1;
+          }
+        });
+
+        if (added > 0 || updated > 0) {
+          set({ activos: nextActivos });
+        }
+
+        return { added, updated };
+      },
+
       addRiesgo: (r) => {
         const valorCalculado = r.probabilidad * r.impacto;
         const criticidad = calcCriticidad(valorCalculado);
         set((state) => ({
           riesgos: [...state.riesgos, { ...r, id: `R-${Date.now()}`, valorCalculado, criticidad }]
+        }));
+        get().recalculatePHVAScores();
+      },
+
+      updateRiesgo: (id, data) => {
+        set((state) => ({
+          riesgos: state.riesgos.map((riesgo) => {
+            if (riesgo.id !== id) return riesgo;
+            const nextRiesgo = { ...riesgo, ...data };
+            if (data.probabilidad !== undefined || data.impacto !== undefined) {
+              nextRiesgo.valorCalculado = nextRiesgo.probabilidad * nextRiesgo.impacto;
+              nextRiesgo.criticidad = calcCriticidad(nextRiesgo.valorCalculado);
+            }
+            return nextRiesgo;
+          })
+        }));
+        get().recalculatePHVAScores();
+      },
+
+      removeRiesgo: (id) => {
+        set((state) => ({
+          riesgos: state.riesgos.filter((riesgo) => riesgo.id !== id)
         }));
         get().recalculatePHVAScores();
       },
