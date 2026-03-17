@@ -25,6 +25,7 @@ export interface AuditReminder {
   documents?: string[]
   notes?: string
   completedAt?: Date
+  referenceKey?: string
 }
 
 export const auditModules: AuditModule[] = [
@@ -234,6 +235,31 @@ export function addAuditReminder(reminder: Omit<AuditReminder, "id" | "createdAt
 
   writeStoredReminders([...reminders, newReminder])
   return newReminder
+}
+
+export function getAuditReminderByReferenceKey(referenceKey: string) {
+  return getAuditReminders().find((reminder) => reminder.referenceKey === referenceKey) || null
+}
+
+export function upsertAuditReminderByReferenceKey(
+  referenceKey: string,
+  reminder: Omit<AuditReminder, "id" | "createdAt">,
+) {
+  const existing = getAuditReminderByReferenceKey(referenceKey)
+
+  if (!existing) {
+    return addAuditReminder({
+      ...reminder,
+      referenceKey,
+    })
+  }
+
+  const updated = updateAuditReminder(existing.id, {
+    ...reminder,
+    referenceKey,
+  })
+
+  return updated || existing
 }
 
 export function updateAuditReminder(id: string, updates: Partial<AuditReminder>) {

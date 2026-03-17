@@ -7,6 +7,9 @@ export type OpcionTratamiento = "reducir" | "retener" | "evitar" | "compartir";
 export type TipoMedida = "tecnica" | "administrativa" | "fisica";
 export type SeveridadVulneracion = "critica" | "alta" | "media" | "baja";
 export type TipoCapacitacion = "concienciacion" | "entrenamiento" | "educacion";
+export type FuenteRiesgo = "manual" | "rat" | "eipd";
+export type EstadoSeguimientoRiesgo = "pendiente" | "en_tratamiento" | "mitigado";
+export type MetodologiaRiesgo = "baa" | "eipd";
 
 export interface SgsdpInstancia {
   id: string;
@@ -68,6 +71,15 @@ export interface SgsdpRiesgo {
   valorCalculado: number; // P * I — SIEMPRE calculado, nunca editable
   criticidad: CriticidadRiesgo; // Calculada automática (>= 20 Critico, >= 10 Alto...)
   tratamientoId?: string; // Link a la medida implementada
+  fuente?: FuenteRiesgo;
+  fuenteRef?: string;
+  categoriaAmenaza?: "Confidencialidad" | "Integridad" | "Disponibilidad" | "Operacional";
+  tratamiento?: OpcionTratamiento;
+  medidasSugeridas?: string[];
+  fechaRevision?: string;
+  estadoSeguimiento?: EstadoSeguimientoRiesgo;
+  reminderReferenceKey?: string;
+  metodologia?: MetodologiaRiesgo;
 }
 
 export type EstadoImplementacion = "implementado" | "parcial" | "no_implementado" | "no_aplica" | "sin_evaluar";

@@ -1,5 +1,13 @@
 import bcrypt from "bcryptjs"
 import { serialize } from "cookie"
+import {
+  getUsers,
+  initializeDefaultUsers,
+  ensureDemoUser,
+  getUserPermissions,
+  ROLE_PRESETS,
+  type PlatformUser,
+} from "./user-permissions"
 
 type StoredUser = {
   name: string
@@ -97,15 +105,69 @@ export async function authenticateUser(
   email: string,
   password: string,
 ): Promise<{ authenticated: boolean; user?: any }> {
+  // Initialize permissions system
+  initializeDefaultUsers()
+  ensureDemoUser()
+
+  // Admin hardcoded
   if (email === "admin@example.com" && password === "password") {
-    return { authenticated: true, user: { name: "Administrador", role: "admin" } }
+    return {
+      authenticated: true,
+      user: {
+        name: "Administrador",
+        email: "admin@example.com",
+        role: "admin",
+        modulePermissions: ROLE_PRESETS.admin,
+      },
+    }
   }
 
+  // Check new platform_users store first (demo user lives here)
+  const platformUsers = getUsers()
+  const platformUser = platformUsers.find((u) => u.email === email && u.approved)
+  if (platformUser) {
+    // Demo user — password "demo123"
+    if (email === "demo@example.com" && password === "demo123") {
+      return {
+        authenticated: true,
+        user: {
+          name: platformUser.name,
+          email: platformUser.email,
+          role: platformUser.role,
+          modulePermissions: getUserPermissions(email),
+        },
+      }
+    }
+    // Other platform users with bcrypt passwords
+    try {
+      if (await verifyPassword(password, platformUser.password)) {
+        return {
+          authenticated: true,
+          user: {
+            name: platformUser.name,
+            email: platformUser.email,
+            role: platformUser.role,
+            modulePermissions: getUserPermissions(email),
+          },
+        }
+      }
+    } catch { /* hash mismatch or invalid, fall through */ }
+  }
+
+  // Legacy users store
   const users = getStoredUsers()
   const user = users.find((u: StoredUser) => u.email === email && u.approved)
 
   if (user && (await verifyPassword(password, user.password))) {
-    return { authenticated: true, user }
+    const perms = getUserPermissions(email)
+    return {
+      authenticated: true,
+      user: {
+        ...user,
+        email: user.email,
+        modulePermissions: Object.keys(perms).length > 0 ? perms : ROLE_PRESETS.editor,
+      },
+    }
   }
 
   return { authenticated: false }

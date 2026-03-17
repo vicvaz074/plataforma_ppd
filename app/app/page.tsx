@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card"
 import { SafeLink } from "@/components/SafeLink"
 import { aliciaTranslations } from "@/lib/alicia-translations"
 import aliciaImg from "@/app/public/images/alicia_person.jpeg"
+import { hasModuleAccess } from "@/lib/user-permissions"
 import {
   Database,
   FileText,
@@ -24,6 +25,7 @@ import {
   GraduationCap,
   Shield,
   Sparkles,
+  Lock,
   type LucideIcon,
 } from "lucide-react"
 
@@ -185,6 +187,8 @@ export default function Home() {
   const d = descriptions[language]
   const aliciaT = aliciaTranslations[language]
   const [userName, setUserName] = useState<string | null>(null)
+  const [userEmail, setUserEmail] = useState<string | null>(null)
+  const [userRole, setUserRole] = useState<string | null>(null)
 
   // Hover tipado para aceptar OptionKey y "alicia"
   const [hoveredCard, setHoveredCard] = useState<Option["name"] | null>(null)
@@ -192,7 +196,14 @@ export default function Home() {
   useEffect(() => {
     const storedUserName = localStorage.getItem("userName")
     setUserName(storedUserName)
+    setUserEmail(localStorage.getItem("userEmail"))
+    setUserRole(localStorage.getItem("userRole"))
   }, [])
+
+  const canAccessModule = (href: string): boolean => {
+    if (userRole === "admin") return true
+    return hasModuleAccess(userEmail, href)
+  }
 
   return (
     <div className="relative min-h-screen bg-white dark:bg-[#18181b]">
@@ -215,10 +226,12 @@ export default function Home() {
                 ? aliciaT.aliciaDescription
                 : d[option.name as OptionKey]
 
+            const isLocked = !option.external && option.name !== "alicia" && !canAccessModule(option.href)
+
             const CardContent = (
               <Card
-                className="p-6 hover:shadow-lg transition-shadow flex flex-col items-center justify-center h-[200px] cursor-pointer group relative overflow-hidden bg-white dark:bg-[#18181b]"
-                onMouseEnter={() => setHoveredCard(option.name)}
+                className={`p-6 transition-shadow flex flex-col items-center justify-center h-[200px] group relative overflow-hidden bg-white dark:bg-[#18181b] ${isLocked ? "cursor-not-allowed opacity-50" : "cursor-pointer hover:shadow-lg"}`}
+                onMouseEnter={() => !isLocked && setHoveredCard(option.name)}
                 onMouseLeave={() => setHoveredCard(null)}
               >
                 {option.image ? (
@@ -234,7 +247,12 @@ export default function Home() {
                     <div className="absolute inset-0 bg-black/20 dark:bg-black/40" />
                   </div>
                 ) : (
-                  <option.icon className="h-10 w-10 mb-4 text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors" />
+                  <div className="relative">
+                    <option.icon className={`h-10 w-10 mb-4 transition-colors ${isLocked ? "text-gray-400 dark:text-gray-600" : "text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white"}`} />
+                    {isLocked && (
+                      <Lock className="absolute -bottom-2 -right-2 h-5 w-5 text-gray-400 dark:text-gray-500" />
+                    )}
+                  </div>
                 )}
 
                 <span
@@ -243,25 +261,33 @@ export default function Home() {
                       ? `text-white relative z-10 ${
                           option.name === "alicia" ? "group-hover:opacity-0" : ""
                         }`
-                      : "text-gray-800 dark:text-gray-100 group-hover:text-gray-900 dark:group-hover:text-white"
+                      : isLocked
+                        ? "text-gray-400 dark:text-gray-500"
+                        : "text-gray-800 dark:text-gray-100 group-hover:text-gray-900 dark:group-hover:text-white"
                   }`}
                   style={{ fontFamily: "Futura PT Medium, sans-serif" }}
                 >
                   {title}
                 </span>
 
-                <motion.div
-                  className="absolute inset-0 bg-white/90 dark:bg-black/90 p-4 flex items-center justify-center text-sm text-gray-800 dark:text-gray-100 text-center"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{
-                    opacity: hoveredCard === option.name ? 1 : 0,
-                    y: hoveredCard === option.name ? 0 : 20,
-                  }}
-                  transition={{ duration: 0.3 }}
-                  style={{ pointerEvents: hoveredCard === option.name ? "auto" : "none" }}
-                >
-                  {description}
-                </motion.div>
+                {isLocked && (
+                  <span className="text-xs text-gray-400 dark:text-gray-500 mt-2">Sin acceso</span>
+                )}
+
+                {!isLocked && (
+                  <motion.div
+                    className="absolute inset-0 bg-white/90 dark:bg-black/90 p-4 flex items-center justify-center text-sm text-gray-800 dark:text-gray-100 text-center"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{
+                      opacity: hoveredCard === option.name ? 1 : 0,
+                      y: hoveredCard === option.name ? 0 : 20,
+                    }}
+                    transition={{ duration: 0.3 }}
+                    style={{ pointerEvents: hoveredCard === option.name ? "auto" : "none" }}
+                  >
+                    {description}
+                  </motion.div>
+                )}
               </Card>
             )
 
@@ -277,6 +303,14 @@ export default function Home() {
                 >
                   {CardContent}
                 </a>
+              )
+            }
+
+            if (isLocked) {
+              return (
+                <div key={option.name} className="block" aria-label={title}>
+                  {CardContent}
+                </div>
               )
             }
 

@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label"
 import { Eye, EyeOff, Moon, Sun, Globe } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { hashPassword, saveUser, authenticateUser } from "@/lib/auth"
+import { cacheCurrentUserPermissions } from "@/lib/user-permissions"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import Image from "next/image"
@@ -62,7 +63,11 @@ export default function LoginPage() {
         localStorage.setItem("isAuthenticated", "true")
         localStorage.setItem("userRole", user.role || "user")
         localStorage.setItem("userName", user.name)
-        localStorage.setItem("userEmail", user.email)
+        localStorage.setItem("userEmail", user.email || email)
+        if (user.modulePermissions) {
+          localStorage.setItem("modulePermissions", JSON.stringify(user.modulePermissions))
+        }
+        cacheCurrentUserPermissions(user.email || email)
   
         const isFile = window.location.protocol === "file:"
         if (isFile) {

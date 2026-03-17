@@ -21,19 +21,27 @@ function getRiskStyle(risk: string) {
 }
 
 export default function Paso4Inventario() {
-  const { activos } = useSgsdpStore();
+  const { activos, syncActivosFromRat } = useSgsdpStore();
   const [stats, setStats] = useState<RATStats | null>(null);
   const [synced, setSynced] = useState(false);
   const [expandedInv, setExpandedInv] = useState<string | null>(null);
   const [activeView, setActiveView] = useState<"resumen" | "inventarios" | "datos" | "sgsdp">("resumen");
+  const [syncMessage, setSyncMessage] = useState("");
 
   const loadRAT = () => {
     const invs = readRATInventories();
     if (invs.length > 0) {
       setStats(computeRATStats(invs));
+      const result = syncActivosFromRat(invs);
+      if (result.added > 0 || result.updated > 0) {
+        setSyncMessage(`${result.added} activo(s) creados y ${result.updated} actualizado(s) en SGSDP.`);
+      } else {
+        setSyncMessage("Los activos del SGSDP ya estaban alineados con el inventario RAT.");
+      }
       setSynced(true);
     } else {
       setStats(null);
+      setSyncMessage("");
       setSynced(false);
     }
   };
@@ -60,6 +68,7 @@ export default function Paso4Inventario() {
               ? `Conectado al módulo RAT — ${stats?.totalInventarios} inventario(s), ${stats?.totalDatosPersonales} datos personales identificados.`
               : "No se detectaron inventarios RAT. Registra inventarios en el módulo RAT para ver analytics aquí."}
           </p>
+          {syncMessage && <p className="text-xs text-slate-500 mt-1">{syncMessage}</p>}
         </div>
         <button onClick={loadRAT} className="px-5 py-2.5 bg-white border border-slate-200 text-slate-700 text-sm font-semibold rounded-full hover:bg-slate-50 transition-colors shadow-sm flex items-center gap-2">
           <RefreshCw className="h-4 w-4" /> Sincronizar RAT
