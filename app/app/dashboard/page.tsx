@@ -57,6 +57,7 @@ import {
   ListCheck,
   FileText as FileTextIcon,
 } from "lucide-react"
+import { loadItems } from "@/lib/module-statistics"
 import {
   getUsers,
   saveUsers,
@@ -103,20 +104,79 @@ const MODULE_ICON_MAP: Record<string, any> = {
 
 // ─── Module Reports (same data, enhanced) ────────────────────────────────────
 
-const moduleReports = [
-  { module: "Inventarios", scoreLabel: "Completitud", score: 86, summary: "Completitud general del inventario y nivel de riesgo por registros.", indicators: [{ label: "Registros", value: "124" }, { label: "Riesgo alto", value: "14%" }, { label: "Terminados", value: "86%" }] },
-  { module: "Avisos de Privacidad", scoreLabel: "Cobertura", score: 91, summary: "Clasificación de avisos y evidencia de puesta a disposición.", indicators: [{ label: "Avisos activos", value: "18" }, { label: "Prueba documental", value: "84%" }, { label: "Brechas", value: "7" }] },
-  { module: "Relaciones con terceros", scoreLabel: "Contratos al día", score: 88, summary: "Seguimiento de transferencias, remisiones y vencimientos contractuales.", indicators: [{ label: "Vigentes", value: "43" }, { label: "Transfer. internac.", value: "11" }, { label: "Vencen pronto", value: "6" }] },
-  { module: "OPD / DPO", scoreLabel: "Avance anual", score: 78, summary: "Actividad de informes, sesiones y avance de reporte anual.", indicators: [{ label: "Informes", value: "12" }, { label: "Sesiones", value: "9" }, { label: "Temas", value: "32" }] },
-  { module: "Sistema de Gestión de Seguridad", scoreLabel: "Cumplimiento", score: 82, summary: "Medidas administrativas, físicas y técnicas contra brecha residual.", indicators: [{ label: "Medidas", value: "97" }, { label: "Brecha", value: "18%" }, { label: "Riesgo medio/alto", value: "21%" }] },
-  { module: "Derechos ARCO", scoreLabel: "SLA", score: 94, summary: "Seguimiento de derechos ejercidos, SLA y solicitudes por vencer.", indicators: [{ label: "Solicitudes", value: "56" }, { label: "Por vencer", value: "4" }, { label: "Resueltas", value: "52" }] },
-  { module: "EIPD", scoreLabel: "EIPD concluidas", score: 74, summary: "Control de evaluaciones realizadas y riesgo residual de tratamientos.", indicators: [{ label: "Realizadas", value: "23" }, { label: "Riesgo alto", value: "17%" }, { label: "Planes", value: "19" }] },
-  { module: "Incidentes de Seguridad", scoreLabel: "Contención", score: 81, summary: "Clasificación por severidad y seguimiento de casos notificables.", indicators: [{ label: "Incidentes mes", value: "9" }, { label: "Notificables", value: "3" }, { label: "Críticos", value: "2" }] },
-  { module: "Procedimientos", scoreLabel: "Ejecución", score: 69, summary: "Estado de procedimientos LFPDPPP y amparo con evidencia asociada.", indicators: [{ label: "Total", value: "27" }, { label: "En ejecución", value: "9" }, { label: "Con evidencia", value: "81%" }] },
-  { module: "Capacitación", scoreLabel: "Aprobación", score: 89, summary: "Monitoreo de avance por perfil y brecha de conocimiento.", indicators: [{ label: "Evaluados", value: "286" }, { label: "Aprobación", value: "89%" }, { label: "Áreas críticas", value: "2" }] },
-  { module: "Políticas", scoreLabel: "Implementación", score: 72, summary: "Seguimiento de políticas implementadas frente a pendientes.", indicators: [{ label: "Políticas", value: "39" }, { label: "Implementadas", value: "72%" }, { label: "Pendientes", value: "11" }] },
-  { module: "Responsabilidad demostrada", scoreLabel: "Aplicación", score: 76, summary: "Aplicación de medidas y pendientes del programa de responsabilidad.", indicators: [{ label: "Medidas", value: "64" }, { label: "Aplicadas", value: "76%" }, { label: "Pendientes", value: "15" }] },
+const fallbackReports = [
+  { module: "Inventarios", scoreLabel: "Completitud", score: 0, summary: "Cargando métricas de registros y riesgo...", indicators: [{ label: "Registros", value: "-" }, { label: "Riesgo alto", value: "-" }, { label: "Terminados", value: "-" }] },
+  { module: "Avisos de Privacidad", scoreLabel: "Cobertura", score: 0, summary: "Cargando clasificación de avisos...", indicators: [{ label: "Avisos activos", value: "-" }, { label: "Prueba documental", value: "-" }, { label: "Brechas", value: "-" }] },
+  { module: "Relaciones con terceros", scoreLabel: "Contratos al día", score: 0, summary: "Cargando transferencias y remisiones...", indicators: [{ label: "Vigentes", value: "-" }, { label: "Transfer. internac.", value: "-" }, { label: "Vencen pronto", value: "-" }] },
+  { module: "OPD / DPO", scoreLabel: "Avance anual", score: 0, summary: "Cargando informes, sesiones y avance...", indicators: [{ label: "Informes", value: "-" }, { label: "Sesiones", value: "-" }, { label: "Temas", value: "-" }] },
+  { module: "Sistema de Gestión de Seguridad", scoreLabel: "Cumplimiento", score: 0, summary: "Cargando medidas preventivas...", indicators: [{ label: "Fases", value: "-" }, { label: "Brecha", value: "-" }, { label: "Riesgo medio/alto", value: "-" }] },
+  { module: "Derechos ARCO", scoreLabel: "SLA", score: 0, summary: "Cargando derechos ejercidos y SLA...", indicators: [{ label: "Solicitudes", value: "-" }, { label: "Por vencer", value: "-" }, { label: "Resueltas", value: "-" }] },
+  { module: "EIPD", scoreLabel: "EIPD concluidas", score: 0, summary: "Cargando riesgo residual de tratamientos...", indicators: [{ label: "Realizadas", value: "-" }, { label: "Riesgo alto", value: "-" }, { label: "Planes", value: "-" }] },
+  { module: "Incidentes de Seguridad", scoreLabel: "Contención", score: 0, summary: "Cargando seguimiento de casos...", indicators: [{ label: "Incidentes mes", value: "-" }, { label: "Notificables", value: "-" }, { label: "Críticos", value: "-" }] },
+  { module: "Procedimientos", scoreLabel: "Ejecución", score: 0, summary: "Cargando procedimientos LFPDPPP...", indicators: [{ label: "Total", value: "-" }, { label: "En ejecución", value: "-" }, { label: "Con evidencia", value: "-" }] },
+  { module: "Capacitación", scoreLabel: "Aprobación", score: 0, summary: "Cargando monitoreo de avance...", indicators: [{ label: "Evaluados", value: "-" }, { label: "Aprobación", value: "-" }, { label: "Áreas críticas", value: "-" }] },
+  { module: "Políticas", scoreLabel: "Implementación", score: 0, summary: "Cargando políticas implementadas...", indicators: [{ label: "Políticas", value: "-" }, { label: "Implementadas", value: "-" }, { label: "Pendientes", value: "-" }] },
+  { module: "Responsabilidad demostrada", scoreLabel: "Aplicación", score: 0, summary: "Cargando medidas del programa de responsabilidad...", indicators: [{ label: "Medidas", value: "-" }, { label: "Aplicadas", value: "-" }, { label: "Pendientes", value: "-" }] },
 ]
+
+function getRealModuleReports() {
+  if (typeof window === "undefined") return fallbackReports
+
+  const inventories = loadItems("inventories") as any[]
+  const notices = loadItems("privacy-notices") as any[]
+  const contracts = loadItems("contracts") as any[]
+  const dpo = loadItems("dpo") as any[]
+  const eipd = loadItems("eipd") as any[]
+  const policies = loadItems("policies") as any[]
+  const training = loadItems("training") as any[]
+  const incidents = loadItems("incidents") as any[]
+  const procedures = loadItems("procedures") as any[]
+  const arco = loadItems("arco") as any[]
+
+  // Calculate generic realistic data based on lengths to prevent purely empty screens
+  return [
+    { 
+      module: "Inventarios", 
+      scoreLabel: "Registros", 
+      score: inventories.length > 0 ? 100 : 0, 
+      summary: "Completitud general del inventario y nivel de riesgo por registros.", 
+      indicators: [
+        { label: "Registros", value: inventories.length.toString() }, 
+        { label: "Riesgo alto", value: `${Math.round((inventories.filter(i => i.riskLevel === "Alto" || i.riskLevel === "Muy alto").length / Math.max(inventories.length, 1)) * 100)}%` }, 
+        { label: "Completos", value: `${Math.round((inventories.filter(i => i.status === "completado").length / Math.max(inventories.length, 1)) * 100)}%` }
+      ] 
+    },
+    { 
+      module: "Avisos de Privacidad", 
+      scoreLabel: "Registrados", 
+      score: notices.length > 0 ? 100 : 0, 
+      summary: "Clasificación de avisos y evidencia de puesta a disposición.", 
+      indicators: [
+        { label: "Avisos activos", value: notices.length.toString() }, 
+        { label: "Con evidencias", value: notices.filter(n => n.evidence).length.toString() }, 
+        { label: "Nuevos", value: notices.filter(n => new Date(n.uploadDate) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)).length.toString() }
+      ] 
+    },
+    { 
+      module: "Relaciones con terceros", 
+      scoreLabel: "Contratos al día", 
+      score: contracts.length > 0 ? 100 : 0, 
+      summary: "Seguimiento de transferencias, remisiones y vencimientos contractuales.", 
+      indicators: [
+        { label: "Contratos", value: contracts.length.toString() }, 
+        { label: "Transfer. internac.", value: contracts.filter(c => c.communicationType === "transfer").length.toString() }, 
+        { label: "En riesgo", value: contracts.filter(c => c.status === "vencido" || c.status === "en-riesgo").length.toString() }
+      ] 
+    },
+    { module: "OPD / DPO", scoreLabel: "Registros DPO", score: dpo.length > 0 ? 100 : 0, summary: "Actividad de informes, sesiones y avance de reporte anual.", indicators: [{ label: "Informes/Actas", value: dpo.length.toString() }, { label: "Informes", value: dpo.filter(d => d.type === "informe").length.toString() }, { label: "Recientes", value: dpo.filter(d => new Date(d.date) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)).length.toString() }] },
+    { module: "Derechos ARCO", scoreLabel: "Solicitudes", score: arco.length > 0 ? 100 : 0, summary: "Seguimiento de derechos ejercidos, SLA y solicitudes.", indicators: [{ label: "Solicitudes", value: arco.length.toString() }, { label: "Por vencer", value: arco.filter(a => a.status === "En proceso").length.toString() }, { label: "Resueltas", value: arco.filter(a => a.status === "Finalizada").length.toString() }] },
+    { module: "EIPD", scoreLabel: "EIPD registradas", score: eipd.length > 0 ? 100 : 0, summary: "Control de evaluaciones de impacto realizadas.", indicators: [{ label: "Realizadas", value: eipd.length.toString() }, { label: "Concluídas", value: eipd.filter(e => e.status === "Completado").length.toString() }, { label: "Pendientes", value: eipd.filter(e => e.status !== "Completado").length.toString() }] },
+    { module: "Incidentes de Seguridad", scoreLabel: "Eventos", score: incidents.length > 0 ? 100 : 0, summary: "Clasificación y seguimiento de casos de incidentes.", indicators: [{ label: "Incidentes totales", value: incidents.length.toString() }, { label: "Críticos", value: incidents.filter(i => i.data?.evaluacionIncidente?.gravedad === "Alta").length.toString() }, { label: "Mitigados", value: incidents.filter(i => i.status === "cerrado").length.toString() }] },
+    { module: "Procedimientos", scoreLabel: "Registrados", score: procedures.length > 0 ? 100 : 0, summary: "Estado de procedimientos LFPDPPP con evidencia.", indicators: [{ label: "Total", value: procedures.length.toString() }, { label: "En ejecución", value: procedures.filter(p => p.status === "en-curso").length.toString() }, { label: "Concluidos", value: procedures.filter(p => p.status === "resuelto").length.toString() }] },
+    { module: "Capacitación", scoreLabel: "Sesiones", score: training.length > 0 ? 100 : 0, summary: "Monitoreo de avance por programa de formación.", indicators: [{ label: "Sesiones", value: training.length.toString() }, { label: "Aprobados", value: training.filter(t => t.status === "completada" || t.status === "Completada").length.toString() }, { label: "En curso", value: training.filter(t => t.status === "en-curso").length.toString() }] },
+    { module: "Políticas", scoreLabel: "Políticas cargadas", score: policies.length > 0 ? Math.round((policies.filter(p => p.status === "implementado").length / Math.max(policies.length, 1)) * 100) : 0, summary: "Seguimiento de políticas implementadas frente a pendientes.", indicators: [{ label: "Políticas", value: policies.length.toString() }, { label: "Implementadas", value: policies.filter(p => p.status === "implementado").length.toString() }, { label: "Por elaborar", value: policies.filter(p => p.status === "por-hacer").length.toString() }] },
+  ]
+}
 
 // ─── Role color helpers ──────────────────────────────────────────────────────
 
@@ -176,12 +236,18 @@ function AdminDashboard({ language, t }: { language: "es" | "en"; t: any }) {
   const [showAddUser, setShowAddUser] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
   const [filterRole, setFilterRole] = useState<string>("all")
-  const [selectedModule, setSelectedModule] = useState(moduleReports[0].module)
+  const [moduleReports, setModuleReports] = useState(fallbackReports)
+  const [selectedModule, setSelectedModule] = useState(fallbackReports[0].module)
   const [activeTab, setActiveTab] = useState("overview")
 
   const refreshData = () => {
     setUsers(getUsers())
     setModulePasswordsState(getModulePasswords())
+    
+    // Replace the fallback mock reports with actual real data from localStorage sources
+    const realReports = getRealModuleReports()
+    setModuleReports(realReports)
+    
   }
 
   useEffect(() => {
