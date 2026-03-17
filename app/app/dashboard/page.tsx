@@ -209,7 +209,7 @@ function AdminDashboard({ language, t }: { language: "es" | "en"; t: any }) {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-3">
-            <LayoutDashboard className="h-7 w-7 text-[#2E7D73]" />
+            <LayoutDashboard className="h-7 w-7 text-[#0a0147]" />
             Panel de Administración
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
@@ -221,11 +221,11 @@ function AdminDashboard({ language, t }: { language: "es" | "en"; t: any }) {
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-4 h-12">
-          <TabsTrigger value="overview" className="gap-2 data-[state=active]:bg-[#2E7D73] data-[state=active]:text-white">
+          <TabsTrigger value="overview" className="gap-2 data-[state=active]:bg-[#0a0147] data-[state=active]:text-white">
             <LayoutDashboard className="h-4 w-4" />
             <span className="hidden sm:inline">Resumen</span>
           </TabsTrigger>
-          <TabsTrigger value="users" className="gap-2 data-[state=active]:bg-[#2E7D73] data-[state=active]:text-white">
+          <TabsTrigger value="users" className="gap-2 data-[state=active]:bg-[#0a0147] data-[state=active]:text-white">
             <Users className="h-4 w-4" />
             <span className="hidden sm:inline">Usuarios</span>
             {pendingUsers.length > 0 && (
@@ -234,11 +234,11 @@ function AdminDashboard({ language, t }: { language: "es" | "en"; t: any }) {
               </Badge>
             )}
           </TabsTrigger>
-          <TabsTrigger value="passwords" className="gap-2 data-[state=active]:bg-[#2E7D73] data-[state=active]:text-white">
+          <TabsTrigger value="passwords" className="gap-2 data-[state=active]:bg-[#0a0147] data-[state=active]:text-white">
             <KeyRound className="h-4 w-4" />
             <span className="hidden sm:inline">Contraseñas</span>
           </TabsTrigger>
-          <TabsTrigger value="approvals" className="gap-2 data-[state=active]:bg-[#2E7D73] data-[state=active]:text-white">
+          <TabsTrigger value="approvals" className="gap-2 data-[state=active]:bg-[#0a0147] data-[state=active]:text-white">
             <ClipboardCheck className="h-4 w-4" />
             <span className="hidden sm:inline">Aprobaciones</span>
             {pendingUsers.length > 0 && (
@@ -253,10 +253,10 @@ function AdminDashboard({ language, t }: { language: "es" | "en"; t: any }) {
         <TabsContent value="overview" className="space-y-6 mt-6">
           {/* KPI Cards */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Card className="border-l-4 border-l-[#2E7D73]">
+            <Card className="border-l-4 border-l-[#0a0147]">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">Usuarios Activos</CardTitle>
-                <Users className="h-5 w-5 text-[#2E7D73]" />
+                <Users className="h-5 w-5 text-[#0a0147]" />
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold">{approvedUsers.length}</div>
@@ -311,7 +311,7 @@ function AdminDashboard({ language, t }: { language: "es" | "en"; t: any }) {
                     type="button"
                     onClick={() => setSelectedModule(report.module)}
                     className={`w-full rounded-lg border px-3 py-2.5 text-left text-sm transition-all ${selectedModule === report.module
-                      ? "border-[#2E7D73] bg-[#2E7D73]/10 text-[#2E7D73] dark:border-[#2E7D73] dark:bg-[#2E7D73]/20 dark:text-emerald-300 shadow-sm"
+                      ? "border-[#0a0147] bg-[#0a0147]/10 text-[#0a0147] dark:border-[#0a0147] dark:bg-[#0a0147]/20 dark:text-blue-300 shadow-sm"
                       : "border-slate-200 bg-white hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900/40 dark:hover:bg-slate-800/60"
                     }`}
                   >
@@ -401,7 +401,7 @@ function AdminDashboard({ language, t }: { language: "es" | "en"; t: any }) {
                 <SelectItem value="custom">Personalizado</SelectItem>
               </SelectContent>
             </Select>
-            <Button onClick={() => setShowAddUser(true)} className="gap-2 bg-[#2E7D73] hover:bg-[#246158]">
+            <Button onClick={() => setShowAddUser(true)} className="gap-2 bg-[#0a0147] hover:bg-[#06002e]">
               <UserPlus className="h-4 w-4" />
               Agregar usuario
             </Button>
@@ -706,13 +706,13 @@ function UserPermissionsPanel({
                   key={mod.slug}
                   className={`flex items-center justify-between p-3 rounded-lg border transition-all cursor-pointer ${
                     enabled
-                      ? "bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800"
+                      ? "bg-indigo-50/50 dark:bg-indigo-950/20 border-indigo-200 dark:border-indigo-800"
                       : "bg-slate-50/50 dark:bg-slate-900/30 border-slate-200 dark:border-slate-700 opacity-60"
                   }`}
                   onClick={() => handleToggleModule(mod.slug)}
                 >
                   <div className="flex items-center gap-3">
-                    <IconComp className={`h-4 w-4 ${enabled ? "text-[#2E7D73]" : "text-muted-foreground"}`} />
+                    <IconComp className={`h-4 w-4 ${enabled ? "text-[#0a0147]" : "text-muted-foreground"}`} />
                     <span className="text-sm font-medium">
                       {language === "es" ? mod.labelEs : mod.labelEn}
                     </span>
@@ -733,7 +733,7 @@ function UserPermissionsPanel({
           <Button
             onClick={handleSave}
             disabled={saving}
-            className="w-full gap-2 bg-[#2E7D73] hover:bg-[#246158]"
+            className="w-full gap-2 bg-[#0a0147] hover:bg-[#06002e]"
           >
             {saving ? (
               <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity }} className="h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
@@ -795,7 +795,7 @@ function AddUserDialog({ open, onClose }: { open: boolean; onClose: () => void }
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <UserPlus className="h-5 w-5 text-[#2E7D73]" />
+            <UserPlus className="h-5 w-5 text-[#0a0147]" />
             Agregar Nuevo Usuario
           </DialogTitle>
         </DialogHeader>
@@ -848,7 +848,7 @@ function AddUserDialog({ open, onClose }: { open: boolean; onClose: () => void }
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>Cancelar</Button>
-          <Button onClick={handleSubmit} disabled={saving} className="bg-[#2E7D73] hover:bg-[#246158]">
+          <Button onClick={handleSubmit} disabled={saving} className="bg-[#0a0147] hover:bg-[#06002e]">
             {saving ? "Guardando..." : "Crear usuario"}
           </Button>
         </DialogFooter>
@@ -943,7 +943,7 @@ function ModulePasswordCard({
                 onClick={handleSave}
                 disabled={!passwordValue}
                 size="sm"
-                className="w-full gap-2 bg-[#2E7D73] hover:bg-[#246158]"
+                className="w-full gap-2 bg-[#0a0147] hover:bg-[#06002e]"
               >
                 {saved ? <Check className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
                 {saved ? "Guardado" : "Guardar contraseña"}
