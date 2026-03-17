@@ -30,7 +30,7 @@ const DEFAULT_USERS: StoredUser[] = [
     email: "gbarco@davara.com.mx",
     password: "$2b$10$rDECJL8/Ju685.4TyU764OQSS.N8x0BoTE5rupTK7FC/tMrhAy5Je",
     approved: true,
-    role: "user",
+    role: "admin",
   },
   {
     name: "David Casero",
