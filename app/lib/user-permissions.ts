@@ -188,6 +188,7 @@ export function rejectUser(email: string): void {
 export function getUserPermissions(email: string): Record<string, boolean> {
   if (email === "admin@example.com") return ROLE_PRESETS.admin
   if (email === "gbarco@davara.com.mx") return ROLE_PRESETS.admin
+  if (email === "veronica.garciao@oxxo.com") return ROLE_PRESETS.admin
   const users = getUsers()
   const user = users.find((u) => u.email === email)
   if (!user) return allModulesPermissions(false)
@@ -201,6 +202,7 @@ export function hasModuleAccess(email: string | null, moduleSlug: string): boole
   if (!email) return false
   if (email === "admin@example.com") return true
   if (email === "gbarco@davara.com.mx") return true
+  if (email === "veronica.garciao@oxxo.com") return true
   const perms = getUserPermissions(email)
   // Check both exact match and prefix
   if (perms[moduleSlug] === true) return true
