@@ -208,6 +208,24 @@ export default function IncidentsAndBreachesPage() {
     form.setValue("evidencias", current, { shouldDirty: true })
   }
 
+  const handleRegisterSubmit = () => {
+    const data = form.getValues()
+    const registroValidation = incidentSchema.shape.registroVulneracion.safeParse(data.registroVulneracion)
+
+    if (!registroValidation.success) {
+      const firstError = registroValidation.error.issues[0]?.message ?? "Completa los campos obligatorios del registro."
+      toast({ title: "Campos incompletos", description: firstError, variant: "destructive" })
+      return
+    }
+
+    saveIncident({
+      ...data,
+      incidentMeta: {
+        nombreIncidente: data.registroVulneracion?.descripcionInicial?.substring(0, 40) || "Nuevo Incidente",
+      },
+    }, "final")
+  }
+
   // ─── Computed stats ─────────────────────────────────────────────────────────
 
   const stats = useMemo(() => {
@@ -603,10 +621,13 @@ export default function IncidentsAndBreachesPage() {
           </DialogHeader>
 
           <Form {...form}>
-            <form onSubmit={form.handleSubmit((data) => saveIncident({
-              ...data,
-              incidentMeta: { nombreIncidente: data.registroVulneracion?.descripcionInicial?.substring(0, 40) || 'Nuevo Incidente' }
-            }, "final"))} className="flex flex-col flex-1 min-h-0">
+            <form
+              onSubmit={(event) => {
+                event.preventDefault()
+                handleRegisterSubmit()
+              }}
+              className="flex flex-col flex-1 min-h-0"
+            >
                
                <div className="flex-1 overflow-y-auto px-8 py-8 bg-slate-50 dark:bg-slate-950/50">
                  <div className="space-y-12 max-w-4xl mx-auto pb-12">
