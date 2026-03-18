@@ -123,22 +123,19 @@ export default function LoginPage() {
                 className="mb-14"
               >
                 <Image
-                   src="/images/davara_logo.png"
-                   alt="Davara Logo"
-                   width={180}
-                   height={60}
-                   unoptimized
-                   priority
-                   className="opacity-90"
+                  src="/images/logo_davaragovernance.png"
+                  alt="DavaraGovernance Logo"
+                  width={180}
+                  height={60}
+                  unoptimized
+                  priority
+                  className="opacity-90 brightness-0 invert"
                 />
               </motion.div>
               
               <h1 className="text-2xl md:text-3xl font-light tracking-[0.05em] mb-2 text-white/90">
-                Bienvenido a la Plataforma de Datos Personales
+                Bienvenido a la Plataforma de Protección de Datos Personales
               </h1>
-              <h2 className="text-4xl md:text-5xl font-semibold tracking-normal text-white mt-4 mb-4">
-                DavaraGovernance
-              </h2>
               
               <motion.div
                 initial={{ scaleX: 0, opacity: 0 }}
