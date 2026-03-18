@@ -15,7 +15,7 @@ export function LegalReferences() {
           <Scale className="h-5 w-5 text-[#2E7D73]" />
         </div>
         <div>
-          <h3 className="text-lg" style={{fontWeight:500}}>Referencias legales — LFPDPPP</h3>
+          <h3 className="text-lg font-medium">Referencias legales — LFPDPPP</h3>
           <p className="text-sm text-muted-foreground">Ley Federal de Protección de Datos Personales en Posesión de los Particulares</p>
         </div>
       </div>
@@ -48,7 +48,7 @@ export function LegalReferences() {
                   >
                     Art. {article.number}
                   </Badge>
-                  <span className="text-sm" style={{fontWeight:500}}>{article.title}</span>
+                  <span className="text-sm font-medium">{article.title}</span>
                 </div>
                 {isExpanded ? (
                   <ChevronUp className="h-4 w-4 text-muted-foreground flex-shrink-0" />
@@ -62,14 +62,14 @@ export function LegalReferences() {
                   <div className="bg-white dark:bg-slate-900/50 rounded-lg p-4 border border-slate-100 dark:border-slate-800">
                     <div className="flex items-start gap-2 mb-2">
                       <BookOpen className="h-4 w-4 text-[#2E7D73] mt-0.5 flex-shrink-0" />
-                      <p className="text-xs text-muted-foreground leading-relaxed" style={{fontWeight:400}}>
+                      <p className="text-xs text-muted-foreground leading-relaxed font-normal">
                         {article.text}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 px-1">
                     <div className="w-1.5 h-1.5 rounded-full bg-[#2E7D73]" />
-                    <p className="text-xs text-[#2E7D73]" style={{fontWeight:500}}>
+                    <p className="text-xs text-[#2E7D73] font-medium">
                       {article.relevance}
                     </p>
                   </div>

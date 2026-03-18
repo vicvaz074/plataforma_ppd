@@ -284,7 +284,7 @@ export default function IncidentsAndBreachesPage() {
             <ShieldAlert className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl" style={{fontWeight:500}}>Incidentes y Brechas de Seguridad</h1>
+            <h1 className="text-2xl font-medium">Incidentes y Brechas de Seguridad</h1>
             <p className="text-sm text-muted-foreground">Gestión integral del ciclo de vida de incidentes conforme a la LFPDPPP</p>
           </div>
         </div>
@@ -309,7 +309,7 @@ export default function IncidentsAndBreachesPage() {
         <div className="relative bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 flex items-start gap-3">
           <Bell className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
           <div className="flex-1">
-            <p className="text-sm text-amber-800 dark:text-amber-300" style={{fontWeight:500}}>Obligación de Notificación — Art. 19 LFPDPPP</p>
+            <p className="text-sm text-amber-800 dark:text-amber-300 font-medium">Obligación de Notificación — Art. 19 LFPDPPP</p>
             <p className="text-xs text-amber-700 dark:text-amber-400 mt-1">
               En caso de vulneración significativa, se debe informar de forma inmediata a los titulares: la naturaleza del incidente, los datos comprometidos, las recomendaciones de protección y las acciones correctivas.
             </p>
@@ -460,25 +460,25 @@ export default function IncidentsAndBreachesPage() {
             <Card className="border-l-4 border-l-[#0a0147]">
               <CardContent className="pt-5 pb-4 px-5">
                 <p className="text-xs text-muted-foreground uppercase tracking-wider">Total Incidentes</p>
-                <p className="text-3xl mt-1" style={{fontWeight:500}}>{stats.total}</p>
+                <p className="text-3xl mt-1 font-medium">{stats.total}</p>
               </CardContent>
             </Card>
             <Card className="border-l-4 border-l-red-500">
               <CardContent className="pt-5 pb-4 px-5">
                 <p className="text-xs text-muted-foreground uppercase tracking-wider">Críticos</p>
-                <p className="text-3xl mt-1 text-red-600" style={{fontWeight:500}}>{stats.critical}</p>
+                <p className="text-3xl mt-1 text-red-600 font-medium">{stats.critical}</p>
               </CardContent>
             </Card>
             <Card className="border-l-4 border-l-amber-500">
               <CardContent className="pt-5 pb-4 px-5">
                 <p className="text-xs text-muted-foreground uppercase tracking-wider">Con Datos Personales</p>
-                <p className="text-3xl mt-1 text-amber-600" style={{fontWeight:500}}>{stats.withData}</p>
+                <p className="text-3xl mt-1 text-amber-600 font-medium">{stats.withData}</p>
               </CardContent>
             </Card>
             <Card className="border-l-4 border-l-[#2E7D73]">
               <CardContent className="pt-5 pb-4 px-5">
                 <p className="text-xs text-muted-foreground uppercase tracking-wider">Activos</p>
-                <p className="text-3xl mt-1 text-[#2E7D73]" style={{fontWeight:500}}>{stats.active}</p>
+                <p className="text-3xl mt-1 text-[#2E7D73] font-medium">{stats.active}</p>
               </CardContent>
             </Card>
           </div>
@@ -499,7 +499,7 @@ export default function IncidentsAndBreachesPage() {
           {/* ─── Incident List ───────────────────────────────────────────────── */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg" style={{fontWeight:500}}>Incidentes Registrados</h2>
+              <h2 className="text-lg font-medium">Incidentes Registrados</h2>
               {incidents.length > 0 && (
                 <Badge variant="outline" className="text-xs">{incidents.length} registro{incidents.length !== 1 ? "s" : ""}</Badge>
               )}
@@ -511,7 +511,7 @@ export default function IncidentsAndBreachesPage() {
                   <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
                     <Shield className="h-8 w-8 text-slate-400" />
                   </div>
-                  <p className="text-muted-foreground text-center" style={{fontWeight:500}}>No hay incidentes registrados</p>
+                  <p className="text-muted-foreground text-center font-medium">No hay incidentes registrados</p>
                   <p className="text-sm text-muted-foreground text-center mt-1">Registra el primer incidente usando el botón "Nuevo Incidente".</p>
                   <Button onClick={handleNewIncident} className="mt-4 gap-2 bg-[#0a0147] hover:bg-[#06002e]">
                     <Plus className="h-4 w-4" /> Registrar Incidente
@@ -530,12 +530,12 @@ export default function IncidentsAndBreachesPage() {
                         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap mb-1">
-                              <p className="text-base truncate" style={{fontWeight:500}}>{incident.name}</p>
-                              <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] ${config.badge}`} style={{fontWeight:500}}>
+                              <p className="text-base truncate font-medium">{incident.name}</p>
+                              <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${config.badge}`}>
                                 {config.label}
                               </span>
                               {hasPersonalData && (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400" style={{fontWeight:500}}>
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 font-medium">
                                   Datos Personales
                                 </span>
                               )}
@@ -839,9 +839,9 @@ export default function IncidentsAndBreachesPage() {
               </DialogHeader>
               <div className="space-y-6 mt-4">
                 <div className="flex flex-wrap gap-2">
-                  {(() => { const s = getSeverity(detailIncident.data); const c = severityConfig(s); return <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs ${c.badge}`} style={{fontWeight:500}}>Severidad: {c.label}</span> })()}
+                  {(() => { const s = getSeverity(detailIncident.data); const c = severityConfig(s); return <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${c.badge}`}>Severidad: {c.label}</span> })()}
                   {detailIncident.data.informacionIncidente.involucraDatos === "Sí" && (
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400" style={{fontWeight:500}}>Involucra datos personales</span>
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 font-medium">Involucra datos personales</span>
                   )}
                   <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400">
                     {detailIncident.data.informacionIncidente.fecha || "Sin fecha"}
@@ -921,7 +921,7 @@ export default function IncidentsAndBreachesPage() {
                 </div>
 
                 <div className="space-y-2 pt-2">
-                  <p className="text-xs text-muted-foreground" style={{fontWeight:500}}>Requisitos de la notificación (Art. 19):</p>
+                  <p className="text-xs text-muted-foreground font-medium">Requisitos de la notificación (Art. 19):</p>
                   <div className="space-y-1">
                     {[
                       "Naturaleza del incidente",

@@ -24,12 +24,12 @@ export function SectionA({ form }: { form: UseFormReturn<IncidentFormData> }) {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3 mb-2">
-        <div className="w-8 h-8 rounded-lg bg-[#0a0147]/10 flex items-center justify-center text-[#0a0147] text-sm" style={{fontWeight:500}}>A</div>
-        <h3 className="text-xl" style={{fontWeight:500}}>Lista de contactos</h3>
+        <div className="w-8 h-8 rounded-lg bg-[#0a0147]/10 flex items-center justify-center text-[#0a0147] text-sm font-medium">A</div>
+        <h3 className="text-xl font-medium">Lista de contactos</h3>
       </div>
       {form.watch("contactGroups").map((group, groupIndex) => (
         <div key={groupIndex} className="border border-slate-200 dark:border-slate-700 p-5 rounded-xl space-y-4 bg-white dark:bg-slate-900/30">
-          <h4 className="text-lg" style={{fontWeight:500}}>{group.groupTitle}</h4>
+          <h4 className="text-lg font-medium">{group.groupTitle}</h4>
           <p className="text-sm text-muted-foreground">{group.description}</p>
           {group.groupTitle === "Otro" && (
             <FormField control={form.control} name={`contactGroups.${groupIndex}.customTitle`}
@@ -73,12 +73,12 @@ export function SectionB({ form }: { form: UseFormReturn<IncidentFormData> }) {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3 mb-2">
-        <div className="w-8 h-8 rounded-lg bg-[#0a0147]/10 flex items-center justify-center text-[#0a0147] text-sm" style={{fontWeight:500}}>B</div>
-        <h3 className="text-xl" style={{fontWeight:500}}>Identificación de incidentes</h3>
+        <div className="w-8 h-8 rounded-lg bg-[#0a0147]/10 flex items-center justify-center text-[#0a0147] text-sm font-medium">B</div>
+        <h3 className="text-xl font-medium">Identificación de incidentes</h3>
       </div>
 
       <div className="border border-slate-200 dark:border-slate-700 p-5 rounded-xl space-y-4 bg-white dark:bg-slate-900/30">
-        <h4 className="text-lg" style={{fontWeight:500}}>Información general</h4>
+        <h4 className="text-lg font-medium">Información general</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField control={form.control} name="informacionGeneral.nombre" render={({ field }) => (<FormItem><FormLabel>Nombre</FormLabel><FormControl><Input placeholder="Nombre" {...field} /></FormControl></FormItem>)} />
           <FormField control={form.control} name="informacionGeneral.direccion" render={({ field }) => (<FormItem><FormLabel>Dirección</FormLabel><FormControl><Input placeholder="Dirección" {...field} /></FormControl></FormItem>)} />
@@ -89,7 +89,7 @@ export function SectionB({ form }: { form: UseFormReturn<IncidentFormData> }) {
       </div>
 
       <div className="border border-slate-200 dark:border-slate-700 p-5 rounded-xl space-y-4 bg-white dark:bg-slate-900/30">
-        <h4 className="text-lg" style={{fontWeight:500}}>Información sobre el incidente</h4>
+        <h4 className="text-lg font-medium">Información sobre el incidente</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField control={form.control} name="informacionIncidente.fecha" render={({ field }) => (<FormItem><FormLabel>Fecha</FormLabel><FormControl><Input type="date" {...field} /></FormControl></FormItem>)} />
           <FormField control={form.control} name="informacionIncidente.hora" render={({ field }) => (<FormItem><FormLabel>Hora</FormLabel><FormControl><Input type="time" {...field} /></FormControl></FormItem>)} />
@@ -103,11 +103,11 @@ export function SectionB({ form }: { form: UseFormReturn<IncidentFormData> }) {
       </div>
 
       <div className="border border-slate-200 dark:border-slate-700 p-5 rounded-xl space-y-4 bg-white dark:bg-slate-900/30">
-        <h4 className="text-lg" style={{fontWeight:500}}>Resumen del incidente</h4>
+        <h4 className="text-lg font-medium">Resumen del incidente</h4>
         <FormField control={form.control} name="resumenIncidente.resumenEjecutivo" render={({ field }) => (<FormItem><FormLabel>Resumen ejecutivo</FormLabel><FormControl><Textarea placeholder="Resumen ejecutivo" {...field} /></FormControl></FormItem>)} />
         <FormField control={form.control} name="resumenIncidente.resumenTecnico" render={({ field }) => (<FormItem><FormLabel>Resumen técnico</FormLabel><FormControl><Textarea placeholder="Resumen técnico" {...field} /></FormControl></FormItem>)} />
         <div className="space-y-2">
-          <p className="text-sm" style={{fontWeight:500}}>Tipo de incidente (seleccione al menos uno):</p>
+          <p className="text-sm font-medium">Tipo de incidente (seleccione al menos uno):</p>
           {incidentTypeOptions.map((option) => (
             <FormField key={option} control={form.control} name="resumenIncidente.tiposIncidente"
               render={({ field }) => (
@@ -136,7 +136,7 @@ export function SectionB({ form }: { form: UseFormReturn<IncidentFormData> }) {
       </div>
 
       <div className="border border-slate-200 dark:border-slate-700 p-5 rounded-xl space-y-4 bg-white dark:bg-slate-900/30">
-        <h4 className="text-lg" style={{fontWeight:500}}>Evaluación</h4>
+        <h4 className="text-lg font-medium">Evaluación</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField control={form.control} name="evaluacionIncidente.esIncidente" render={({ field }) => (<FormItem><FormLabel>¿Se determina que se trata de un incidente de seguridad?</FormLabel><FormControl><Select onValueChange={field.onChange} defaultValue={field.value}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="Sí">Sí</SelectItem><SelectItem value="No">No</SelectItem></SelectContent></Select></FormControl></FormItem>)} />
           <FormField control={form.control} name="evaluacionIncidente.justificacion" render={({ field }) => (<FormItem><FormLabel>Justificación – Posible impacto legal o contractual</FormLabel><FormControl><Textarea placeholder="Justificación" {...field} /></FormControl></FormItem>)} />
@@ -153,26 +153,26 @@ export function SectionC({ form }: { form: UseFormReturn<IncidentFormData> }) {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3 mb-2">
-        <div className="w-8 h-8 rounded-lg bg-[#0a0147]/10 flex items-center justify-center text-[#0a0147] text-sm" style={{fontWeight:500}}>C</div>
-        <h3 className="text-xl" style={{fontWeight:500}}>Investigación y contención</h3>
+        <div className="w-8 h-8 rounded-lg bg-[#0a0147]/10 flex items-center justify-center text-[#0a0147] text-sm font-medium">C</div>
+        <h3 className="text-xl font-medium">Investigación y contención</h3>
       </div>
 
       <div className="border border-slate-200 dark:border-slate-700 p-5 rounded-xl space-y-4 bg-white dark:bg-slate-900/30">
-        <h4 className="text-lg" style={{fontWeight:500}}>Datos para la investigación</h4>
+        <h4 className="text-lg font-medium">Datos para la investigación</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField control={form.control} name="investigacion.ubicacion.sistemaAfectado" render={({ field }) => (<FormItem><FormLabel>Sistema afectado</FormLabel><FormControl><Input placeholder="Sistema afectado" {...field} /></FormControl></FormItem>)} />
           <FormField control={form.control} name="investigacion.ubicacion.sitio" render={({ field }) => (<FormItem><FormLabel>Sitio</FormLabel><FormControl><Input placeholder="Sitio" {...field} /></FormControl></FormItem>)} />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="border border-slate-100 dark:border-slate-800 p-4 rounded-lg">
-            <p className="text-sm mb-2" style={{fontWeight:500}}>Fecha y hora de detección</p>
+            <p className="text-sm mb-2 font-medium">Fecha y hora de detección</p>
             <div className="grid grid-cols-2 gap-4">
               <FormField control={form.control} name="investigacion.tiempos.deteccion.fecha" render={({ field }) => (<FormItem><FormLabel>Fecha</FormLabel><FormControl><Input type="date" {...field} /></FormControl></FormItem>)} />
               <FormField control={form.control} name="investigacion.tiempos.deteccion.hora" render={({ field }) => (<FormItem><FormLabel>Hora</FormLabel><FormControl><Input type="time" {...field} /></FormControl></FormItem>)} />
             </div>
           </div>
           <div className="border border-slate-100 dark:border-slate-800 p-4 rounded-lg">
-            <p className="text-sm mb-2" style={{fontWeight:500}}>Fecha y hora de llegada de especialistas</p>
+            <p className="text-sm mb-2 font-medium">Fecha y hora de llegada de especialistas</p>
             <div className="grid grid-cols-2 gap-4">
               <FormField control={form.control} name="investigacion.tiempos.llegada.fecha" render={({ field }) => (<FormItem><FormLabel>Fecha</FormLabel><FormControl><Input type="date" {...field} /></FormControl></FormItem>)} />
               <FormField control={form.control} name="investigacion.tiempos.llegada.hora" render={({ field }) => (<FormItem><FormLabel>Hora</FormLabel><FormControl><Input type="time" {...field} /></FormControl></FormItem>)} />
@@ -183,13 +183,13 @@ export function SectionC({ form }: { form: UseFormReturn<IncidentFormData> }) {
         <FormField control={form.control} name="investigacion.descripcion.tipoSistemaAfectado" render={({ field }) => (<FormItem><FormLabel>¿El sistema afectado es físico o electrónico?</FormLabel><FormControl><Select onValueChange={field.onChange} defaultValue={field.value}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="Físico">Físico</SelectItem><SelectItem value="Electrónico">Electrónico</SelectItem></SelectContent></Select></FormControl></FormItem>)} />
         {tipoSistemaAfectado === "Físico" ? (
           <>
-            <h5 className="text-sm" style={{fontWeight:500}}>Sistemas de tratamiento físico</h5>
+            <h5 className="text-sm font-medium">Sistemas de tratamiento físico</h5>
             <FormField control={form.control} name="investigacion.descripcion.controlesFisicos" render={({ field }) => (<FormItem><FormLabel>Controles de seguridad físicos</FormLabel><FormControl><Textarea placeholder="Controles físicos" {...field} /></FormControl></FormItem>)} />
             <FormField control={form.control} name="investigacion.descripcion.personasAcceso" render={({ field }) => (<FormItem><FormLabel>Personas con acceso</FormLabel><FormControl><Input placeholder="Listado de personas" {...field} /></FormControl></FormItem>)} />
           </>
         ) : (
           <>
-            <h5 className="text-sm" style={{fontWeight:500}}>Sistemas de tratamiento electrónico</h5>
+            <h5 className="text-sm font-medium">Sistemas de tratamiento electrónico</h5>
             <FormField control={form.control} name="investigacion.descripcion.sistemaElectronico" render={({ field }) => (<FormItem><FormLabel>Sistema de tratamiento</FormLabel><FormControl><Input placeholder="Nombre del sistema" {...field} /></FormControl></FormItem>)} />
             <FormField control={form.control} name="investigacion.descripcion.controlesElectronicos" render={({ field }) => (<FormItem><FormLabel>Controles electrónicos</FormLabel><FormControl><Textarea placeholder="Controles electrónicos" {...field} /></FormControl></FormItem>)} />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -205,7 +205,7 @@ export function SectionC({ form }: { form: UseFormReturn<IncidentFormData> }) {
       </div>
 
       <div className="border border-slate-200 dark:border-slate-700 p-5 rounded-xl space-y-4 bg-white dark:bg-slate-900/30">
-        <h4 className="text-lg" style={{fontWeight:500}}>Acciones de contención</h4>
+        <h4 className="text-lg font-medium">Acciones de contención</h4>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <FormField control={form.control} name="accionesContencion.aislamiento.aprobado" render={({ field }) => (<FormItem><FormLabel>¿Aprobaron el aislamiento?</FormLabel><FormControl><Select onValueChange={field.onChange} defaultValue={field.value}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="Sí">Sí</SelectItem><SelectItem value="No">No</SelectItem></SelectContent></Select></FormControl></FormItem>)} />
           <FormField control={form.control} name="accionesContencion.aislamiento.accionAprobada" render={({ field }) => (<FormItem><FormLabel>Acción aprobada</FormLabel><FormControl><Select onValueChange={field.onChange} defaultValue={field.value}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="Aislamiento">Aislamiento</SelectItem><SelectItem value="Bloqueo">Bloqueo</SelectItem><SelectItem value="Resguardo">Resguardo</SelectItem><SelectItem value="Reubicación">Reubicación</SelectItem></SelectContent></Select></FormControl></FormItem>)} />
@@ -239,12 +239,12 @@ export function SectionD({ form }: { form: UseFormReturn<IncidentFormData> }) {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3 mb-2">
-        <div className="w-8 h-8 rounded-lg bg-[#0a0147]/10 flex items-center justify-center text-[#0a0147] text-sm" style={{fontWeight:500}}>D</div>
-        <h3 className="text-xl" style={{fontWeight:500}}>Mitigación y evidencias</h3>
+        <div className="w-8 h-8 rounded-lg bg-[#0a0147]/10 flex items-center justify-center text-[#0a0147] text-sm font-medium">D</div>
+        <h3 className="text-xl font-medium">Mitigación y evidencias</h3>
       </div>
 
       <div className="border border-slate-200 dark:border-slate-700 p-5 rounded-xl space-y-4 bg-white dark:bg-slate-900/30">
-        <h4 className="text-lg" style={{fontWeight:500}}>Mitigación del incidente</h4>
+        <h4 className="text-lg font-medium">Mitigación del incidente</h4>
         <PersonalInvolucradoArray form={form} />
         <FormField control={form.control} name="d1Mitigacion.vulnerabilitiesDetected" render={({ field }) => (<FormItem><FormLabel>¿Vulnerabilidades identificadas?</FormLabel><FormControl><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex space-x-4"><div className="flex items-center space-x-2"><RadioGroupItem value="Sí" id="vuln-si" /><Label htmlFor="vuln-si">Sí</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="No" id="vuln-no" /><Label htmlFor="vuln-no">No</Label></div></RadioGroup></FormControl></FormItem>)} />
         {form.watch("d1Mitigacion.vulnerabilitiesDetected") === "Sí" && (
@@ -261,7 +261,7 @@ export function SectionD({ form }: { form: UseFormReturn<IncidentFormData> }) {
       </div>
 
       <div className="border border-slate-200 dark:border-slate-700 p-5 rounded-xl space-y-4 bg-white dark:bg-slate-900/30">
-        <h4 className="text-lg" style={{fontWeight:500}}>Identificación de evidencias</h4>
+        <h4 className="text-lg font-medium">Identificación de evidencias</h4>
         {evidenciasFields.map((field, index) => (
           <div key={field.id} className="border border-slate-100 dark:border-slate-800 p-4 rounded-lg relative space-y-4">
             {evidenciasFields.length > 1 && (<button type="button" className="absolute top-2 right-2 text-red-500 text-sm" onClick={() => evidenciasRemove(index)}>Eliminar</button>)}
@@ -277,7 +277,7 @@ export function SectionD({ form }: { form: UseFormReturn<IncidentFormData> }) {
       </div>
 
       <div className="border border-slate-200 dark:border-slate-700 p-5 rounded-xl space-y-4 bg-white dark:bg-slate-900/30">
-        <h4 className="text-lg" style={{fontWeight:500}}>Fijación de evidencias</h4>
+        <h4 className="text-lg font-medium">Fijación de evidencias</h4>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <FormField control={form.control} name="d2Evidencias.fijacion.fotografia" render={({ field }) => (<FormItem><FormLabel>Fotográfica</FormLabel><FormControl><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex space-x-4"><div className="flex items-center space-x-2"><RadioGroupItem value="Sí" id="foto-si" /><Label htmlFor="foto-si">Sí</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="No" id="foto-no" /><Label htmlFor="foto-no">No</Label></div></RadioGroup></FormControl></FormItem>)} />
           <FormField control={form.control} name="d2Evidencias.fijacion.videograbacion" render={({ field }) => (<FormItem><FormLabel>Videograbación</FormLabel><FormControl><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex space-x-4"><div className="flex items-center space-x-2"><RadioGroupItem value="Sí" id="video-si" /><Label htmlFor="video-si">Sí</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="No" id="video-no" /><Label htmlFor="video-no">No</Label></div></RadioGroup></FormControl></FormItem>)} />
@@ -287,13 +287,13 @@ export function SectionD({ form }: { form: UseFormReturn<IncidentFormData> }) {
       </div>
 
       <div className="border border-slate-200 dark:border-slate-700 p-5 rounded-xl space-y-4 bg-white dark:bg-slate-900/30">
-        <h4 className="text-lg" style={{fontWeight:500}}>Recolección de evidencias</h4>
+        <h4 className="text-lg font-medium">Recolección de evidencias</h4>
         <FormField control={form.control} name="d2Evidencias.recoleccion.descripcionForma" render={({ field }) => (<FormItem><FormLabel>Forma de recolección</FormLabel><FormControl><Textarea placeholder="Describa el proceso" {...field} /></FormControl></FormItem>)} />
         <FormField control={form.control} name="d2Evidencias.recoleccion.medidasPreservacion" render={({ field }) => (<FormItem><FormLabel>Medidas de preservación</FormLabel><FormControl><Textarea placeholder="Medidas tomadas" {...field} /></FormControl></FormItem>)} />
       </div>
 
       <div className="border border-slate-200 dark:border-slate-700 p-5 rounded-xl space-y-4 bg-white dark:bg-slate-900/30">
-        <h4 className="text-lg" style={{fontWeight:500}}>Entrega de evidencias</h4>
+        <h4 className="text-lg font-medium">Entrega de evidencias</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField control={form.control} name="d2Evidencias.entrega.fecha" render={({ field }) => (<FormItem><FormLabel>Fecha</FormLabel><FormControl><Input type="date" {...field} /></FormControl></FormItem>)} />
           <FormField control={form.control} name="d2Evidencias.entrega.hora" render={({ field }) => (<FormItem><FormLabel>Hora</FormLabel><FormControl><Input type="time" {...field} /></FormControl></FormItem>)} />
@@ -314,8 +314,8 @@ export function SectionE({ form }: { form: UseFormReturn<IncidentFormData> }) {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3 mb-2">
-        <div className="w-8 h-8 rounded-lg bg-[#0a0147]/10 flex items-center justify-center text-[#0a0147] text-sm" style={{fontWeight:500}}>E</div>
-        <h3 className="text-xl" style={{fontWeight:500}}>Recuperación del incidente</h3>
+        <div className="w-8 h-8 rounded-lg bg-[#0a0147]/10 flex items-center justify-center text-[#0a0147] text-sm font-medium">E</div>
+        <h3 className="text-xl font-medium">Recuperación del incidente</h3>
       </div>
 
       <Card className="border-slate-200 dark:border-slate-700">
@@ -325,7 +325,7 @@ export function SectionE({ form }: { form: UseFormReturn<IncidentFormData> }) {
           {form.watch("recoveryActions.systemOperation") === "No" && (
             <FormField control={form.control} name="recoveryActions.nonOperationCauses" render={({ field }) => (<FormItem><FormLabel>Indicar las causas:</FormLabel><FormControl><Textarea {...field} /></FormControl></FormItem>)} />
           )}
-          <h5 className="text-sm pt-2" style={{fontWeight:500}}>Personal designado para la recuperación</h5>
+          <h5 className="text-sm pt-2 font-medium">Personal designado para la recuperación</h5>
           <DesignatedPersonnelArray form={form} />
         </CardContent>
       </Card>
@@ -367,8 +367,8 @@ export function SectionF({ form }: { form: UseFormReturn<IncidentFormData> }) {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3 mb-2">
-        <div className="w-8 h-8 rounded-lg bg-[#0a0147]/10 flex items-center justify-center text-[#0a0147] text-sm" style={{fontWeight:500}}>F</div>
-        <h3 className="text-xl" style={{fontWeight:500}}>Documentación final</h3>
+        <div className="w-8 h-8 rounded-lg bg-[#0a0147]/10 flex items-center justify-center text-[#0a0147] text-sm font-medium">F</div>
+        <h3 className="text-xl font-medium">Documentación final</h3>
       </div>
 
       <Card className="border-slate-200 dark:border-slate-700">
@@ -388,7 +388,7 @@ export function SectionF({ form }: { form: UseFormReturn<IncidentFormData> }) {
         <CardContent className="space-y-6">
           {form.watch("registrosComunicacion").map((registro, index) => (
             <div key={index} className="border border-slate-100 dark:border-slate-800 rounded-lg p-4 space-y-4">
-              <h4 className="text-base" style={{fontWeight:500}}>Comunicación entre {registro.tipo}</h4>
+              <h4 className="text-base font-medium">Comunicación entre {registro.tipo}</h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <FormField control={form.control} name={`registrosComunicacion.${index}.fecha`} render={({ field }) => (<FormItem><FormLabel>Fecha</FormLabel><FormControl><Input type="date" {...field} /></FormControl></FormItem>)} />
                 <FormField control={form.control} name={`registrosComunicacion.${index}.hora`} render={({ field }) => (<FormItem><FormLabel>Hora</FormLabel><FormControl><Input type="time" {...field} /></FormControl></FormItem>)} />
@@ -396,14 +396,14 @@ export function SectionF({ form }: { form: UseFormReturn<IncidentFormData> }) {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="border border-slate-100 dark:border-slate-800 rounded-lg p-4 space-y-3">
-                  <h5 className="text-sm" style={{fontWeight:500}}>Iniciador</h5>
+                  <h5 className="text-sm font-medium">Iniciador</h5>
                   <FormField control={form.control} name={`registrosComunicacion.${index}.iniciador.nombre`} render={({ field }) => (<FormItem><FormLabel>Nombre</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
                   <FormField control={form.control} name={`registrosComunicacion.${index}.iniciador.puestoArea`} render={({ field }) => (<FormItem><FormLabel>Puesto/Área</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
                   <FormField control={form.control} name={`registrosComunicacion.${index}.iniciador.organizacion`} render={({ field }) => (<FormItem><FormLabel>Organización</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
                   <FormField control={form.control} name={`registrosComunicacion.${index}.iniciador.contacto`} render={({ field }) => (<FormItem><FormLabel>Contacto</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
                 </div>
                 <div className="border border-slate-100 dark:border-slate-800 rounded-lg p-4 space-y-3">
-                  <h5 className="text-sm" style={{fontWeight:500}}>Receptor</h5>
+                  <h5 className="text-sm font-medium">Receptor</h5>
                   <FormField control={form.control} name={`registrosComunicacion.${index}.receptor.nombre`} render={({ field }) => (<FormItem><FormLabel>Nombre</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
                   <FormField control={form.control} name={`registrosComunicacion.${index}.receptor.puestoArea`} render={({ field }) => (<FormItem><FormLabel>Puesto/Área</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
                   <FormField control={form.control} name={`registrosComunicacion.${index}.receptor.organizacion`} render={({ field }) => (<FormItem><FormLabel>Organización</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
@@ -425,7 +425,7 @@ export function PersonalInvolucradoArray({ form }: { form: UseFormReturn<Inciden
   const { fields, append, remove } = useFieldArray({ control: form.control, name: "d1Mitigacion.personalInvolucrado" })
   return (
     <div className="space-y-4">
-      <h5 className="text-sm" style={{fontWeight:500}}>Personal involucrado en la mitigación</h5>
+      <h5 className="text-sm font-medium">Personal involucrado en la mitigación</h5>
       {fields.map((field, index) => (
         <div key={field.id} className="grid grid-cols-1 md:grid-cols-3 gap-4 border border-slate-100 dark:border-slate-800 p-4 rounded-lg relative">
           {fields.length > 1 && (<button type="button" className="absolute top-2 right-2 text-red-500 text-sm" onClick={() => remove(index)}>Eliminar</button>)}
