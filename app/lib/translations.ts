@@ -13,7 +13,7 @@ export const translations = {
     documentManagement: "Gestión de documentos",
     history: "Historial",
     language: "Idioma",
-    welcomeMessage: "Programa Integral de Protección de Datos",
+    welcomeMessage: "Protección de Datos Personales",
     darkMode: "Modo oscuro",
     lightMode: "Modo claro",
     goodbye: "Has cerrado sesión correctamente.",
@@ -505,4 +505,3 @@ export const translations = {
 }
 
 export type TranslationKey = keyof typeof translations.en
-

@@ -76,7 +76,7 @@ const translations: Record<"en" | "es", Record<OptionKey | "welcome", string>> =
     auditAlarms: "Audit Reminders",
   },
   es: {
-    welcome: "Bienvenido a Programa Integral de Protección de Datos",
+    welcome: "Bienvenido a Protección de Datos Personales",
     dataInventory: "Inventario de datos personales",
     privacyNotices: "Avisos de privacidad",
     thirdPartyContracts: "Contratos con terceros",
@@ -186,7 +186,6 @@ export default function Home() {
   const t = translations[language]
   const d = descriptions[language]
   const aliciaT = aliciaTranslations[language]
-  const [userName, setUserName] = useState<string | null>(null)
   const [userEmail, setUserEmail] = useState<string | null>(null)
   const [userRole, setUserRole] = useState<string | null>(null)
 
@@ -194,8 +193,6 @@ export default function Home() {
   const [hoveredCard, setHoveredCard] = useState<Option["name"] | null>(null)
 
   useEffect(() => {
-    const storedUserName = localStorage.getItem("userName")
-    setUserName(storedUserName)
     setUserEmail(localStorage.getItem("userEmail"))
     setUserRole(localStorage.getItem("userRole"))
   }, [])
@@ -208,13 +205,6 @@ export default function Home() {
   return (
     <div className="relative min-h-screen bg-white dark:bg-[#18181b]">
       <div className="container mx-auto py-8">
-        <h1
-          className="text-4xl font-medium text-center mb-12 text-black dark:text-white"
-          style={{ fontFamily: "Futura PT Medium, sans-serif" }}
-        >
-          {userName ? `${t.welcome}, ${userName}` : t.welcome}
-        </h1>
-
         {/* GRID con mezcla ícono/imagen + overlay + enlaces internos/externos */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
           {options.map((option) => {
