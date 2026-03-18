@@ -121,13 +121,13 @@ export function Sidebar() {
       { href: "/dpo", icon: <UserCog className="w-5 h-5 flex-shrink-0" />, label: t.dataProtectionOfficer, route: "/dpo" },
       { href: "/arco-rights", icon: <Users className="w-5 h-5 flex-shrink-0" />, label: t.arcoRights, route: "/arco-rights" },
       { href: "/security-system", icon: <Shield className="w-5 h-5 flex-shrink-0" />, label: t.personalDataSecuritySystem, route: "/security-system" },
+      { href: "/incidents-breaches", icon: <AlertTriangle className="w-5 h-5 flex-shrink-0" />, label: t.securityIncidentManagement, route: "/incidents-breaches" },
       { href: "/eipd", icon: <ClipboardList className="w-5 h-5 flex-shrink-0" />, label: t.impactAssessment, route: "/eipd" },
       { href: "/awareness", icon: <Newspaper className="w-5 h-5 flex-shrink-0" />, label: t.awareness, route: "/awareness" },
       { href: "/data-policies", icon: <FileCheck className="w-5 h-5 flex-shrink-0" />, label: t.dataManagementProgram, route: "/data-policies" },
       { href: "/davara-training", icon: <GraduationCap className="w-5 h-5 flex-shrink-0" />, label: t.davaraTraining, route: "/davara-training" },
       { href: "/litigation-management", icon: <Scale className="w-5 h-5 flex-shrink-0" />, label: t.proceduresManagement, route: "/litigation-management" },
       { href: "/audit", icon: <ListCheck className="w-5 h-5 flex-shrink-0" />, label: t.auditProgram, route: "/audit" },
-      { href: "/incidents-breaches", icon: <AlertTriangle className="w-5 h-5 flex-shrink-0" />, label: t.securityIncidentManagement, route: "/incidents-breaches" },
       { href: "/audit-alarms", icon: <Bell className="w-5 h-5 flex-shrink-0" />, label: t.auditAlarms, route: "/audit-alarms" },
     ]
 
