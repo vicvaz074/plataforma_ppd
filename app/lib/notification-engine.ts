@@ -1407,6 +1407,7 @@ export function generateAllNotifications(): PlatformNotification[] {
     nextActive.push({
       ...notification,
       leida: previous && previous.fingerprint === notification.fingerprint ? previous.leida : false,
+      fecha: previous && previous.fingerprint === notification.fingerprint ? previous.fecha : notification.fecha,
     })
   })
 
