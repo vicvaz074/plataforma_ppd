@@ -11,8 +11,8 @@ import { Sidebar } from "@/components/sidebar"
 import { Header } from "@/components/header"
 
 function AppShell({ authed, children }: { authed: boolean; children: React.ReactNode }) {
-  const { collapsed } = useSidebar()
-  const sidebarWidth = collapsed ? 70 : 260
+  const { collapsed, isMobile } = useSidebar()
+  const sidebarOffset = isMobile ? 70 : collapsed ? 70 : 260
 
   if (!authed) {
     return (
@@ -27,8 +27,8 @@ function AppShell({ authed, children }: { authed: boolean; children: React.React
     <>
       <Sidebar />
       <div
-        className="min-h-screen flex flex-col transition-all duration-300 ease-in-out"
-        style={{ paddingLeft: sidebarWidth }}
+        className="min-h-screen flex min-w-0 flex-col overflow-x-hidden transition-[margin,width] duration-300 ease-in-out"
+        style={{ marginLeft: sidebarOffset, width: `calc(100% - ${sidebarOffset}px)` }}
       >
         <Header />
         <main className="flex-1">{children}</main>

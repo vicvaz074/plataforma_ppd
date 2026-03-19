@@ -24,7 +24,7 @@ export const translations = {
     thirdPartyContracts: "Contratos con terceros",
     dataProtectionOfficer: "Oficial de protección de datos",
     arcoRights: "Derechos ARCO",
-    awarenessTraining: "Responsabilidad demostrada y capacitación",
+    awarenessTraining: "Responsabilidad demostrada",
     dataPolicies: "Políticas de protección de datos",
 
     // Common actions
@@ -273,7 +273,7 @@ export const translations = {
     thirdPartyContracts: "Third party contracts",
     dataProtectionOfficer: "Data protection officer",
     arcoRights: "ARCO rights",
-    awarenessTraining: "Demonstrated/Proactive Responsibility & training",
+    awarenessTraining: "Demonstrated Responsibility",
     dataPolicies: "Data protection policies",
 
     // Common actions

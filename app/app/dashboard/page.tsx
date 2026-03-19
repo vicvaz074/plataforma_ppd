@@ -116,8 +116,95 @@ const fallbackReports = [
   { module: "Procedimientos", scoreLabel: "Ejecución", score: 0, summary: "Cargando procedimientos LFPDPPP...", indicators: [{ label: "Total", value: "-" }, { label: "En ejecución", value: "-" }, { label: "Con evidencia", value: "-" }] },
   { module: "Capacitación", scoreLabel: "Aprobación", score: 0, summary: "Cargando monitoreo de avance...", indicators: [{ label: "Evaluados", value: "-" }, { label: "Aprobación", value: "-" }, { label: "Áreas críticas", value: "-" }] },
   { module: "Políticas", scoreLabel: "Implementación", score: 0, summary: "Cargando políticas implementadas...", indicators: [{ label: "Políticas", value: "-" }, { label: "Implementadas", value: "-" }, { label: "Pendientes", value: "-" }] },
-  { module: "Responsabilidad demostrada", scoreLabel: "Aplicación", score: 0, summary: "Cargando medidas del programa de responsabilidad...", indicators: [{ label: "Medidas", value: "-" }, { label: "Aplicadas", value: "-" }, { label: "Pendientes", value: "-" }] },
+  { module: "Responsabilidad demostrada", scoreLabel: "Cobertura SGDP", score: 0, summary: "Cargando gobierno, KRIs y evidencias del módulo de accountability...", indicators: [{ label: "Submódulos activos", value: "-" }, { label: "KRIs críticos", value: "-" }, { label: "Vencimientos 90d", value: "-" }] },
 ]
+
+function readDashboardLocalStorage<T>(key: string, fallback: T): T {
+  if (typeof window === "undefined") return fallback
+
+  try {
+    const raw = window.localStorage.getItem(key)
+    return raw ? (JSON.parse(raw) as T) : fallback
+  } catch {
+    return fallback
+  }
+}
+
+function getDaysUntil(date?: string) {
+  if (!date) return null
+
+  const parsed = new Date(date)
+  if (Number.isNaN(parsed.getTime())) return null
+
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  parsed.setHours(0, 0, 0, 0)
+  return Math.round((parsed.getTime() - today.getTime()) / 86400000)
+}
+
+function getAccountabilityReport() {
+  const sm01 = readDashboardLocalStorage<Record<string, any> | null>("accountability_v2_sm01", null)
+  const sm02 = readDashboardLocalStorage<any[]>("accountability_v2_sm02", [])
+  const sm04 = readDashboardLocalStorage<any[]>("accountability_v2_sm04", [])
+  const sm05 = readDashboardLocalStorage<any[]>("accountability_v2_sm05", [])
+  const sm06 = readDashboardLocalStorage<any[]>("accountability_v2_sm06", [])
+  const sm07 = readDashboardLocalStorage<any[]>("accountability_v2_sm07", [])
+  const sm08 = readDashboardLocalStorage<any[]>("accountability_v2_sm08", [])
+  const sm09 = readDashboardLocalStorage<any[]>("accountability_v2_sm09", [])
+  const sm10 = readDashboardLocalStorage<any[]>("accountability_v2_sm10", [])
+  const sm13 = readDashboardLocalStorage<any[]>("accountability_v2_sm13", [])
+
+  const coverageChecks = [
+    Boolean(sm01?.programName && sm01?.scope && sm01?.objectives),
+    sm02.length > 0,
+    sm04.length > 0,
+    sm05.length > 0,
+    sm06.length > 0,
+    sm07.length > 0,
+    sm08.length > 0,
+    sm09.length > 0 || sm10.length > 0,
+    sm13.length > 0,
+  ]
+
+  const score = Math.round((coverageChecks.filter(Boolean).length / coverageChecks.length) * 100)
+
+  const criticalKris =
+    sm09.filter((item) => {
+      const severity = String(item?.severity || "").toLowerCase()
+      const status = String(item?.status || "").toLowerCase()
+      return (severity === "alta" || severity === "critica" || severity === "crítica") && status !== "cerrada"
+    }).length +
+    sm04.filter((item) => {
+      const score = Number(item?.score || 0)
+      const status = String(item?.status || "").toLowerCase()
+      return score >= 20 && status !== "implementada" && status !== "aceptada"
+    }).length +
+    sm06.filter((item) => {
+      const status = String(item?.status || "").toLowerCase()
+      const dueDays = getDaysUntil(item?.dueDate || item?.contractExpiry)
+      return status === "activo" && dueDays !== null && dueDays < 0
+    }).length
+
+  const dueSoon = [...sm02, ...sm04, ...sm05, ...sm06, ...sm07, ...sm08, ...sm09, ...sm10, ...sm13].filter((item) => {
+    const dueDate = item?.expirationDate || item?.dueDate || item?.responseDueDate || item?.plannedDate || item?.reviewDate || item?.renewalDate
+    const days = getDaysUntil(dueDate)
+    return days !== null && days <= 90
+  }).length
+
+  const activeSubmodules = coverageChecks.filter(Boolean).length
+
+  return {
+    module: "Responsabilidad demostrada",
+    scoreLabel: "Cobertura SGDP",
+    score,
+    summary: "Estado del tablero ejecutivo, evidencias y seguimiento del programa de accountability.",
+    indicators: [
+      { label: "Submódulos activos", value: String(activeSubmodules) },
+      { label: "KRIs críticos", value: String(criticalKris) },
+      { label: "Vencimientos 90d", value: String(dueSoon) },
+    ],
+  }
+}
 
 function getRealModuleReports() {
   if (typeof window === "undefined") return fallbackReports
@@ -132,6 +219,7 @@ function getRealModuleReports() {
   const incidents = loadItems("incidents") as any[]
   const procedures = loadItems("procedures") as any[]
   const arco = loadItems("arco") as any[]
+  const accountability = getAccountabilityReport()
 
   // Calculate generic realistic data based on lengths to prevent purely empty screens
   return [
@@ -175,6 +263,7 @@ function getRealModuleReports() {
     { module: "Procedimientos", scoreLabel: "Registrados", score: procedures.length > 0 ? 100 : 0, summary: "Estado de procedimientos LFPDPPP con evidencia.", indicators: [{ label: "Total", value: procedures.length.toString() }, { label: "En ejecución", value: procedures.filter(p => p.status === "en-curso").length.toString() }, { label: "Concluidos", value: procedures.filter(p => p.status === "resuelto").length.toString() }] },
     { module: "Capacitación", scoreLabel: "Sesiones", score: training.length > 0 ? 100 : 0, summary: "Monitoreo de avance por programa de formación.", indicators: [{ label: "Sesiones", value: training.length.toString() }, { label: "Aprobados", value: training.filter(t => t.status === "completada" || t.status === "Completada").length.toString() }, { label: "En curso", value: training.filter(t => t.status === "en-curso").length.toString() }] },
     { module: "Políticas", scoreLabel: "Políticas cargadas", score: policies.length > 0 ? Math.round((policies.filter(p => p.status === "implementado").length / Math.max(policies.length, 1)) * 100) : 0, summary: "Seguimiento de políticas implementadas frente a pendientes.", indicators: [{ label: "Políticas", value: policies.length.toString() }, { label: "Implementadas", value: policies.filter(p => p.status === "implementado").length.toString() }, { label: "Por elaborar", value: policies.filter(p => p.status === "por-hacer").length.toString() }] },
+    accountability,
   ]
 }
 
