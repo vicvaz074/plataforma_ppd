@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
 import type { JSX } from "react";
 import * as React from "react"
@@ -21,7 +22,6 @@ import {
   Scale,
   AlertTriangle,
   Bell,
-  Bot,
   ListCheck,
   ChevronLeft,
   ChevronRight,
@@ -103,6 +103,7 @@ export function Sidebar() {
   const pathname = usePathname()
   const [userEmail, setUserEmail] = useState<string | null>(null)
   const [userRole, setUserRole] = useState<string | null>(null)
+  const isAliciaActive = pathname.startsWith("/alicia")
 
   useEffect(() => {
     setUserEmail(localStorage.getItem("userEmail"))
@@ -233,22 +234,33 @@ export function Sidebar() {
         {/* Alicia link */}
         <div className="relative">
           <Link
-            href="https://asistentelegal02.azurewebsites.net/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`sidebar-link flex items-center gap-3 py-2.5 rounded-lg transition-all duration-200 text-white/70 hover:text-white hover:bg-white/10 ${collapsed ? "px-0 justify-center" : "px-3"}`}
-            title={collapsed ? "alicia" : undefined}
+            href="/alicia"
+            className={`sidebar-link flex min-h-12 items-center rounded-lg transition-all duration-200 relative ${collapsed ? "px-1.5 justify-center" : "px-3 justify-center"} ${isAliciaActive ? "bg-white/20 text-white" : "text-white/70 hover:text-white hover:bg-white/10"}`}
+            title={collapsed ? "Alicia" : undefined}
           >
-            <span className="flex-shrink-0 w-5 h-5 flex items-center justify-center">
-              <Bot className="w-5 h-5 flex-shrink-0" />
+            <span className={`relative block transition-all duration-300 ${collapsed ? "h-8 w-9" : "h-9 w-full max-w-[144px]"}`}>
+              <Image
+                src="/images/Alicia_Sin_Despachos.png"
+                alt="Alicia"
+                fill
+                sizes={collapsed ? "36px" : "144px"}
+                className="object-contain drop-shadow-[0_2px_14px_rgba(255,255,255,0.18)]"
+                priority
+              />
             </span>
-            <span
-              className="sidebar-label text-sm whitespace-nowrap overflow-hidden transition-all duration-300 ease-in-out"
-              style={{ width: collapsed ? 0 : "auto", opacity: collapsed ? 0 : 1, maxWidth: collapsed ? 0 : 180 }}
-            >
-              alicia
-            </span>
+            <span className="sr-only">Alicia</span>
           </Link>
+          {isAliciaActive && (
+            <div
+              className="sidebar-active-triangle"
+              style={{
+                position: "absolute", right: -8, top: "50%", transform: "translateY(-50%)",
+                width: 0, height: 0,
+                borderTop: "10px solid transparent", borderBottom: "10px solid transparent",
+                borderRight: "10px solid hsl(var(--background))", zIndex: 10,
+              }}
+            />
+          )}
         </div>
       </nav>
     </div>
