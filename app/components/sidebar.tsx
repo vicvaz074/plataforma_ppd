@@ -142,12 +142,10 @@ export function Sidebar() {
     return hasModuleAccess(userEmail, route)
   }
 
-  const expandedSidebarWidth = 320
-
   return (
     <div
       className={`sidebar-root fixed top-0 left-0 h-screen bg-sidebar text-sidebar-foreground flex flex-col flex-shrink-0 overflow-hidden transition-all duration-300 ease-in-out z-40 ${collapsed ? "sidebar-collapsed" : "sidebar-expanded"}`}
-      style={{ width: collapsed ? 70 : expandedSidebarWidth }}
+      style={{ width: collapsed ? 70 : 260 }}
     >
       {/* Header del sidebar: logo + toggle */}
       <div className="sidebar-header flex items-center px-3 pt-4 pb-2" style={{ minHeight: 64 }}>
@@ -191,8 +189,8 @@ export function Sidebar() {
                     <Lock className="absolute -bottom-1 -right-1 w-3 h-3 text-white/80" />
                   </span>
                   <span
-                    className={`sidebar-label text-sm transition-all duration-300 ease-in-out text-white/50 ${collapsed ? "w-0 overflow-hidden opacity-0" : "flex-1 whitespace-normal break-words leading-tight opacity-100"}`}
-                    style={{ maxWidth: collapsed ? 0 : "100%" }}
+                    className="sidebar-label text-sm whitespace-nowrap overflow-hidden transition-all duration-300 ease-in-out text-white/50"
+                    style={{ width: collapsed ? 0 : "auto", opacity: collapsed ? 0 : 1, maxWidth: collapsed ? 0 : 180 }}
                   >
                     {link.label}
                   </span>
@@ -212,8 +210,8 @@ export function Sidebar() {
                   {link.icon}
                 </span>
                 <span
-                  className={`sidebar-label text-sm transition-all duration-300 ease-in-out ${collapsed ? "w-0 overflow-hidden opacity-0" : "flex-1 whitespace-normal break-words leading-tight opacity-100"}`}
-                  style={{ maxWidth: collapsed ? 0 : "100%" }}
+                  className="sidebar-label text-sm whitespace-nowrap overflow-hidden transition-all duration-300 ease-in-out"
+                  style={{ width: collapsed ? 0 : "auto", opacity: collapsed ? 0 : 1, maxWidth: collapsed ? 0 : 180 }}
                 >
                   {link.label}
                 </span>
