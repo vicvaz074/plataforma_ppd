@@ -257,7 +257,16 @@ export default function Home() {
                   }`}
                   style={{ fontFamily: "Futura PT Medium, sans-serif" }}
                 >
-                  {title}
+                  {option.name === "alicia" ? (
+                    <Image
+                      src="/images/Alicia_Sin_Despachos.png"
+                      alt="Alicia"
+                      width={130}
+                      height={40}
+                      className="object-contain relative z-10"
+                      unoptimized
+                    />
+                  ) : title}
                 </span>
 
                 {isLocked && (
