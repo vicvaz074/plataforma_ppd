@@ -141,7 +141,7 @@ export interface SgsdpVulneracion {
   descripcion: string;
   fechaDeteccion: string;
   severidad: SeveridadVulneracion;
-  faseActual: "Detección" | "Contención" | "Erradicación" | "Recuperación" | "Notificación INAI" | "Cierre";
+  faseActual: "Detección" | "Contención" | "Erradicación" | "Recuperación" | "Notificación a autoridad" | "Cierre";
   activosAfectadosIds: string[];
   titularesAfectadosEst?: number;
   horasTranscurridas: number; // SLA 72 horas para notificar

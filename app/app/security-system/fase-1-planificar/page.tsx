@@ -25,7 +25,7 @@ export default function Fase1PlanificarPage() {
       <header>
         <h1 className="text-3xl font-bold text-slate-900">Fase 1: Planificar (P)</h1>
         <p className="mt-2 text-slate-600 max-w-3xl">
-          Establecer los objetivos, políticas, riesgos y medidas necesarias para gestionar los datos personales conforme a la LFPDPPP y el modelo del INAI.
+          Establecer los objetivos, políticas, riesgos y medidas necesarias para gestionar los datos personales conforme a la LFPDPPP y el modelo de referencia aplicable.
         </p>
       </header>
 

@@ -109,7 +109,7 @@ export default function Paso6Brecha() {
         <div>
           <h2 className="text-xl font-bold text-slate-900">Catálogo de Medidas de Seguridad — Análisis de Brecha</h2>
           <p className="text-sm text-slate-600 mt-1 max-w-3xl">
-            Evalúa cada control del catálogo INAI (CTG-01 a CTG-10). Indica si se tiene implementado, parcialmente, no implementado o no aplica. Los controles no implementados requieren justificación y plan de implementación.
+            Evalúa cada control del catálogo base (CTG-01 a CTG-10). Indica si se tiene implementado, parcialmente, no implementado o no aplica. Los controles no implementados requieren justificación y plan de implementación.
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
