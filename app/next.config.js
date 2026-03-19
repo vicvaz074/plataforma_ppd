@@ -4,7 +4,7 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
 });
 
-const { securityHeaders } = require("./security-headers.cjs")
+const { getSecurityHeaders } = require("./security-headers.cjs")
 
 /** @type {import('next').NextConfig} */
 module.exports = (phase) => {
@@ -22,7 +22,7 @@ module.exports = (phase) => {
       return [
         {
           source: "/(.*)",
-          headers: securityHeaders,
+          headers: getSecurityHeaders({ isDev }),
         },
       ]
     },

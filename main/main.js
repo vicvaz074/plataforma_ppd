@@ -15,6 +15,7 @@ app.commandLine.appendSwitch("disable-background-timer-throttling")
 const isDev = process.env.NODE_ENV === "development"
 const PORT = 3456
 let server
+const devAppIconPath = path.join(__dirname, "../assets/Logo_plataforma_ppd.png")
 
 const allowedOrigins = isDev
   ? ["http://localhost:3000"]
@@ -147,6 +148,7 @@ async function createWindow() {
   const win = new BrowserWindow({
     width: 1200,
     height: 800,
+    icon: isDev ? devAppIconPath : undefined,
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
@@ -175,6 +177,10 @@ async function createWindow() {
 }
 
 app.whenReady().then(async () => {
+  if (isDev && process.platform === "darwin") {
+    app.dock.setIcon(devAppIconPath)
+  }
+
   session.defaultSession.setPermissionRequestHandler((_, __, callback) => {
     callback(false)
   })
