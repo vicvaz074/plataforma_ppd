@@ -172,7 +172,7 @@ export function Sidebar() {
       </div>
 
       {/* Navigation links */}
-      <nav className="sidebar-nav flex-grow overflow-y-auto overflow-x-hidden px-2 py-1">
+      <nav className="sidebar-nav flex-1 flex flex-col justify-evenly overflow-hidden px-2 py-1">
         {links.map((link) => {
           const active = isActive(link.route)
           const accessible = canAccess(link.route)
