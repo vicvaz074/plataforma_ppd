@@ -18,7 +18,7 @@ function AppShell({ authed, children }: { authed: boolean; children: React.React
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
-        <main className="flex-1">{children}</main>
+        <main className="flex-1 pt-16">{children}</main>
       </div>
     )
   }
@@ -26,11 +26,11 @@ function AppShell({ authed, children }: { authed: boolean; children: React.React
   return (
     <>
       <Sidebar />
+      <Header withSidebar />
       <div
-        className="min-h-screen flex min-w-0 flex-col overflow-x-hidden transition-[margin,width] duration-300 ease-in-out"
+        className="min-h-screen flex min-w-0 flex-col overflow-x-hidden transition-[margin,width] duration-300 ease-in-out pt-16"
         style={{ marginLeft: sidebarOffset, width: `calc(100% - ${sidebarOffset}px)` }}
       >
-        <Header />
         <main className="flex-1">{children}</main>
       </div>
     </>
