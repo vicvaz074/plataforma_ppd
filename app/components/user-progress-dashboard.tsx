@@ -205,17 +205,17 @@ const initialSections: Section[] = [
   {
     id: "concientizacion",
     title: "Responsabilidad demostrada",
-    description: "Revisa y mejora prácticas internas creando y difundiendo materiales de responsabilidad demostrada.",
-    path: "/awareness-training",
+    description: "Estructura el SGDP, consolida evidencias y supervisa KPIs, KRIs y vencimientos del programa de accountability.",
+    path: "/awareness",
     progress: 0,
     status: "no-iniciado",
     iconName: "BrainCircuit",
-    category: "capacitacion",
-    priority: 2,
+    category: "cumplimiento",
+    priority: 1,
     tasks: [
-      { id: "con-1", title: "Desarrollar materiales", completed: false },
-      { id: "con-2", title: "Programar sesiones", completed: false },
-      { id: "con-3", title: "Evaluar resultados", completed: false },
+      { id: "con-1", title: "Definir gobierno y alcance del SGDP", completed: false },
+      { id: "con-2", title: "Consolidar PGDP, riesgos y encargados", completed: false },
+      { id: "con-3", title: "Revisar KRIs, vencimientos y expediente", completed: false },
     ],
   },
   {
@@ -797,4 +797,3 @@ export const UserProgressDashboard = () => {
     </div>
   )
 }
-

@@ -88,10 +88,10 @@ export const auditModules: AuditModule[] = [
   {
     id: "concientizacion",
     name: "Responsabilidad demostrada",
-    description: "Materiales internos y evidencias de concientización.",
-    path: "/awareness-training",
+    description: "Gobierno del SGDP, KPIs, KRIs, expediente y seguimiento de accountability.",
+    path: "/awareness",
     owner: "Cumplimiento",
-    area: "Capacitación",
+    area: "Cumplimiento",
   },
   {
     id: "programa-gestion",
