@@ -35,10 +35,10 @@ import {
 } from "@/lib/notification-engine"
 import { DAVARA_STORAGE_EVENT, ensureBrowserStorageEvents } from "@/lib/browser-storage-events"
 
-export function Header() {
+export function Header({ withSidebar = false }: { withSidebar?: boolean }) {
   const { theme, setTheme } = useTheme()
   const { language, setLanguage } = useLanguage()
-  const { collapsed } = useSidebar()
+  const { collapsed, isMobile } = useSidebar()
   const router = useRouter()
   const pathname = usePathname()
   const t = translations[language]
@@ -154,7 +154,8 @@ export function Header() {
     <motion.header
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="sticky top-0 z-50 border-b bg-white dark:bg-gray-950"
+      className="fixed top-0 right-0 z-50 border-b bg-white dark:bg-gray-950 transition-[left] duration-300 ease-in-out"
+      style={{ left: withSidebar ? (isMobile ? 70 : collapsed ? 70 : 260) : 0 }}
     >
       <div className="flex h-16 items-center px-6 justify-between">
         {/* Left side: logo (when sidebar collapsed) + title */}
