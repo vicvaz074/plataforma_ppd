@@ -189,7 +189,7 @@ export function Sidebar() {
                     <Lock className="absolute -bottom-1 -right-1 w-3 h-3 text-white/80" />
                   </span>
                   <span
-                    className="sidebar-label text-sm overflow-hidden transition-all duration-300 ease-in-out text-white/50"
+                    className={`sidebar-label text-sm overflow-hidden transition-all duration-300 ease-in-out text-white/50 ${collapsed ? "whitespace-nowrap" : ""}`}
                     style={{ width: collapsed ? 0 : "auto", opacity: collapsed ? 0 : 1 }}
                   >
                     {link.label}
@@ -210,7 +210,7 @@ export function Sidebar() {
                   {link.icon}
                 </span>
                 <span
-                  className="sidebar-label text-sm overflow-hidden transition-all duration-300 ease-in-out"
+                  className={`sidebar-label text-sm overflow-hidden transition-all duration-300 ease-in-out ${collapsed ? "whitespace-nowrap" : ""}`}
                   style={{ width: collapsed ? 0 : "auto", opacity: collapsed ? 0 : 1 }}
                 >
                   {link.label}
