@@ -1,12 +1,14 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Link from "next/link"
 import Image from "next/image"
 import { motion } from "framer-motion"
 import { useLanguage } from "@/lib/LanguageContext"
 import { Card } from "@/components/ui/card"
 import { SafeLink } from "@/components/SafeLink"
 import { aliciaTranslations } from "@/lib/alicia-translations"
+import aliciaImg from "@/app/public/images/alicia_person.jpeg"
 import { hasModuleAccess } from "@/lib/user-permissions"
 import {
   Database,
@@ -151,7 +153,7 @@ const descriptions: Record<"en" | "es", Record<OptionKey, string>> = {
 }
 
 // -----------------------------
-// Opciones
+// Opciones (incluye Alicia con imagen y external)
 // -----------------------------
 const options: Option[] = [
   { name: "dataInventory", icon: Database, href: "/rat" },
@@ -171,7 +173,8 @@ const options: Option[] = [
     name: "alicia",
     icon: Sparkles,
     href: "/alicia",
-    image: "/images/Alicia_Sin_Despachos.png",
+    external: true,
+    image: "/images/alicia_person.jpeg",
   },
 ]
 
@@ -202,7 +205,7 @@ export default function Home() {
   return (
     <div className="relative min-h-screen bg-white dark:bg-[#18181b]">
       <div className="container mx-auto py-8">
-        {/* GRID con mezcla ícono/imagen + overlay */}
+        {/* GRID con mezcla ícono/imagen + overlay + enlaces internos/externos */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
           {options.map((option) => {
             const title =
@@ -217,31 +220,22 @@ export default function Home() {
 
             const CardContent = (
               <Card
-                className={`group relative flex h-[200px] flex-col items-center justify-center overflow-hidden p-6 transition-all duration-300 ${option.name === "alicia" ? "border-slate-200/80 bg-slate-950 shadow-[0_24px_64px_-34px_rgba(15,23,42,0.9)] dark:border-slate-800 dark:bg-slate-950" : "bg-white dark:bg-[#18181b]"} ${isLocked ? "cursor-not-allowed opacity-50" : "cursor-pointer hover:-translate-y-1 hover:shadow-lg"}`}
+                className={`p-6 transition-shadow flex flex-col items-center justify-center h-[200px] group relative overflow-hidden bg-white dark:bg-[#18181b] ${isLocked ? "cursor-not-allowed opacity-50" : "cursor-pointer hover:shadow-lg"}`}
                 onMouseEnter={() => !isLocked && setHoveredCard(option.name)}
                 onMouseLeave={() => setHoveredCard(null)}
               >
-                {option.name === "alicia" && option.image ? (
-                  <>
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.14),_transparent_44%),linear-gradient(145deg,_#0f172a_0%,_#111827_55%,_#020617_100%)]" />
-                    <div className="absolute -right-10 top-2 h-28 w-28 rounded-full bg-white/10 blur-3xl" />
-                    <div className="absolute -left-8 bottom-0 h-24 w-24 rounded-full bg-cyan-200/10 blur-3xl" />
-                    <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-4">
-                      <div className="relative h-12 w-full max-w-[220px] sm:h-14">
-                        <Image
-                          src={option.image}
-                          alt={title}
-                          fill
-                          sizes="(min-width: 1024px) 220px, (min-width: 640px) 210px, 180px"
-                          className="object-contain drop-shadow-[0_8px_24px_rgba(255,255,255,0.12)]"
-                          priority
-                        />
-                      </div>
-                      <span className="text-[11px] font-medium uppercase tracking-[0.28em] text-white/70">
-                        {aliciaT.aliciaTagline}
-                      </span>
-                    </div>
-                  </>
+                {option.image ? (
+                  <div className="absolute inset-0 w-full h-full">
+                    <Image
+                      src="/images/alicia_person.jpeg"
+                      alt={title}
+                      fill
+                      className="object-cover"
+                      priority={option.name === "alicia"}
+                      unoptimized
+                    />
+                    <div className="absolute inset-0 bg-black/20 dark:bg-black/40" />
+                  </div>
                 ) : (
                   <div className="relative">
                     <option.icon className={`h-10 w-10 mb-4 transition-colors ${isLocked ? "text-gray-400 dark:text-gray-600" : "text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white"}`} />
@@ -251,18 +245,20 @@ export default function Home() {
                   </div>
                 )}
 
-                {option.name !== "alicia" && (
-                  <span
-                    className={`text-base font-medium text-center transition-colors leading-tight ${
-                      isLocked
+                <span
+                  className={`text-base font-medium text-center transition-colors leading-tight ${
+                    option.image
+                      ? `text-white relative z-10 ${
+                          option.name === "alicia" ? "group-hover:opacity-0" : ""
+                        }`
+                      : isLocked
                         ? "text-gray-400 dark:text-gray-500"
                         : "text-gray-800 dark:text-gray-100 group-hover:text-gray-900 dark:group-hover:text-white"
-                    }`}
-                    style={{ fontFamily: "Futura PT Medium, sans-serif" }}
-                  >
-                    {title}
-                  </span>
-                )}
+                  }`}
+                  style={{ fontFamily: "Futura PT Medium, sans-serif" }}
+                >
+                  {title}
+                </span>
 
                 {isLocked && (
                   <span className="text-xs text-gray-400 dark:text-gray-500 mt-2">Sin acceso</span>
@@ -270,7 +266,7 @@ export default function Home() {
 
                 {!isLocked && (
                   <motion.div
-                    className={`absolute inset-0 flex items-center justify-center p-4 text-center text-sm ${option.name === "alicia" ? "bg-slate-950/88 text-white backdrop-blur-sm" : "bg-white/90 text-gray-800 dark:bg-black/90 dark:text-gray-100"}`}
+                    className="absolute inset-0 bg-white/90 dark:bg-black/90 p-4 flex items-center justify-center text-sm text-gray-800 dark:text-gray-100 text-center"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{
                       opacity: hoveredCard === option.name ? 1 : 0,
@@ -285,6 +281,7 @@ export default function Home() {
               </Card>
             )
 
+            // Enlaces externos abren en nueva pestaña; internos usan SafeLink
             if (option.external) {
               return (
                 <a
