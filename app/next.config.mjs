@@ -1,27 +1,32 @@
-import securityHeadersConfig from './security-headers.cjs'
+import { PHASE_DEVELOPMENT_SERVER } from "next/constants"
+import securityHeadersConfig from "./security-headers.cjs"
 
-const { securityHeaders } = securityHeadersConfig
+const { getSecurityHeaders } = securityHeadersConfig
 
 /** @type {import('next').NextConfig} */
-const nextConfig = {
-  poweredByHeader: false,
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  images: {
-    unoptimized: true,
-  },
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: securityHeaders,
-      },
-    ]
-  },
+const createConfig = (phase) => {
+  const isDev = phase === PHASE_DEVELOPMENT_SERVER
+
+  return {
+    poweredByHeader: false,
+    eslint: {
+      ignoreDuringBuilds: true,
+    },
+    typescript: {
+      ignoreBuildErrors: true,
+    },
+    images: {
+      unoptimized: true,
+    },
+    async headers() {
+      return [
+        {
+          source: "/(.*)",
+          headers: getSecurityHeaders({ isDev }),
+        },
+      ]
+    },
+  }
 }
 
-export default nextConfig
+export default createConfig

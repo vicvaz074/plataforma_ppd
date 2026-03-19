@@ -23,7 +23,8 @@
       "buildResources": "../assets"
     },
     "mac": {
-      "target": "pkg"
+      "target": "pkg",
+      "icon": "../assets/icon.icns"
     },
     "pkg": {
       "installLocation": "/Applications"
