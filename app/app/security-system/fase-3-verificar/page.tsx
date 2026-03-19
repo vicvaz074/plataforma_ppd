@@ -182,7 +182,7 @@ export default function Fase3Verificar() {
                </div>
                <div>
                  <h4 className="font-bold text-indigo-900 text-sm">Validación del SGSDP</h4>
-                 <p className="text-sm text-indigo-800 mt-1">Conforme a las recomendaciones del INAI, los resultados de la auditoría y sus hallazgos deben alimentar el &ldquo;Plan de Mejora Continua&rdquo; en la Fase Actuar (Fase 4). Cada hallazgo genera automáticamente una acción correctiva.</p>
+                 <p className="text-sm text-indigo-800 mt-1">Conforme a las recomendaciones aplicables, los resultados de la auditoría y sus hallazgos deben alimentar el &ldquo;Plan de Mejora Continua&rdquo; en la Fase Actuar (Fase 4). Cada hallazgo genera automáticamente una acción correctiva.</p>
                </div>
             </div>
           </div>
@@ -282,7 +282,7 @@ export default function Fase3Verificar() {
                           <option value="Contención">Contención</option>
                           <option value="Erradicación">Erradicación</option>
                           <option value="Recuperación">Recuperación</option>
-                          <option value="Notificación INAI">Notificación INAI</option>
+                          <option value="Notificación a autoridad">Notificación a autoridad</option>
                           <option value="Cierre">Cierre</option>
                         </select>
                       </div>

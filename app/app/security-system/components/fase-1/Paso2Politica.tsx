@@ -148,7 +148,7 @@ const REGLAS_POLITICA: ReglaRequisito[] = [
     id: "regla_s", letra: "s", principio: "SGSDP",
     titulo: "Implementación del SGSDP",
     descripcion: "Desarrollar e implementar un Sistema de Gestión de Seguridad de Datos Personales (SGSDP) de acuerdo con la política de gestión de datos personales.",
-    fundamentoLegal: "Art. 48 RLFPDPPP · GISGSDP INAI"
+    fundamentoLegal: "Art. 48 RLFPDPPP · GISGSDP"
   },
   {
     id: "regla_t", letra: "t", principio: "SGSDP",
@@ -324,7 +324,7 @@ export default function Paso2Politica() {
           <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
             <div className="mb-6">
               <h3 className="text-lg font-bold text-slate-900">Checklist de Cumplimiento de la Política</h3>
-              <p className="text-sm text-slate-500 mt-1">Verifica que tu política de gestión de datos personales incluya las 20 reglas obligatorias (CTG-01 · GISGSDP INAI).</p>
+              <p className="text-sm text-slate-500 mt-1">Verifica que tu política de gestión de datos personales incluya las 20 reglas obligatorias (CTG-01 · GISGSDP).</p>
               
               {/* Progress bar */}
               <div className="mt-4 flex items-center gap-3">

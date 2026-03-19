@@ -303,7 +303,7 @@ export default function Fase2Hacer() {
           {/* Summary */}
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
             <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2">
-              <ShieldCheck className="h-5 w-5 text-primary" /> Estado de Implementación del Catálogo INAI
+              <ShieldCheck className="h-5 w-5 text-primary" /> Estado de Implementación del Catálogo Base
             </h3>
             <p className="text-sm text-slate-500 mb-4">
               Estado actual de las medidas de seguridad evaluadas en el Paso 6 (Análisis de Brecha). Las medidas marcadas como &ldquo;Se va a implementar&rdquo; generan tareas automáticas en el tablero Kanban.
@@ -433,7 +433,7 @@ export default function Fase2Hacer() {
           {totalEvaluados === 0 && (
             <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
               <ShieldCheck className="h-10 w-10 text-slate-300 mx-auto mb-3" />
-              <p className="text-sm text-slate-500">No hay controles evaluados. Ve al Paso 6 (Análisis de Brecha) en la Fase Planificar para evaluar el catálogo INAI.</p>
+              <p className="text-sm text-slate-500">No hay controles evaluados. Ve al Paso 6 (Análisis de Brecha) en la Fase Planificar para evaluar el catálogo base.</p>
             </div>
           )}
         </div>
