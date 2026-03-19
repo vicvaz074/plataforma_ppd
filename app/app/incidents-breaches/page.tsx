@@ -57,7 +57,7 @@ function severityConfig(severity: string) {
 
 // ─── Stage helpers ────────────────────────────────────────────────────────────
 
-export function getIncidentStage(incident: StoredIncident) {
+function getIncidentStage(incident: StoredIncident) {
   if (incident.data.recoveryActions?.systemOperation) return "recovery"
   if (incident.data.d1Mitigacion?.vulnerabilitiesDetected) return "mitigation"
   if (incident.data.accionesContencion?.aislamiento?.aprobado) return "containment"
