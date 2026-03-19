@@ -1,0 +1,177 @@
+[    1704ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/recharts@3.5.0_@types+react@19.1.11_eslint@9.39.1_jiti@1.21.7__react-dom@19.1.1_react@1_7983ff9c06158d57203e7ed04b48306c/node_modules/recharts/es6/util/LogUtils.js:18
+[    1705ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/recharts@3.5.0_@types+react@19.1.11_eslint@9.39.1_jiti@1.21.7__react-dom@19.1.1_react@1_7983ff9c06158d57203e7ed04b48306c/node_modules/recharts/es6/util/LogUtils.js:18
+[    2602ms] [WARNING] Image with src "http://127.0.0.1:3001/images/logo_davaragovernance.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.5.7_@babel+core@7.28.3_@playwright+test@1.58.2_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/next/dist/shared/lib/utils/warn-once.js:15
+[    2609ms] [WARNING] Image with src "http://127.0.0.1:3001/images/davara_login.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.5.7_@babel+core@7.28.3_@playwright+test@1.58.2_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/next/dist/shared/lib/utils/warn-once.js:15
+[    3724ms] [WARNING] Image with src "/images/davara_login.png" was detected as the Largest Contentful Paint (LCP). Please add the "priority" property if this image is above the fold.
+Read more: https://nextjs.org/docs/api-reference/next/image#priority @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.5.7_@babel+core@7.28.3_@playwright+test@1.58.2_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/next/dist/shared/lib/utils/warn-once.js:15
+[  551981ms] [WARNING] Image with src "http://127.0.0.1:3001/images/logo_davaragovernance.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.5.7_@babel+core@7.28.3_@playwright+test@1.58.2_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/next/dist/shared/lib/utils/warn-once.js:15
+[  552071ms] [WARNING] Image with src "http://127.0.0.1:3001/images/davara_login.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.5.7_@babel+core@7.28.3_@playwright+test@1.58.2_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/next/dist/shared/lib/utils/warn-once.js:15
+[  552099ms] [WARNING] Image with src "/images/davara_login.png" was detected as the Largest Contentful Paint (LCP). Please add the "priority" property if this image is above the fold.
+Read more: https://nextjs.org/docs/api-reference/next/image#priority @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.5.7_@babel+core@7.28.3_@playwright+test@1.58.2_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/next/dist/shared/lib/utils/warn-once.js:15
+[  574919ms] [WARNING] [Fast Refresh] performing full reload
+
+Fast Refresh will perform a full reload when you edit a file that's imported by modules outside of the React rendering tree.
+You might have a file which exports a React component but also exports a value that is imported by a non-React component file.
+Consider migrating the non-React component export to a separate file and importing it into both files.
+
+It is also possible the parent component of the component you edited is a class component, which disables Fast Refresh.
+Fast Refresh requires at least one parent function component in your React tree. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.5.7_@babel+core@7.28.3_@playwright+test@1.58.2_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/next/dist/client/dev/hot-reloader/app/hot-reloader-app.js:111
+[  574928ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://127.0.0.1:3001/data-policies:0
+[  621669ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/recharts@3.5.0_@types+react@19.1.11_eslint@9.39.1_jiti@1.21.7__react-dom@19.1.1_react@1_7983ff9c06158d57203e7ed04b48306c/node_modules/recharts/es6/util/LogUtils.js:18
+[  621670ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/recharts@3.5.0_@types+react@19.1.11_eslint@9.39.1_jiti@1.21.7__react-dom@19.1.1_react@1_7983ff9c06158d57203e7ed04b48306c/node_modules/recharts/es6/util/LogUtils.js:18
+[  621697ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/recharts@3.5.0_@types+react@19.1.11_eslint@9.39.1_jiti@1.21.7__react-dom@19.1.1_react@1_7983ff9c06158d57203e7ed04b48306c/node_modules/recharts/es6/util/LogUtils.js:18
+[  621698ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/recharts@3.5.0_@types+react@19.1.11_eslint@9.39.1_jiti@1.21.7__react-dom@19.1.1_react@1_7983ff9c06158d57203e7ed04b48306c/node_modules/recharts/es6/util/LogUtils.js:18
+[  621699ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/recharts@3.5.0_@types+react@19.1.11_eslint@9.39.1_jiti@1.21.7__react-dom@19.1.1_react@1_7983ff9c06158d57203e7ed04b48306c/node_modules/recharts/es6/util/LogUtils.js:18
+[  621699ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/recharts@3.5.0_@types+react@19.1.11_eslint@9.39.1_jiti@1.21.7__react-dom@19.1.1_react@1_7983ff9c06158d57203e7ed04b48306c/node_modules/recharts/es6/util/LogUtils.js:18
+[  696572ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/recharts@3.5.0_@types+react@19.1.11_eslint@9.39.1_jiti@1.21.7__react-dom@19.1.1_react@1_7983ff9c06158d57203e7ed04b48306c/node_modules/recharts/es6/util/LogUtils.js:18
+[  696573ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/recharts@3.5.0_@types+react@19.1.11_eslint@9.39.1_jiti@1.21.7__react-dom@19.1.1_react@1_7983ff9c06158d57203e7ed04b48306c/node_modules/recharts/es6/util/LogUtils.js:18
+[  745784ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/recharts@3.5.0_@types+react@19.1.11_eslint@9.39.1_jiti@1.21.7__react-dom@19.1.1_react@1_7983ff9c06158d57203e7ed04b48306c/node_modules/recharts/es6/util/LogUtils.js:18
+[  745787ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/recharts@3.5.0_@types+react@19.1.11_eslint@9.39.1_jiti@1.21.7__react-dom@19.1.1_react@1_7983ff9c06158d57203e7ed04b48306c/node_modules/recharts/es6/util/LogUtils.js:18
+[  758769ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/recharts@3.5.0_@types+react@19.1.11_eslint@9.39.1_jiti@1.21.7__react-dom@19.1.1_react@1_7983ff9c06158d57203e7ed04b48306c/node_modules/recharts/es6/util/LogUtils.js:18
+[  758769ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/recharts@3.5.0_@types+react@19.1.11_eslint@9.39.1_jiti@1.21.7__react-dom@19.1.1_react@1_7983ff9c06158d57203e7ed04b48306c/node_modules/recharts/es6/util/LogUtils.js:18
+[  758771ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/recharts@3.5.0_@types+react@19.1.11_eslint@9.39.1_jiti@1.21.7__react-dom@19.1.1_react@1_7983ff9c06158d57203e7ed04b48306c/node_modules/recharts/es6/util/LogUtils.js:18
+[  758771ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/recharts@3.5.0_@types+react@19.1.11_eslint@9.39.1_jiti@1.21.7__react-dom@19.1.1_react@1_7983ff9c06158d57203e7ed04b48306c/node_modules/recharts/es6/util/LogUtils.js:18
+[  758771ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/recharts@3.5.0_@types+react@19.1.11_eslint@9.39.1_jiti@1.21.7__react-dom@19.1.1_react@1_7983ff9c06158d57203e7ed04b48306c/node_modules/recharts/es6/util/LogUtils.js:18
+[  758771ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/recharts@3.5.0_@types+react@19.1.11_eslint@9.39.1_jiti@1.21.7__react-dom@19.1.1_react@1_7983ff9c06158d57203e7ed04b48306c/node_modules/recharts/es6/util/LogUtils.js:18
+[  760937ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/recharts@3.5.0_@types+react@19.1.11_eslint@9.39.1_jiti@1.21.7__react-dom@19.1.1_react@1_7983ff9c06158d57203e7ed04b48306c/node_modules/recharts/es6/util/LogUtils.js:18
+[  760938ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/recharts@3.5.0_@types+react@19.1.11_eslint@9.39.1_jiti@1.21.7__react-dom@19.1.1_react@1_7983ff9c06158d57203e7ed04b48306c/node_modules/recharts/es6/util/LogUtils.js:18
+[  879210ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/recharts@3.5.0_@types+react@19.1.11_eslint@9.39.1_jiti@1.21.7__react-dom@19.1.1_react@1_7983ff9c06158d57203e7ed04b48306c/node_modules/recharts/es6/util/LogUtils.js:18
+[  879211ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/recharts@3.5.0_@types+react@19.1.11_eslint@9.39.1_jiti@1.21.7__react-dom@19.1.1_react@1_7983ff9c06158d57203e7ed04b48306c/node_modules/recharts/es6/util/LogUtils.js:18
+[  903333ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/recharts@3.5.0_@types+react@19.1.11_eslint@9.39.1_jiti@1.21.7__react-dom@19.1.1_react@1_7983ff9c06158d57203e7ed04b48306c/node_modules/recharts/es6/util/LogUtils.js:18
+[  903334ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/recharts@3.5.0_@types+react@19.1.11_eslint@9.39.1_jiti@1.21.7__react-dom@19.1.1_react@1_7983ff9c06158d57203e7ed04b48306c/node_modules/recharts/es6/util/LogUtils.js:18
+[  921273ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/recharts@3.5.0_@types+react@19.1.11_eslint@9.39.1_jiti@1.21.7__react-dom@19.1.1_react@1_7983ff9c06158d57203e7ed04b48306c/node_modules/recharts/es6/util/LogUtils.js:18
+[  921274ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/recharts@3.5.0_@types+react@19.1.11_eslint@9.39.1_jiti@1.21.7__react-dom@19.1.1_react@1_7983ff9c06158d57203e7ed04b48306c/node_modules/recharts/es6/util/LogUtils.js:18
+[  940896ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/recharts@3.5.0_@types+react@19.1.11_eslint@9.39.1_jiti@1.21.7__react-dom@19.1.1_react@1_7983ff9c06158d57203e7ed04b48306c/node_modules/recharts/es6/util/LogUtils.js:18
+[  940896ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/recharts@3.5.0_@types+react@19.1.11_eslint@9.39.1_jiti@1.21.7__react-dom@19.1.1_react@1_7983ff9c06158d57203e7ed04b48306c/node_modules/recharts/es6/util/LogUtils.js:18
+[  961652ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/recharts@3.5.0_@types+react@19.1.11_eslint@9.39.1_jiti@1.21.7__react-dom@19.1.1_react@1_7983ff9c06158d57203e7ed04b48306c/node_modules/recharts/es6/util/LogUtils.js:18
+[  961652ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/recharts@3.5.0_@types+react@19.1.11_eslint@9.39.1_jiti@1.21.7__react-dom@19.1.1_react@1_7983ff9c06158d57203e7ed04b48306c/node_modules/recharts/es6/util/LogUtils.js:18
+[  977067ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/recharts@3.5.0_@types+react@19.1.11_eslint@9.39.1_jiti@1.21.7__react-dom@19.1.1_react@1_7983ff9c06158d57203e7ed04b48306c/node_modules/recharts/es6/util/LogUtils.js:18
+[  977068ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/recharts@3.5.0_@types+react@19.1.11_eslint@9.39.1_jiti@1.21.7__react-dom@19.1.1_react@1_7983ff9c06158d57203e7ed04b48306c/node_modules/recharts/es6/util/LogUtils.js:18
+[  991572ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/recharts@3.5.0_@types+react@19.1.11_eslint@9.39.1_jiti@1.21.7__react-dom@19.1.1_react@1_7983ff9c06158d57203e7ed04b48306c/node_modules/recharts/es6/util/LogUtils.js:18
+[  991572ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/recharts@3.5.0_@types+react@19.1.11_eslint@9.39.1_jiti@1.21.7__react-dom@19.1.1_react@1_7983ff9c06158d57203e7ed04b48306c/node_modules/recharts/es6/util/LogUtils.js:18
+[  996178ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/recharts@3.5.0_@types+react@19.1.11_eslint@9.39.1_jiti@1.21.7__react-dom@19.1.1_react@1_7983ff9c06158d57203e7ed04b48306c/node_modules/recharts/es6/util/LogUtils.js:18
+[  996178ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/recharts@3.5.0_@types+react@19.1.11_eslint@9.39.1_jiti@1.21.7__react-dom@19.1.1_react@1_7983ff9c06158d57203e7ed04b48306c/node_modules/recharts/es6/util/LogUtils.js:18
+[  996179ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/recharts@3.5.0_@types+react@19.1.11_eslint@9.39.1_jiti@1.21.7__react-dom@19.1.1_react@1_7983ff9c06158d57203e7ed04b48306c/node_modules/recharts/es6/util/LogUtils.js:18
+[  996179ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/recharts@3.5.0_@types+react@19.1.11_eslint@9.39.1_jiti@1.21.7__react-dom@19.1.1_react@1_7983ff9c06158d57203e7ed04b48306c/node_modules/recharts/es6/util/LogUtils.js:18
+[  996180ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/recharts@3.5.0_@types+react@19.1.11_eslint@9.39.1_jiti@1.21.7__react-dom@19.1.1_react@1_7983ff9c06158d57203e7ed04b48306c/node_modules/recharts/es6/util/LogUtils.js:18
+[  996180ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/recharts@3.5.0_@types+react@19.1.11_eslint@9.39.1_jiti@1.21.7__react-dom@19.1.1_react@1_7983ff9c06158d57203e7ed04b48306c/node_modules/recharts/es6/util/LogUtils.js:18

@@ -50,7 +50,7 @@ export default function ArcoRightsPage() {
                 </CardHeader>
                 <CardContent className="flex flex-col flex-1 justify-between">
                   <p className="text-center mb-4">
-                    Revise y actualice los procedimientos para la atención de derechos ARCO.
+                    Vincule ARCO con la PGDP publicada y mantenga solo evidencia suplementaria del procedimiento.
                   </p>
                   <Button onClick={() => setSelectedOption("procedures")} className="w-full mt-auto">
                     Ver Procedimientos

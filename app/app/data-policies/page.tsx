@@ -10,7 +10,7 @@ export default function DataPoliciesLandingPage() {
         <p className="text-sm font-semibold text-muted-foreground">Módulo Políticas de Protección de Datos</p>
         <h1 className="text-3xl font-semibold text-foreground sm:text-4xl">Gestión de Políticas de Protección de Datos</h1>
         <p className="text-sm text-muted-foreground sm:text-base">
-          Selecciona el flujo que deseas gestionar para mantener una operación homogénea: registro de políticas o consulta y seguimiento.
+          Selecciona el flujo que deseas gestionar para operar la PGDP con builder guiado, expediente, workflow y reutilización directa desde ARCO.
         </p>
       </div>
 
@@ -19,7 +19,7 @@ export default function DataPoliciesLandingPage() {
           <CardHeader>
             <CardTitle>Registro de políticas</CardTitle>
             <CardDescription>
-              Captura nuevas políticas, adjunta sus documentos oficiales y define responsables y vigencias.
+              Configura la PGDP con contenido estructurado, responsables, vigencia y envío a aprobación en tres niveles.
             </CardDescription>
           </CardHeader>
           <CardContent className="mt-auto">
@@ -33,7 +33,7 @@ export default function DataPoliciesLandingPage() {
           <CardHeader>
             <CardTitle>Consulta de políticas</CardTitle>
             <CardDescription>
-              Revisa, edita y exporta las políticas registradas para auditoría y seguimiento continuo.
+              Revisa el tablero ejecutivo, el inventario, las evidencias y la integración con ARCO y recordatorios.
             </CardDescription>
           </CardHeader>
           <CardContent className="mt-auto">
@@ -46,7 +46,7 @@ export default function DataPoliciesLandingPage() {
           <ModuleStatisticsCard
             dataset="policies"
             title="Panel estadístico"
-            description="Monitorea políticas registradas y su frecuencia de revisión con datos reales."
+            description="Monitorea vigencia, cobertura del expediente y ventanas reales de revisión de la PGDP."
             href="/data-policies/consulta"
             cta="Ver panel del módulo"
           />

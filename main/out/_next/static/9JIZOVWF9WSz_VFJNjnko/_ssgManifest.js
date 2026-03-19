@@ -1,1 +1,0 @@
-self.__SSG_MANIFEST=new Set(["\u002Fmodule-insights\u002F[dataset]"]);self.__SSG_MANIFEST_CB&&self.__SSG_MANIFEST_CB()

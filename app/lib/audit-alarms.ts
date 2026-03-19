@@ -153,6 +153,13 @@ const parseReminderDates = (reminder: StoredAuditReminder): AuditReminder => ({
   completedAt: reminder.completedAt ? new Date(reminder.completedAt) : undefined,
 })
 
+const serializeReminderDates = (reminder: AuditReminder): StoredAuditReminder => ({
+  ...reminder,
+  dueDate: reminder.dueDate.toISOString(),
+  createdAt: reminder.createdAt.toISOString(),
+  completedAt: reminder.completedAt ? reminder.completedAt.toISOString() : undefined,
+})
+
 const readStoredReminders = () => {
   if (!isBrowser) {
     return auditReminders
@@ -178,13 +185,11 @@ const writeStoredReminders = (reminders: AuditReminder[]) => {
   auditReminders = reminders
   if (!isBrowser) return
 
-  const payload = reminders.map((reminder) => ({
-    ...reminder,
-    dueDate: reminder.dueDate.toISOString(),
-    createdAt: reminder.createdAt.toISOString(),
-    completedAt: reminder.completedAt ? reminder.completedAt.toISOString() : undefined,
-  }))
-  localStorage.setItem(AUDIT_REMINDERS_KEY, JSON.stringify(payload))
+  const payload = reminders.map(serializeReminderDates)
+  const serialized = JSON.stringify(payload)
+  if (localStorage.getItem(AUDIT_REMINDERS_KEY) !== serialized) {
+    localStorage.setItem(AUDIT_REMINDERS_KEY, serialized)
+  }
 }
 
 // Funciones para gestionar los recordatorios
@@ -267,6 +272,9 @@ export function updateAuditReminder(id: string, updates: Partial<AuditReminder>)
   const index = reminders.findIndex((reminder) => reminder.id === id)
   if (index !== -1) {
     const updated = { ...reminders[index], ...updates }
+    if (JSON.stringify(serializeReminderDates(updated)) === JSON.stringify(serializeReminderDates(reminders[index]))) {
+      return reminders[index]
+    }
     const next = [...reminders]
     next[index] = updated
     writeStoredReminders(next)

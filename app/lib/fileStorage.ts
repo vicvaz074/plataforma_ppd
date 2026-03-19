@@ -13,6 +13,17 @@ export interface StoredFile {
   metadata: Record<string, any> // Metadatos adicionales como título, descripción, etc.
 }
 
+type StoredFileInput = {
+  id?: string
+  name: string
+  type: string
+  size: number
+  content: string
+  category: string
+  metadata?: Record<string, any>
+  uploadDate?: string
+}
+
 // Convertir un archivo a base64
 export const fileToBase64 = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
@@ -52,7 +63,7 @@ export const saveFile = async (
     existingFiles.push(storedFile)
 
     // Guardar en localStorage
-    localStorage.setItem("storedFiles", JSON.stringify(existingFiles))
+    writeAllFiles(existingFiles)
 
     return storedFile
   } catch (error) {
@@ -64,6 +75,32 @@ export const saveFile = async (
 // Obtener todos los archivos
 export const getAllFiles = (): StoredFile[] => {
   return JSON.parse(localStorage.getItem("storedFiles") || "[]")
+}
+
+const writeAllFiles = (files: StoredFile[]) => {
+  localStorage.setItem("storedFiles", JSON.stringify(files))
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event("storage"))
+  }
+}
+
+export const saveStoredFileRecord = (input: StoredFileInput): StoredFile => {
+  const storedFile: StoredFile = {
+    id: input.id || secureRandomId("stored-file"),
+    name: input.name,
+    type: input.type,
+    size: input.size,
+    content: input.content,
+    uploadDate: input.uploadDate || new Date().toISOString(),
+    category: input.category,
+    metadata: input.metadata || {},
+  }
+
+  const existingFiles = getAllFiles()
+  existingFiles.push(storedFile)
+  writeAllFiles(existingFiles)
+
+  return storedFile
 }
 
 // Obtener archivos por categoría
@@ -83,7 +120,7 @@ export const deleteFile = (id: string): boolean => {
   try {
     const allFiles = getAllFiles()
     const updatedFiles = allFiles.filter((file) => file.id !== id)
-    localStorage.setItem("storedFiles", JSON.stringify(updatedFiles))
+    writeAllFiles(updatedFiles)
     return true
   } catch (error) {
     console.error("Error al eliminar el archivo:", error)
@@ -115,10 +152,7 @@ export const updateFileMetadata = (id: string, metadata: Record<string, any>): b
     allFiles[fileIndex] = updatedFile
 
     // Guardar en localStorage
-    localStorage.setItem("storedFiles", JSON.stringify(allFiles))
-
-    // Disparar evento de storage para actualizar otras partes de la aplicación
-    window.dispatchEvent(new Event("storage"))
+    writeAllFiles(allFiles)
 
     return true
   } catch (error) {
@@ -157,8 +191,7 @@ export const updateFile = async (
     }
 
     allFiles[fileIndex] = updatedFile
-    localStorage.setItem("storedFiles", JSON.stringify(allFiles))
-    window.dispatchEvent(new Event("storage"))
+    writeAllFiles(allFiles)
     return true
   } catch (error) {
     console.error("Error al actualizar el archivo:", error)
@@ -174,6 +207,7 @@ export const createFileURL = (fileContent: string): string => {
 export const fileStorage = {
   fileToBase64,
   saveFile,
+  saveStoredFileRecord,
   getAllFiles,
   getFilesByCategory,
   getFileById,
@@ -182,4 +216,3 @@ export const fileStorage = {
   updateFileMetadata,
   createFileURL,
 }
-

@@ -58,6 +58,7 @@ import {
   FileText as FileTextIcon,
 } from "lucide-react"
 import { loadItems } from "@/lib/module-statistics"
+import { getPolicyProgramSnapshot, getPrimaryPolicy } from "@/lib/policy-governance"
 import {
   getUsers,
   saveUsers,
@@ -215,6 +216,8 @@ function getRealModuleReports() {
   const dpo = loadItems("dpo") as any[]
   const eipd = loadItems("eipd") as any[]
   const policies = loadItems("policies") as any[]
+  const policySnapshot = getPolicyProgramSnapshot(policies)
+  const primaryPolicy = getPrimaryPolicy(policies)
   const training = loadItems("training") as any[]
   const incidents = loadItems("incidents") as any[]
   const procedures = loadItems("procedures") as any[]
@@ -262,7 +265,19 @@ function getRealModuleReports() {
     { module: "Incidentes de Seguridad", scoreLabel: "Eventos", score: incidents.length > 0 ? 100 : 0, summary: "Clasificación y seguimiento de casos de incidentes.", indicators: [{ label: "Incidentes totales", value: incidents.length.toString() }, { label: "Críticos", value: incidents.filter(i => i.data?.evaluacionIncidente?.gravedad === "Alta").length.toString() }, { label: "Mitigados", value: incidents.filter(i => i.status === "cerrado").length.toString() }] },
     { module: "Procedimientos", scoreLabel: "Registrados", score: procedures.length > 0 ? 100 : 0, summary: "Estado de procedimientos LFPDPPP con evidencia.", indicators: [{ label: "Total", value: procedures.length.toString() }, { label: "En ejecución", value: procedures.filter(p => p.status === "en-curso").length.toString() }, { label: "Concluidos", value: procedures.filter(p => p.status === "resuelto").length.toString() }] },
     { module: "Capacitación", scoreLabel: "Sesiones", score: training.length > 0 ? 100 : 0, summary: "Monitoreo de avance por programa de formación.", indicators: [{ label: "Sesiones", value: training.length.toString() }, { label: "Aprobados", value: training.filter(t => t.status === "completada" || t.status === "Completada").length.toString() }, { label: "En curso", value: training.filter(t => t.status === "en-curso").length.toString() }] },
-    { module: "Políticas", scoreLabel: "Políticas cargadas", score: policies.length > 0 ? Math.round((policies.filter(p => p.status === "implementado").length / Math.max(policies.length, 1)) * 100) : 0, summary: "Seguimiento de políticas implementadas frente a pendientes.", indicators: [{ label: "Políticas", value: policies.length.toString() }, { label: "Implementadas", value: policies.filter(p => p.status === "implementado").length.toString() }, { label: "Por elaborar", value: policies.filter(p => p.status === "por-hacer").length.toString() }] },
+    {
+      module: "Políticas",
+      scoreLabel: "Programa vigente",
+      score: policySnapshot.score,
+      summary: primaryPolicy
+        ? `PGDP ${primaryPolicy.referenceCode} con workflow, evidencia mínima y cobertura reutilizable para ARCO.`
+        : "Seguimiento del builder PGDP, expediente, workflow y consumo del documento desde ARCO.",
+      indicators: [
+        { label: "Registradas", value: policySnapshot.total.toString() },
+        { label: "Vigentes con evidencia", value: policySnapshot.publishedWithEvidence.toString() },
+        { label: "Bloqueos workflow", value: policySnapshot.blockedWorkflow.toString() },
+      ],
+    },
     accountability,
   ]
 }
