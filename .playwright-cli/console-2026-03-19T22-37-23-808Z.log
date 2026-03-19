@@ -1,0 +1,27 @@
+[   47812ms] Invalid or unexpected token
+[  169315ms] ChunkLoadError: Loading chunk app/layout failed.
+(timeout: http://127.0.0.1:3001/_next/static/chunks/app/layout.js)
+    at __webpack_require__.f.j (http://127.0.0.1:3001/_next/static/chunks/webpack.js?v=1773959890424:838:29)
+    at http://127.0.0.1:3001/_next/static/chunks/webpack.js?v=1773959890424:145:40
+    at Array.reduce (<anonymous>)
+    at __webpack_require__.e (http://127.0.0.1:3001/_next/static/chunks/webpack.js?v=1773959890424:144:67)
+    at fn.e (http://127.0.0.1:3001/_next/static/chunks/webpack.js?v=1773959890424:369:50)
+    at loadChunk (webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.5.7_@babel+core@7.28.3_@playwright+test@1.58.2_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/next/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.development.js:113:34)
+    at preloadModule (webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.5.7_@babel+core@7.28.3_@playwright+test@1.58.2_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/next/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.development.js:82:31)
+    at resolveModule (webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.5.7_@babel+core@7.28.3_@playwright+test@1.58.2_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/next/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.development.js:2078:20)
+    at processFullStringRow (webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.5.7_@babel+core@7.28.3_@playwright+test@1.58.2_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/next/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.development.js:2769:11)
+    at processFullBinaryRow (webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.5.7_@babel+core@7.28.3_@playwright+test@1.58.2_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/next/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.development.js:2764:7)
+    at processBinaryChunk (webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.5.7_@babel+core@7.28.3_@playwright+test@1.58.2_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/next/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.development.js:2967:15)
+    at progress (webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.5.7_@babel+core@7.28.3_@playwright+test@1.58.2_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/next/dist/compiled/react-server-dom-webpack/cjs/react-server-dom-webpack-client.browser.development.js:3231:13)
+[  374172ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/recharts@3.5.0_@types+react@19.1.11_eslint@9.39.1_jiti@1.21.7__react-dom@19.1.1_react@1_7983ff9c06158d57203e7ed04b48306c/node_modules/recharts/es6/util/LogUtils.js:18
+[  374173ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/recharts@3.5.0_@types+react@19.1.11_eslint@9.39.1_jiti@1.21.7__react-dom@19.1.1_react@1_7983ff9c06158d57203e7ed04b48306c/node_modules/recharts/es6/util/LogUtils.js:18
+[  403382ms] [WARNING] Image with src "http://127.0.0.1:3001/images/logo_davaragovernance.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.5.7_@babel+core@7.28.3_@playwright+test@1.58.2_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/next/dist/shared/lib/utils/warn-once.js:15
+[  403383ms] [WARNING] Image with src "http://127.0.0.1:3001/images/davara_login.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.5.7_@babel+core@7.28.3_@playwright+test@1.58.2_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/next/dist/shared/lib/utils/warn-once.js:15
+[  408540ms] [WARNING] Image with src "/images/davara_login.png" was detected as the Largest Contentful Paint (LCP). Please add the "priority" property if this image is above the fold.
+Read more: https://nextjs.org/docs/api-reference/next/image#priority @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.5.7_@babel+core@7.28.3_@playwright+test@1.58.2_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/next/dist/shared/lib/utils/warn-once.js:15

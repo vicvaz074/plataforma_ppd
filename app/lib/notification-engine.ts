@@ -10,6 +10,11 @@ import {
   summarizeInventoryCompliance,
 } from "@/app/rat/lib/compliance"
 import { summarizeEipdForNotifications } from "@/app/security-system/lib/risk-integration"
+import {
+  isPolicyWorkflowBlocked,
+  normalizePolicyRecord,
+  policyHasMinimumEvidence,
+} from "@/lib/policy-governance"
 
 export type NotificationPriority = "alta" | "media" | "baja"
 export type NotificationResolutionType = "manual" | "automatic"
@@ -1165,20 +1170,59 @@ function scanDPO(): NotificationSeed[] {
 
 function scanPoliticas(): NotificationSeed[] {
   const alerts: NotificationSeed[] = []
-  const policies = safeParseJSON<any>("security_policies", null)
-  const hasPolicies = Array.isArray(policies) ? policies.length > 0 : Boolean(policies)
+  const rawPolicies = safeParseJSON<any[]>("security_policies", [])
+  const policies = Array.isArray(rawPolicies)
+    ? rawPolicies.map((policy, index) => normalizePolicyRecord(policy, index))
+    : []
+  const publishedPolicies = policies.filter((policy) => policy.status === "PUBLISHED")
+  const publishedWithoutEvidence = publishedPolicies.filter((policy) => !policyHasMinimumEvidence(policy))
+  const blockedPolicies = policies.filter((policy) => isPolicyWorkflowBlocked(policy))
 
-  if (!hasPolicies) {
+  if (publishedPolicies.length === 0) {
     alerts.push(
       createNotification({
         module: "politicas",
-        issueKey: "empty",
-        title: "Sin políticas de protección de datos",
+        issueKey: "no-published-policy",
+        title: "No existe una PGDP publicada",
         description:
-          "No se han configurado políticas de protección de datos. Son la base del programa de cumplimiento.",
+          "El módulo de políticas no tiene una PGDP vigente y publicada. Esto impacta la cobertura del programa y la reutilización desde ARCO.",
         priority: "alta",
-        route: "/data-policies",
-        fingerprintSource: { state: "empty" },
+        route: "/data-policies/consulta",
+        fingerprintSource: { state: "no-published-policy" },
+      }),
+    )
+  }
+
+  if (publishedWithoutEvidence.length > 0) {
+    alerts.push(
+      createCollectionNotification({
+        module: "politicas",
+        issueKey: "published-without-evidence",
+        title: `${publishedWithoutEvidence.length} PGDP publicada(s) sin expediente mínimo`,
+        description:
+          "Hay políticas publicadas que todavía no tienen publicación consolidada con evidencia operativa mínima o confirmaciones internas.",
+        priority: "alta",
+        route: "/data-policies/consulta",
+        items: publishedWithoutEvidence,
+        details: publishedWithoutEvidence
+          .slice(0, 5)
+          .map((policy) => `${policy.referenceCode}: próxima revisión ${policy.nextReviewDate || "sin fecha"}`),
+      }),
+    )
+  }
+
+  if (blockedPolicies.length > 0) {
+    alerts.push(
+      createCollectionNotification({
+        module: "politicas",
+        issueKey: "blocked-workflow",
+        title: `${blockedPolicies.length} workflow(s) de políticas bloqueado(s)`,
+        description:
+          "Existen políticas con pasos de aprobación vencidos. Deben reactivarse desde el expediente del módulo.",
+        priority: "alta",
+        route: "/data-policies/consulta",
+        items: blockedPolicies,
+        details: blockedPolicies.slice(0, 5).map((policy) => `${policy.referenceCode}: flujo vencido`),
       }),
     )
   }
@@ -1252,25 +1296,110 @@ function scanEIPD(): NotificationSeed[] {
 
 function scanProcedimientos(): NotificationSeed[] {
   const alerts: NotificationSeed[] = []
-  const procedures = safeParseJSON<any[]>("proceduresPDP", [])
+  const root = safeParseJSON<{ procedures?: any[] }>("proceduresPdpV2", { procedures: [] })
+  const legacyProcedures = safeParseJSON<any[]>("proceduresPDP", [])
+  const procedures = Array.isArray(root?.procedures) && root.procedures.length > 0 ? root.procedures : legacyProcedures
   if (procedures.length === 0) return alerts
 
-  const activos = procedures.filter(
-    (procedure) =>
-      procedure?.status === "activo" ||
-      procedure?.status === "en-curso" ||
-      procedure?.status === "abierto",
-  )
+  const activeStatuses = new Set([
+    "Registrado",
+    "En trámite",
+    "Pendiente de requerimiento",
+    "En contestación",
+    "En resolución",
+    "Suspendido",
+    "activo",
+    "en-curso",
+    "abierto",
+    "EnTramite",
+  ])
+
+  const getStatus = (procedure: any) => (procedure?.generalStatus || procedure?.status || "").toString()
+  const getRisk = (procedure: any) => (procedure?.riskLevel || procedure?.riskLevelLabel || "").toString()
+  const getAlerts = (procedure: any) =>
+    Array.isArray(procedure?.alerts)
+      ? procedure.alerts.filter((alert: any) => !alert?.status || alert.status === "Activa")
+      : []
+  const getResponsibles = (procedure: any) =>
+    Array.isArray(procedure?.responsibles)
+      ? procedure.responsibles.filter((responsible: any) => Boolean(responsible?.name))
+      : []
+
+  const activos = procedures.filter((procedure) => activeStatuses.has(getStatus(procedure)))
   if (activos.length > 0) {
     alerts.push(
       createCollectionNotification({
         module: "procedimientos",
         issueKey: "activos",
         title: `${activos.length} procedimiento(s) legal(es) activo(s)`,
-        description: "Hay procedimientos legales en curso que requieren seguimiento y documentación.",
-        priority: "alta",
-        route: "/litigation-management",
+        description: "Hay cartera activa en Procedimientos PDP con seguimiento operativo y documental en curso.",
+        priority: "baja",
+        route: "/litigation-management/consulta?section=dashboard",
         items: activos,
+      }),
+    )
+  }
+
+  const urgentes = activos.filter((procedure) =>
+    getAlerts(procedure).some((alert: any) => alert?.priority === "alta"),
+  )
+  if (urgentes.length > 0) {
+    alerts.push(
+      createCollectionNotification({
+        module: "procedimientos",
+        issueKey: "urgencias",
+        title: `${urgentes.length} expediente(s) PDP con urgencia crítica`,
+        description: "Hay expedientes con vencimiento crítico o alertas procesales de atención inmediata.",
+        priority: "alta",
+        route: "/litigation-management/consulta?section=alertas",
+        items: urgentes,
+      }),
+    )
+  }
+
+  const inactivos = activos.filter((procedure) =>
+    getAlerts(procedure).some((alert: any) => alert?.type === "expediente_inactivo"),
+  )
+  if (inactivos.length > 0) {
+    alerts.push(
+      createCollectionNotification({
+        module: "procedimientos",
+        issueKey: "inactivos",
+        title: `${inactivos.length} expediente(s) PDP con inactividad prolongada`,
+        description: "Hay expedientes que superaron el umbral de inactividad y requieren seguimiento procesal.",
+        priority: "media",
+        route: "/litigation-management/consulta?section=alertas",
+        items: inactivos,
+      }),
+    )
+  }
+
+  const altoRiesgo = activos.filter((procedure) => getRisk(procedure) === "Alto" || getRisk(procedure) === "high")
+  if (altoRiesgo.length > 0) {
+    alerts.push(
+      createCollectionNotification({
+        module: "procedimientos",
+        issueKey: "alto-riesgo",
+        title: `${altoRiesgo.length} expediente(s) PDP de alto riesgo`,
+        description: "Hay expedientes clasificados con riesgo alto que deben mantenerse bajo monitoreo reforzado.",
+        priority: "media",
+        route: "/litigation-management/consulta?section=dashboard",
+        items: altoRiesgo,
+      }),
+    )
+  }
+
+  const sinResponsable = activos.filter((procedure) => getResponsibles(procedure).length === 0)
+  if (sinResponsable.length > 0) {
+    alerts.push(
+      createCollectionNotification({
+        module: "procedimientos",
+        issueKey: "sin-responsable",
+        title: `${sinResponsable.length} expediente(s) PDP sin responsable asignado`,
+        description: "Existen expedientes activos sin una persona responsable claramente asignada en el módulo.",
+        priority: "alta",
+        route: "/litigation-management/consulta?section=expedientes",
+        items: sinResponsable,
       }),
     )
   }

@@ -18,8 +18,8 @@
     "analyze": "ANALYZE=true next build",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "semgrep": "semgrep scan --config .semgrep.yaml --metrics=off . || true",
-    "test": "node --test",
-    "test:e2e": "NODE_ENV=production node --test tests/e2e/security.test.js"
+    "test": "node --experimental-strip-types --test",
+    "test:e2e": "NODE_ENV=production node --experimental-strip-types --test tests/e2e/security.test.js"
   },
   "build": {
     "appId": "com.vicentevazquez.myproject",

@@ -1,0 +1,261 @@
+- generic [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e309] [cursor=pointer]:
+    - img [ref=e310]
+  - alert [ref=e2]
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - link "Davara Governance" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img "Davara Governance" [ref=e7]
+      - button "Collapse sidebar" [ref=e8] [cursor=pointer]:
+        - img [ref=e9]
+    - navigation [ref=e11]:
+      - link "Inventarios de datos personales" [ref=e13] [cursor=pointer]:
+        - /url: /rat
+        - img [ref=e15]
+        - generic [ref=e19]: Inventarios de datos personales
+      - link "Avisos de privacidad" [ref=e21] [cursor=pointer]:
+        - /url: /privacy-notices
+        - img [ref=e23]
+        - generic [ref=e26]: Avisos de privacidad
+      - link "Contratos con terceros" [ref=e28] [cursor=pointer]:
+        - /url: /third-party-contracts
+        - img [ref=e30]
+        - generic [ref=e33]: Contratos con terceros
+      - link "Oficial de Protección de Datos" [ref=e35] [cursor=pointer]:
+        - /url: /dpo
+        - img [ref=e37]
+        - generic [ref=e49]: Oficial de Protección de Datos
+      - link "Derechos ARCO" [ref=e51] [cursor=pointer]:
+        - /url: /arco-rights
+        - img [ref=e53]
+        - generic [ref=e58]: Derechos ARCO
+      - link "Sistema de gestión de seguridad de datos personales" [ref=e60] [cursor=pointer]:
+        - /url: /security-system
+        - img [ref=e62]
+        - generic [ref=e64]: Sistema de gestión de seguridad de datos personales
+      - link "Gestión de incidentes de seguridad" [ref=e66] [cursor=pointer]:
+        - /url: /incidents-breaches
+        - img [ref=e68]
+        - generic [ref=e70]: Gestión de incidentes de seguridad
+      - link "Evaluación de Impacto Datos Personales" [ref=e72] [cursor=pointer]:
+        - /url: /eipd
+        - img [ref=e74]
+        - generic [ref=e77]: Evaluación de Impacto Datos Personales
+      - link "Responsabilidad demostrada" [ref=e79] [cursor=pointer]:
+        - /url: /awareness
+        - img [ref=e81]
+        - generic [ref=e84]: Responsabilidad demostrada
+      - link "Políticas de Protección de Datos" [ref=e86] [cursor=pointer]:
+        - /url: /data-policies
+        - img [ref=e88]
+        - generic [ref=e92]: Políticas de Protección de Datos
+      - link "Capacitación" [ref=e94] [cursor=pointer]:
+        - /url: /davara-training
+        - img [ref=e96]
+        - generic [ref=e99]: Capacitación
+      - link "Procedimientos PDP" [ref=e101] [cursor=pointer]:
+        - /url: /litigation-management
+        - img [ref=e103]
+        - generic [ref=e107]: Procedimientos PDP
+      - link "Auditoría en protección de datos" [ref=e110] [cursor=pointer]:
+        - /url: /audit
+        - img [ref=e112]
+        - generic [ref=e114]: Auditoría en protección de datos
+      - link "Recordatorios" [ref=e116] [cursor=pointer]:
+        - /url: /audit-alarms
+        - img [ref=e118]
+        - generic [ref=e121]: Recordatorios
+      - link "Alicia Alicia" [ref=e123] [cursor=pointer]:
+        - /url: /alicia
+        - img "Alicia" [ref=e125]
+        - generic [ref=e126]: Alicia
+  - generic [ref=e127]:
+    - banner [ref=e664]:
+      - generic [ref=e665]:
+        - generic [ref=e666]:
+          - generic:
+            - link "Davara Governance":
+              - /url: /
+              - img "Davara Governance"
+          - heading "Protección de Datos Personales" [level=1] [ref=e668]
+        - generic [ref=e669]:
+          - combobox [ref=e670] [cursor=pointer]:
+            - img [ref=e671]
+            - generic: ES
+            - img [ref=e674]
+          - link "Panel de control" [ref=e676] [cursor=pointer]:
+            - /url: /dashboard
+            - button "Panel de control" [ref=e677]:
+              - img [ref=e678]
+              - generic [ref=e683]: Panel de control
+          - button "Notificaciones" [ref=e685] [cursor=pointer]:
+            - img [ref=e686]
+            - generic [ref=e689]: "5"
+          - button "Admin Davara" [ref=e690] [cursor=pointer]:
+            - img [ref=e691]
+            - generic [ref=e694]: Admin Davara
+            - img [ref=e695]
+          - button [ref=e697] [cursor=pointer]:
+            - img [ref=e699]
+    - main [ref=e165]:
+      - generic [ref=e701]:
+        - generic [ref=e702]:
+          - generic [ref=e703]:
+            - generic [ref=e704]:
+              - link "Volver al módulo" [ref=e705] [cursor=pointer]:
+                - /url: /litigation-management
+                - img [ref=e706]
+                - text: Volver al módulo
+              - generic [ref=e708]: /
+              - generic [ref=e709]: Procedimientos PDP
+            - heading "Procedimientos PDP" [level=1] [ref=e710]
+            - paragraph [ref=e711]: Control integral de expedientes, actuaciones, vencimientos, evidencias y trazabilidad.
+          - generic [ref=e712]:
+            - button "Nuevo expediente" [ref=e713] [cursor=pointer]:
+              - img [ref=e714]
+              - text: Nuevo expediente
+            - button "Exportar portafolio" [ref=e716] [cursor=pointer]:
+              - img [ref=e717]
+              - text: Exportar portafolio
+        - generic [ref=e721]:
+          - complementary [ref=e722]:
+            - generic [ref=e723]:
+              - paragraph [ref=e724]: Davara Governance
+              - paragraph [ref=e725]: Procedimientos PDP
+            - navigation [ref=e726]:
+              - button "Dashboard" [ref=e727] [cursor=pointer]:
+                - img [ref=e729]
+                - generic [ref=e734]: Dashboard
+              - button "Expedientes" [ref=e735] [cursor=pointer]:
+                - img [ref=e737]
+                - generic [ref=e739]: Expedientes
+              - button "Registrar nuevo" [ref=e740] [cursor=pointer]:
+                - img [ref=e742]
+                - generic [ref=e744]: Registrar nuevo
+              - button "Alertas" [ref=e745] [cursor=pointer]:
+                - img [ref=e747]
+                - generic [ref=e750]: Alertas
+              - button "Reportes" [ref=e751] [cursor=pointer]:
+                - img [ref=e753]
+                - generic [ref=e755]: Reportes
+              - button "Bitácora" [ref=e756] [cursor=pointer]:
+                - img [ref=e758]
+                - generic [ref=e762]: Bitácora
+          - generic [ref=e763]:
+            - generic [ref=e765]:
+              - generic [ref=e766]:
+                - paragraph [ref=e767]: Registrar nuevo
+                - heading "Wizard del expediente" [level=2] [ref=e768]
+              - generic [ref=e769]:
+                - generic [ref=e770]: 0 activos
+                - generic [ref=e771]: 0 alto riesgo
+            - generic [ref=e773]:
+              - generic [ref=e775]:
+                - generic [ref=e776]:
+                  - generic [ref=e777]: "1"
+                  - paragraph [ref=e779]: Datos generales
+                - generic [ref=e781]:
+                  - generic [ref=e782]: "2"
+                  - paragraph [ref=e784]: Descripción y riesgo
+                - generic [ref=e786]:
+                  - generic [ref=e787]: "3"
+                  - paragraph [ref=e789]: Documentos y responsables
+              - generic [ref=e829]:
+                - generic [ref=e830]:
+                  - text: Descripción general del asunto
+                  - textbox "Resume el contexto, origen y situación actual del procedimiento." [ref=e831]
+                  - paragraph [ref=e832]: Mínimo 100 caracteres.
+                - generic [ref=e833]:
+                  - generic [ref=e834]:
+                    - text: Nivel de riesgo
+                    - combobox [ref=e835] [cursor=pointer]:
+                      - generic: Medio
+                      - img [ref=e836]
+                  - generic [ref=e838]:
+                    - text: Fecha de notificación a la organización
+                    - textbox [ref=e839]
+                  - generic [ref=e840]:
+                    - text: Próximo vencimiento
+                    - textbox [ref=e841]
+                  - generic [ref=e842]:
+                    - text: Descripción del plazo
+                    - textbox "Ej. Contestación al requerimiento" [ref=e843]
+                - generic [ref=e844]:
+                  - generic [ref=e845]:
+                    - text: Áreas relacionadas
+                    - generic [ref=e846]:
+                      - generic [ref=e847]:
+                        - checkbox "Jurídico" [checked] [ref=e848] [cursor=pointer]:
+                          - img [ref=e849]
+                        - generic [ref=e851]: Jurídico
+                      - generic [ref=e852]:
+                        - checkbox "Compliance" [ref=e853] [cursor=pointer]
+                        - generic [ref=e854]: Compliance
+                      - generic [ref=e855]:
+                        - checkbox "DPO" [ref=e856] [cursor=pointer]
+                        - generic [ref=e857]: DPO
+                      - generic [ref=e858]:
+                        - checkbox "TI" [ref=e859] [cursor=pointer]
+                        - generic [ref=e860]: TI
+                      - generic [ref=e861]:
+                        - checkbox "RRHH" [ref=e862] [cursor=pointer]
+                        - generic [ref=e863]: RRHH
+                      - generic [ref=e864]:
+                        - checkbox "Comercial" [ref=e865] [cursor=pointer]
+                        - generic [ref=e866]: Comercial
+                      - generic [ref=e867]:
+                        - checkbox "Dirección General" [ref=e868] [cursor=pointer]
+                        - generic [ref=e869]: Dirección General
+                      - generic [ref=e870]:
+                        - checkbox "Otro" [ref=e871] [cursor=pointer]
+                        - generic [ref=e872]: Otro
+                  - generic [ref=e873]:
+                    - text: Datos personales involucrados
+                    - generic [ref=e874]:
+                      - generic [ref=e875]:
+                        - checkbox "Identificación" [ref=e876] [cursor=pointer]
+                        - generic [ref=e877]: Identificación
+                      - generic [ref=e878]:
+                        - checkbox "Contacto" [ref=e879] [cursor=pointer]
+                        - generic [ref=e880]: Contacto
+                      - generic [ref=e881]:
+                        - checkbox "Laborales" [ref=e882] [cursor=pointer]
+                        - generic [ref=e883]: Laborales
+                      - generic [ref=e884]:
+                        - checkbox "Financieros" [ref=e885] [cursor=pointer]
+                        - generic [ref=e886]: Financieros
+                      - generic [ref=e887]:
+                        - checkbox "Patrimoniales" [ref=e888] [cursor=pointer]
+                        - generic [ref=e889]: Patrimoniales
+                      - generic [ref=e890]:
+                        - checkbox "Salud" [ref=e891] [cursor=pointer]
+                        - generic [ref=e892]: Salud
+                      - generic [ref=e893]:
+                        - checkbox "Sensibles" [ref=e894] [cursor=pointer]
+                        - generic [ref=e895]: Sensibles
+                      - generic [ref=e896]:
+                        - checkbox "Biométricos" [ref=e897] [cursor=pointer]
+                        - generic [ref=e898]: Biométricos
+                - generic [ref=e899]:
+                  - generic [ref=e900]:
+                    - text: Titular(es) involucrado(s)
+                    - textbox "Campo sensible" [ref=e901]
+                  - generic [ref=e902]:
+                    - text: Promovente / denunciante
+                    - textbox "Titular, autoridad, despacho, etc." [ref=e903]
+                  - generic [ref=e904]:
+                    - text: Áreas internas involucradas
+                    - textbox [ref=e905]
+                  - generic [ref=e906]:
+                    - text: Estrategia / comentarios internos
+                    - textbox [ref=e907]
+              - generic [ref=e822]:
+                - button "Anterior" [ref=e908] [cursor=pointer]:
+                  - img [ref=e909]
+                  - text: Anterior
+                - generic [ref=e824]:
+                  - button "Guardar borrador" [ref=e825] [cursor=pointer]
+                  - button "Siguiente" [active] [ref=e826] [cursor=pointer]:
+                    - text: Siguiente
+                    - img [ref=e827]

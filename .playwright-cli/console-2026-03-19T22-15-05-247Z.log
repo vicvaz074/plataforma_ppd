@@ -1,0 +1,38 @@
+[   11206ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3001/litigation-management/consulta:0
+[   11694ms] ModuleBuildError: Module build failed (from ./node_modules/.pnpm/next@15.5.7_@babel+core@7.28.3_@playwright+test@1.58.2_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js):
+Error: 
+
+Caused by:
+    0: Failed to read source code from /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/app/arco-rights/components/arco-procedures.tsx
+    1: No such file or directory (os error 2)
+    at processResult (file:///Users/vicentevazquez/Desktop/plataforma_ppd-main/app/node_modules/.pnpm/next@15.5.7_@babel+core@7.28.3_@playwright+test@1.58.2_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/next/dist/compiled/webpack/bundle5.js:29:407086)
+    at <unknown> (file:///Users/vicentevazquez/Desktop/plataforma_ppd-main/app/node_modules/.pnpm/next@15.5.7_@babel+core@7.28.3_@playwright+test@1.58.2_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/next/dist/compiled/webpack/bundle5.js:29:408881)
+    at <unknown> (file:///Users/vicentevazquez/Desktop/plataforma_ppd-main/app/node_modules/.pnpm/next@15.5.7_@babel+core@7.28.3_@playwright+test@1.58.2_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/next/dist/compiled/loader-runner/LoaderRunner.js:1:8645)
+    at <unknown> (file:///Users/vicentevazquez/Desktop/plataforma_ppd-main/app/node_modules/.pnpm/next@15.5.7_@babel+core@7.28.3_@playwright+test@1.58.2_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/next/dist/compiled/loader-runner/LoaderRunner.js:1:5019)
+    at r.callback (file:///Users/vicentevazquez/Desktop/plataforma_ppd-main/app/node_modules/.pnpm/next@15.5.7_@babel+core@7.28.3_@playwright+test@1.58.2_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/next/dist/compiled/loader-runner/LoaderRunner.js:1:4039)
+[   11706ms] [ERROR] ./app/arco-rights/components/arco-procedures.tsx
+Error: 
+
+Caused by:
+    0: Failed to read source code from /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/app/arco-rights/components/arco-procedures.tsx
+    1: No such file or directory (os error 2) @ webpack-internal:///(pages-dir-browser)/./node_modules/.pnpm/next@15.5.7_@babel+core@7.28.3_@playwright+test@1.58.2_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   33050ms] [ERROR] ./app/arco-rights/components/arco-procedures.tsx
+Error: 
+
+Caused by:
+    0: Failed to read source code from /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/app/arco-rights/components/arco-procedures.tsx
+    1: No such file or directory (os error 2)
+
+Import trace for requested module:
+./app/arco-rights/components/arco-procedures.tsx
+./app/arco-rights/page.tsx @ webpack-internal:///(pages-dir-browser)/./node_modules/.pnpm/next@15.5.7_@babel+core@7.28.3_@playwright+test@1.58.2_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup.js:76
+[   34867ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3001/_next/static/webpack/71d0a688d7911036.webpack.hot-update.json:0
+[   34867ms] [WARNING] [Fast Refresh] performing full reload because your application had an unrecoverable error @ webpack-internal:///(pages-dir-browser)/./node_modules/.pnpm/next@15.5.7_@babel+core@7.28.3_@playwright+test@1.58.2_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/next/dist/client/dev/hot-reloader/pages/hot-reloader-pages.js:347
+[   41783ms] [WARNING] Image with src "http://localhost:3001/images/logo_davaragovernance.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.5.7_@babel+core@7.28.3_@playwright+test@1.58.2_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/next/dist/shared/lib/utils/warn-once.js:15
+[   41785ms] [WARNING] Image with src "http://localhost:3001/images/davara_login.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.5.7_@babel+core@7.28.3_@playwright+test@1.58.2_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/next/dist/shared/lib/utils/warn-once.js:15
+[   42225ms] [WARNING] Image with src "/images/davara_login.png" was detected as the Largest Contentful Paint (LCP). Please add the "priority" property if this image is above the fold.
+Read more: https://nextjs.org/docs/api-reference/next/image#priority @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.5.7_@babel+core@7.28.3_@playwright+test@1.58.2_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/next/dist/shared/lib/utils/warn-once.js:15
+[   53505ms] [WARNING] Image with src "http://localhost:3001/images/logo_davaragovernance.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.5.7_@babel+core@7.28.3_@playwright+test@1.58.2_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/next/dist/shared/lib/utils/warn-once.js:15
+[   53505ms] [WARNING] Image with src "http://localhost:3001/images/davara_login.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.5.7_@babel+core@7.28.3_@playwright+test@1.58.2_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/next/dist/shared/lib/utils/warn-once.js:15
+[   62162ms] [WARNING] Image with src "/images/davara_login.png" was detected as the Largest Contentful Paint (LCP). Please add the "priority" property if this image is above the fold.
+Read more: https://nextjs.org/docs/api-reference/next/image#priority @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.5.7_@babel+core@7.28.3_@playwright+test@1.58.2_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/next/dist/shared/lib/utils/warn-once.js:15

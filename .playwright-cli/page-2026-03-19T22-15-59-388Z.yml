@@ -1,0 +1,37 @@
+- generic [active] [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e61] [cursor=pointer]:
+    - img [ref=e62]
+  - alert [ref=e2]
+  - generic [ref=e4]:
+    - img "DavaraGovernance Logo" [ref=e6]
+    - heading "Bienvenido a la Plataforma de Protección de Datos Personales" [level=1] [ref=e7]
+    - paragraph [ref=e8]: Gestiona, protege y audita la información de manera segura, en estricto cumplimiento normativo.
+    - button "Continuar" [ref=e10] [cursor=pointer]
+  - generic [ref=e12]:
+    - generic [ref=e13]:
+      - img "Davara Abogados" [ref=e15]
+      - heading "Iniciar sesión" [level=3] [ref=e16]
+      - paragraph [ref=e17]: Ingresa tus credenciales para acceder a tu cuenta
+    - generic [ref=e20]:
+      - generic [ref=e21]:
+        - generic [ref=e22]: Correo electrónico
+        - textbox "Correo electrónico" [ref=e23]
+      - generic [ref=e24]:
+        - generic [ref=e25]: Contraseña
+        - generic [ref=e26]:
+          - textbox "Contraseña" [ref=e27]
+          - button [ref=e28] [cursor=pointer]:
+            - img [ref=e30]
+            - generic:
+              - img
+    - generic [ref=e39]:
+      - button "Iniciar sesión" [ref=e41] [cursor=pointer]
+      - button "¿No tienes una cuenta? Regístrate" [ref=e42] [cursor=pointer]
+      - generic [ref=e43]:
+        - combobox [ref=e45] [cursor=pointer]:
+          - img [ref=e46]
+          - generic: Español
+          - img [ref=e49]
+        - button "Modo oscuro" [ref=e52] [cursor=pointer]:
+          - img [ref=e53]
+          - generic [ref=e55]: Modo oscuro

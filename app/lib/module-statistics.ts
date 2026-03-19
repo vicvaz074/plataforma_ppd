@@ -1,4 +1,16 @@
 import { getFilesByCategory } from "@/lib/fileStorage"
+import {
+  LEGACY_PROCEDURES_PDP_STORAGE_KEY,
+  PROCEDURES_PDP_STORAGE_KEY,
+  type ProceduresPdpRoot,
+} from "@/app/litigation-management/procedures-pdp-core"
+import {
+  getPolicyProgramSnapshot,
+  getPolicyStatusLabel,
+  loadPolicyRecords,
+  normalizePolicyRecord,
+  policyHasMinimumEvidence,
+} from "@/lib/policy-governance"
 
 export type SupportedDataset =
   | "inventories"
@@ -39,7 +51,16 @@ const normalizeBuckets = (rows: Bucket[]) =>
 const toText = (value: unknown) => (typeof value === "string" && value.trim().length > 0 ? value.trim() : "")
 
 const getDateCandidate = (record: Record<string, unknown>) => {
-  const topLevelCandidates = [record.uploadDate, record.updatedAt, record.createdAt, record.nextReviewDate, record.fecha]
+  const topLevelCandidates = [
+    record.uploadDate,
+    record.publishedAt,
+    record.effectiveDate,
+    record.expiryDate,
+    record.updatedAt,
+    record.createdAt,
+    record.nextReviewDate,
+    record.fecha,
+  ]
   for (const candidate of topLevelCandidates) {
     if (typeof candidate === "string" && candidate.trim().length > 0) return candidate
   }
@@ -53,7 +74,29 @@ const getDateCandidate = (record: Record<string, unknown>) => {
     }
   }
 
+  const dates = record.dates
+  if (dates && typeof dates === "object") {
+    const datesRecord = dates as Record<string, unknown>
+    const nestedCandidates = [datesRecord.startedAt, datesRecord.lastUpdatedAt, datesRecord.platformRegisteredAt]
+    for (const candidate of nestedCandidates) {
+      if (typeof candidate === "string" && candidate.trim().length > 0) return candidate
+    }
+  }
+
   return null
+}
+
+function loadProcedureRecords() {
+  const currentRootRaw = localStorage.getItem(PROCEDURES_PDP_STORAGE_KEY)
+  if (currentRootRaw) {
+    const currentRoot = JSON.parse(currentRootRaw) as ProceduresPdpRoot
+    if (Array.isArray(currentRoot?.procedures)) {
+      return currentRoot.procedures
+    }
+  }
+
+  const legacy = JSON.parse(localStorage.getItem(LEGACY_PROCEDURES_PDP_STORAGE_KEY) || "[]")
+  return Array.isArray(legacy) ? legacy : []
 }
 
 type DimensionConfig = {
@@ -68,8 +111,21 @@ const dimensionMap: Record<SupportedDataset, DimensionConfig[]> = {
     { id: "category", label: "Categoría", resolve: (item) => toText(item.category) || "Sin categoría" },
   ],
   procedures: [
-    { id: "kind", label: "Tipo de procedimiento", resolve: (item) => toText(item.type) || "Sin tipo" },
-    { id: "status", label: "Estatus", resolve: (item) => toText(item.status) || "Sin estatus" },
+    {
+      id: "kind",
+      label: "Tipo de procedimiento",
+      resolve: (item) => toText(item.procedureType) || toText(item.type) || "Sin tipo",
+    },
+    {
+      id: "status",
+      label: "Estatus",
+      resolve: (item) => toText(item.generalStatus) || toText(item.status) || "Sin estatus",
+    },
+    {
+      id: "risk",
+      label: "Riesgo",
+      resolve: (item) => toText(item.riskLevel) || "Sin riesgo",
+    },
   ],
   dpo: [
     { id: "reports", label: "Tipo de informe", resolve: (item) => toText(item.reportType) || toText(item.type) || "General" },
@@ -126,9 +182,40 @@ const dimensionMap: Record<SupportedDataset, DimensionConfig[]> = {
     { id: "processing", label: "Tipo de tratamiento", resolve: (item) => toText(item.processingType) || toText(item.treatmentType) || "Sin tratamiento" },
   ],
   policies: [
-    { id: "measure-type", label: "Tipo de medida", resolve: (item) => toText(item.measureType) || toText(item.controlType) || "Sin tipo" },
-    { id: "risk", label: "Nivel de riesgo", resolve: (item) => toText(item.riskLevel) || "Sin riesgo" },
-    { id: "status", label: "Implementación", resolve: (item) => toText(item.status) || "Sin estatus" },
+    {
+      id: "status",
+      label: "Estado de política",
+      resolve: (item) => {
+        const record = normalizePolicyRecord(item as Record<string, unknown>)
+        return getPolicyStatusLabel(record.status)
+      },
+    },
+    {
+      id: "coverage",
+      label: "Cobertura del expediente",
+      resolve: (item) => {
+        const record = normalizePolicyRecord(item as Record<string, unknown>)
+        const hasArcoCoverage = record.linkedModules.some((linked) => linked.moduleId === "arco-rights" && linked.active)
+        if (policyHasMinimumEvidence(record) && hasArcoCoverage) return "ARCO + expediente mínimo"
+        if (policyHasMinimumEvidence(record)) return "Expediente mínimo"
+        if (hasArcoCoverage) return "Cobertura ARCO"
+        return "Documental"
+      },
+    },
+    {
+      id: "review",
+      label: "Ventana de revisión",
+      resolve: (item) => {
+        const record = normalizePolicyRecord(item as Record<string, unknown>)
+        const targetDate = record.nextReviewDate || record.expiryDate
+        if (!targetDate) return "Sin fecha"
+        const days = Math.ceil((new Date(targetDate).getTime() - Date.now()) / 86400000)
+        if (days < 0) return "Vencida"
+        if (days <= 30) return "0-30 días"
+        if (days <= 90) return "31-90 días"
+        return "Más de 90 días"
+      },
+    },
   ],
   training: [
     { id: "employee", label: "Perfil de empleado", resolve: (item) => toText(item.audience) || toText(item.employeeProfile) || "Sin perfil" },
@@ -208,7 +295,7 @@ export function loadItems(dataset: SupportedDataset) {
       case "inventories":
         return JSON.parse(localStorage.getItem("inventories") || "[]")
       case "procedures":
-        return JSON.parse(localStorage.getItem("proceduresPDP") || "[]")
+        return loadProcedureRecords()
       case "privacy-notices":
         return getFilesByCategory("privacy-notice")
       case "contracts":
@@ -218,7 +305,7 @@ export function loadItems(dataset: SupportedDataset) {
       case "eipd":
         return JSON.parse(localStorage.getItem("eipd_forms") || "[]")
       case "policies":
-        return JSON.parse(localStorage.getItem("security_policies") || "[]")
+        return loadPolicyRecords()
       case "training":
         return JSON.parse(localStorage.getItem("davara-trainings-v3") || "[]")
       case "incidents":
@@ -236,7 +323,12 @@ export function buildAdvancedMetrics(dataset: SupportedDataset, items: unknown[]
   const dimensions = buildModuleDimensions(dataset, items)
   const monthly = MONTHS.map((month) => ({ month, value: 0 }))
 
-  items.forEach((item) => {
+  const sourceItems =
+    dataset === "policies"
+      ? (items as Record<string, unknown>[]).map((item) => normalizePolicyRecord(item))
+      : items
+
+  sourceItems.forEach((item) => {
     const source = item as Record<string, unknown>
     const dateCandidate = getDateCandidate(source)
     if (!dateCandidate) return
@@ -254,19 +346,24 @@ export function buildAdvancedMetrics(dataset: SupportedDataset, items: unknown[]
     label: bucket.label,
     monthCells: monthly.map((entry) => ({
       month: entry.month,
-      value: Math.max(Math.round((entry.value * bucket.value) / Math.max(items.length, 1)), 0),
+      value: Math.max(Math.round((entry.value * bucket.value) / Math.max(sourceItems.length, 1)), 0),
     })),
   }))
 
   const flowData = {
     nodes: [{ name: "Registros" }, { name: "Activos" }, { name: "Pasivos" }, ...buckets.map((bucket) => ({ name: bucket.label }))],
     links: [
-      { source: 0, target: 1, value: Math.max(Math.round(items.length * 0.62), 1) },
-      { source: 0, target: 2, value: Math.max(items.length - Math.round(items.length * 0.62), 1) },
+      { source: 0, target: 1, value: Math.max(Math.round(sourceItems.length * 0.62), 1) },
+      { source: 0, target: 2, value: Math.max(sourceItems.length - Math.round(sourceItems.length * 0.62), 1) },
       ...buckets.map((bucket, index) => ({ source: 1, target: index + 3, value: Math.max(Math.round(bucket.value * 0.7), 1) })),
       ...buckets.map((bucket, index) => ({ source: 2, target: index + 3, value: Math.max(bucket.value - Math.round(bucket.value * 0.7), 1) })),
     ],
   }
 
-  return { buckets, dimensions, monthly, heatmap, flowData, total: items.length }
+  const total =
+    dataset === "policies"
+      ? getPolicyProgramSnapshot(sourceItems.map((item) => normalizePolicyRecord(item as Record<string, unknown>))).total
+      : sourceItems.length
+
+  return { buckets, dimensions, monthly, heatmap, flowData, total }
 }

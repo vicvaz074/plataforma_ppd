@@ -71,6 +71,7 @@ import {
 } from "@/lib/audit-alarms"
 import { ensureBrowserStorageEvents } from "@/lib/browser-storage-events"
 import { loadItems } from "@/lib/module-statistics"
+import { loadPolicyRecords } from "@/lib/policy-governance"
 import { secureRandomId } from "@/lib/secure-random"
 import { cn } from "@/lib/utils"
 
@@ -893,20 +894,27 @@ function mapImportedPolicies(securityPolicies: any[], sgsdpStore: any): BaseModu
   const libraryPolicies = securityPolicies.map((policy, index) => ({
     id: policy?.id || `security-policy-${index}`,
     code: `POL-EXT-${String(index + 1).padStart(2, "0")}`,
-    title: policy?.orgName || policy?.name || `Política externa ${index + 1}`,
-    status: policy?.enforcementDate ? "vigente" : "en_revision",
-    createdAt: policy?.approvalDate || "",
-    updatedAt: policy?.enforcementDate || policy?.approvalDate || "",
+    title: policy?.title || policy?.orgName || policy?.name || `Política externa ${index + 1}`,
+    status: policy?.status === "PUBLISHED" ? "vigente" : policy?.status === "EXPIRED" ? "vencida" : "en_revision",
+    createdAt: policy?.approvalDate || policy?.createdAt || "",
+    updatedAt: policy?.updatedAt || policy?.enforcementDate || policy?.approvalDate || "",
     source: "imported" as const,
-    owner: policy?.responsibleArea || "",
-    dueDate: policy?.nextReviewDate || "",
-    reference: policy?.documentName || "",
-    version: policy?.version || "v1.0",
-    linkedTreatments: Array.isArray(policy?.scope) ? policy.scope : parseTags(policy?.scope || ""),
-    principleActions: policy?.generalGuidelines || "",
+    owner: policy?.ownerArea || policy?.responsibleArea || "",
+    dueDate: policy?.nextReviewDate || policy?.expiryDate || "",
+    reference: policy?.referenceCode || policy?.documentName || "",
+    version: policy?.versionLabel || policy?.version || "v1.0",
+    linkedTreatments: Array.isArray(policy?.assignedAreas)
+      ? policy.assignedAreas
+      : Array.isArray(policy?.scope)
+        ? policy.scope
+        : parseTags(policy?.scope || ""),
+    principleActions: Array.isArray(policy?.principles) ? policy.principles.join(", ") : policy?.generalGuidelines || "",
     improvementActions: policy?.notes || "",
-    approvedBy: policy?.approvedBy || "",
-    communicationChannel: "correo",
+    approvedBy: Array.isArray(policy?.approvedBy) ? policy.approvedBy.join(", ") : policy?.approvedBy || "",
+    communicationChannel:
+      policy?.content?.communications?.hasProcessors || policy?.content?.communications?.hasInternationalTransfers
+        ? "mixto"
+        : "intranet",
   }))
 
   return [...policyFromStore, ...libraryPolicies]
@@ -1527,7 +1535,7 @@ export function AwarenessContent({ initialModule = "dashboard" }: { initialModul
 
   const inventories = useMemo(() => loadItems("inventories") as any[], [externalVersion])
   const contracts = useMemo(() => loadItems("contracts") as any[], [externalVersion])
-  const securityPolicies = useMemo(() => safeParseJson<any[]>("security_policies", []), [externalVersion])
+  const securityPolicies = useMemo(() => loadPolicyRecords() as any[], [externalVersion])
   const legacyTraining = useMemo(() => loadItems("training") as any[], [externalVersion])
   const incidents = useMemo(() => loadItems("incidents") as any[], [externalVersion])
   const trainingStore = useMemo(() => readPersistedStore<any>("davara-training-store-v1"), [externalVersion])
