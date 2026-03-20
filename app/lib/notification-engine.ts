@@ -930,50 +930,14 @@ function scanARCO(): NotificationSeed[] {
   const requests = safeParseJSON<any[]>("arcoRequests", [])
   if (requests.length === 0) return alerts
 
-  const now = new Date()
-  const pendientes = requests.filter((request) =>
-    request?.status === "pendiente" ||
-    request?.status === "en-proceso" ||
-    request?.status === "recibida",
-  )
-  if (pendientes.length > 0) {
-    alerts.push(
-      createCollectionNotification({
-        module: "arco",
-        issueKey: "pendientes",
-        title: `${pendientes.length} solicitud(es) ARCO pendiente(s)`,
-        description:
-          "Hay solicitudes de derechos ARCO que requieren atención. El plazo legal es de 20 días hábiles.",
-        priority: "alta",
-        route: "/arco-rights",
-        items: pendientes,
-      }),
-    )
-  }
-
-  const fueraDePlazo = pendientes.filter((request) => {
-    if (!request?.createdAt && !request?.fechaSolicitud) return false
-    const createdAt = new Date(request.createdAt || request.fechaSolicitud)
-    const daysOld = Math.ceil((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24))
-    return daysOld > 20
-  })
-  if (fueraDePlazo.length > 0) {
-    alerts.push(
-      createCollectionNotification({
-        module: "arco",
-        issueKey: "fuera-de-plazo",
-        title: `⚠️ ${fueraDePlazo.length} solicitud(es) ARCO fuera de plazo legal`,
-        description:
-          "Existen solicitudes ARCO que han superado los 20 días hábiles sin respuesta. Riesgo de sanción regulatoria.",
-        priority: "alta",
-        route: "/arco-rights",
-        items: fueraDePlazo,
-      }),
-    )
-  }
-
+  const activeStatuses = new Set(["En proceso", "En riesgo"])
   const incompletas = requests.filter(
-    (request) => !request?.requesterName || !request?.rightType || !request?.description,
+    (request) =>
+      !request?.name ||
+      !request?.email ||
+      !request?.description ||
+      !request?.rightType ||
+      !request?.folio,
   )
   if (incompletas.length > 0) {
     alerts.push(
@@ -982,10 +946,32 @@ function scanARCO(): NotificationSeed[] {
         issueKey: "incompletas",
         title: `${incompletas.length} solicitud(es) ARCO con datos incompletos`,
         description:
-          "Algunas solicitudes no tienen nombre del titular, tipo de derecho o descripción. Completa la información.",
+          "Hay expedientes de Derechos de los Titulares sin folio, nombre, correo, tipo de derecho o descripción.",
         priority: "media",
         route: "/arco-rights",
         items: incompletas,
+      }),
+    )
+  }
+
+  const sinPlazoCritico = requests.filter(
+    (request) =>
+      activeStatuses.has(request?.status) &&
+      !request?.criticalDeadline &&
+      request?.stage !== "Cierre y archivado" &&
+      request?.stage !== "No presentada",
+  )
+  if (sinPlazoCritico.length > 0) {
+    alerts.push(
+      createCollectionNotification({
+        module: "arco",
+        issueKey: "sin-plazo-critico",
+        title: `${sinPlazoCritico.length} expediente(s) ARCO sin plazo crítico`,
+        description:
+          "Hay solicitudes activas sin hito operativo calculado. Revise etapa, identidad y fechas del expediente.",
+        priority: "media",
+        route: "/arco-rights",
+        items: sinPlazoCritico,
       }),
     )
   }
@@ -1576,7 +1562,7 @@ export const MODULE_LABELS: Record<NotificationModule, string> = {
   contratos: "Contratos Terceros",
   seguridad: "Seguridad (SGSDP)",
   capacitacion: "Capacitación",
-  arco: "Derechos ARCO",
+  arco: "Derechos de los Titulares",
   incidentes: "Incidentes",
   auditoria: "Auditoría",
   recordatorios: "Recordatorios",

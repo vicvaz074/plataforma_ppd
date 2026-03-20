@@ -54,7 +54,7 @@ export function ArcoRequestForm({ initialData, onSave }: ArcoRequestFormProps) {
       email: "",
       company: "",
       receptionDate: toLocalDateString(today),
-      rightType: "",
+      rightType: "Acceso",
       description: "",
       requiresInfo: false,
       infoEvidence: [],

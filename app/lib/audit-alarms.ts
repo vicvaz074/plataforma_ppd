@@ -63,8 +63,8 @@ export const auditModules: AuditModule[] = [
   },
   {
     id: "derechos-arco",
-    name: "Derechos ARCO",
-    description: "Registro y tiempos de respuesta de solicitudes.",
+    name: "Derechos de los Titulares",
+    description: "Gestión de solicitudes, plazos críticos, expediente y recordatorios normativos.",
     path: "/arco-rights",
     owner: "Atención a Titulares",
     area: "Cumplimiento",
