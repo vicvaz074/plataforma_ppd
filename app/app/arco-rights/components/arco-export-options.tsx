@@ -79,6 +79,16 @@ export function ArcoExportOptions({ requests, onClose }: ArcoExportOptionsProps)
         "Se amplia el plazo SI/NO",
         "Fecha limite del plazo para hacer efectivo el derecho ARCO (15 días)",
         "Fecha en la que se hace efectivo el derecho",
+        "Folio",
+        "Canal de recepción",
+        "Rol del solicitante",
+        "Estatus de identidad",
+        "Etapa actual",
+        "Plazo crítico",
+        "Fundamento legal",
+        "Notas de ejecución",
+        "Comentarios",
+        "Es demo",
       ]
 
       const rows = data.map((req) => [
@@ -113,6 +123,16 @@ export function ArcoExportOptions({ requests, onClose }: ArcoExportOptionsProps)
         req.effectiveExtended ? "SI" : "NO",
         formatDate(req.effectiveDeadline),
         formatDate(req.effectiveDate),
+        req.folio,
+        req.channel,
+        req.holderRole,
+        req.identityStatus,
+        req.stage || "",
+        formatDate(req.criticalDeadline),
+        req.legalBasis || "",
+        req.executionNotes || "",
+        req.comments || "",
+        req.isDemo ? "SI" : "NO",
       ])
 
       const worksheet = XLSX.utils.aoa_to_sheet([headers, ...rows])
@@ -143,10 +163,14 @@ export function ArcoExportOptions({ requests, onClose }: ArcoExportOptionsProps)
 
       // Preparar datos para la tabla
       const tableData = data.map((req) => [
+        req.folio,
         req.name,
         req.rightType,
+        req.channel,
+        req.stage || "-",
         req.company || "-",
         formatDate(req.receptionDate),
+        formatDate(req.criticalDeadline) || "-",
         req.priorityLevel || "",
         req.riskLevel || (req.priorityLevel === "Alta" ? "Alto" : req.priorityLevel === "Baja" ? "Bajo" : "Medio"),
         req.proceedsRequest ? "SI" : "NO",
@@ -158,10 +182,14 @@ export function ArcoExportOptions({ requests, onClose }: ArcoExportOptionsProps)
       autoTable(doc, {
         startY: 45,
         head: [[
+          "Folio",
           "Nombre",
           "Derecho ARCO",
+          "Canal",
+          "Etapa",
           "Empresa",
           "Recepción",
+          "Plazo crítico",
           "Prioridad",
           "Riesgo",
           "Procede",
@@ -235,4 +263,3 @@ export function ArcoExportOptions({ requests, onClose }: ArcoExportOptionsProps)
     </div>
   )
 }
-

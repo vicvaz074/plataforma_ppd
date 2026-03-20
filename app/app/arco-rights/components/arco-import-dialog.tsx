@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
 import { AlertCircle, FileSpreadsheet, Upload } from "lucide-react"
 import { type ArcoRequest, importArcoRequests } from "../utils/arco-storage"
+import { normalizeRightType } from "../utils/arco-engine"
 import { toLocalDateString } from "../utils/date-utils"
 
 interface ArcoImportDialogProps {
@@ -95,12 +96,19 @@ export function ArcoImportDialog({ onComplete }: ArcoImportDialogProps) {
               .replace(/[^a-z0-9]/g, "")
 
           const columnMap: ReadonlyArray<readonly [string, keyof ArcoRequest]> = [
+            ["folio", "folio"],
             ["nombre", "name"],
             ["numerodecelular", "phone"],
             ["correo", "email"],
             ["fechaderecepcion", "receptionDate"],
             ["derechoarco", "rightType"],
             ["descripcion", "description"],
+            ["canalderecepcion", "channel"],
+            ["canal", "channel"],
+            ["roldelsolicitante", "holderRole"],
+            ["rolsolicitante", "holderRole"],
+            ["estatusdeidentidad", "identityStatus"],
+            ["estadodeidentidad", "identityStatus"],
             ["esnecesariorequeririnformacionsino", "requiresInfo"],
             ["empresa", "company"],
             ["razonsocial", "company"],
@@ -132,6 +140,12 @@ export function ArcoImportDialog({ onComplete }: ArcoImportDialogProps) {
             ["fechalimiteparaampliaciondeplazoparahacerefectivoelderechoarco15dias", "effectiveExtensionDeadline"],
             ["fechalimitedelplazoparahacerefectivoelderechoarco15dias", "effectiveDeadline"],
             ["fechaenlaquesehaceefectivoelderecho", "effectiveDate"],
+            ["etapaactual", "stage"],
+            ["plazocritico", "criticalDeadline"],
+            ["fundamentolegal", "legalBasis"],
+            ["resultadoderesolucion", "resolutionOutcome"],
+            ["notasdeejecucion", "executionNotes"],
+            ["comentarios", "comments"],
           ]
 
           const assignFieldValue = (target: Partial<ArcoRequest>, field: keyof ArcoRequest, value: ExcelCellValue) => {
@@ -182,6 +196,9 @@ export function ArcoImportDialog({ onComplete }: ArcoImportDialogProps) {
               case "effectiveDate":
                 target.effectiveDate = parseExcelDate(value)
                 return
+              case "criticalDeadline":
+                target.criticalDeadline = parseExcelDate(value)
+                return
               case "requiresInfo":
                 target.requiresInfo = normalizedText.toUpperCase() === "SI"
                 return
@@ -207,6 +224,9 @@ export function ArcoImportDialog({ onComplete }: ArcoImportDialogProps) {
               case "company":
                 target.company = normalizedText
                 return
+              case "folio":
+                target.folio = normalizedText
+                return
               case "name":
                 target.name = normalizedText
                 return
@@ -217,7 +237,7 @@ export function ArcoImportDialog({ onComplete }: ArcoImportDialogProps) {
                 target.email = normalizedText
                 return
               case "rightType":
-                target.rightType = normalizedText
+                target.rightType = normalizeRightType(normalizedText)
                 return
               case "description":
                 target.description = normalizedText
@@ -225,11 +245,35 @@ export function ArcoImportDialog({ onComplete }: ArcoImportDialogProps) {
               case "resolution":
                 target.resolution = normalizedText
                 return
+              case "resolutionOutcome":
+                target.resolutionOutcome = normalizedText as ArcoRequest["resolutionOutcome"]
+                return
+              case "channel":
+                target.channel = normalizedText as ArcoRequest["channel"]
+                return
+              case "holderRole":
+                target.holderRole = normalizedText as ArcoRequest["holderRole"]
+                return
+              case "identityStatus":
+                target.identityStatus = normalizedText as ArcoRequest["identityStatus"]
+                return
+              case "stage":
+                target.stage = normalizedText as ArcoRequest["stage"]
+                return
+              case "legalBasis":
+                target.legalBasis = normalizedText
+                return
+              case "executionNotes":
+                target.executionNotes = normalizedText
+                return
               case "comments":
                 target.comments = normalizedText
                 return
               case "status":
-                target.status = normalizedText
+                target.status = normalizeLevel(
+                  normalizedText,
+                  ["En proceso", "En riesgo", "Concluida", "No presentada"] as const,
+                )
                 return
               case "createdBy":
                 target.createdBy = normalizedText
@@ -293,6 +337,9 @@ export function ArcoImportDialog({ onComplete }: ArcoImportDialogProps) {
     try {
       // Si ya es una cadena, intentar convertirla
       if (typeof excelDate === "string") {
+        if (/^\d{4}-\d{2}-\d{2}$/.test(excelDate.trim())) {
+          return excelDate.trim()
+        }
         // Formato común en español: DD/MM/YYYY
         const parts = excelDate.split("/")
         if (parts.length === 3) {
