@@ -36,7 +36,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { ModuleStatisticsCard } from "@/components/module-statistics-card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
@@ -1580,16 +1579,6 @@ export function PoliciesManager({ initialSection = "registro" }: PoliciesManager
         </div>
       ) : (
         <div className="space-y-6">
-          <div className="mb-2 max-w-md">
-            <ModuleStatisticsCard
-              dataset="policies"
-              title="Estadísticas del programa"
-              description="El panel analítico ahora se alimenta del modelo vivo de gobernanza y vigencia."
-              href="/data-policies/consulta"
-              cta="Refrescar panel"
-            />
-          </div>
-
           <div className="grid gap-6 xl:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
             <Card className="overflow-hidden border-slate-200 shadow-sm">
               <CardHeader className="border-b border-slate-100">

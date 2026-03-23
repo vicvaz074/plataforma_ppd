@@ -128,8 +128,8 @@ export default function PrivacyNoticesReportsPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-sm font-semibold text-muted-foreground">Módulo Avisos de Privacidad</p>
-          <h1 className="text-3xl font-semibold">Panel estadístico y reportes visuales</h1>
-          <p className="text-sm text-muted-foreground">Compara tipologías, tendencias y flujo de datos con visualizaciones dinámicas.</p>
+          <h1 className="text-3xl font-semibold">Reportes visuales de avisos</h1>
+          <p className="text-sm text-muted-foreground">Compara tipologías, tendencias y flujo documental con visualizaciones dinámicas.</p>
         </div>
         <Button asChild variant="outline">
           <Link href="/privacy-notices">Volver al módulo</Link>

@@ -1,7 +1,6 @@
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ModuleStatisticsCard } from "@/components/module-statistics-card"
 
 export default function EipdLandingPage() {
   return (
@@ -33,7 +32,7 @@ export default function EipdLandingPage() {
           <CardHeader>
             <CardTitle>Consultar EIPDs realizadas</CardTitle>
             <CardDescription>
-              Revisa, actualiza o descarga las evaluaciones previamente guardadas.
+              Revisa, actualiza o descarga las evaluaciones previamente guardadas y accede al análisis operativo.
             </CardDescription>
           </CardHeader>
           <CardContent className="mt-auto">
@@ -42,17 +41,6 @@ export default function EipdLandingPage() {
             </Button>
           </CardContent>
         </Card>
-
-        <div className="md:col-span-2">
-          <ModuleStatisticsCard
-            dataset="eipd"
-            title="Panel estadístico"
-            description="Consulta métricas reales de riesgo, vigencia y estado de evaluaciones capturadas."
-            href="/eipd/reportes"
-            cta="Abrir reportes"
-          />
-        </div>
-
       </div>
     </div>
   )

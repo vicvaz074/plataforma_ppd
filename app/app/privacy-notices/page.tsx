@@ -1,7 +1,6 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ModuleStatisticsCard } from "@/components/module-statistics-card"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
 export default function PrivacyNoticesLandingPage() {
   return (
@@ -10,7 +9,7 @@ export default function PrivacyNoticesLandingPage() {
         <p className="text-sm font-semibold text-muted-foreground">Módulo Avisos de Privacidad</p>
         <h1 className="text-3xl font-semibold text-foreground sm:text-4xl">Gestión de Avisos de Privacidad</h1>
         <p className="text-sm text-muted-foreground sm:text-base">
-          Elige si deseas registrar un nuevo aviso, consultar los avisos registrados o revisar reportes reales del módulo.
+          Elige si deseas registrar un nuevo aviso o consultar los avisos registrados con su documentación y seguimiento.
         </p>
       </div>
 
@@ -42,18 +41,7 @@ export default function PrivacyNoticesLandingPage() {
             </Button>
           </CardContent>
         </Card>
-
-
-        <div className="md:col-span-2">
-          <ModuleStatisticsCard
-            dataset="privacy-notices"
-            title="Panel estadístico de avisos"
-            description="Tipologías y cobertura construidas con avisos reales registrados."
-            href="/privacy-notices/reportes"
-            cta="Abrir reportes"
-          />
-        </div>
       </div>
     </div>
-  );
+  )
 }
