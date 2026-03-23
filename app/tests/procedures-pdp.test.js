@@ -91,7 +91,8 @@ describe("procedimientos PDP", () => {
 
   before(async () => {
     installBrowserEnv()
-    core = await importModule("app/litigation-management/procedures-pdp-core.ts")
+    const importedCore = await importModule("app/litigation-management/procedures-pdp-core.ts")
+    core = importedCore.default ? { ...importedCore.default, ...importedCore } : importedCore
   })
 
   beforeEach(() => {

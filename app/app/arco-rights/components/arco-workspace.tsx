@@ -500,9 +500,9 @@ export function ArcoWorkspace() {
               Volver al inicio
             </Link>
             <span>/</span>
-            <span>Derechos de los Titulares</span>
+            <span>Derecho de titulares</span>
           </div>
-          <h1 className="text-3xl font-semibold text-slate-950">Davara Governance — Derechos de los Titulares</h1>
+          <h1 className="text-3xl font-semibold text-slate-950">Derecho de titulares</h1>
           <p className="text-sm text-slate-500">
             LFPDPPP · Control ARCO · Limitación · Revocación · Consultas · Quejas
           </p>
@@ -535,8 +535,8 @@ export function ArcoWorkspace() {
         <div className="grid min-h-[820px] lg:grid-cols-[236px_1fr]">
           <aside className="border-r border-[#d6e1f6] bg-[#edf4ff]">
             <div className="border-b border-[#d6e1f6] px-6 py-5">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#5f7698]">Davara Governance</p>
-              <p className="mt-1 text-2xl font-semibold text-[#0a0147]">Derechos de los Titulares</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#5f7698]">Módulo ARCO</p>
+              <p className="mt-1 text-2xl font-semibold text-[#0a0147]">Derecho de titulares</p>
             </div>
             <nav className="space-y-1 p-3">
               {SECTION_ITEMS.map((item) => {
@@ -721,43 +721,47 @@ export function ArcoWorkspace() {
                     </CardHeader>
                     <CardContent className="p-0">
                       {dashboard.upcoming.length > 0 ? (
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Folio</TableHead>
-                              <TableHead>Titular</TableHead>
-                              <TableHead>Derecho / caso</TableHead>
-                              <TableHead>Etapa</TableHead>
-                              <TableHead>Plazo crítico</TableHead>
-                              <TableHead className="text-right">Acción</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {dashboard.upcoming.map((request) => (
-                              <TableRow key={request.id}>
-                                <TableCell className="font-semibold">{request.folio}</TableCell>
-                                <TableCell>{request.name}</TableCell>
-                                <TableCell>
-                                  <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${typeChipClass(request.rightType)}`}>
-                                    {request.rightType}
-                                  </span>
-                                </TableCell>
-                                <TableCell>{request.stage}</TableCell>
-                                <TableCell>
-                                  <div className="space-y-1">
-                                    <p>{formatDateSafe(request.criticalDeadline)}</p>
-                                    <p className="text-xs text-slate-500">{daysLabel(request.criticalDeadline)}</p>
-                                  </div>
-                                </TableCell>
-                                <TableCell className="text-right">
-                                  <Button variant="outline" size="sm" onClick={() => openDetail(request)}>
-                                    Abrir expediente
-                                  </Button>
-                                </TableCell>
+                        <div className="overflow-x-auto">
+                          <Table className="min-w-[880px]">
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>Folio</TableHead>
+                                <TableHead>Titular</TableHead>
+                                <TableHead>Derecho / caso</TableHead>
+                                <TableHead>Etapa</TableHead>
+                                <TableHead>Plazo crítico</TableHead>
+                                <TableHead className="sticky right-0 z-20 min-w-[140px] bg-white text-right shadow-[-10px_0_14px_-12px_rgba(15,23,42,0.35)]">
+                                  Acción
+                                </TableHead>
                               </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
+                            </TableHeader>
+                            <TableBody>
+                              {dashboard.upcoming.map((request) => (
+                                <TableRow key={request.id}>
+                                  <TableCell className="font-semibold">{request.folio}</TableCell>
+                                  <TableCell>{request.name}</TableCell>
+                                  <TableCell>
+                                    <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${typeChipClass(request.rightType)}`}>
+                                      {request.rightType}
+                                    </span>
+                                  </TableCell>
+                                  <TableCell>{request.stage}</TableCell>
+                                  <TableCell>
+                                    <div className="space-y-1">
+                                      <p>{formatDateSafe(request.criticalDeadline)}</p>
+                                      <p className="text-xs text-slate-500">{daysLabel(request.criticalDeadline)}</p>
+                                    </div>
+                                  </TableCell>
+                                  <TableCell className="sticky right-0 z-10 min-w-[140px] bg-white text-right shadow-[-10px_0_14px_-12px_rgba(15,23,42,0.35)]">
+                                    <Button variant="outline" size="sm" onClick={() => openDetail(request)}>
+                                      Abrir expediente
+                                    </Button>
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </div>
                       ) : (
                         <div className="p-6">
                           <EmptyState
@@ -849,54 +853,58 @@ export function ArcoWorkspace() {
                   <Card className="rounded-[28px] border-[#d6e1f6] shadow-sm">
                     <CardContent className="p-0">
                       {filteredRequests.length > 0 ? (
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Folio</TableHead>
-                              <TableHead>Titular</TableHead>
-                              <TableHead>Derecho / caso</TableHead>
-                              <TableHead>Recepción</TableHead>
-                              <TableHead>Etapa</TableHead>
-                              <TableHead>Plazo crítico</TableHead>
-                              <TableHead>Estado</TableHead>
-                              <TableHead className="text-right">Acción</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {filteredRequests.map((request) => (
-                              <TableRow key={request.id}>
-                                <TableCell className="font-semibold">{request.folio}</TableCell>
-                                <TableCell>
-                                  <div>
-                                    <p className="font-medium text-slate-900">{request.name}</p>
-                                    <p className="text-xs text-slate-500">{request.email}</p>
-                                  </div>
-                                </TableCell>
-                                <TableCell>
-                                  <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${typeChipClass(request.rightType)}`}>
-                                    {request.rightType}
-                                  </span>
-                                </TableCell>
-                                <TableCell>{formatDateSafe(request.receptionDate)}</TableCell>
-                                <TableCell>{request.stage}</TableCell>
-                                <TableCell>
-                                  <div className="space-y-1">
-                                    <p>{formatDateSafe(request.criticalDeadline)}</p>
-                                    <p className="text-xs text-slate-500">{daysLabel(request.criticalDeadline)}</p>
-                                  </div>
-                                </TableCell>
-                                <TableCell>
-                                  <Badge className={statusBadge(request.status)}>{request.status}</Badge>
-                                </TableCell>
-                                <TableCell className="text-right">
-                                  <Button size="sm" variant="outline" onClick={() => openDetail(request)}>
-                                    Abrir
-                                  </Button>
-                                </TableCell>
+                        <div className="overflow-x-auto">
+                          <Table className="min-w-[1060px]">
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>Folio</TableHead>
+                                <TableHead>Titular</TableHead>
+                                <TableHead>Derecho / caso</TableHead>
+                                <TableHead>Recepción</TableHead>
+                                <TableHead>Etapa</TableHead>
+                                <TableHead>Plazo crítico</TableHead>
+                                <TableHead>Estado</TableHead>
+                                <TableHead className="sticky right-0 z-20 min-w-[120px] bg-white text-right shadow-[-10px_0_14px_-12px_rgba(15,23,42,0.35)]">
+                                  Acción
+                                </TableHead>
                               </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
+                            </TableHeader>
+                            <TableBody>
+                              {filteredRequests.map((request) => (
+                                <TableRow key={request.id}>
+                                  <TableCell className="font-semibold">{request.folio}</TableCell>
+                                  <TableCell>
+                                    <div>
+                                      <p className="font-medium text-slate-900">{request.name}</p>
+                                      <p className="text-xs text-slate-500">{request.email}</p>
+                                    </div>
+                                  </TableCell>
+                                  <TableCell>
+                                    <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${typeChipClass(request.rightType)}`}>
+                                      {request.rightType}
+                                    </span>
+                                  </TableCell>
+                                  <TableCell>{formatDateSafe(request.receptionDate)}</TableCell>
+                                  <TableCell>{request.stage}</TableCell>
+                                  <TableCell>
+                                    <div className="space-y-1">
+                                      <p>{formatDateSafe(request.criticalDeadline)}</p>
+                                      <p className="text-xs text-slate-500">{daysLabel(request.criticalDeadline)}</p>
+                                    </div>
+                                  </TableCell>
+                                  <TableCell>
+                                    <Badge className={statusBadge(request.status)}>{request.status}</Badge>
+                                  </TableCell>
+                                  <TableCell className="sticky right-0 z-10 min-w-[120px] bg-white text-right shadow-[-10px_0_14px_-12px_rgba(15,23,42,0.35)]">
+                                    <Button size="sm" variant="outline" onClick={() => openDetail(request)}>
+                                      Abrir
+                                    </Button>
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </div>
                       ) : (
                         <div className="p-6">
                           <EmptyState
@@ -1767,6 +1775,16 @@ function RequestEditor({
                 <SummaryLine label="Comunicar determinación (+20)" value={formatDateSafe(preview.deadlineDate)} />
                 <SummaryLine label="Hacer efectivo (+15)" value={formatDateSafe(preview.effectiveDeadline)} />
               </div>
+            </CardContent>
+          </Card>
+
+          <Card className="rounded-[28px] border-[#d6e1f6] shadow-sm">
+            <CardHeader>
+              <CardTitle>Línea de tiempo</CardTitle>
+              <CardDescription>Resumen visual de los hitos clave, bloqueos y vencimientos del expediente.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ArcoRequestTimeline request={preview} />
             </CardContent>
           </Card>
 
