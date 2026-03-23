@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ModuleStatisticsCard } from "@/components/module-statistics-card"
 
 export default function PrivacyNoticesLandingPage() {
   return (
@@ -42,17 +41,6 @@ export default function PrivacyNoticesLandingPage() {
             </Button>
           </CardContent>
         </Card>
-
-
-        <div className="md:col-span-2">
-          <ModuleStatisticsCard
-            dataset="privacy-notices"
-            title="Panel estadístico de avisos"
-            description="Tipologías y cobertura construidas con avisos reales registrados."
-            href="/privacy-notices/reportes"
-            cta="Abrir reportes"
-          />
-        </div>
       </div>
     </div>
   );

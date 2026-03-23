@@ -70,7 +70,7 @@ import {
   updateAuditReminder,
 } from "@/lib/audit-alarms"
 import { ensureBrowserStorageEvents } from "@/lib/browser-storage-events"
-import { loadItems } from "@/lib/module-statistics"
+import { loadItems } from "@/lib/load-module-items"
 import { loadPolicyRecords } from "@/lib/policy-governance"
 import { secureRandomId } from "@/lib/secure-random"
 import { cn } from "@/lib/utils"

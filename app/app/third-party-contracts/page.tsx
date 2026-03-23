@@ -4,7 +4,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button"
 import { FileText, ClipboardList } from "lucide-react"
 import Link from "next/link"
-import { ModuleStatisticsCard } from "@/components/module-statistics-card"
 
 export default function ThirdPartyContractsPage() {
   return (
@@ -61,16 +60,6 @@ export default function ThirdPartyContractsPage() {
             </Button>
           </CardFooter>
         </Card>
-
-        <div className="md:col-span-2">
-          <ModuleStatisticsCard
-            dataset="contracts"
-            title="Panel estadístico"
-            description="Consulte métricas y gráficas reales de contratos vigentes, vencimientos y comunicaciones de datos."
-            href="/third-party-contracts/reportes"
-            cta="Abrir reportes"
-          />
-        </div>
       </div>
     </div>
   )

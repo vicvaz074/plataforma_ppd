@@ -4,7 +4,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button"
 import { ClipboardCheck, FileText } from "lucide-react"
 import Link from "next/link"
-import { ModuleStatisticsCard } from "@/components/module-statistics-card"
 
 export default function DPOPage() {
   return (
@@ -67,16 +66,6 @@ export default function DPOPage() {
             </Button>
           </CardFooter>
         </Card>
-
-        <div className="md:col-span-2">
-          <ModuleStatisticsCard
-            dataset="dpo"
-            title="Panel estadístico DPO"
-            description="Indicadores de informes y actas con base en los registros reales del módulo."
-            href="/dpo/reports"
-            cta="Ver panel de reportes"
-          />
-        </div>
       </div>
     </div>
   )

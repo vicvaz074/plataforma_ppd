@@ -57,7 +57,7 @@ import {
   ListCheck,
   FileText as FileTextIcon,
 } from "lucide-react"
-import { loadItems } from "@/lib/module-statistics"
+import { loadItems } from "@/lib/load-module-items"
 import { getPolicyProgramSnapshot, getPrimaryPolicy } from "@/lib/policy-governance"
 import {
   getUsers,

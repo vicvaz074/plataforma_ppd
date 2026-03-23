@@ -535,8 +535,8 @@ export function ArcoWorkspace() {
         <div className="grid min-h-[820px] lg:grid-cols-[236px_1fr]">
           <aside className="border-r border-[#d6e1f6] bg-[#edf4ff]">
             <div className="border-b border-[#d6e1f6] px-6 py-5">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#5f7698]">Davara Governance</p>
-              <p className="mt-1 text-2xl font-semibold text-[#0a0147]">Derechos de los Titulares</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#5f7698]">Derechos ARCO</p>
+              <p className="mt-1 text-2xl font-semibold text-[#0a0147]">Derechos de Titulares</p>
             </div>
             <nav className="space-y-1 p-3">
               {SECTION_ITEMS.map((item) => {
@@ -849,6 +849,7 @@ export function ArcoWorkspace() {
                   <Card className="rounded-[28px] border-[#d6e1f6] shadow-sm">
                     <CardContent className="p-0">
                       {filteredRequests.length > 0 ? (
+                        <div className="overflow-x-auto">
                         <Table>
                           <TableHeader>
                             <TableRow>
@@ -859,7 +860,7 @@ export function ArcoWorkspace() {
                               <TableHead>Etapa</TableHead>
                               <TableHead>Plazo crítico</TableHead>
                               <TableHead>Estado</TableHead>
-                              <TableHead className="text-right">Acción</TableHead>
+                              <TableHead className="sticky right-0 bg-white text-right shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.08)]">Acción</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
@@ -888,7 +889,7 @@ export function ArcoWorkspace() {
                                 <TableCell>
                                   <Badge className={statusBadge(request.status)}>{request.status}</Badge>
                                 </TableCell>
-                                <TableCell className="text-right">
+                                <TableCell className="sticky right-0 bg-white text-right shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.08)]">
                                   <Button size="sm" variant="outline" onClick={() => openDetail(request)}>
                                     Abrir
                                   </Button>
@@ -897,6 +898,7 @@ export function ArcoWorkspace() {
                             ))}
                           </TableBody>
                         </Table>
+                        </div>
                       ) : (
                         <div className="p-6">
                           <EmptyState
