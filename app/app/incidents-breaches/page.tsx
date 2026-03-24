@@ -80,6 +80,7 @@ export default function IncidentsAndBreachesPage() {
   const [alertDismissed, setAlertDismissed] = useState(false)
 
   const [activePipelineFilter, setActivePipelineFilter] = useState<string | null>(null)
+  const [activePipelineStage, setActivePipelineStage] = useState<string | null>(null)
 
   const form = useForm<IncidentFormData>({
     resolver: zodResolver(incidentSchema),
@@ -341,21 +342,21 @@ export default function IncidentsAndBreachesPage() {
       {/* ─── Conditional Views ───────────────────────────────────────────────── */}
       {view === "review" ? (
         <div className="space-y-4">
-          <Button variant="ghost" onClick={() => setView("dashboard")} className="gap-2 text-muted-foreground">
+          <Button variant="ghost" onClick={() => { setView("dashboard"); setActivePipelineStage(null) }} className="gap-2 text-muted-foreground">
             <ChevronRight className="h-4 w-4 rotate-180" /> Volver al panel
           </Button>
           <ReviewChecklist form={form} />
         </div>
       ) : view === "legal" ? (
         <div className="space-y-4">
-          <Button variant="ghost" onClick={() => setView("dashboard")} className="gap-2 text-muted-foreground">
+          <Button variant="ghost" onClick={() => { setView("dashboard"); setActivePipelineStage(null) }} className="gap-2 text-muted-foreground">
             <ChevronRight className="h-4 w-4 rotate-180" /> Volver al panel
           </Button>
           <LegalReferences />
         </div>
       ) : view === "templates" ? (
         <div className="space-y-4">
-          <Button variant="ghost" onClick={() => setView("dashboard")} className="gap-2 text-muted-foreground">
+          <Button variant="ghost" onClick={() => { setView("dashboard"); setActivePipelineStage(null) }} className="gap-2 text-muted-foreground">
             <ChevronRight className="h-4 w-4 rotate-180" /> Volver al panel
           </Button>
           <Card>
@@ -387,7 +388,7 @@ export default function IncidentsAndBreachesPage() {
         </div>
       ) : view === "logs" ? (
         <div className="space-y-4">
-          <Button variant="ghost" onClick={() => setView("dashboard")} className="gap-2 text-muted-foreground">
+          <Button variant="ghost" onClick={() => { setView("dashboard"); setActivePipelineStage(null) }} className="gap-2 text-muted-foreground">
             <ChevronRight className="h-4 w-4 rotate-180" /> Volver al panel
           </Button>
           <Card>
@@ -429,7 +430,7 @@ export default function IncidentsAndBreachesPage() {
         </div>
       ) : view === "continuous-improvement" ? (
         <div className="space-y-4">
-          <Button variant="ghost" onClick={() => setView("dashboard")} className="gap-2 text-muted-foreground">
+          <Button variant="ghost" onClick={() => { setView("dashboard"); setActivePipelineStage(null) }} className="gap-2 text-muted-foreground">
             <ChevronRight className="h-4 w-4 rotate-180" /> Volver al panel
           </Button>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -510,7 +511,13 @@ export default function IncidentsAndBreachesPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <LifecyclePipeline onStageClick={(id) => setView(id as any)} />
+              <LifecyclePipeline
+                activeStage={activePipelineStage}
+                onStageClick={(id) => {
+                  setActivePipelineStage(id)
+                  setView(id as any)
+                }}
+              />
             </CardContent>
           </Card>
 
