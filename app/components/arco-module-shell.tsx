@@ -173,8 +173,8 @@ export function ArcoModuleShell({
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(10,74,191,0.08),_transparent_30%),linear-gradient(180deg,_#f8fbff_0%,_#ffffff_100%)]">
       <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
         <div className="overflow-hidden rounded-[28px] border border-stone-200 bg-white shadow-sm">
-          <div className="grid min-h-[calc(100vh-7rem)] lg:grid-cols-[240px_1fr]">
-            <aside className="border-r border-[#d6e1f6] bg-[#edf4ff]">
+          <div className="grid min-h-[calc(100vh-7rem)] lg:grid-cols-[260px_1fr]">
+            <aside className="overflow-y-auto overflow-x-hidden border-r border-[#d6e1f6] bg-[#edf4ff]">
               <div className="border-b border-[#d6e1f6] px-6 py-5">
                 <Link
                   href={backHref}
@@ -186,8 +186,8 @@ export function ArcoModuleShell({
                 <p className="mt-5 text-xs font-semibold uppercase tracking-[0.18em] text-[#5f7698]">
                   {moduleLabel}
                 </p>
-                <p className="mt-1 text-2xl font-semibold text-[#0a0147]">{moduleTitle}</p>
-                <p className="mt-3 text-sm leading-6 text-[#5f7698]">{moduleDescription}</p>
+                <p className="mt-1 break-words text-2xl font-semibold text-[#0a0147]">{moduleTitle}</p>
+                <p className="mt-3 break-words text-sm leading-6 text-[#5f7698]">{moduleDescription}</p>
               </div>
               <nav className="space-y-1 p-3">
                 {navItems.map((item) => {
@@ -200,7 +200,7 @@ export function ArcoModuleShell({
                       key={item.href}
                       href={item.href}
                       className={cn(
-                        "flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-medium transition-colors",
+                        "flex w-full min-h-[44px] items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-medium transition-colors",
                         active
                           ? "bg-white text-[#0a0147] shadow-[0_10px_24px_rgba(10,1,71,0.08)]"
                           : "text-[#4f6788] hover:bg-white/80 hover:text-[#0a0147]",
@@ -208,7 +208,7 @@ export function ArcoModuleShell({
                     >
                       <span className={cn("h-2.5 w-2.5 rounded-full", active ? "bg-[#0a4abf]" : "bg-[#7ea4df]")} />
                       <Icon className={cn("h-4 w-4", active ? "text-[#0a0147]" : "text-[#5f7698]")} />
-                      <span className="min-w-0 flex-1">{item.label}</span>
+                      <span className="min-w-0 flex-1 break-words leading-snug">{item.label}</span>
                       {item.badge !== undefined ? (
                         <span className="ml-auto rounded-full bg-[#dbeafe] px-2 py-0.5 text-[11px] font-semibold text-[#0a4abf]">
                           {item.badge}
@@ -225,9 +225,9 @@ export function ArcoModuleShell({
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-stone-500">{pageLabel}</p>
-                    <h1 className="mt-1 text-2xl font-semibold text-slate-950 sm:text-3xl">{pageTitle}</h1>
+                    <h1 className="mt-1 break-words text-2xl font-semibold text-slate-950 sm:text-3xl">{pageTitle}</h1>
                     {pageDescription ? (
-                      <p className="mt-2 max-w-4xl text-sm leading-6 text-slate-500 sm:text-base">
+                      <p className="mt-2 max-w-4xl break-words text-sm leading-6 text-slate-500 sm:text-base">
                         {pageDescription}
                       </p>
                     ) : null}
