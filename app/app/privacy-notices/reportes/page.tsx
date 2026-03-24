@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useEffect, useMemo, useState } from "react"
 import { motion } from "framer-motion"
-import { ArrowRightLeft, Flame, Network, Sparkles } from "lucide-react"
+import { ArrowRightLeft, Flame, Network, BadgeCheck } from "lucide-react"
 import {
   Bar,
   BarChart,
@@ -150,7 +150,7 @@ export default function PrivacyNoticesReportsPage() {
       <div className="space-y-6">
         <div className="grid gap-4 md:grid-cols-4">
         {[
-          { label: "Total de avisos", value: metrics.total, icon: Sparkles },
+          { label: "Total de avisos", value: metrics.total, icon: BadgeCheck },
           { label: "Con evidencia", value: metrics.withEvidence, icon: Flame },
           { label: "Cobertura", value: `${metrics.withEvidencePct}%`, icon: ArrowRightLeft },
           {
