@@ -356,9 +356,9 @@ export default function RegistroPage() {
           </Button>
         </div>
         <div className="text-center flex-1">
-          <h1 className="text-3xl font-bold">Registro de Actividades de Tratamiento</h1>
+          <h1 className="text-3xl font-bold">Inventarios de Datos Personales</h1>
           <p className="text-muted-foreground mt-1">
-            Gestione su inventario de datos personales de manera completa.
+            Gestione sus inventarios de datos personales.
           </p>
         </div>
       </div>
