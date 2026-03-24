@@ -327,10 +327,10 @@ function ProcedureMetricCard({
   tone: "critical" | "warning" | "positive" | "neutral"
 }) {
   return (
-    <div className="rounded-2xl border border-stone-200 bg-[#f8f5ef] p-4">
-      <p className="text-sm font-medium text-stone-500">{label}</p>
+    <div className="rounded-2xl border border-slate-200 bg-[#f8fbff] p-4">
+      <p className="text-sm font-medium text-slate-500">{label}</p>
       <p className={cn("mt-2 text-4xl font-semibold", toneClasses(tone))}>{value}</p>
-      <p className="mt-1 text-sm text-stone-600">{helper}</p>
+      <p className="mt-1 text-sm text-slate-600">{helper}</p>
     </div>
   )
 }
@@ -814,8 +814,8 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
     <div className="mx-auto flex w-full max-w-[1360px] flex-col gap-6 px-4 py-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="space-y-1">
-          <div className="flex items-center gap-2 text-sm text-stone-500">
-            <Link href="/litigation-management" className="inline-flex items-center gap-1 hover:text-stone-900">
+          <div className="flex items-center gap-2 text-sm text-slate-500">
+            <Link href="/litigation-management" className="inline-flex items-center gap-1 hover:text-slate-900">
               <ChevronLeft className="h-4 w-4" />
               Volver al módulo
             </Link>
@@ -839,12 +839,12 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-[28px] border border-stone-200 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
         <div className="grid min-h-[760px] lg:grid-cols-[220px_1fr]">
           <aside className="border-r border-[#d6e1f6] bg-[#edf4ff]">
             <div className="border-b border-[#d6e1f6] px-6 py-5">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#5f7698]">Davara Governance</p>
-              <p className="mt-1 text-2xl font-semibold text-[#0a0147]">Procedimientos PDP</p>
+              <p className="mt-1 text-2xl font-semibold text-[#0a4abf]">Procedimientos PDP</p>
             </div>
             <nav className="space-y-1 p-3">
               {WORKSPACE_SECTIONS.map((item) => {
@@ -864,27 +864,27 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                     className={cn(
                       "flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-medium transition-colors",
                       isActive
-                        ? "bg-white text-[#0a0147] shadow-[0_10px_24px_rgba(10,1,71,0.08)]"
-                        : "text-[#4f6788] hover:bg-white/80 hover:text-[#0a0147]",
+                        ? "bg-white text-[#0a4abf] shadow-[0_10px_24px_rgba(10,1,71,0.08)]"
+                        : "text-[#4f6788] hover:bg-white/80 hover:text-[#0a4abf]",
                     )}
                   >
                     <span
                       className={cn(
                         "h-2.5 w-2.5 rounded-full",
                         item.id === "dashboard"
-                          ? "bg-[#0a0147]"
+                          ? "bg-[#0a4abf]"
                           : item.id === "expedientes"
-                            ? "bg-[#8fb1df]"
+                            ? "bg-[#7ea4df]"
                             : item.id === "register"
                               ? "bg-lime-600"
                               : item.id === "alertas"
                                 ? "bg-red-500"
                                 : item.id === "reportes"
                                   ? "bg-emerald-500"
-                                  : "bg-[#8fb1df]",
+                                  : "bg-[#7ea4df]",
                       )}
                     />
-                    <Icon className={cn("h-4 w-4", isActive ? "text-[#0a0147]" : "text-[#5f7698]")} />
+                    <Icon className={cn("h-4 w-4", isActive ? "text-[#0a4abf]" : "text-[#5f7698]")} />
                     <span>{item.label}</span>
                     <ProcedureNavBadge count={count} />
                   </button>
@@ -894,10 +894,10 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
           </aside>
 
           <div className="min-w-0 bg-white">
-            <div className="border-b border-stone-200 px-6 py-4">
+            <div className="border-b border-slate-200 px-6 py-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <p className="text-sm font-medium text-stone-500">
+                  <p className="text-sm font-medium text-slate-500">
                     {viewSection === "dashboard" && "Dashboard"}
                     {viewSection === "expedientes" && "Expedientes"}
                     {viewSection === "register" && (wizardDraft.id ? "Editar expediente" : "Registrar nuevo")}
@@ -917,10 +917,10 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                   </h2>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <Badge variant="outline" className="border-stone-200 bg-stone-50 text-stone-700">
+                  <Badge variant="outline" className="border-slate-200 bg-slate-50 text-slate-700">
                     {getActiveProcedureCount(root)} activos
                   </Badge>
-                  <Badge variant="outline" className="border-stone-200 bg-stone-50 text-stone-700">
+                  <Badge variant="outline" className="border-slate-200 bg-slate-50 text-slate-700">
                     {getProcedureHighRiskCount(root)} alto riesgo
                   </Badge>
                 </div>
@@ -958,7 +958,7 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                       </CardHeader>
                       <CardContent className="space-y-3 p-6">
                         {dashboard.prioritized.length === 0 ? (
-                          <div className="rounded-2xl border border-dashed border-stone-300 p-8 text-center text-sm text-stone-500">
+                          <div className="rounded-2xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">
                             No hay expedientes registrados todavía. Registra el primero para activar el tablero.
                           </div>
                         ) : (
@@ -967,7 +967,7 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                               key={row.procedureId}
                               type="button"
                               onClick={() => navigate("expediente", { id: row.procedureId, tab: "resumen" })}
-                              className="flex w-full items-start justify-between rounded-2xl border border-stone-200 p-4 text-left transition-colors hover:border-[#5b4fc7]/30 hover:bg-stone-50"
+                              className="flex w-full items-start justify-between rounded-2xl border border-slate-200 p-4 text-left transition-colors hover:border-[#0a4abf]/30 hover:bg-slate-50"
                             >
                               <div className="space-y-1">
                                 <div className="flex items-center gap-2">
@@ -979,7 +979,7 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                                   />
                                   <p className="font-semibold text-slate-900">{row.expedienteNumber}</p>
                                 </div>
-                                <p className="text-sm text-stone-600">{row.procedureType}</p>
+                                <p className="text-sm text-slate-600">{row.procedureType}</p>
                                 <div className="flex flex-wrap gap-2 text-xs">
                                   <span className={cn("rounded-full border px-2 py-1", statusBadgeClass(row.generalStatus))}>
                                     {row.generalStatus}
@@ -989,7 +989,7 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                                   </span>
                                 </div>
                               </div>
-                              <div className="space-y-1 text-right text-sm text-stone-600">
+                              <div className="space-y-1 text-right text-sm text-slate-600">
                                 <p>{row.nextDueLabel || "Sin vencimiento"}</p>
                                 <p className="font-medium text-slate-900">
                                   {row.nextDueDate ? formatDateLabel(row.nextDueDate) : "Sin fecha"}
@@ -1010,7 +1010,7 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                         </CardHeader>
                         <CardContent className="h-[250px] p-4">
                           {dashboard.byType.length === 0 ? (
-                            <div className="flex h-full items-center justify-center text-sm text-stone-500">
+                            <div className="flex h-full items-center justify-center text-sm text-slate-500">
                               Sin datos disponibles.
                             </div>
                           ) : (
@@ -1038,7 +1038,7 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                         </CardHeader>
                         <CardContent className="space-y-3 p-6">
                           {alertGroups.critical.length === 0 && alertGroups.medium.length === 0 && alertGroups.low.length === 0 ? (
-                            <div className="rounded-2xl border border-dashed border-stone-300 p-6 text-center text-sm text-stone-500">
+                            <div className="rounded-2xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500">
                               Sin alertas activas.
                             </div>
                           ) : (
@@ -1047,17 +1047,17 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                                 key={row.alertId}
                                 type="button"
                                 onClick={() => navigate("expediente", { id: row.procedureId, tab: "alertas" })}
-                                className="flex w-full items-start gap-3 rounded-2xl border border-stone-200 p-3 text-left transition-colors hover:bg-stone-50"
+                                className="flex w-full items-start gap-3 rounded-2xl border border-slate-200 p-3 text-left transition-colors hover:bg-slate-50"
                               >
                                 <span
                                   className={cn(
                                     "mt-2 h-2.5 w-2.5 rounded-full",
-                                    row.priority === "alta" ? "bg-red-500" : row.priority === "media" ? "bg-amber-500" : "bg-stone-400",
+                                    row.priority === "alta" ? "bg-red-500" : row.priority === "media" ? "bg-amber-500" : "bg-slate-400",
                                   )}
                                 />
                                 <div className="min-w-0">
                                   <p className="font-medium text-slate-900">{row.title}</p>
-                                  <p className="text-sm text-stone-600">{row.description}</p>
+                                  <p className="text-sm text-slate-600">{row.description}</p>
                                 </div>
                               </button>
                             ))
@@ -1075,7 +1075,7 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                       <CardContent className="grid gap-4 p-4 md:grid-cols-[220px_1fr]">
                         <div className="h-[220px]">
                           {dashboard.byRisk.length === 0 ? (
-                            <div className="flex h-full items-center justify-center text-sm text-stone-500">
+                            <div className="flex h-full items-center justify-center text-sm text-slate-500">
                               Sin datos disponibles.
                             </div>
                           ) : (
@@ -1102,7 +1102,7 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                             <div key={row.label} className="flex items-center justify-between">
                               <div className="flex items-center gap-2">
                                 <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: row.color }} />
-                                <span className="text-sm text-stone-700">{row.label}</span>
+                                <span className="text-sm text-slate-700">{row.label}</span>
                               </div>
                               <span className="font-semibold text-slate-900">{row.value}</span>
                             </div>
@@ -1126,7 +1126,7 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                       </CardHeader>
                       <CardContent className="h-[260px] p-4">
                         {dashboard.byStatus.length === 0 ? (
-                          <div className="flex h-full items-center justify-center text-sm text-stone-500">
+                          <div className="flex h-full items-center justify-center text-sm text-slate-500">
                             Sin datos disponibles.
                           </div>
                         ) : (
@@ -1232,10 +1232,10 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                     </Select>
                   </div>
 
-                  <div className="overflow-hidden rounded-[28px] border border-stone-200">
+                  <div className="overflow-hidden rounded-[28px] border border-slate-200">
                     <Table>
                       <TableHeader>
-                        <TableRow className="bg-[#f8f5ef]">
+                        <TableRow className="bg-[#f8fbff]">
                           <TableHead>Expediente</TableHead>
                           <TableHead>Tipo</TableHead>
                           <TableHead>Estatus</TableHead>
@@ -1247,7 +1247,7 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                       <TableBody>
                         {filteredProcedures.length === 0 ? (
                           <TableRow>
-                            <TableCell colSpan={6} className="py-10 text-center text-sm text-stone-500">
+                            <TableCell colSpan={6} className="py-10 text-center text-sm text-slate-500">
                               No se encontraron expedientes con los filtros seleccionados.
                             </TableCell>
                           </TableRow>
@@ -1257,13 +1257,13 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                             return (
                               <TableRow
                                 key={procedure.id}
-                                className="cursor-pointer hover:bg-stone-50"
+                                className="cursor-pointer hover:bg-slate-50"
                                 onClick={() => navigate("expediente", { id: procedure.id, tab: "resumen" })}
                               >
                                 <TableCell>
                                   <div>
                                     <p className="font-semibold text-slate-900">{procedure.expedienteNumber}</p>
-                                    <p className="text-sm text-stone-500">{procedure.summary.slice(0, 72)}...</p>
+                                    <p className="text-sm text-slate-500">{procedure.summary.slice(0, 72)}...</p>
                                   </div>
                                 </TableCell>
                                 <TableCell>{procedure.procedureType}</TableCell>
@@ -1281,10 +1281,10 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                                   {topAlert?.referenceDate ? (
                                     <div>
                                       <p className="font-medium text-slate-900">{formatDateLabel(topAlert.referenceDate)}</p>
-                                      <p className="text-xs text-stone-500">{topAlert.title}</p>
+                                      <p className="text-xs text-slate-500">{topAlert.title}</p>
                                     </div>
                                   ) : (
-                                    <span className="text-sm text-stone-500">Sin plazo</span>
+                                    <span className="text-sm text-slate-500">Sin plazo</span>
                                   )}
                                 </TableCell>
                                 <TableCell>{procedure.responsibles[0]?.name || "Sin asignar"}</TableCell>
@@ -1310,31 +1310,31 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                               wizardStep >= step
                                 ? step === 1
                                   ? "border-emerald-500 bg-emerald-500 text-white"
-                                  : "border-[#5b4fc7] bg-[#5b4fc7] text-white"
-                                : "border-stone-300 bg-white text-stone-500",
+                                  : "border-[#0a4abf] bg-[#0a4abf] text-white"
+                                : "border-slate-300 bg-white text-slate-500",
                             )}
                           >
                             {step}
                           </div>
                           <div className="hidden flex-1 sm:block">
-                            <p className={cn("text-sm font-medium", wizardStep === step ? "text-slate-900" : "text-stone-500")}>
+                            <p className={cn("text-sm font-medium", wizardStep === step ? "text-slate-900" : "text-slate-500")}>
                               {step === 1 && "Datos generales"}
                               {step === 2 && "Descripción y riesgo"}
                               {step === 3 && "Documentos y responsables"}
                             </p>
-                            {step < 3 ? <div className="mt-2 h-px bg-stone-200" /> : null}
+                            {step < 3 ? <div className="mt-2 h-px bg-slate-200" /> : null}
                           </div>
                         </div>
                       ))}
                     </div>
                     {wizardDraft.id ? (
-                      <Badge variant="outline" className="border-stone-200 bg-stone-50 text-stone-700">
+                      <Badge variant="outline" className="border-slate-200 bg-slate-50 text-slate-700">
                         Editando expediente
                       </Badge>
                     ) : null}
                   </div>
 
-                  <Card className="rounded-[28px] border-stone-200 shadow-sm">
+                  <Card className="rounded-[28px] border-slate-200 shadow-sm">
                     <CardContent className="space-y-8 p-6">
                       {wizardStep === 1 && (
                         <div className="space-y-6">
@@ -1497,7 +1497,7 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                               placeholder="Resume el contexto, origen y situación actual del procedimiento."
                               className="min-h-[140px]"
                             />
-                            <p className="text-xs text-stone-500">Mínimo 100 caracteres.</p>
+                            <p className="text-xs text-slate-500">Mínimo 100 caracteres.</p>
                             {wizardErrors.summary ? <p className="text-xs text-red-600">{wizardErrors.summary}</p> : null}
                           </div>
 
@@ -1555,9 +1555,9 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                           <div className="grid gap-6 lg:grid-cols-2">
                             <div className="space-y-3">
                               <Label>Áreas relacionadas</Label>
-                              <div className="grid gap-2 rounded-2xl border border-stone-200 p-4 md:grid-cols-2">
+                              <div className="grid gap-2 rounded-2xl border border-slate-200 p-4 md:grid-cols-2">
                                 {AREA_OPTIONS.map((option) => (
-                                  <label key={option} className="flex items-center gap-3 text-sm text-stone-700">
+                                  <label key={option} className="flex items-center gap-3 text-sm text-slate-700">
                                     <Checkbox
                                       checked={wizardDraft.relatedAreas.includes(option)}
                                       onCheckedChange={(checked) =>
@@ -1578,9 +1578,9 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
 
                             <div className="space-y-3">
                               <Label>Datos personales involucrados</Label>
-                              <div className="grid gap-2 rounded-2xl border border-stone-200 p-4 md:grid-cols-2">
+                              <div className="grid gap-2 rounded-2xl border border-slate-200 p-4 md:grid-cols-2">
                                 {DATA_CATEGORY_OPTIONS.map((option) => (
-                                  <label key={option} className="flex items-center gap-3 text-sm text-stone-700">
+                                  <label key={option} className="flex items-center gap-3 text-sm text-slate-700">
                                     <Checkbox
                                       checked={wizardDraft.dataCategories.includes(option)}
                                       onCheckedChange={(checked) =>
@@ -1645,13 +1645,13 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                             <div className="space-y-4">
                               <div className="space-y-2">
                                 <Label>Responsables internos</Label>
-                                <div className="rounded-2xl border border-stone-200 p-4">
+                                <div className="rounded-2xl border border-slate-200 p-4">
                                   {knownUsers.length === 0 ? (
-                                    <p className="text-sm text-stone-500">No hay usuarios detectados en la plataforma.</p>
+                                    <p className="text-sm text-slate-500">No hay usuarios detectados en la plataforma.</p>
                                   ) : (
                                     <div className="grid gap-2">
                                       {knownUsers.map((user) => (
-                                        <label key={user.email} className="flex items-center gap-3 text-sm text-stone-700">
+                                        <label key={user.email} className="flex items-center gap-3 text-sm text-slate-700">
                                           <Checkbox
                                             checked={wizardDraft.internalResponsibleEmails.includes(user.email)}
                                             onCheckedChange={(checked) =>
@@ -1695,7 +1695,7 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                             </div>
 
                             <div className="space-y-4">
-                              <div className="rounded-2xl border border-stone-200 p-4">
+                              <div className="rounded-2xl border border-slate-200 p-4">
                                 <div className="grid gap-3">
                                   <div className="space-y-2">
                                     <Label>Título del documento</Label>
@@ -1732,22 +1732,22 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                                 </div>
                               </div>
 
-                              <div className="space-y-2 rounded-2xl border border-stone-200 p-4">
+                              <div className="space-y-2 rounded-2xl border border-slate-200 p-4">
                                 <div className="flex items-center justify-between gap-3">
                                   <p className="font-medium text-slate-900">Documentos por cargar</p>
-                                  <Badge variant="outline" className="border-stone-200 bg-stone-50">
+                                  <Badge variant="outline" className="border-slate-200 bg-slate-50">
                                     {pendingDocuments.length}
                                   </Badge>
                                 </div>
                                 {pendingDocuments.length === 0 ? (
-                                  <p className="text-sm text-stone-500">Sin documentos pendientes.</p>
+                                  <p className="text-sm text-slate-500">Sin documentos pendientes.</p>
                                 ) : (
                                   <div className="space-y-2">
                                     {pendingDocuments.map((document) => (
-                                      <div key={document.id} className="flex items-center justify-between rounded-2xl bg-stone-50 px-3 py-2">
+                                      <div key={document.id} className="flex items-center justify-between rounded-2xl bg-slate-50 px-3 py-2">
                                         <div>
                                           <p className="font-medium text-slate-900">{document.title}</p>
-                                          <p className="text-xs text-stone-500">
+                                          <p className="text-xs text-slate-500">
                                             {document.documentType} · {document.file.name}
                                           </p>
                                         </div>
@@ -1862,7 +1862,7 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                   {[
                     { title: "Críticas", rows: alertGroups.critical, color: "bg-red-500" },
                     { title: "Próximas", rows: alertGroups.medium, color: "bg-amber-500" },
-                    { title: "Seguimiento", rows: alertGroups.low, color: "bg-stone-400" },
+                    { title: "Seguimiento", rows: alertGroups.low, color: "bg-slate-400" },
                   ].map((group) => (
                     <div key={group.title} className="space-y-3">
                       <div className="flex items-center gap-2">
@@ -1870,15 +1870,15 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                         <h3 className="text-lg font-semibold text-slate-900">{group.title}</h3>
                       </div>
                       {group.rows.length === 0 ? (
-                        <div className="rounded-2xl border border-dashed border-stone-300 p-4 text-sm text-stone-500">
+                        <div className="rounded-2xl border border-dashed border-slate-300 p-4 text-sm text-slate-500">
                           Sin alertas en esta categoría.
                         </div>
                       ) : (
                         group.rows.map((row) => (
-                          <div key={row.alertId} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-stone-200 p-4">
+                          <div key={row.alertId} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 p-4">
                             <div className="min-w-0">
                               <p className="font-semibold text-slate-900">{row.title}</p>
-                              <p className="text-sm text-stone-600">{row.description}</p>
+                              <p className="text-sm text-slate-600">{row.description}</p>
                             </div>
                             <div className="flex flex-wrap gap-2">
                               <Button variant="outline" size="sm" onClick={() => navigate("expediente", { id: row.procedureId, tab: "resumen" })}>
@@ -1951,44 +1951,44 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                         ))}
                       </SelectContent>
                     </Select>
-                    <div className="rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-600">
+                    <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
                       {reportRows.length} expediente(s) incluidos
                     </div>
                   </div>
 
                   <div className="grid gap-4 xl:grid-cols-2">
-                    <Card className="rounded-[28px] border-stone-200 shadow-sm">
-                      <CardHeader className="border-b border-stone-100">
+                    <Card className="rounded-[28px] border-slate-200 shadow-sm">
+                      <CardHeader className="border-b border-slate-100">
                         <CardTitle>Portafolio completo de expedientes</CardTitle>
                         <CardDescription>Listado con datos principales y semáforos del portafolio.</CardDescription>
                       </CardHeader>
                       <CardContent className="flex items-center justify-between gap-4 p-6">
-                        <div className="text-sm text-stone-600">Exporta el universo filtrado en PDF.</div>
+                        <div className="text-sm text-slate-600">Exporta el universo filtrado en PDF.</div>
                         <Button onClick={exportPortfolioPdf}>PDF</Button>
                       </CardContent>
                     </Card>
-                    <Card className="rounded-[28px] border-stone-200 shadow-sm">
-                      <CardHeader className="border-b border-stone-100">
+                    <Card className="rounded-[28px] border-slate-200 shadow-sm">
+                      <CardHeader className="border-b border-slate-100">
                         <CardTitle>Vencimientos próximos</CardTitle>
                         <CardDescription>Consolidado de alertas y plazos activos en XLSX.</CardDescription>
                       </CardHeader>
                       <CardContent className="flex items-center justify-between gap-4 p-6">
-                        <div className="text-sm text-stone-600">Toma como base alertas activas del módulo.</div>
+                        <div className="text-sm text-slate-600">Toma como base alertas activas del módulo.</div>
                         <Button variant="outline" onClick={exportUpcomingXlsx}>XLSX</Button>
                       </CardContent>
                     </Card>
-                    <Card className="rounded-[28px] border-stone-200 shadow-sm">
-                      <CardHeader className="border-b border-stone-100">
+                    <Card className="rounded-[28px] border-slate-200 shadow-sm">
+                      <CardHeader className="border-b border-slate-100">
                         <CardTitle>Asuntos por responsable</CardTitle>
                         <CardDescription>Distribución por responsable interno en XLSX.</CardDescription>
                       </CardHeader>
                       <CardContent className="flex items-center justify-between gap-4 p-6">
-                        <div className="text-sm text-stone-600">Cruce operativo entre expedientes y responsables.</div>
+                        <div className="text-sm text-slate-600">Cruce operativo entre expedientes y responsables.</div>
                         <Button variant="outline" onClick={exportByResponsibleXlsx}>XLSX</Button>
                       </CardContent>
                     </Card>
-                    <Card className="rounded-[28px] border-stone-200 shadow-sm">
-                      <CardHeader className="border-b border-stone-100">
+                    <Card className="rounded-[28px] border-slate-200 shadow-sm">
+                      <CardHeader className="border-b border-slate-100">
                         <CardTitle>Expediente completo (evidencia)</CardTitle>
                         <CardDescription>Genera el expediente integral con actuaciones, documentos y bitácora.</CardDescription>
                       </CardHeader>
@@ -2028,21 +2028,21 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
               {viewSection === "bitacora" && (
                 <div className="space-y-4">
                   {globalAuditLog.length === 0 ? (
-                    <div className="rounded-2xl border border-dashed border-stone-300 p-8 text-center text-sm text-stone-500">
+                    <div className="rounded-2xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">
                       La bitácora aparecerá conforme se registren expedientes y acciones.
                     </div>
                   ) : (
                     globalAuditLog.map((entry) => (
-                      <div key={entry.id} className="rounded-2xl border border-stone-200 p-4">
+                      <div key={entry.id} className="rounded-2xl border border-slate-200 p-4">
                         <div className="flex flex-wrap items-center justify-between gap-3">
                           <div className="flex items-center gap-2">
-                            <span className="h-2.5 w-2.5 rounded-full bg-[#5b4fc7]" />
+                            <span className="h-2.5 w-2.5 rounded-full bg-[#0a4abf]" />
                             <p className="font-semibold text-slate-900">{entry.action}</p>
                           </div>
-                          <p className="text-sm text-stone-500">{formatDateTimeLabel(entry.createdAt)}</p>
+                          <p className="text-sm text-slate-500">{formatDateTimeLabel(entry.createdAt)}</p>
                         </div>
-                        <p className="mt-2 text-sm text-stone-700">{entry.description}</p>
-                        <p className="mt-1 text-xs text-stone-500">
+                        <p className="mt-2 text-sm text-slate-700">{entry.description}</p>
+                        <p className="mt-1 text-xs text-slate-500">
                           {entry.actorName}
                           {entry.actorEmail ? ` · ${entry.actorEmail}` : ""}
                         </p>
@@ -2054,7 +2054,7 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
 
               {viewSection === "expediente" && selectedProcedure && (
                 <div className="space-y-6">
-                  <div className="sticky top-20 z-10 rounded-[28px] border border-stone-200 bg-white p-5 shadow-sm">
+                  <div className="sticky top-20 z-10 rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
                     <div className="flex flex-wrap items-start justify-between gap-4">
                       <div className="space-y-3">
                         <div className="flex flex-wrap items-center gap-2">
@@ -2066,7 +2066,7 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                             {selectedProcedure.riskLevel}
                           </Badge>
                         </div>
-                        <div className="flex flex-wrap gap-6 text-sm text-stone-600">
+                        <div className="flex flex-wrap gap-6 text-sm text-slate-600">
                           <span>{selectedProcedure.procedureType}</span>
                           <span>{selectedProcedure.authority}</span>
                           <span>{selectedProcedure.responsibles[0]?.name || "Sin responsable"}</span>
@@ -2097,7 +2097,7 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                       navigate("expediente", { id: selectedProcedure.id, tab: nextTab })
                     }}
                   >
-                    <TabsList className="grid w-full grid-cols-4 gap-2 rounded-2xl bg-stone-100/80 p-1 lg:grid-cols-8">
+                    <TabsList className="grid w-full grid-cols-4 gap-2 rounded-2xl bg-slate-100/80 p-1 lg:grid-cols-8">
                       {DETAIL_TABS.map((tab) => (
                         <TabsTrigger key={tab.id} value={tab.id} className="rounded-xl data-[state=active]:bg-white">
                           {tab.label}
@@ -2114,19 +2114,19 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                       </div>
 
                       <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
-                        <Card className="rounded-[28px] border-stone-200 shadow-sm">
-                          <CardHeader className="border-b border-stone-100">
+                        <Card className="rounded-[28px] border-slate-200 shadow-sm">
+                          <CardHeader className="border-b border-slate-100">
                             <CardTitle>Resumen ejecutivo</CardTitle>
                           </CardHeader>
                           <CardContent className="space-y-4 p-6">
-                            <p className="text-sm leading-7 text-stone-700">{selectedProcedure.summary}</p>
+                            <p className="text-sm leading-7 text-slate-700">{selectedProcedure.summary}</p>
                             <div className="grid gap-4 md:grid-cols-2">
                               <div>
-                                <p className="text-sm font-medium text-stone-500">Etapa procesal</p>
+                                <p className="text-sm font-medium text-slate-500">Etapa procesal</p>
                                 <p className="mt-1 text-slate-900">{selectedProcedure.proceduralStage}</p>
                               </div>
                               <div>
-                                <p className="text-sm font-medium text-stone-500">Próximo vencimiento</p>
+                                <p className="text-sm font-medium text-slate-500">Próximo vencimiento</p>
                                 <p className="mt-1 text-slate-900">
                                   {selectedProcedure.dates.nextDueDate
                                     ? `${formatDateLabel(selectedProcedure.dates.nextDueDate)} · ${selectedProcedure.dates.nextDueLabel || "Plazo activo"}`
@@ -2134,21 +2134,21 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                                 </p>
                               </div>
                               <div>
-                                <p className="text-sm font-medium text-stone-500">Responsables</p>
+                                <p className="text-sm font-medium text-slate-500">Responsables</p>
                                 <p className="mt-1 text-slate-900">
                                   {selectedProcedure.responsibles.map((responsible) => responsible.name).join(", ") || "Sin asignar"}
                                 </p>
                               </div>
                               <div>
-                                <p className="text-sm font-medium text-stone-500">Última actualización</p>
+                                <p className="text-sm font-medium text-slate-500">Última actualización</p>
                                 <p className="mt-1 text-slate-900">{formatDateTimeLabel(selectedProcedure.updatedAt)}</p>
                               </div>
                             </div>
                           </CardContent>
                         </Card>
 
-                        <Card className="rounded-[28px] border-stone-200 shadow-sm">
-                          <CardHeader className="border-b border-stone-100">
+                        <Card className="rounded-[28px] border-slate-200 shadow-sm">
+                          <CardHeader className="border-b border-slate-100">
                             <CardTitle>Últimas actuaciones</CardTitle>
                           </CardHeader>
                           <CardContent className="space-y-3 p-6">
@@ -2156,12 +2156,12 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                               .sort((left, right) => new Date(right.date).getTime() - new Date(left.date).getTime())
                               .slice(0, 3)
                               .map((actuation) => (
-                                <div key={actuation.id} className="rounded-2xl border border-stone-200 p-3">
+                                <div key={actuation.id} className="rounded-2xl border border-slate-200 p-3">
                                   <div className="flex items-center justify-between gap-3">
                                     <p className="font-medium text-slate-900">{actuation.title}</p>
-                                    <span className="text-xs text-stone-500">{formatDateLabel(actuation.date)}</span>
+                                    <span className="text-xs text-slate-500">{formatDateLabel(actuation.date)}</span>
                                   </div>
-                                  <p className="mt-2 text-sm text-stone-600">{actuation.description}</p>
+                                  <p className="mt-2 text-sm text-slate-600">{actuation.description}</p>
                                 </div>
                               ))}
                           </CardContent>
@@ -2170,48 +2170,48 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                     </TabsContent>
 
                     <TabsContent value="datos" className="mt-6">
-                      <Card className="rounded-[28px] border-stone-200 shadow-sm">
+                      <Card className="rounded-[28px] border-slate-200 shadow-sm">
                         <CardContent className="grid gap-6 p-6 md:grid-cols-2">
                           <div>
-                            <p className="text-sm font-medium text-stone-500">Tipo</p>
+                            <p className="text-sm font-medium text-slate-500">Tipo</p>
                             <p className="mt-1 text-slate-900">{selectedProcedure.procedureType}</p>
                           </div>
                           <div>
-                            <p className="text-sm font-medium text-stone-500">Familia</p>
+                            <p className="text-sm font-medium text-slate-500">Familia</p>
                             <p className="mt-1 text-slate-900">{selectedProcedure.procedureFamily}</p>
                           </div>
                           <div>
-                            <p className="text-sm font-medium text-stone-500">Autoridad</p>
+                            <p className="text-sm font-medium text-slate-500">Autoridad</p>
                             <p className="mt-1 text-slate-900">{selectedProcedure.authority}</p>
                           </div>
                           <div>
-                            <p className="text-sm font-medium text-stone-500">Origen</p>
+                            <p className="text-sm font-medium text-slate-500">Origen</p>
                             <p className="mt-1 text-slate-900">{selectedProcedure.origin}</p>
                           </div>
                           <div>
-                            <p className="text-sm font-medium text-stone-500">Fecha de inicio</p>
+                            <p className="text-sm font-medium text-slate-500">Fecha de inicio</p>
                             <p className="mt-1 text-slate-900">{formatDateLabel(selectedProcedure.dates.startedAt)}</p>
                           </div>
                           <div>
-                            <p className="text-sm font-medium text-stone-500">Área líder</p>
+                            <p className="text-sm font-medium text-slate-500">Área líder</p>
                             <p className="mt-1 text-slate-900">{selectedProcedure.areaLead}</p>
                           </div>
                           <div className="md:col-span-2">
-                            <p className="text-sm font-medium text-stone-500">Áreas relacionadas</p>
+                            <p className="text-sm font-medium text-slate-500">Áreas relacionadas</p>
                             <p className="mt-1 text-slate-900">{selectedProcedure.relatedAreas.join(", ") || "Sin dato"}</p>
                           </div>
                           <div className="md:col-span-2">
-                            <p className="text-sm font-medium text-stone-500">Datos involucrados</p>
+                            <p className="text-sm font-medium text-slate-500">Datos involucrados</p>
                             <p className="mt-1 text-slate-900">{selectedProcedure.dataCategories.join(", ") || "Sin clasificar"}</p>
                           </div>
                           {canViewSensitive ? (
                             <>
                               <div className="md:col-span-2">
-                                <p className="text-sm font-medium text-stone-500">Titular(es) involucrado(s)</p>
+                                <p className="text-sm font-medium text-slate-500">Titular(es) involucrado(s)</p>
                                 <p className="mt-1 text-slate-900">{selectedProcedure.holders || "Sin registro"}</p>
                               </div>
                               <div className="md:col-span-2">
-                                <p className="text-sm font-medium text-stone-500">Estrategia / comentarios internos</p>
+                                <p className="text-sm font-medium text-slate-500">Estrategia / comentarios internos</p>
                                 <p className="mt-1 whitespace-pre-wrap text-slate-900">{selectedProcedure.strategyNotes || "Sin registro"}</p>
                               </div>
                             </>
@@ -2221,8 +2221,8 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                     </TabsContent>
 
                     <TabsContent value="cronologia" className="mt-6 space-y-6">
-                      <Card className="rounded-[28px] border-stone-200 shadow-sm">
-                        <CardHeader className="border-b border-stone-100">
+                      <Card className="rounded-[28px] border-slate-200 shadow-sm">
+                        <CardHeader className="border-b border-slate-100">
                           <CardTitle>Registrar actuación</CardTitle>
                           <CardDescription>Actualiza la línea de tiempo y genera alertas si existe nuevo plazo.</CardDescription>
                         </CardHeader>
@@ -2324,20 +2324,20 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                         {[...selectedProcedure.actuations]
                           .sort((left, right) => new Date(right.date).getTime() - new Date(left.date).getTime())
                           .map((actuation) => (
-                            <div key={actuation.id} className="rounded-2xl border border-stone-200 p-4">
+                            <div key={actuation.id} className="rounded-2xl border border-slate-200 p-4">
                               <div className="flex flex-wrap items-center justify-between gap-3">
                                 <div>
                                   <p className="font-semibold text-slate-900">{actuation.title}</p>
-                                  <p className="text-sm text-stone-500">{actuation.type}</p>
+                                  <p className="text-sm text-slate-500">{actuation.type}</p>
                                 </div>
-                                <div className="text-right text-sm text-stone-500">
+                                <div className="text-right text-sm text-slate-500">
                                   <p>{formatDateLabel(actuation.date)}</p>
                                   <p>{actuation.createdBy}</p>
                                 </div>
                               </div>
-                              <p className="mt-3 text-sm leading-7 text-stone-700">{actuation.description}</p>
+                              <p className="mt-3 text-sm leading-7 text-slate-700">{actuation.description}</p>
                               {actuation.nextDueDate ? (
-                                <div className="mt-3 rounded-2xl bg-stone-50 px-3 py-2 text-sm text-stone-600">
+                                <div className="mt-3 rounded-2xl bg-slate-50 px-3 py-2 text-sm text-slate-600">
                                   Próximo plazo: {formatDateLabel(actuation.nextDueDate)} · {actuation.nextDueLabel || "Seguimiento"}
                                 </div>
                               ) : null}
@@ -2354,15 +2354,15 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                         </Button>
                       </div>
                       {selectedProcedure.documents.length === 0 ? (
-                        <div className="rounded-2xl border border-dashed border-stone-300 p-8 text-center text-sm text-stone-500">
+                        <div className="rounded-2xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">
                           No hay documentos cargados para este expediente.
                         </div>
                       ) : (
                         sortProcedureDocuments(selectedProcedure.documents).map((group) => {
                           const currentVersion = group.versions.find((version) => version.isCurrent) || group.versions[group.versions.length - 1]
                           return (
-                            <Card key={group.id} className="rounded-[28px] border-stone-200 shadow-sm">
-                              <CardHeader className="border-b border-stone-100">
+                            <Card key={group.id} className="rounded-[28px] border-slate-200 shadow-sm">
+                              <CardHeader className="border-b border-slate-100">
                                 <div className="flex flex-wrap items-center justify-between gap-3">
                                   <div>
                                     <CardTitle>{group.title}</CardTitle>
@@ -2398,12 +2398,12 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                                 {group.versions
                                   .sort((left, right) => right.versionNumber - left.versionNumber)
                                   .map((version) => (
-                                    <div key={version.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-stone-200 p-3">
+                                    <div key={version.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 p-3">
                                       <div>
                                         <p className="font-medium text-slate-900">
                                           V{version.versionNumber} · {version.fileName}
                                         </p>
-                                        <p className="text-sm text-stone-500">
+                                        <p className="text-sm text-slate-500">
                                           {version.uploadedBy} · {formatDateTimeLabel(version.uploadedAt)}
                                         </p>
                                       </div>
@@ -2412,7 +2412,7 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                                           Actual
                                         </Badge>
                                       ) : (
-                                        <Badge variant="outline" className="border-stone-200 bg-stone-50 text-stone-500">
+                                        <Badge variant="outline" className="border-slate-200 bg-slate-50 text-slate-500">
                                           Histórica
                                         </Badge>
                                       )}
@@ -2426,8 +2426,8 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                     </TabsContent>
 
                     <TabsContent value="tareas" className="mt-6 space-y-6">
-                      <Card className="rounded-[28px] border-stone-200 shadow-sm">
-                        <CardHeader className="border-b border-stone-100">
+                      <Card className="rounded-[28px] border-slate-200 shadow-sm">
+                        <CardHeader className="border-b border-slate-100">
                           <CardTitle>Nueva tarea</CardTitle>
                         </CardHeader>
                         <CardContent className="grid gap-4 p-6 md:grid-cols-2">
@@ -2457,9 +2457,9 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                           </div>
                           <div className="space-y-2">
                             <Label>Responsables</Label>
-                            <div className="rounded-2xl border border-stone-200 p-3">
+                            <div className="rounded-2xl border border-slate-200 p-3">
                               {selectedProcedure.responsibles.filter((responsible) => responsible.kind === "interno").map((responsible) => (
-                                <label key={responsible.id} className="flex items-center gap-3 py-1 text-sm text-stone-700">
+                                <label key={responsible.id} className="flex items-center gap-3 py-1 text-sm text-slate-700">
                                   <Checkbox
                                     checked={taskDraft.responsibleIds.includes(responsible.id)}
                                     onCheckedChange={(checked) =>
@@ -2482,27 +2482,27 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                         </CardContent>
                       </Card>
 
-                      <Card className="rounded-[28px] border-stone-200 shadow-sm">
-                        <CardHeader className="border-b border-stone-100">
+                      <Card className="rounded-[28px] border-slate-200 shadow-sm">
+                        <CardHeader className="border-b border-slate-100">
                           <CardTitle>Responsables y tareas</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4 p-6">
-                          <div className="rounded-2xl border border-stone-200 p-4">
+                          <div className="rounded-2xl border border-slate-200 p-4">
                             <p className="font-medium text-slate-900">Responsables asignados</p>
-                            <p className="mt-2 text-sm text-stone-600">
+                            <p className="mt-2 text-sm text-slate-600">
                               {selectedProcedure.responsibles.map((responsible) => responsible.name).join(", ") || "Sin asignar"}
                             </p>
                           </div>
                           {selectedProcedure.tasks.length === 0 ? (
-                            <div className="rounded-2xl border border-dashed border-stone-300 p-4 text-sm text-stone-500">
+                            <div className="rounded-2xl border border-dashed border-slate-300 p-4 text-sm text-slate-500">
                               No hay tareas pendientes para este expediente.
                             </div>
                           ) : (
                             selectedProcedure.tasks.map((task) => (
-                              <div key={task.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-stone-200 p-4">
+                              <div key={task.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 p-4">
                                 <div>
                                   <p className="font-medium text-slate-900">{task.title}</p>
-                                  <p className="text-sm text-stone-500">
+                                  <p className="text-sm text-slate-500">
                                     {task.dueDate ? formatDateLabel(task.dueDate) : "Sin fecha"} ·{" "}
                                     {task.responsibleIds
                                       .map((id) => selectedProcedure.responsibles.find((responsible) => responsible.id === id)?.name)
@@ -2534,8 +2534,8 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                     </TabsContent>
 
                     <TabsContent value="comentarios" className="mt-6 space-y-6">
-                      <Card className="rounded-[28px] border-stone-200 shadow-sm">
-                        <CardHeader className="border-b border-stone-100">
+                      <Card className="rounded-[28px] border-slate-200 shadow-sm">
+                        <CardHeader className="border-b border-slate-100">
                           <CardTitle>Comentarios internos</CardTitle>
                           <CardDescription>Usa @usuario para menciones simples dentro del equipo.</CardDescription>
                         </CardHeader>
@@ -2548,7 +2548,7 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                         </CardContent>
                       </Card>
                       {selectedProcedure.comments.length === 0 ? (
-                        <div className="rounded-2xl border border-dashed border-stone-300 p-4 text-sm text-stone-500">
+                        <div className="rounded-2xl border border-dashed border-slate-300 p-4 text-sm text-slate-500">
                           Sin comentarios registrados.
                         </div>
                       ) : (
@@ -2556,12 +2556,12 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                           .slice()
                           .sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime())
                           .map((comment) => (
-                            <div key={comment.id} className="rounded-2xl border border-stone-200 p-4">
+                            <div key={comment.id} className="rounded-2xl border border-slate-200 p-4">
                               <div className="flex items-center justify-between gap-3">
                                 <p className="font-medium text-slate-900">{comment.createdBy}</p>
-                                <p className="text-sm text-stone-500">{formatDateTimeLabel(comment.createdAt)}</p>
+                                <p className="text-sm text-slate-500">{formatDateTimeLabel(comment.createdAt)}</p>
                               </div>
-                              <p className="mt-2 whitespace-pre-wrap text-sm leading-7 text-stone-700">{comment.body}</p>
+                              <p className="mt-2 whitespace-pre-wrap text-sm leading-7 text-slate-700">{comment.body}</p>
                             </div>
                           ))
                       )}
@@ -2569,29 +2569,29 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
 
                     <TabsContent value="alertas" className="mt-6 space-y-4">
                       {selectedProcedure.alerts.length === 0 ? (
-                        <div className="rounded-2xl border border-dashed border-stone-300 p-6 text-sm text-stone-500">
+                        <div className="rounded-2xl border border-dashed border-slate-300 p-6 text-sm text-slate-500">
                           El expediente no tiene alertas activas.
                         </div>
                       ) : (
                         selectedProcedure.alerts.map((alert) => (
-                          <div key={alert.id} className="rounded-2xl border border-stone-200 p-4">
+                          <div key={alert.id} className="rounded-2xl border border-slate-200 p-4">
                             <div className="flex flex-wrap items-center justify-between gap-3">
                               <div className="flex items-center gap-2">
                                 <AlertCircle
                                   className={cn(
                                     "h-4 w-4",
-                                    alert.priority === "alta" ? "text-red-500" : alert.priority === "media" ? "text-amber-500" : "text-stone-400",
+                                    alert.priority === "alta" ? "text-red-500" : alert.priority === "media" ? "text-amber-500" : "text-slate-400",
                                   )}
                                 />
                                 <p className="font-semibold text-slate-900">{alert.title}</p>
                               </div>
-                              <Badge variant="outline" className={cn("border", alert.priority === "alta" ? "border-red-200 bg-red-50 text-red-700" : alert.priority === "media" ? "border-amber-200 bg-amber-50 text-amber-700" : "border-stone-200 bg-stone-50 text-stone-600")}>
+                              <Badge variant="outline" className={cn("border", alert.priority === "alta" ? "border-red-200 bg-red-50 text-red-700" : alert.priority === "media" ? "border-amber-200 bg-amber-50 text-amber-700" : "border-slate-200 bg-slate-50 text-slate-600")}>
                                 {alert.priority}
                               </Badge>
                             </div>
-                            <p className="mt-2 text-sm text-stone-700">{alert.description}</p>
+                            <p className="mt-2 text-sm text-slate-700">{alert.description}</p>
                             {alert.referenceDate ? (
-                              <p className="mt-1 text-xs text-stone-500">Referencia: {formatDateLabel(alert.referenceDate)}</p>
+                              <p className="mt-1 text-xs text-slate-500">Referencia: {formatDateLabel(alert.referenceDate)}</p>
                             ) : null}
                           </div>
                         ))
@@ -2599,42 +2599,42 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                     </TabsContent>
 
                     <TabsContent value="historial" className="mt-6 space-y-6">
-                      <Card className="rounded-[28px] border-stone-200 shadow-sm">
-                        <CardHeader className="border-b border-stone-100">
+                      <Card className="rounded-[28px] border-slate-200 shadow-sm">
+                        <CardHeader className="border-b border-slate-100">
                           <CardTitle>Bitácora del expediente</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-3 p-6">
                           {sortAuditEntries(selectedProcedure.auditLog).map((entry) => (
-                            <div key={entry.id} className="rounded-2xl border border-stone-200 p-3">
+                            <div key={entry.id} className="rounded-2xl border border-slate-200 p-3">
                               <div className="flex items-center justify-between gap-3">
                                 <p className="font-medium text-slate-900">{entry.action}</p>
-                                <p className="text-sm text-stone-500">{formatDateTimeLabel(entry.createdAt)}</p>
+                                <p className="text-sm text-slate-500">{formatDateTimeLabel(entry.createdAt)}</p>
                               </div>
-                              <p className="mt-2 text-sm text-stone-700">{entry.description}</p>
-                              <p className="mt-1 text-xs text-stone-500">{entry.actorName}</p>
+                              <p className="mt-2 text-sm text-slate-700">{entry.description}</p>
+                              <p className="mt-1 text-xs text-slate-500">{entry.actorName}</p>
                             </div>
                           ))}
                         </CardContent>
                       </Card>
 
-                      <Card className="rounded-[28px] border-stone-200 shadow-sm">
-                        <CardHeader className="border-b border-stone-100">
+                      <Card className="rounded-[28px] border-slate-200 shadow-sm">
+                        <CardHeader className="border-b border-slate-100">
                           <CardTitle>Registro de acceso</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-3 p-6">
                           {selectedProcedure.accessLog.length === 0 ? (
-                            <p className="text-sm text-stone-500">Aún no hay accesos registrados.</p>
+                            <p className="text-sm text-slate-500">Aún no hay accesos registrados.</p>
                           ) : (
                             selectedProcedure.accessLog
                               .slice()
                               .sort((left, right) => new Date(right.accessedAt).getTime() - new Date(left.accessedAt).getTime())
                               .map((entry) => (
-                                <div key={entry.id} className="rounded-2xl border border-stone-200 p-3">
+                                <div key={entry.id} className="rounded-2xl border border-slate-200 p-3">
                                   <div className="flex items-center justify-between gap-3">
                                     <p className="font-medium text-slate-900">{entry.actorName}</p>
-                                    <p className="text-sm text-stone-500">{formatDateTimeLabel(entry.accessedAt)}</p>
+                                    <p className="text-sm text-slate-500">{formatDateTimeLabel(entry.accessedAt)}</p>
                                   </div>
-                                  <p className="mt-2 text-sm text-stone-700">{entry.context}</p>
+                                  <p className="mt-2 text-sm text-slate-700">{entry.context}</p>
                                 </div>
                               ))
                           )}
@@ -2646,7 +2646,7 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
               )}
 
               {viewSection === "expediente" && !selectedProcedure ? (
-                <div className="rounded-2xl border border-dashed border-stone-300 p-8 text-center text-sm text-stone-500">
+                <div className="rounded-2xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">
                   El expediente seleccionado ya no está disponible.
                 </div>
               ) : null}
