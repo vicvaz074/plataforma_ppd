@@ -107,14 +107,14 @@ export default function Paso6Brecha() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-200 pb-5">
         <div>
-          <h2 className="text-xl font-bold text-slate-900">Catálogo de Medidas de Seguridad — Análisis de Brecha</h2>
+          <h2 className="text-xl font-semibold text-slate-900">Catálogo de Medidas de Seguridad — Análisis de Brecha</h2>
           <p className="text-sm text-slate-600 mt-1 max-w-3xl">
             Evalúa cada control del catálogo base (CTG-01 a CTG-10). Indica si se tiene implementado, parcialmente, no implementado o no aplica. Los controles no implementados requieren justificación y plan de implementación.
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <button onClick={expandAll} className="px-3 py-2 text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">Expandir Todo</button>
-          <button onClick={() => setShowCustomForm(!showCustomForm)} className="flex items-center gap-1.5 px-4 py-2 text-sm font-bold text-white bg-slate-900 rounded-lg hover:bg-slate-800 transition-colors">
+          <button onClick={expandAll} className="px-3 py-2 text-xs font-semibold text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">Expandir Todo</button>
+          <button onClick={() => setShowCustomForm(!showCustomForm)} className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-slate-900 rounded-lg hover:bg-slate-800 transition-colors">
             <Plus className="h-4 w-4" /> Medida Personalizada
           </button>
         </div>
@@ -123,14 +123,14 @@ export default function Paso6Brecha() {
       {/* Custom control form */}
       {showCustomForm && (
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
-          <h4 className="font-bold text-slate-800 flex items-center gap-2"><PenLine className="h-4 w-4 text-primary" /> Añadir Medida Personalizada</h4>
+          <h4 className="font-semibold text-slate-800 flex items-center gap-2"><PenLine className="h-4 w-4 text-primary" /> Añadir Medida Personalizada</h4>
           <div className="grid md:grid-cols-3 gap-4">
             <div className="md:col-span-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-1">Descripción *</label>
+              <label className="text-xs font-semibold text-slate-500 uppercase tracking-widest block mb-1">Descripción *</label>
               <input value={customDesc} onChange={(e) => setCustomDesc(e.target.value)} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" placeholder="Ej: Protección DDoS con WAF en aplicaciones web" />
             </div>
             <div>
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-1">Tipo</label>
+              <label className="text-xs font-semibold text-slate-500 uppercase tracking-widest block mb-1">Tipo</label>
               <select value={customTipo} onChange={(e) => setCustomTipo(e.target.value as TipoMedida)} className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
                 <option value="tecnica">Técnica</option>
                 <option value="administrativa">Administrativa</option>
@@ -148,29 +148,29 @@ export default function Paso6Brecha() {
       {/* Stats bar */}
       <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
         <div className="bg-white rounded-xl border border-slate-200 p-3 text-center">
-          <span className="text-2xl font-black text-slate-900">{stats.total}</span>
-          <p className="text-[10px] font-bold text-slate-500 uppercase mt-1">Controles Total</p>
+          <span className="text-2xl font-semibold text-slate-900">{stats.total}</span>
+          <p className="text-[10px] font-semibold text-slate-500 uppercase mt-1">Controles Total</p>
         </div>
         <div className="bg-emerald-50 rounded-xl border border-emerald-200 p-3 text-center cursor-pointer hover:bg-emerald-100 transition-colors" onClick={() => setFiltroEstado(filtroEstado === "implementado" ? "todos" : "implementado")}>
-          <span className="text-2xl font-black text-emerald-700">{stats.impl}</span>
-          <p className="text-[10px] font-bold text-emerald-600 uppercase mt-1">Implementados</p>
+          <span className="text-2xl font-semibold text-emerald-700">{stats.impl}</span>
+          <p className="text-[10px] font-semibold text-emerald-600 uppercase mt-1">Implementados</p>
         </div>
         <div className="bg-amber-50 rounded-xl border border-amber-200 p-3 text-center cursor-pointer hover:bg-amber-100 transition-colors" onClick={() => setFiltroEstado(filtroEstado === "parcial" ? "todos" : "parcial")}>
-          <span className="text-2xl font-black text-amber-700">{stats.parcial}</span>
-          <p className="text-[10px] font-bold text-amber-600 uppercase mt-1">Parciales</p>
+          <span className="text-2xl font-semibold text-amber-700">{stats.parcial}</span>
+          <p className="text-[10px] font-semibold text-amber-600 uppercase mt-1">Parciales</p>
         </div>
         <div className="bg-red-50 rounded-xl border border-red-200 p-3 text-center cursor-pointer hover:bg-red-100 transition-colors" onClick={() => setFiltroEstado(filtroEstado === "no_implementado" ? "todos" : "no_implementado")}>
-          <span className="text-2xl font-black text-red-700">{stats.noImpl}</span>
-          <p className="text-[10px] font-bold text-red-600 uppercase mt-1">No Implementados</p>
+          <span className="text-2xl font-semibold text-red-700">{stats.noImpl}</span>
+          <p className="text-[10px] font-semibold text-red-600 uppercase mt-1">No Implementados</p>
         </div>
         <div className="bg-slate-50 rounded-xl border border-slate-200 p-3 text-center cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => setFiltroEstado(filtroEstado === "sin_evaluar" ? "todos" : "sin_evaluar")}>
-          <span className="text-2xl font-black text-slate-500">{stats.sinEvaluar}</span>
-          <p className="text-[10px] font-bold text-slate-500 uppercase mt-1">Sin Evaluar</p>
+          <span className="text-2xl font-semibold text-slate-500">{stats.sinEvaluar}</span>
+          <p className="text-[10px] font-semibold text-slate-500 uppercase mt-1">Sin Evaluar</p>
         </div>
         {stats.sinJustificar > 0 && (
           <div className="bg-red-50 rounded-xl border border-red-200 p-3 text-center">
-            <span className="text-2xl font-black text-red-700">{stats.sinJustificar}</span>
-            <p className="text-[10px] font-bold text-red-600 uppercase mt-1">Sin Justificar ⚠️</p>
+            <span className="text-2xl font-semibold text-red-700">{stats.sinJustificar}</span>
+            <p className="text-[10px] font-semibold text-red-600 uppercase mt-1">Sin Justificar ⚠️</p>
           </div>
         )}
       </div>
@@ -197,7 +197,7 @@ export default function Paso6Brecha() {
           </select>
         </div>
         {(filtroTipo !== "todos" || filtroEstado !== "todos") && (
-          <button onClick={() => { setFiltroTipo("todos"); setFiltroEstado("todos"); }} className="text-xs font-bold text-primary hover:underline">Limpiar filtros</button>
+          <button onClick={() => { setFiltroTipo("todos"); setFiltroEstado("todos"); }} className="text-xs font-semibold text-primary hover:underline">Limpiar filtros</button>
         )}
       </div>
 
@@ -221,9 +221,9 @@ export default function Paso6Brecha() {
                   {isExpanded ? <ChevronDown className="h-5 w-5 text-slate-400" /> : <ChevronRight className="h-5 w-5 text-slate-400" />}
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-xs font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded">{catId}</span>
-                      <h3 className="font-bold text-slate-900">{catInfo?.nombre || "Medidas Personalizadas"}</h3>
-                      <span className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${
+                      <span className="font-mono text-xs font-semibold text-primary bg-primary/10 px-1.5 py-0.5 rounded">{catId}</span>
+                      <h3 className="font-semibold text-slate-900">{catInfo?.nombre || "Medidas Personalizadas"}</h3>
+                      <span className={`text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded ${
                         catInfo?.tipo === 'tecnica' ? 'bg-blue-50 text-blue-600' : catInfo?.tipo === 'fisica' ? 'bg-purple-50 text-purple-600' : 'bg-emerald-50 text-emerald-600'
                       }`}>{catInfo?.tipo || "personalizada"}</span>
                     </div>
@@ -234,7 +234,7 @@ export default function Paso6Brecha() {
                   <div className="w-20 h-2 bg-slate-100 rounded-full overflow-hidden hidden md:block">
                     <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${pct}%` }} />
                   </div>
-                  <span className="text-sm font-bold text-slate-600">{catImpl}/{catTotal}</span>
+                  <span className="text-sm font-semibold text-slate-600">{catImpl}/{catTotal}</span>
                 </div>
               </button>
 
@@ -254,9 +254,9 @@ export default function Paso6Brecha() {
                           {/* Control info */}
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1 flex-wrap">
-                              <span className="font-mono text-[11px] font-bold text-slate-400">{cat.id}</span>
-                              {cat.obligatorio && <span className="text-[9px] font-bold uppercase text-red-600 bg-red-50 px-1 py-0.5 rounded border border-red-100">Obligatorio</span>}
-                              <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded border ${cat.tipo === 'tecnica' ? 'bg-blue-50 text-blue-600 border-blue-100' : cat.tipo === 'fisica' ? 'bg-purple-50 text-purple-600 border-purple-100' : 'bg-emerald-50 text-emerald-600 border-emerald-100'}`}>{cat.tipo}</span>
+                              <span className="font-mono text-[11px] font-semibold text-slate-400">{cat.id}</span>
+                              {cat.obligatorio && <span className="text-[9px] font-semibold uppercase text-red-600 bg-red-50 px-1 py-0.5 rounded border border-red-100">Obligatorio</span>}
+                              <span className={`text-[9px] font-semibold uppercase px-1.5 py-0.5 rounded border ${cat.tipo === 'tecnica' ? 'bg-blue-50 text-blue-600 border-blue-100' : cat.tipo === 'fisica' ? 'bg-purple-50 text-purple-600 border-purple-100' : 'bg-emerald-50 text-emerald-600 border-emerald-100'}`}>{cat.tipo}</span>
                             </div>
                             <p className="text-sm font-semibold text-slate-900">{cat.nombre}</p>
                             <p className="text-xs text-slate-500 mt-0.5">{cat.objetivo}</p>
@@ -280,7 +280,7 @@ export default function Paso6Brecha() {
                             <select
                               value={ctrl.estado}
                               onChange={(e) => updateMedidaCatalogo(ctrl.controlId, { estado: e.target.value as EstadoImplementacion })}
-                              className={`w-full px-3 py-2 rounded-lg text-xs font-bold border focus:outline-none focus:ring-2 focus:ring-primary/30 ${estiloEstado.color}`}
+                              className={`w-full px-3 py-2 rounded-lg text-xs font-semibold border focus:outline-none focus:ring-2 focus:ring-primary/30 ${estiloEstado.color}`}
                             >
                               {ESTADO_OPTIONS.map(opt => (
                                 <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -293,7 +293,7 @@ export default function Paso6Brecha() {
                         {(ctrl.estado === "no_implementado" || ctrl.estado === "no_aplica" || ctrl.estado === "parcial") && (
                           <div className="mt-3 pl-0 lg:pl-0 space-y-3 animate-in fade-in duration-200">
                             <div>
-                              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">
+                              <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest block mb-1">
                                 Justificación {!ctrl.justificacion.trim() && <span className="text-red-500">* Requerida</span>}
                               </label>
                               <input
@@ -309,10 +309,10 @@ export default function Paso6Brecha() {
                             {ctrl.estado === "no_implementado" && (
                               <div className="flex flex-col sm:flex-row gap-4 items-start">
                                 <div className="flex items-center gap-2">
-                                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest whitespace-nowrap">¿Se va a implementar?</label>
+                                  <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest whitespace-nowrap">¿Se va a implementar?</label>
                                   <button
                                     onClick={() => updateMedidaCatalogo(ctrl.controlId, { seVaImplementar: !ctrl.seVaImplementar })}
-                                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors ${
+                                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
                                       ctrl.seVaImplementar
                                         ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
                                         : 'bg-slate-100 text-slate-600 border-slate-200'
@@ -324,7 +324,7 @@ export default function Paso6Brecha() {
                                 
                                 {ctrl.seVaImplementar && (
                                   <div className="flex items-center gap-2">
-                                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest whitespace-nowrap">Fecha planeada</label>
+                                    <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest whitespace-nowrap">Fecha planeada</label>
                                     <input
                                       type="date"
                                       value={ctrl.fechaPlaneada || ""}
@@ -338,7 +338,7 @@ export default function Paso6Brecha() {
 
                             {ctrl.estado === "parcial" && (
                               <div>
-                                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Evidencia / Notas</label>
+                                <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest block mb-1">Evidencia / Notas</label>
                                 <input
                                   value={ctrl.evidencia || ""}
                                   onChange={(e) => updateMedidaCatalogo(ctrl.controlId, { evidencia: e.target.value })}
@@ -352,7 +352,7 @@ export default function Paso6Brecha() {
 
                         {ctrl.estado === "implementado" && (
                           <div className="mt-3 animate-in fade-in duration-200">
-                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Evidencia / Notas (opcional)</label>
+                            <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest block mb-1">Evidencia / Notas (opcional)</label>
                             <input
                               value={ctrl.evidencia || ""}
                               onChange={(e) => updateMedidaCatalogo(ctrl.controlId, { evidencia: e.target.value })}
@@ -374,8 +374,8 @@ export default function Paso6Brecha() {
       {/* Progress bar global */}
       <div className="bg-slate-900 rounded-2xl p-6 text-white">
         <div className="flex items-center justify-between mb-3">
-          <h4 className="font-bold text-lg flex items-center gap-2"><ShieldCheck className="h-5 w-5" /> Progreso del Análisis de Brecha</h4>
-          <span className="text-2xl font-black">{Math.round(((stats.impl + stats.parcial * 0.5) / Math.max(stats.total - stats.noAplica, 1)) * 100)}%</span>
+          <h4 className="font-semibold text-lg flex items-center gap-2"><ShieldCheck className="h-5 w-5" /> Progreso del Análisis de Brecha</h4>
+          <span className="text-2xl font-semibold">{Math.round(((stats.impl + stats.parcial * 0.5) / Math.max(stats.total - stats.noAplica, 1)) * 100)}%</span>
         </div>
         <div className="w-full h-3 bg-white/10 rounded-full overflow-hidden">
           <div

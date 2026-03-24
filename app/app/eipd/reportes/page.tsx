@@ -2,6 +2,10 @@
 
 import Link from "next/link"
 import { useEffect, useMemo, useState } from "react"
+import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
+
+import { ArcoModuleShell, MODULE_COLOR_PALETTES } from "@/components/arco-module-shell"
+import { EIPD_META, EIPD_NAV } from "@/components/arco-module-config"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
@@ -14,6 +18,7 @@ type EipdForm = {
 }
 
 const STORAGE_KEY = "eipd_forms"
+const COLORS = MODULE_COLOR_PALETTES.eipd
 
 export default function EipdReportsPage() {
   const [forms, setForms] = useState<EipdForm[]>([])
@@ -47,44 +52,100 @@ export default function EipdReportsPage() {
       highRisk,
       overdue,
       upToDate: Math.max(forms.length - overdue, 0),
+      riskChart: [
+        { name: "Riesgo alto", value: highRisk },
+        { name: "Riesgo bajo/medio", value: Math.max(forms.length - highRisk, 0) },
+      ],
+      reviewChart: [
+        { name: "Vigentes", value: Math.max(forms.length - overdue, 0) },
+        { name: "Vencidas", value: overdue },
+      ],
     }
   }, [forms])
 
+  const navItems = EIPD_NAV.map((item) =>
+    item.href.startsWith("/eipd/registro") ? { ...item, badge: forms.length } : item,
+  )
+
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-12">
-      <div className="flex items-end justify-between">
-        <div>
-          <p className="text-sm font-semibold text-muted-foreground">Módulo EIPD</p>
-          <h1 className="text-3xl font-semibold">Reportes y métricas EIPD</h1>
-          <p className="text-sm text-muted-foreground">Información real basada en formularios guardados.</p>
+    <ArcoModuleShell
+      moduleLabel={EIPD_META.moduleLabel}
+      moduleTitle={EIPD_META.moduleTitle}
+      moduleDescription={EIPD_META.moduleDescription}
+      pageLabel="Reportes"
+      pageTitle="Métricas y seguimiento EIPD"
+      pageDescription="Información real basada en formularios guardados, con distribución de riesgo y vigencia del calendario de revisión."
+      navItems={navItems}
+      headerBadges={[
+        { label: `${stats.total} formularios`, tone: "neutral" },
+        { label: `${stats.highRisk} riesgo alto`, tone: stats.highRisk > 0 ? "warning" : "positive" },
+        { label: `${stats.overdue} vencidas`, tone: stats.overdue > 0 ? "critical" : "neutral" },
+      ]}
+      actions={
+        <Button asChild>
+          <Link href="/eipd/registro?mode=new">Nueva EIPD</Link>
+        </Button>
+      }
+    >
+      <div className="space-y-6">
+        <div className="grid gap-4 md:grid-cols-4">
+          <Card><CardHeader><CardTitle>Total EIPD</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold">{stats.total}</p></CardContent></Card>
+          <Card><CardHeader><CardTitle>Riesgo alto</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold">{stats.highRisk}</p></CardContent></Card>
+          <Card><CardHeader><CardTitle>Vencidas</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold">{stats.overdue}</p></CardContent></Card>
+          <Card><CardHeader><CardTitle>Vigentes</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold">{stats.upToDate}</p></CardContent></Card>
         </div>
-        <Button asChild variant="outline"><Link href="/eipd">Volver al módulo</Link></Button>
-      </div>
 
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card><CardHeader><CardTitle>Total EIPD</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold">{stats.total}</p></CardContent></Card>
-        <Card><CardHeader><CardTitle>Riesgo alto</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold">{stats.highRisk}</p></CardContent></Card>
-        <Card><CardHeader><CardTitle>Vencidas</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold">{stats.overdue}</p></CardContent></Card>
-        <Card><CardHeader><CardTitle>Vigentes</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold">{stats.upToDate}</p></CardContent></Card>
-      </div>
+        <div className="grid gap-6 lg:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Concentración de riesgo</CardTitle>
+              <CardDescription>Proporción entre formularios de riesgo alto y expedientes de menor criticidad.</CardDescription>
+            </CardHeader>
+            <CardContent className="h-[320px]">
+              {stats.total === 0 ? (
+                <p className="text-sm text-muted-foreground">Aún no hay EIPD para generar la gráfica.</p>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={stats.riskChart} dataKey="value" nameKey="name" innerRadius={62} outerRadius={108}>
+                      {stats.riskChart.map((entry, index) => (
+                        <Cell key={entry.name} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              )}
+            </CardContent>
+          </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Estado de revisión</CardTitle>
-          <CardDescription>Distribución de vigencia a partir de la fecha de próxima revisión.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {[{ label: "Vigentes", value: stats.upToDate, color: "bg-emerald-600" }, { label: "Vencidas", value: stats.overdue, color: "bg-red-600" }].map((row) => {
-            const pct = stats.total ? Math.round((row.value / stats.total) * 100) : 0
-            return (
-              <div key={row.label} className="space-y-1">
-                <div className="flex justify-between text-sm"><span>{row.label}</span><span>{row.value} ({pct}%)</span></div>
-                <div className="h-2 rounded-full bg-slate-200 dark:bg-slate-700"><div className={`h-2 rounded-full ${row.color}`} style={{ width: `${pct}%` }} /></div>
-              </div>
-            )
-          })}
-        </CardContent>
-      </Card>
-    </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Estado de revisión</CardTitle>
+              <CardDescription>Distribución de vigencia a partir de la fecha de próxima revisión.</CardDescription>
+            </CardHeader>
+            <CardContent className="h-[320px]">
+              {stats.total === 0 ? (
+                <p className="text-sm text-muted-foreground">No hay formularios para calcular la vigencia.</p>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={stats.reviewChart}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                    <YAxis allowDecimals={false} />
+                    <Tooltip />
+                    <Bar dataKey="value" radius={[10, 10, 0, 0]}>
+                      {stats.reviewChart.map((entry, index) => (
+                        <Cell key={entry.name} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </ArcoModuleShell>
   )
 }

@@ -135,7 +135,7 @@ export function Paso9Programas() {
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-xl font-bold text-slate-900">Programas de Capacitación</h2>
+          <h2 className="text-xl font-semibold text-slate-900">Programas de Capacitación</h2>
           <p className="text-sm text-slate-500 mt-1">
             Gestión interna de talleres, evaluaciones y constancias (Art. 61 LFPDPPP).
           </p>
@@ -170,7 +170,7 @@ export function Paso9Programas() {
               <CardContent className="p-6 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                   <div className="lg:col-span-2">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-1">Nombre del Programa *</label>
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-widest block mb-1">Nombre del Programa *</label>
                     <input 
                       type="text"
                       value={newProg.nombre}
@@ -180,7 +180,7 @@ export function Paso9Programas() {
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-1">Instructor / Proveedor</label>
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-widest block mb-1">Instructor / Proveedor</label>
                     <input 
                       type="text"
                       value={newProg.instructor}
@@ -191,7 +191,7 @@ export function Paso9Programas() {
                   </div>
 
                   <div>
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-1">Nivel Criterio</label>
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-widest block mb-1">Nivel Criterio</label>
                     <select 
                       value={newProg.tipo}
                       onChange={(e) => setNewProg({...newProg, tipo: e.target.value as any})}
@@ -203,7 +203,7 @@ export function Paso9Programas() {
                     </select>
                   </div>
                   <div>
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-1">Modalidad</label>
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-widest block mb-1">Modalidad</label>
                     <select 
                       value={newProg.modalidad}
                       onChange={(e) => setNewProg({...newProg, modalidad: e.target.value as any})}
@@ -217,7 +217,7 @@ export function Paso9Programas() {
                   </div>
                   <div className="flex gap-4">
                     <div className="flex-1">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-1">Fecha Prog. *</label>
+                      <label className="text-xs font-semibold text-slate-500 uppercase tracking-widest block mb-1">Fecha Prog. *</label>
                       <input 
                         type="date"
                         value={newProg.fechaProgramada}
@@ -226,7 +226,7 @@ export function Paso9Programas() {
                       />
                     </div>
                     <div className="w-24">
-                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Pasar con %</label>
+                      <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest block mb-1">Pasar con %</label>
                       <input 
                         type="number" min="0" max="100"
                         value={newProg.umbralAprobacion}
@@ -240,7 +240,7 @@ export function Paso9Programas() {
                 <div className="grid md:grid-cols-2 gap-6">
                   {/* Selector Temas */}
                   <div className="bg-white p-4 rounded-xl border border-slate-200">
-                    <h4 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+                    <h4 className="text-sm font-semibold text-slate-800 mb-3 flex items-center gap-2">
                       <GraduationCap className="h-4 w-4 text-indigo-500" />
                       Temas Cubiertos en el Programa
                     </h4>
@@ -264,7 +264,7 @@ export function Paso9Programas() {
                   {/* Selector Participantes */}
                   <div className="bg-white p-4 rounded-xl border border-slate-200">
                     <div className="flex items-center justify-between mb-3">
-                      <h4 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                      <h4 className="text-sm font-semibold text-slate-800 flex items-center gap-2">
                         <Users className="h-4 w-4 text-indigo-500" />
                         Roles Invocados
                       </h4>
@@ -326,14 +326,14 @@ export function Paso9Programas() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <Badge variant="outline" className={`text-[10px] uppercase font-bold px-2 py-0.5 ${
+                      <Badge variant="outline" className={`text-[10px] uppercase font-semibold px-2 py-0.5 ${
                         prog.estado === 'completado' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
                         prog.estado === 'en_curso' ? 'bg-amber-50 text-amber-700 border-amber-200' :
                         'bg-slate-50 text-slate-700 border-slate-200'
                       }`}>
                         {prog.estado.replace('_', ' ')}
                       </Badge>
-                      <Badge variant="outline" className="text-[10px] uppercase font-bold text-indigo-600 bg-indigo-50 border-indigo-100 border-none">{prog.tipo}</Badge>
+                      <Badge variant="outline" className="text-[10px] uppercase font-semibold text-indigo-600 bg-indigo-50 border-indigo-100 border-none">{prog.tipo}</Badge>
                       <span className="text-[10px] text-slate-400 capitalize">{prog.modalidad}</span>
                     </div>
                     <h3 className="font-semibold text-slate-900 truncate">{prog.nombre}</h3>
@@ -346,7 +346,7 @@ export function Paso9Programas() {
                   <div className="flex items-center gap-3 shrink-0">
                     {prog.estado === 'completado' && (
                       <div className="hidden sm:flex flex-col items-end">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Aprobados</span>
+                        <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-1">Aprobados</span>
                         <div className="flex gap-1">
                            {/* Quick stats on passed */}
                            <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-none">
@@ -374,7 +374,7 @@ export function Paso9Programas() {
                           {/* Col 1: Temas */}
                           <div className="flex-1 space-y-4">
                              <div>
-                               <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Temas Impartidos</h4>
+                               <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">Temas Impartidos</h4>
                                <div className="flex flex-wrap gap-2">
                                  {prog.temasCubiertos.map(tema => (
                                    <Badge key={tema} variant="secondary" className="bg-white border border-slate-200 text-slate-700">
@@ -386,7 +386,7 @@ export function Paso9Programas() {
                              </div>
 
                              <div>
-                               <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Materiales Empleados</h4>
+                               <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">Materiales Empleados</h4>
                                <div className="flex items-center gap-2 text-sm text-slate-600 bg-white p-3 border border-slate-200 rounded-lg">
                                  <FileText className="h-4 w-4 text-slate-400" />
                                  <input 
@@ -404,17 +404,17 @@ export function Paso9Programas() {
                           {/* Col 2: Calificaciones */}
                           <div className="flex-[1.5]">
                             <div className="flex items-center justify-between mb-3">
-                              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest">Registros de Participantes y Calificación</h4>
-                              <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded uppercase">Aprobación: {prog.umbralAprobacion}%</span>
+                              <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-widest">Registros de Participantes y Calificación</h4>
+                              <span className="text-[10px] font-semibold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded uppercase">Aprobación: {prog.umbralAprobacion}%</span>
                             </div>
 
                             <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
                               <table className="w-full text-sm">
                                 <thead>
                                   <tr className="bg-slate-50 border-b border-slate-200">
-                                    <th className="text-left px-3 py-2 text-[10px] font-bold text-slate-500 uppercase">Rol Convocado</th>
-                                    <th className="text-center px-3 py-2 text-[10px] font-bold text-slate-500 uppercase w-24">Examen (%)</th>
-                                    <th className="text-center px-3 py-2 text-[10px] font-bold text-slate-500 uppercase w-20">Estado</th>
+                                    <th className="text-left px-3 py-2 text-[10px] font-semibold text-slate-500 uppercase">Rol Convocado</th>
+                                    <th className="text-center px-3 py-2 text-[10px] font-semibold text-slate-500 uppercase w-24">Examen (%)</th>
+                                    <th className="text-center px-3 py-2 text-[10px] font-semibold text-slate-500 uppercase w-20">Estado</th>
                                   </tr>
                                 </thead>
                                 <tbody>

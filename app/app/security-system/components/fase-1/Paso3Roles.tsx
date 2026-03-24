@@ -19,7 +19,7 @@ export default function Paso3Roles() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-slate-900">Funciones y Obligaciones</h2>
+          <h2 className="text-xl font-semibold text-slate-900">Funciones y Obligaciones</h2>
           <p className="text-sm text-slate-600">Principio de minimización de acceso mediante Control de Acceso Basado en Roles (RBAC).</p>
         </div>
         <button 
@@ -62,11 +62,11 @@ export default function Paso3Roles() {
                   </td>
                   <td className="px-5 py-4 text-center">
                     {r.minimizado ? (
-                      <span className="inline-flex items-center gap-1 text-emerald-600 text-xs font-bold">
+                      <span className="inline-flex items-center gap-1 text-emerald-600 text-xs font-semibold">
                         <CheckCircle2 className="h-3 w-3" /> Aplicado
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 text-amber-600 text-xs font-bold">
+                      <span className="inline-flex items-center gap-1 text-amber-600 text-xs font-semibold">
                          Revisión req.
                       </span>
                     )}
@@ -89,7 +89,7 @@ export default function Paso3Roles() {
       <div className="bg-primary/5 border border-primary/20 rounded-xl p-5 flex gap-4 mt-6">
         <Users className="h-6 w-6 text-primary shrink-0" />
         <div>
-          <h4 className="text-sm font-bold text-slate-900">Principio de Minimización (RBAC)</h4>
+          <h4 className="text-sm font-semibold text-slate-900">Principio de Minimización (RBAC)</h4>
           <p className="text-sm text-slate-600 mt-1">
             Asegúrate de no asignar roles administrativos a personal que solo realiza tratamiento operativo. El sistema limitará la visualización de datos personales basándose estrictamente en esta tabla de configuración.
           </p>

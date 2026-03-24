@@ -23,8 +23,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ArrowLeft, Eye, FileDown, FileText, Plus, Search, Trash2 } from "lucide-react";
-import { SafeLink } from "@/components/SafeLink";
+import { Eye, FileDown, FileText, Plus, Search, Trash2 } from "lucide-react";
+import { ArcoModuleShell } from "@/components/arco-module-shell";
+import {
+  THIRD_PARTY_CONTRACTS_META,
+  THIRD_PARTY_CONTRACTS_NAV,
+} from "@/components/arco-module-config";
 import { secureRandomId } from "@/lib/secure-random";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -993,22 +997,35 @@ export default function ContractRegistrationPage() {
     vencido: { label: "Vencido", variant: "destructive" },
     sin_definir: { label: "Sin definir", variant: "outline" },
   };
+  const navItems = THIRD_PARTY_CONTRACTS_NAV.map((item) => {
+    if (item.href === "/third-party-contracts/registration") {
+      return { ...item, badge: contractsHistory.length };
+    }
+    return item;
+  });
   return (
-    <div className="container mx-auto py-8">
-      <div className="mb-8 flex items-center gap-4">
-        <SafeLink href="/third-party-contracts">
-          <Button variant="ghost" size="sm" className="mr-2">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Volver
-          </Button>
-        </SafeLink>
-        <div>
-          <h1 className="text-3xl font-bold">Registro de Contratos</h1>
-          <p className="text-sm text-muted-foreground">
-            Captura integral para contratos que involucren tratamiento de datos personales con terceros.
-          </p>
-        </div>
-      </div>
+    <ArcoModuleShell
+      moduleLabel={THIRD_PARTY_CONTRACTS_META.moduleLabel}
+      moduleTitle={THIRD_PARTY_CONTRACTS_META.moduleTitle}
+      moduleDescription={THIRD_PARTY_CONTRACTS_META.moduleDescription}
+      pageLabel="Registro"
+      pageTitle="Registro contractual integral"
+      pageDescription="Captura integral para contratos que involucren tratamiento de datos personales con terceros, con historial, evidencias y trazabilidad."
+      navItems={navItems}
+      headerBadges={[
+        { label: `${contractsHistory.length} contratos`, tone: "neutral" },
+        { label: `${historyMetrics.statusCounts.vigente} vigentes`, tone: "positive" },
+        {
+          label: `${historyMetrics.expiringIn30} por vencer`,
+          tone: historyMetrics.expiringIn30 > 0 ? "warning" : "neutral",
+        },
+      ]}
+      actions={
+        <Button asChild variant="outline">
+          <Link href="/third-party-contracts/reportes">Abrir reportes</Link>
+        </Button>
+      }
+    >
 
       <Card>
         <CardHeader>
@@ -1924,6 +1941,6 @@ export default function ContractRegistrationPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </ArcoModuleShell>
   );
 }

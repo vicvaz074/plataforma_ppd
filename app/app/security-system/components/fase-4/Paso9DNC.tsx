@@ -96,7 +96,7 @@ export function Paso9DNC() {
       <Card className="border-dashed border-2 border-slate-200 bg-slate-50">
         <CardContent className="p-12 text-center">
           <AlertCircle className="h-10 w-10 text-slate-400 mx-auto mb-4" />
-          <h3 className="text-lg font-bold text-slate-700">No hay roles registrados</h3>
+          <h3 className="text-lg font-semibold text-slate-700">No hay roles registrados</h3>
           <p className="text-sm text-slate-500 mt-2 max-w-md mx-auto">
             La Detección de Necesidades de Capacitación (DNC) requiere que primero definas los perfiles en la Fase Planear.
           </p>
@@ -112,7 +112,7 @@ export function Paso9DNC() {
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-xl font-bold text-slate-900">Detección de Necesidades (DNC)</h2>
+          <h2 className="text-xl font-semibold text-slate-900">Detección de Necesidades (DNC)</h2>
           <p className="text-sm text-slate-500 mt-1">
             Matriz de requerimientos de capacitación por rol y detección automática de brechas.
           </p>
@@ -139,11 +139,11 @@ export function Paso9DNC() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-slate-200 bg-slate-50">
-              <th className="text-left px-4 py-4 text-xs font-bold text-slate-500 uppercase min-w-[200px] sticky left-0 bg-slate-50 z-10 shadow-[1px_0_0_0_#e2e8f0]">Rol y Área</th>
-              <th className="text-center px-4 py-4 text-xs font-bold text-slate-500 uppercase min-w-[80px]">Nivel</th>
-              <th className="text-center px-4 py-4 text-xs font-bold text-slate-500 uppercase min-w-[80px]">Brechas</th>
+              <th className="text-left px-4 py-4 text-xs font-semibold text-slate-500 uppercase min-w-[200px] sticky left-0 bg-slate-50 z-10 shadow-[1px_0_0_0_#e2e8f0]">Rol y Área</th>
+              <th className="text-center px-4 py-4 text-xs font-semibold text-slate-500 uppercase min-w-[80px]">Nivel</th>
+              <th className="text-center px-4 py-4 text-xs font-semibold text-slate-500 uppercase min-w-[80px]">Brechas</th>
               {TEMAS_INAI.map((tema, i) => (
-                <th key={i} className="text-center px-2 py-4 text-[10px] font-bold text-slate-500 uppercase w-20">
+                <th key={i} className="text-center px-2 py-4 text-[10px] font-semibold text-slate-500 uppercase w-20">
                   <span className="[writing-mode:vertical-lr] rotate-180 whitespace-nowrap h-32 leading-none cursor-help" title={tema}>
                     {tema}
                   </span>
@@ -170,7 +170,7 @@ export function Paso9DNC() {
                     <select 
                       value={dnc.nivelRequerido}
                       onChange={(e) => updateDnc(dnc.id, { nivelRequerido: e.target.value as any })}
-                      className="text-[10px] font-bold uppercase p-1 rounded border border-slate-200 bg-transparent focus:ring-1 focus:ring-primary outline-none"
+                      className="text-[10px] font-semibold uppercase p-1 rounded border border-slate-200 bg-transparent focus:ring-1 focus:ring-primary outline-none"
                     >
                       <option value="concienciacion">Concienciación</option>
                       <option value="entrenamiento">Entrenamiento</option>
@@ -178,7 +178,7 @@ export function Paso9DNC() {
                     </select>
                   </td>
                   <td className="px-4 py-3 text-center">
-                    <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${getBrechaColor(brechas)}`}>
+                    <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-semibold ${getBrechaColor(brechas)}`}>
                       {brechas}
                     </span>
                   </td>
@@ -229,7 +229,7 @@ export function Paso9DNC() {
             <GraduationCap className="h-6 w-6 text-indigo-300" />
           </div>
           <div>
-            <h4 className="font-bold flex items-center gap-2">
+            <h4 className="font-semibold flex items-center gap-2">
               Sincronización con Módulo Externo
               {extTrainingsCount > 0 && <Badge className="bg-indigo-500/20 text-indigo-200 hover:bg-indigo-500/20">{extTrainingsCount} registros detectados</Badge>}
             </h4>

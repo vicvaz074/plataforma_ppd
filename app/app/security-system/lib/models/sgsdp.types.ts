@@ -62,6 +62,7 @@ export interface SgsdpActivo {
 
 export interface SgsdpRiesgo {
   id: string;
+  nombreAnalisis?: string;
   activoId: string;
   amenaza: string;
   vulnerabilidad: string;

@@ -18,15 +18,15 @@ export default function Paso1Alcance() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2 mb-4">
-        <div className={`h-8 w-8 rounded-full flex items-center justify-center font-bold text-sm ${step >= 1 ? 'bg-primary text-white' : 'bg-slate-100 text-slate-500'}`}>1</div>
+        <div className={`h-8 w-8 rounded-full flex items-center justify-center font-semibold text-sm ${step >= 1 ? 'bg-primary text-white' : 'bg-slate-100 text-slate-500'}`}>1</div>
         <div className={`h-1 w-12 rounded bg-slate-100 overflow-hidden`}>
            <div className={`h-full bg-primary transition-all ${step >= 2 ? 'w-full' : 'w-0'}`} />
         </div>
-        <div className={`h-8 w-8 rounded-full flex items-center justify-center font-bold text-sm ${step >= 2 ? 'bg-primary text-white' : 'bg-slate-100 text-slate-500'}`}>2</div>
+        <div className={`h-8 w-8 rounded-full flex items-center justify-center font-semibold text-sm ${step >= 2 ? 'bg-primary text-white' : 'bg-slate-100 text-slate-500'}`}>2</div>
         <div className={`h-1 w-12 rounded bg-slate-100 overflow-hidden`}>
            <div className={`h-full bg-primary transition-all ${step >= 3 ? 'w-full' : 'w-0'}`} />
         </div>
-        <div className={`h-8 w-8 rounded-full flex items-center justify-center font-bold text-sm ${step >= 3 ? 'bg-primary text-white' : 'bg-slate-100 text-slate-500'}`}>3</div>
+        <div className={`h-8 w-8 rounded-full flex items-center justify-center font-semibold text-sm ${step >= 3 ? 'bg-primary text-white' : 'bg-slate-100 text-slate-500'}`}>3</div>
       </div>
 
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
@@ -34,7 +34,7 @@ export default function Paso1Alcance() {
         {step === 1 && (
           <div className="p-6 space-y-5 animate-in fade-in slide-in-from-right-4">
             <div>
-              <h3 className="text-lg font-bold text-slate-900">Alcance y Factores del SGSDP</h3>
+              <h3 className="text-lg font-semibold text-slate-900">Alcance y Factores del SGSDP</h3>
               <p className="text-sm text-slate-500">Define qué áreas y procesos están cubiertos por el sistema.</p>
             </div>
             
@@ -97,7 +97,7 @@ export default function Paso1Alcance() {
         {step === 2 && (
           <div className="p-6 space-y-5 animate-in fade-in slide-in-from-right-4">
             <div>
-              <h3 className="text-lg font-bold text-slate-900">Objetivos Medibles</h3>
+              <h3 className="text-lg font-semibold text-slate-900">Objetivos Medibles</h3>
               <p className="text-sm text-slate-500">Establece objetivos cuantitativos para evaluar el éxito del SGSDP.</p>
             </div>
 
@@ -105,7 +105,7 @@ export default function Paso1Alcance() {
               {instancia.objetivos.map((obj, i) => (
                 <div key={obj.id} className="flex gap-2">
                   <div className="flex-1 flex items-center gap-3 px-4 py-3 rounded-xl border border-slate-200 bg-slate-50">
-                    <div className="h-6 w-6 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs shrink-0">
+                    <div className="h-6 w-6 rounded-full bg-primary/10 text-primary flex items-center justify-center font-semibold text-xs shrink-0">
                       {i + 1}
                     </div>
                     <span className="text-sm font-medium text-slate-700">{obj.descripcion}</span>
@@ -168,7 +168,7 @@ export default function Paso1Alcance() {
         {step === 3 && (
           <div className="p-6 space-y-5 animate-in fade-in slide-in-from-right-4">
             <div>
-              <h3 className="text-lg font-bold text-slate-900">Fechas y Responsable Principal</h3>
+              <h3 className="text-lg font-semibold text-slate-900">Fechas y Responsable Principal</h3>
               <p className="text-sm text-slate-500">Asigna liderazgo y el horizonte temporal inicial.</p>
             </div>
 

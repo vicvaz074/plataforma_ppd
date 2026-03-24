@@ -314,6 +314,25 @@ function SectionHeader({
   )
 }
 
+function escapeCsvValue(value: unknown) {
+  const normalized = String(value ?? "")
+  return /[",\n]/.test(normalized) ? `"${normalized.replace(/"/g, '""')}"` : normalized
+}
+
+function downloadCsvFile(filename: string, headers: string[], rows: Array<Array<unknown>>) {
+  const csvContent = [headers, ...rows]
+    .map((row) => row.map((cell) => escapeCsvValue(cell)).join(","))
+    .join("\n")
+
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement("a")
+  link.href = url
+  link.download = filename
+  link.click()
+  URL.revokeObjectURL(url)
+}
+
 export function ArcoWorkspace() {
   const { toast } = useToast()
   const [section, setSection] = useState<WorkspaceSection>("dashboard")
@@ -488,6 +507,33 @@ export function ArcoWorkspace() {
     setSeedOpen(false)
     refresh()
     setSection("dashboard")
+  }
+
+  const downloadAuditLog = () => {
+    if (auditLog.length === 0) {
+      toast({
+        title: "Sin bitácora para descargar",
+        description: "La bitácora del módulo se poblará cuando existan movimientos en expedientes.",
+      })
+      return
+    }
+
+    downloadCsvFile(
+      `arco-bitacora-${new Date().toISOString().slice(0, 10)}.csv`,
+      ["Fecha", "Folio", "Acción", "Actor", "Descripción"],
+      auditLog.map((entry) => [
+        new Date(entry.createdAt).toLocaleString("es-MX"),
+        entry.folio,
+        entry.action,
+        entry.actorName,
+        entry.description,
+      ]),
+    )
+
+    toast({
+      title: "Bitácora exportada",
+      description: "Se descargó el CSV de la bitácora del módulo ARCO.",
+    })
   }
 
   return (
@@ -1388,6 +1434,12 @@ export function ArcoWorkspace() {
                     eyebrow="Bitácora"
                     title="Registro inmutable del módulo"
                     description="Todos los guardados, altas y actualizaciones del expediente quedan concentrados aquí."
+                    extra={
+                      <Button variant="outline" size="sm" onClick={downloadAuditLog}>
+                        <Download className="mr-2 h-4 w-4" />
+                        Descargar bitácora
+                      </Button>
+                    }
                   />
 
                   <Card className="rounded-[28px] border-[#d6e1f6] shadow-sm">
