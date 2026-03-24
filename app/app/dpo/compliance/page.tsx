@@ -11,7 +11,8 @@ import { es } from "date-fns/locale"
 
 import { fileStorage, type StoredFile } from "@/lib/fileStorage"
 import { cn } from "@/lib/utils"
-import { SafeLink } from "@/components/SafeLink"
+import { ArcoModuleShell } from "@/components/arco-module-shell"
+import { DPO_META, DPO_NAV } from "@/components/arco-module-config"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -32,7 +33,6 @@ import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
 import {
   AlertTriangle,
-  ArrowLeft,
   CheckCircle2,
   Download,
   FileText,
@@ -1758,32 +1758,42 @@ export default function DPOCompliancePage() {
   }
 
   const isOptionChecked = (list: string[] | undefined, value: string) => list?.includes(value) ?? false
+  const navItems = DPO_NAV.map((item) =>
+    item.href === "/dpo/compliance" ? { ...item, badge: evidenceSummary.total } : item,
+  )
 
   return (
-    <div className="container mx-auto space-y-8 py-8">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="flex items-center gap-3">
-          <SafeLink href="/dpo">
-            <Button variant="outline" size="icon">
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-          </SafeLink>
-          <div>
-            <h1 className="text-3xl font-bold">Revisión de Cumplimiento del DPD</h1>
-            <p className="text-sm text-muted-foreground">
-              Diagnostica el nivel de madurez del programa del Oficial de Protección de Datos y genera acciones inmediatas.
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
+    <ArcoModuleShell
+      moduleLabel={DPO_META.moduleLabel}
+      moduleTitle={DPO_META.moduleTitle}
+      moduleDescription={DPO_META.moduleDescription}
+      pageLabel="Cumplimiento"
+      pageTitle="Revisión de Cumplimiento del DPD"
+      pageDescription="Diagnostica el nivel de madurez del programa del Oficial de Protección de Datos y genera acciones inmediatas sin modificar el cuestionario ni el análisis."
+      navItems={navItems}
+      headerBadges={[
+        { label: `${evidenceSummary.total} evidencias`, tone: "neutral" },
+        {
+          label: analysis ? `${analysis.complianceScore}% cumplimiento` : "Sin análisis",
+          tone: analysis ? (analysis.complianceScore >= 70 ? "positive" : "warning") : "neutral",
+        },
+        {
+          label: analysis ? `Riesgo ${analysis.riskLevel}` : "Diagnóstico pendiente",
+          tone: analysis ? "primary" : "warning",
+        },
+      ]}
+      actions={
+        <>
           <Button variant="outline" onClick={() => setActiveTab("evidence")}>
             Evidencias ({evidenceSummary.total})
           </Button>
           <Button variant="default" onClick={handleDownloadPDF} disabled={!analysis}>
             <Download className="mr-2 h-4 w-4" /> Exportar reporte
           </Button>
-        </div>
-      </div>
+        </>
+      }
+    >
+      <div className="space-y-8">
 
       {analysis ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -2922,6 +2932,7 @@ export default function DPOCompliancePage() {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
+      </div>
+    </ArcoModuleShell>
   )
 }

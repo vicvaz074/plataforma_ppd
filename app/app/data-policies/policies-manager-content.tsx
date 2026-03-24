@@ -40,6 +40,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
+import { ArcoModuleShell } from "@/components/arco-module-shell"
+import { DATA_POLICIES_META, DATA_POLICIES_NAV } from "@/components/arco-module-config"
 import { ensureBrowserStorageEvents } from "@/lib/browser-storage-events"
 import { getFileById } from "@/lib/fileStorage"
 import { cn } from "@/lib/utils"
@@ -247,6 +249,15 @@ export function PoliciesManager({ initialSection = "registro" }: PoliciesManager
   const donutData = useMemo(() => getPolicyDimensionDonut(primaryPolicy), [primaryPolicy])
   const previewDraft = useMemo(() => normalizePolicyRecord(draft), [draft])
   const previewRows = useMemo(() => getPolicyDimensionRows(previewDraft), [previewDraft])
+  const navItems = useMemo(
+    () =>
+      DATA_POLICIES_NAV.map((item) => {
+        if (item.href === "/data-policies/consulta") return { ...item, badge: sortedPolicies.length }
+        if (item.href === "/data-policies/registro") return { ...item, badge: snapshot.underReview }
+        return item
+      }),
+    [snapshot.underReview, sortedPolicies.length],
+  )
 
   useEffect(() => {
     const requestedSection = searchParams.get("section")
@@ -699,8 +710,47 @@ export function PoliciesManager({ initialSection = "registro" }: PoliciesManager
   const expiringDays = selectedPolicy ? diffDays(selectedPolicy.expiryDate || selectedPolicy.nextReviewDate) : null
 
   return (
-    <div className="mx-auto flex w-full max-w-[1460px] flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
-      <Card className="overflow-hidden border-slate-200 shadow-sm">
+    <ArcoModuleShell
+      moduleLabel={DATA_POLICIES_META.moduleLabel}
+      moduleTitle={DATA_POLICIES_META.moduleTitle}
+      moduleDescription={DATA_POLICIES_META.moduleDescription}
+      pageLabel={activeSection === "registro" ? "Registro" : "Consulta"}
+      pageTitle={
+        activeSection === "registro"
+          ? "Builder operativo PGDP"
+          : "Tablero y expediente PGDP"
+      }
+      pageDescription={
+        activeSection === "registro"
+          ? "Configura políticas, vigencia, responsables y envío al workflow real de aprobación."
+          : "Consulta madurez, evidencias, coberturas y seguimiento documental del programa."
+      }
+      navItems={navItems}
+      headerBadges={[
+        { label: `${snapshot.total} políticas`, tone: "neutral" },
+        {
+          label: `${snapshot.publishedWithEvidence} vigentes con evidencia`,
+          tone: snapshot.publishedWithEvidence > 0 ? "positive" : "warning",
+        },
+        {
+          label: `${snapshot.underReview} en revisión`,
+          tone: snapshot.underReview > 0 ? "primary" : "neutral",
+        },
+      ]}
+      actions={
+        <>
+          <Button onClick={startNewPolicy}>
+            Nueva PGDP
+            <PlusCircle className="ml-2 h-4 w-4" />
+          </Button>
+          <Button asChild variant="outline">
+            <Link href="/audit-alarms">Abrir recordatorios y alertas</Link>
+          </Button>
+        </>
+      }
+    >
+      <div className="mx-auto flex w-full max-w-[1460px] flex-col gap-6">
+        <Card className="overflow-hidden border-slate-200 shadow-sm">
         <CardContent className="grid gap-6 p-6 lg:grid-cols-[1.5fr_1fr] lg:p-8">
           <div className="space-y-4">
             <div className="flex flex-wrap items-center gap-2">
@@ -786,16 +836,16 @@ export function PoliciesManager({ initialSection = "registro" }: PoliciesManager
             </div>
           </div>
         </CardContent>
-      </Card>
+        </Card>
 
-      <div className="flex flex-wrap gap-3">
-        <Button variant={activeSection === "registro" ? "default" : "outline"} onClick={() => setActiveSection("registro")}>
-          Registro guiado
-        </Button>
-        <Button variant={activeSection === "consulta" ? "default" : "outline"} onClick={() => setActiveSection("consulta")}>
-          Consulta y expediente
-        </Button>
-      </div>
+        <div className="flex flex-wrap gap-3">
+          <Button variant={activeSection === "registro" ? "default" : "outline"} onClick={() => setActiveSection("registro")}>
+            Registro guiado
+          </Button>
+          <Button variant={activeSection === "consulta" ? "default" : "outline"} onClick={() => setActiveSection("consulta")}>
+            Consulta y expediente
+          </Button>
+        </div>
 
       {activeSection === "registro" ? (
         <div className="space-y-6">
@@ -2117,6 +2167,7 @@ export function PoliciesManager({ initialSection = "registro" }: PoliciesManager
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+      </div>
+    </ArcoModuleShell>
   )
 }

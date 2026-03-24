@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useState, useEffect, useMemo, FormEvent } from "react"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -29,7 +30,6 @@ import {
   Download,
   FileText,
   Shield,
-  ArrowLeft,
   Search,
   Upload,
   Edit,
@@ -47,6 +47,11 @@ import {
   createFileURL,
   type StoredFile,
 } from "@/lib/fileStorage"
+import { ArcoModuleShell } from "@/components/arco-module-shell"
+import {
+  THIRD_PARTY_CONTRACTS_META,
+  THIRD_PARTY_CONTRACTS_NAV,
+} from "@/components/arco-module-config"
 import { SafeLink } from "@/components/SafeLink"
 import type { ContractMeta } from "../types"
 
@@ -911,18 +916,42 @@ export default function DocumentsAndClausesPage() {
     riskFilter,
   ])
 
-  return (
-    <div className="container mx-auto py-8">
-      <div className="mb-8 flex flex-wrap items-center gap-4">
-        <SafeLink href="/third-party-contracts">
-          <Button variant="ghost" size="sm" className="mr-2">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Volver
-          </Button>
-        </SafeLink>
-        <h1 className="text-3xl font-bold">Documentos y Cláusulas</h1>
-      </div>
+  const navItems = THIRD_PARTY_CONTRACTS_NAV.map((item) => {
+    if (item.href === "/third-party-contracts/registration") {
+      return { ...item, badge: contractHistory.length }
+    }
+    if (item.href === "/third-party-contracts/documents") {
+      return { ...item, badge: templateFiles.length + uploadedContracts.length }
+    }
+    return item
+  })
 
+  return (
+    <ArcoModuleShell
+      moduleLabel={THIRD_PARTY_CONTRACTS_META.moduleLabel}
+      moduleTitle={THIRD_PARTY_CONTRACTS_META.moduleTitle}
+      moduleDescription={THIRD_PARTY_CONTRACTS_META.moduleDescription}
+      pageLabel="Documentos"
+      pageTitle="Biblioteca documental y cláusulas"
+      pageDescription="Repositorio de plantillas, contratos registrados y cláusulas modelo con filtros, parametrización y carga de formatos internos."
+      navItems={navItems}
+      headerBadges={[
+        { label: `${templateFiles.length + uploadedContracts.length} recursos`, tone: "neutral" },
+        { label: `${combinedClauses.length} cláusulas`, tone: "primary" },
+        { label: `${contractHistory.length} contratos relacionados`, tone: "neutral" },
+      ]}
+      actions={
+        <>
+          <Button variant="outline" onClick={() => setIsUploadDialogOpen(true)}>
+            <Upload className="mr-2 h-4 w-4" />
+            Subir plantilla
+          </Button>
+          <Button asChild>
+            <Link href="/third-party-contracts/registration">Ir al registro</Link>
+          </Button>
+        </>
+      }
+    >
       <Tabs defaultValue="documents" className="w-full">
         <TabsList className="mb-8 grid w-full grid-cols-3">
           <TabsTrigger value="documents">Documentos de Utilidad</TabsTrigger>
@@ -1780,6 +1809,6 @@ export default function DocumentsAndClausesPage() {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
+    </ArcoModuleShell>
   )
 }

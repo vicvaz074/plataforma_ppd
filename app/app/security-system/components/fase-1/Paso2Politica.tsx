@@ -231,7 +231,7 @@ export default function Paso2Politica() {
         <div className="md:col-span-1 space-y-6">
           {/* Progress Card */}
           <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-            <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2 text-sm">
+            <h3 className="font-semibold text-slate-900 mb-4 flex items-center gap-2 text-sm">
               <Shield className="h-5 w-5 text-emerald-600" /> Progreso de Cumplimiento
             </h3>
             <div className="relative inline-flex items-center justify-center w-full">
@@ -244,8 +244,8 @@ export default function Paso2Politica() {
                   transform="rotate(-90 60 60)" className="transition-all duration-700" />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-2xl font-black text-slate-900">{porcentaje}%</span>
-                <span className="text-[10px] text-slate-400 font-bold">{reglasCompletadas}/{totalReglas}</span>
+                <span className="text-2xl font-semibold text-slate-900">{porcentaje}%</span>
+                <span className="text-[10px] text-slate-400 font-semibold">{reglasCompletadas}/{totalReglas}</span>
               </div>
             </div>
             <p className="text-xs text-slate-500 text-center mt-3">
@@ -257,7 +257,7 @@ export default function Paso2Politica() {
           </div>
 
           <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-            <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2 text-sm">
+            <h3 className="font-semibold text-slate-900 mb-4 flex items-center gap-2 text-sm">
               <FileBadge className="h-5 w-5 text-primary" /> Archivo Principal
             </h3>
             
@@ -296,23 +296,23 @@ export default function Paso2Politica() {
           </div>
 
           <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-            <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2 text-sm">
+            <h3 className="font-semibold text-slate-900 mb-4 flex items-center gap-2 text-sm">
               <History className="h-5 w-5 text-slate-500" /> Historial Inmutable
             </h3>
             <div className="relative border-l-2 border-slate-100 ml-3 space-y-6">
                <div className="relative pl-5">
                  <div className="absolute -left-[9px] top-1 h-4 w-4 rounded-full bg-white border-2 border-primary"></div>
-                 <p className="text-xs font-bold text-slate-900">v1.2 (Borrador Actual)</p>
+                 <p className="text-xs font-semibold text-slate-900">v1.2 (Borrador Actual)</p>
                  <p className="text-xs text-slate-500">Editado por Juan Pérez - Hoy</p>
                </div>
                <div className="relative pl-5">
                  <div className="absolute -left-[9px] top-1 h-4 w-4 rounded-full bg-slate-200 border-2 border-white"></div>
-                 <p className="text-xs font-bold text-slate-900">v1.1 (Aprobada)</p>
+                 <p className="text-xs font-semibold text-slate-900">v1.1 (Aprobada)</p>
                  <p className="text-xs text-slate-500">Aprobada por Alta Direción - 12 Ene 2025</p>
                </div>
                <div className="relative pl-5">
                  <div className="absolute -left-[9px] top-1 h-4 w-4 rounded-full bg-slate-200 border-2 border-white"></div>
-                 <p className="text-xs font-bold text-slate-900">v1.0 (Inicial)</p>
+                 <p className="text-xs font-semibold text-slate-900">v1.0 (Inicial)</p>
                  <p className="text-xs text-slate-500">Emisión original - 15 Mar 2024</p>
                </div>
             </div>
@@ -323,7 +323,7 @@ export default function Paso2Politica() {
         <div className="md:col-span-2">
           <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
             <div className="mb-6">
-              <h3 className="text-lg font-bold text-slate-900">Checklist de Cumplimiento de la Política</h3>
+              <h3 className="text-lg font-semibold text-slate-900">Checklist de Cumplimiento de la Política</h3>
               <p className="text-sm text-slate-500 mt-1">Verifica que tu política de gestión de datos personales incluya las 20 reglas obligatorias (CTG-01 · GISGSDP).</p>
               
               {/* Progress bar */}
@@ -333,7 +333,7 @@ export default function Paso2Politica() {
                     porcentaje === 100 ? "bg-emerald-500" : porcentaje >= 50 ? "bg-amber-500" : "bg-red-500"
                   }`} style={{ width: `${porcentaje}%` }} />
                 </div>
-                <span className="text-sm font-bold text-slate-700 w-14 text-right">{reglasCompletadas}/{totalReglas}</span>
+                <span className="text-sm font-semibold text-slate-700 w-14 text-right">{reglasCompletadas}/{totalReglas}</span>
               </div>
             </div>
 
@@ -357,7 +357,7 @@ export default function Paso2Politica() {
                       <div className={`w-2 h-8 rounded-full shrink-0 ${todas ? "bg-emerald-500" : c.dot} transition-colors`} />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <h4 className="text-sm font-bold text-slate-900">{grupo.principio}</h4>
+                          <h4 className="text-sm font-semibold text-slate-900">{grupo.principio}</h4>
                           <Badge variant="outline" className={`text-[10px] ${todas ? "bg-emerald-50 text-emerald-700 border-emerald-200" : `${c.bg} ${c.text} border-current/20`}`}>
                             {completadas}/{grupo.reglas.length}
                           </Badge>
@@ -390,7 +390,7 @@ export default function Paso2Politica() {
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center gap-2 flex-wrap">
-                                    <span className={`text-[10px] font-black uppercase px-1.5 py-0.5 rounded ${c.light} ${c.text}`}>{regla.letra}</span>
+                                    <span className={`text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded ${c.light} ${c.text}`}>{regla.letra}</span>
                                     <h5 className={`text-sm font-semibold ${checked ? "text-emerald-900" : "text-slate-800"}`}>{regla.titulo}</h5>
                                   </div>
                                   <p className={`text-xs mt-1 leading-relaxed ${checked ? "text-emerald-700/70" : "text-slate-500"}`}>{regla.descripcion}</p>

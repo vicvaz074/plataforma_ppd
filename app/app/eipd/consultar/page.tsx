@@ -2,11 +2,17 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { ChevronLeft, Home, Pencil, PlusCircle, Trash2 } from "lucide-react"
+import { CalendarClock, ClipboardList, Pencil, PlusCircle, ShieldAlert, ShieldCheck, Trash2 } from "lucide-react"
+import {
+  ArcoModuleShell,
+  ModuleEmptyState,
+  ModuleMetricCard,
+  ModuleSectionCard,
+} from "@/components/arco-module-shell"
+import { EIPD_META, EIPD_NAV } from "@/components/arco-module-config"
 
 type EipdForm = {
   id: string
@@ -118,46 +124,115 @@ export default function EipdConsultPage() {
     setForms((prev) => prev.filter((form) => form.id !== formId))
   }
 
+  const summary = useMemo(() => {
+    let overdue = 0
+    let upcoming = 0
+    let current = 0
+
+    forms.forEach((form) => {
+      const status = getReviewStatus(form.nextReviewDate)
+      if (status.label === "Vencida") {
+        overdue += 1
+      } else if (status.label === "Próxima a vencer") {
+        upcoming += 1
+      } else if (status.label === "Vigente") {
+        current += 1
+      }
+    })
+
+    const recent = [...forms].sort((left, right) => new Date(right.updatedAt).getTime() - new Date(left.updatedAt).getTime())
+
+    return {
+      overdue,
+      upcoming,
+      current,
+      recent,
+      lastUpdate: recent[0]?.updatedAt ?? "",
+    }
+  }, [forms])
+
+  const navItems = useMemo(
+    () =>
+      EIPD_NAV.map((item) => {
+        if (item.href === "/eipd/consultar") return { ...item, badge: forms.length }
+        return item
+      }),
+    [forms.length],
+  )
+
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-4 py-12">
-      <div className="flex gap-2">
-        <Button variant="ghost" size="sm" asChild>
-          <Link href="/eipd">
-            <ChevronLeft className="h-4 w-4" />
-          </Link>
-        </Button>
-        <Button variant="ghost" size="sm" asChild>
-          <Link href="/">
-            <Home className="h-4 w-4" />
-          </Link>
-        </Button>
-      </div>
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div className="space-y-2">
-          <p className="text-sm font-semibold text-muted-foreground">Módulo EIPD</p>
-          <h1 className="text-3xl font-semibold text-foreground sm:text-4xl">Consultar EIPDs realizadas</h1>
-          <p className="text-sm text-muted-foreground sm:text-base">
-            Accede a los formularios guardados y continúa su edición cuando lo requieras.
-          </p>
-        </div>
+    <ArcoModuleShell
+      moduleLabel={EIPD_META.moduleLabel}
+      moduleTitle={EIPD_META.moduleTitle}
+      moduleDescription={EIPD_META.moduleDescription}
+      pageLabel="Consultar"
+      pageTitle="Expedientes EIPD registrados"
+      pageDescription="Consulta formularios guardados, revisa su vigencia y reingresa a la captura sin alterar preguntas, evidencias ni trazabilidad."
+      navItems={navItems}
+      headerBadges={[
+        { label: `${forms.length} formularios`, tone: "neutral" },
+        { label: `${summary.current} vigentes`, tone: "positive" },
+        { label: `${summary.overdue} vencidas`, tone: summary.overdue > 0 ? "critical" : "neutral" },
+      ]}
+      actions={
         <Button asChild className="gap-2">
           <Link href="/eipd/registro?mode=new">
             <PlusCircle className="h-4 w-4" />
             Nueva EIPD
           </Link>
         </Button>
-      </div>
+      }
+    >
+      <div className="space-y-6">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <ModuleMetricCard
+            label="Formularios"
+            value={forms.length}
+            helper="Total de evaluaciones disponibles para edición, consulta y exportación."
+            icon={ClipboardList}
+          />
+          <ModuleMetricCard
+            label="Vigentes"
+            value={summary.current}
+            helper="Expedientes con revisión vigente dentro del calendario registrado."
+            icon={ShieldCheck}
+            tone="positive"
+          />
+          <ModuleMetricCard
+            label="Próximas"
+            value={summary.upcoming}
+            helper="EIPD que requieren seguimiento en los próximos 30 días."
+            icon={CalendarClock}
+            tone={summary.upcoming > 0 ? "warning" : "neutral"}
+          />
+          <ModuleMetricCard
+            label="Vencidas"
+            value={summary.overdue}
+            helper="Formularios que necesitan actualización para mantener trazabilidad vigente."
+            icon={ShieldAlert}
+            tone={summary.overdue > 0 ? "critical" : "neutral"}
+          />
+        </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Formularios registrados</CardTitle>
-          <CardDescription>Consulta o actualiza las evaluaciones guardadas.</CardDescription>
-        </CardHeader>
-        <CardContent>
+        <ModuleSectionCard
+          title="Formularios registrados"
+          description="Consulta, edita o clona evaluaciones sin alterar la estructura del cuestionario original."
+          action={
+            summary.lastUpdate ? (
+              <span className="text-sm text-slate-500">Última actualización: {formatDateTime(summary.lastUpdate)}</span>
+            ) : null
+          }
+        >
           {forms.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-muted-foreground/40 p-6 text-center text-sm text-muted-foreground">
-              Aún no hay formularios guardados. Completa la evaluación y presiona guardar para crear el primero.
-            </div>
+            <ModuleEmptyState
+              title="Aún no hay formularios guardados"
+              description="Completa la evaluación y presiona guardar para crear el primer expediente EIPD del módulo."
+              action={
+                <Button asChild>
+                  <Link href="/eipd/registro?mode=new">Crear primera EIPD</Link>
+                </Button>
+              }
+            />
           ) : (
             <div className="w-full max-w-full overflow-x-auto">
               <Table className="min-w-[720px]">
@@ -212,8 +287,8 @@ export default function EipdConsultPage() {
               </Table>
             </div>
           )}
-        </CardContent>
-      </Card>
-    </div>
+        </ModuleSectionCard>
+      </div>
+    </ArcoModuleShell>
   )
 }

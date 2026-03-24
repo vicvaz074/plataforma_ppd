@@ -15,7 +15,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useToast } from "@/components/ui/use-toast"
-import { ChevronLeft, Home, Info, PlusCircle, Save } from "lucide-react"
+import { Info, PlusCircle, Save } from "lucide-react"
+import { ArcoModuleShell } from "@/components/arco-module-shell"
+import { EIPD_META, EIPD_NAV } from "@/components/arco-module-config"
 import jsPDF from "jspdf"
 import autoTable from "jspdf-autotable"
 import QuestionItem, { QuestionAnswer } from "../components/QuestionItem"
@@ -968,6 +970,17 @@ export default function EipdPage() {
     const evidenceQuestions = sections.slice(0, 5).flatMap((section) => section.questions.map((q) => q.id))
     return collectEvidenceIndex(normalizedAnswers, evidenceQuestions, controlStates)
   }, [controlStates, normalizedAnswers])
+  const reviewStatus = getReviewStatus(nextReviewDate)
+  const navItems = useMemo(
+    () =>
+      EIPD_NAV.map((item) => {
+        if (item.href.startsWith("/eipd/registro")) {
+          return { ...item, badge: forms.length }
+        }
+        return item
+      }),
+    [forms.length],
+  )
 
   const handleGenerateReport = (mode: "completa" | "ejecutiva" | "publica") => {
     if (selectedPartA.length > 0 && !visitedSteps.includes(2)) {
@@ -1599,49 +1612,63 @@ export default function EipdPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-8 overflow-x-hidden px-4 py-10">
-      <div className="flex gap-2">
-        <Button variant="ghost" size="sm" asChild>
-          <Link href="/eipd">
-            <ChevronLeft className="h-4 w-4" />
-          </Link>
-        </Button>
-        <Button variant="ghost" size="sm" asChild>
-          <Link href="/">
-            <Home className="h-4 w-4" />
-          </Link>
-        </Button>
-      </div>
-      {activeStep >= 1 && (
-        <div className="relative">
-          <div className="h-[120px]" aria-hidden="true" />
-          <div className="fixed top-16 right-0 z-40 sm:left-64 lg:left-72">
-            <div className="mx-auto w-full max-w-6xl px-4">
-              <div className="rounded-xl border bg-white/90 p-4 shadow-sm backdrop-blur dark:bg-slate-950/80">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-semibold text-muted-foreground">Barra de progreso general</p>
-                    <p className="text-lg font-semibold text-foreground">
-                      Fase {activeStep + 1} de {totalSteps} · {stepTitles[activeStep]}
-                    </p>
-                    <p className="text-sm text-muted-foreground">EIPD en edición: {formDisplayName}</p>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Avance: {Math.round(((activeStep + 1) / totalSteps) * 100)}%
-                  </p>
-                </div>
-                <div className="mt-3 h-2 w-full rounded-full bg-muted">
-                  <div
-                    className="h-2 rounded-full bg-primary transition-all"
-                    style={{ width: `${((activeStep + 1) / totalSteps) * 100}%` }}
-                  />
-                </div>
+    <ArcoModuleShell
+      moduleLabel={EIPD_META.moduleLabel}
+      moduleTitle={EIPD_META.moduleTitle}
+      moduleDescription={EIPD_META.moduleDescription}
+      pageLabel={editingId ? "Edición" : "Registro"}
+      pageTitle="Registro operativo EIPD"
+      pageDescription="Captura la evaluación completa, conserva evidencias y genera el expediente final sin alterar la estructura normativa del cuestionario."
+      navItems={navItems}
+      headerBadges={[
+        { label: `${forms.length} formularios`, tone: "neutral" },
+        { label: `${selectedPartA.length} criterios de obligatoriedad`, tone: selectedPartA.length > 0 ? "warning" : "neutral" },
+        {
+          label: `${complianceSummary.percent}% de cumplimiento`,
+          tone:
+            complianceSummary.percent >= 85
+              ? "positive"
+              : complianceSummary.percent >= 60
+                ? "warning"
+                : "critical",
+        },
+        { label: reviewStatus.label, tone: reviewStatus.label === "Vigente" ? "positive" : reviewStatus.label === "Próxima a vencer" ? "warning" : "critical" },
+      ]}
+      actions={
+        <>
+          <Button asChild variant="outline">
+            <Link href="/eipd/consultar">Consultar expedientes</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link href="/eipd/reportes">Abrir reportes</Link>
+          </Button>
+        </>
+      }
+      contentClassName="space-y-6 overflow-x-hidden"
+    >
+      {activeStep >= 1 ? (
+        <div className="sticky top-4 z-20">
+          <div className="rounded-[24px] border border-[#d6e1f6] bg-white/95 p-4 shadow-sm backdrop-blur">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold text-slate-500">Barra de progreso general</p>
+                <p className="text-lg font-semibold text-slate-950">
+                  Fase {activeStep + 1} de {totalSteps} · {stepTitles[activeStep]}
+                </p>
+                <p className="text-sm text-slate-500">EIPD en edición: {formDisplayName}</p>
               </div>
+              <p className="text-sm text-slate-500">Avance: {Math.round(((activeStep + 1) / totalSteps) * 100)}%</p>
+            </div>
+            <div className="mt-3 h-2 w-full rounded-full bg-slate-100">
+              <div
+                className="h-2 rounded-full bg-[#0a4abf] transition-all"
+                style={{ width: `${((activeStep + 1) / totalSteps) * 100}%` }}
+              />
             </div>
           </div>
         </div>
-      )}
-      <Card className="overflow-hidden border-0 bg-gradient-to-br from-slate-50 via-white to-slate-100 shadow-lg dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
+      ) : null}
+      <Card className="overflow-hidden rounded-[28px] border-[#d6e1f6] bg-[linear-gradient(135deg,#edf4ff_0%,#ffffff_50%,#f7fbff_100%)] shadow-sm">
         <CardContent className="p-5 sm:p-8">
           <div className="flex flex-col gap-8 lg:flex-row lg:items-center">
             <div className="min-w-0 flex-1 space-y-4">
@@ -1698,7 +1725,7 @@ export default function EipdPage() {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="rounded-[28px] border-[#d6e1f6] shadow-sm">
         <CardContent className="space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-3 px-2 sm:px-4">
             <div className="space-y-1 pt-2">
@@ -3084,6 +3111,6 @@ export default function EipdPage() {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </ArcoModuleShell>
   )
 }

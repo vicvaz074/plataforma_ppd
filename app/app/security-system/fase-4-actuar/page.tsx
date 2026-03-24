@@ -25,10 +25,10 @@ export default function Fase4Actuar() {
         <div className="max-w-7xl mx-auto relative z-10 flex flex-col md:flex-row items-start md:items-end justify-between gap-6">
           <div className="max-w-2xl">
             <div className="flex items-center gap-2 mb-3">
-              <span className="bg-indigo-500/20 text-indigo-300 text-xs font-bold px-2 py-1 rounded uppercase tracking-widest border border-indigo-500/20">Fase 4 • Actuar</span>
-              <span className="bg-emerald-500/20 text-emerald-300 text-xs font-bold px-2 py-1 rounded uppercase tracking-widest border border-emerald-500/20">Paso 9 SGSDP</span>
+              <span className="bg-indigo-500/20 text-indigo-300 text-xs font-semibold px-2 py-1 rounded uppercase tracking-widest border border-indigo-500/20">Fase 4 • Actuar</span>
+              <span className="bg-emerald-500/20 text-emerald-300 text-xs font-semibold px-2 py-1 rounded uppercase tracking-widest border border-emerald-500/20">Paso 9 SGSDP</span>
             </div>
-            <h1 className="text-3xl sm:text-4xl font-black text-white leading-tight flex items-center gap-3">
+            <h1 className="text-3xl sm:text-4xl font-semibold text-white leading-tight flex items-center gap-3">
               <Activity className="h-10 w-10 text-emerald-400" />
               Mejora Continua y Capacitación
             </h1>

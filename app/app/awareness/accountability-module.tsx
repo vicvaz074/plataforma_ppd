@@ -2591,9 +2591,20 @@ export function AwarenessContent({ initialModule = "dashboard" }: { initialModul
           </CardContent>
         </Card>
 
-        <Tabs value={activeModule} onValueChange={(value) => setActiveModule(value as AccountabilityModuleId)} className="space-y-6">
-          <div className="sticky top-16 z-20 overflow-hidden rounded-[24px] border border-slate-200 bg-white/90 p-3 shadow-sm backdrop-blur">
-            <TabsList className="flex h-auto w-full max-w-full justify-start gap-2 overflow-x-auto bg-transparent p-0">
+        <Tabs
+          value={activeModule}
+          onValueChange={(value) => setActiveModule(value as AccountabilityModuleId)}
+          className="grid gap-6 xl:grid-cols-[280px_minmax(0,1fr)] xl:items-start"
+        >
+          <aside className="sticky top-16 self-start overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
+            <div className="border-b border-slate-100 bg-slate-50/80 px-5 py-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Workspace SGDP</p>
+              <p className="mt-2 text-2xl font-semibold text-slate-950">Responsabilidad demostrada</p>
+              <p className="mt-3 text-sm leading-6 text-slate-500">
+                Navegación lateral de los submódulos operativos para mantener continuidad visual con el layout de referencia.
+              </p>
+            </div>
+            <TabsList className="grid h-auto w-full gap-2 bg-transparent p-3">
               {MODULES.filter((module) => module.id !== "sm12").map((module) => {
                 const Icon = module.icon
                 const moduleState = moduleStatusMap[module.id]
@@ -2601,7 +2612,7 @@ export function AwarenessContent({ initialModule = "dashboard" }: { initialModul
                   <TabsTrigger
                     key={module.id}
                     value={module.id}
-                    className="data-[state=active]:border-primary/20 data-[state=active]:bg-primary/5 data-[state=active]:text-primary flex h-auto min-w-[138px] max-w-[220px] shrink-0 items-start justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left text-slate-600 whitespace-normal sm:min-w-[150px]"
+                    className="data-[state=active]:border-primary/20 data-[state=active]:bg-primary/5 data-[state=active]:text-primary flex h-auto w-full items-start justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left text-slate-600 whitespace-normal"
                   >
                     <div className="flex min-w-0 items-start gap-3">
                       <div className="rounded-xl bg-slate-100 p-2 text-slate-700">
@@ -2622,7 +2633,7 @@ export function AwarenessContent({ initialModule = "dashboard" }: { initialModul
                 )
               })}
             </TabsList>
-          </div>
+          </aside>
 
           <TabsContent value="dashboard" className="mt-0 space-y-6">
             <div className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">

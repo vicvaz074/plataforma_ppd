@@ -68,7 +68,7 @@ export function Paso9Dashboard() {
       
       {/* Header Dashboard */}
       <div>
-        <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+        <h2 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
           <Activity className="h-5 w-5 text-indigo-500" />
           Dashboard Ejecutivo de Mejora Continua
         </h2>
@@ -82,10 +82,10 @@ export function Paso9Dashboard() {
         <Card className="border-slate-200 shadow-sm bg-white hover:border-blue-300 transition-colors">
           <CardContent className="p-5 flex items-center justify-between">
             <div>
-              <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1">CAPA Abiertas</p>
-              <h3 className="text-3xl font-black text-slate-800">
+              <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest mb-1">CAPA Abiertas</p>
+              <h3 className="text-3xl font-semibold text-slate-800">
                 {cAbiertas}
-                {cVencidas > 0 && <span className="text-sm font-bold text-red-500 ml-2">({cVencidas} venc.)</span>}
+                {cVencidas > 0 && <span className="text-sm font-semibold text-red-500 ml-2">({cVencidas} venc.)</span>}
               </h3>
             </div>
             <div className={`p-3 rounded-xl ${cAbiertas > 0 ? 'bg-amber-50 text-amber-600' : 'bg-slate-50 text-slate-400'}`}>
@@ -97,10 +97,10 @@ export function Paso9Dashboard() {
         <Card className="border-slate-200 shadow-sm bg-white hover:border-emerald-300 transition-colors">
           <CardContent className="p-5 flex items-center justify-between">
             <div>
-              <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1">CAPA Cerradas</p>
-              <h3 className="text-3xl font-black text-slate-800">
+              <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest mb-1">CAPA Cerradas</p>
+              <h3 className="text-3xl font-semibold text-slate-800">
                 {cCerradas}
-                <span className="text-sm font-bold text-slate-400 ml-2">/ {tCAPA}</span>
+                <span className="text-sm font-semibold text-slate-400 ml-2">/ {tCAPA}</span>
               </h3>
             </div>
             <div className="p-3 rounded-xl bg-emerald-50 text-emerald-600">
@@ -112,8 +112,8 @@ export function Paso9Dashboard() {
         <Card className="border-slate-200 shadow-sm bg-white hover:border-indigo-300 transition-colors">
           <CardContent className="p-5 flex items-center justify-between">
             <div>
-              <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1">Brechas Capacitación</p>
-              <h3 className="text-3xl font-black text-slate-800">
+              <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest mb-1">Brechas Capacitación</p>
+              <h3 className="text-3xl font-semibold text-slate-800">
                 {brechasTotales}
               </h3>
             </div>
@@ -126,8 +126,8 @@ export function Paso9Dashboard() {
         <Card className="border-slate-200 shadow-sm bg-gradient-to-br from-indigo-600 to-blue-700 text-white">
           <CardContent className="p-5 flex items-center justify-between relative overflow-hidden">
             <div className="relative z-10">
-              <p className="text-[11px] font-bold text-indigo-200 uppercase tracking-widest mb-1">Reducción de Riesgo</p>
-              <h3 className="text-3xl font-black text-white flex items-end gap-1">
+              <p className="text-[11px] font-semibold text-indigo-200 uppercase tracking-widest mb-1">Reducción de Riesgo</p>
+              <h3 className="text-3xl font-semibold text-white flex items-end gap-1">
                 {avgReduccion}%
                 <TrendingUp className="h-5 w-5 text-emerald-300 mb-1" />
               </h3>
@@ -146,7 +146,7 @@ export function Paso9Dashboard() {
           <CardContent>
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-xs font-semibold text-slate-600">Completado</span>
-              <span className="text-xs font-bold text-slate-900">{capaCumplimiento}%</span>
+              <span className="text-xs font-semibold text-slate-900">{capaCumplimiento}%</span>
             </div>
             <div className="w-full bg-slate-100 rounded-full h-2">
               <div className="bg-emerald-500 h-2 rounded-full transition-all duration-1000" style={{ width: `${capaCumplimiento}%` }}></div>
@@ -161,7 +161,7 @@ export function Paso9Dashboard() {
           <CardContent>
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-xs font-semibold text-slate-600">Cobertura requerida</span>
-              <span className="text-xs font-bold text-slate-900">{staffCapacitado}%</span>
+              <span className="text-xs font-semibold text-slate-900">{staffCapacitado}%</span>
             </div>
             <div className="w-full bg-slate-100 rounded-full h-2">
               <div className="bg-indigo-500 h-2 rounded-full transition-all duration-1000" style={{ width: `${staffCapacitado}%` }}></div>
@@ -189,7 +189,7 @@ export function Paso9Dashboard() {
                   {proxProgs.map(p => (
                     <div key={p.id} className="flex items-center justify-between p-3 rounded-lg border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition-colors">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-xs shrink-0">
+                        <div className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-semibold text-xs shrink-0">
                           {p.fechaProgramada.split('-')[2]}
                           <span className="text-[8px] block ml-0.5">{["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"][parseInt(p.fechaProgramada.split('-')[1])-1]}</span>
                         </div>
@@ -215,9 +215,9 @@ export function Paso9Dashboard() {
               <div className="mx-auto p-4 rounded-full bg-white/10 w-16 h-16 flex items-center justify-center mb-4">
                 <TrendingUp className="text-emerald-400 h-8 w-8" />
               </div>
-              <h3 className="text-xl font-bold mb-2">Ciclo PHVA</h3>
+              <h3 className="text-xl font-semibold mb-2">Ciclo PHVA</h3>
               <p className="text-slate-300 text-sm mb-4">
-                Al verificar este dashboard y cerrar las CAPAs, se completa el ciclo <strong>Actuar</strong>, retroalimentando la fase inicial de Planificación.
+                Al verificar este dashboard y cerrar las CAPAs, se completa el ciclo <span className="font-semibold text-white">Actuar</span>, retroalimentando la fase inicial de Planificación.
               </p>
               <Badge className="bg-emerald-500/20 text-emerald-300 border-none mx-auto hover:bg-emerald-500/30">
                 Paso 9 completado

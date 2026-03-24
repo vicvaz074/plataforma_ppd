@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -28,10 +27,18 @@ import {
   updateFile,
   updateFileMetadata,
 } from "@/lib/fileStorage";
-import { ChevronLeft, Home, Trash2 } from "lucide-react";
+import { FileCheck2, FilePlus2, Files, ShieldCheck, Trash2 } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
+import {
+  ArcoModuleShell,
+  ModuleMetricCard,
+} from "@/components/arco-module-shell";
+import {
+  PRIVACY_NOTICES_META,
+  PRIVACY_NOTICES_NAV,
+} from "@/components/arco-module-config";
 
 const HOLDER_CATEGORY_OPTIONS = [
   {
@@ -722,26 +729,103 @@ export function PrivacyNoticesContent({ section }: PrivacyNoticesContentProps) {
   const isRegisterSection = section === "register";
   const isListSection = section === "list";
 
+  const noticesWithEvidence = privacyNotices.filter((notice) => {
+    const evidence = notice.metadata.evidenceFiles;
+    return (
+      (Array.isArray(evidence) && evidence.length > 0) ||
+      Boolean(notice.metadata.evidenceNotes)
+    );
+  }).length;
+
+  const noticesWithVersion = privacyNotices.filter((notice) =>
+    Boolean(notice.metadata.versionCode),
+  ).length;
+
+  const coveragePercentage =
+    privacyNotices.length > 0
+      ? Math.round((noticesWithEvidence / privacyNotices.length) * 100)
+      : 0;
+
+  const navItems = PRIVACY_NOTICES_NAV.map((item) => {
+    if (item.href === "/privacy-notices/registrados") {
+      return { ...item, badge: privacyNotices.length };
+    }
+    return item;
+  });
+
   return (
-    <div className="container mx-auto py-8">
-      <div className="mb-6 flex gap-2">
-        <Button variant="ghost" size="sm" asChild>
-          <Link href="/privacy-notices">
-            <ChevronLeft className="h-4 w-4" />
-          </Link>
-        </Button>
-        <Button variant="ghost" size="sm" asChild>
-          <Link href="/">
-            <Home className="h-4 w-4" />
-          </Link>
-        </Button>
-      </div>
-      <div className="mb-8 space-y-2">
-        <h1 className="text-3xl font-bold">Avisos de privacidad</h1>
-        <p className="text-sm text-muted-foreground">
-          Gestiona los avisos de privacidad, su evidencia y el seguimiento de versiones vigentes.
-        </p>
-      </div>
+    <ArcoModuleShell
+      moduleLabel={PRIVACY_NOTICES_META.moduleLabel}
+      moduleTitle={PRIVACY_NOTICES_META.moduleTitle}
+      moduleDescription={PRIVACY_NOTICES_META.moduleDescription}
+      pageLabel={isRegisterSection ? "Registro" : "Consulta"}
+      pageTitle={
+        isRegisterSection
+          ? editingNotice
+            ? "Edición de aviso"
+            : "Registro de aviso"
+          : "Inventario de avisos"
+      }
+      pageDescription={
+        isRegisterSection
+          ? "Captura el aviso vigente, sus responsables, la puesta a disposición y la evidencia documental asociada."
+          : "Consulta, filtra y mantiene el inventario de avisos con trazabilidad de versiones y responsables."
+      }
+      navItems={navItems}
+      headerBadges={[
+        { label: `${privacyNotices.length} avisos`, tone: "neutral" },
+        {
+          label: `${coveragePercentage}% con evidencia`,
+          tone: coveragePercentage >= 70 ? "positive" : "warning",
+        },
+      ]}
+      actions={
+        isRegisterSection ? (
+          <Button
+            variant="outline"
+            onClick={() => router.push("/privacy-notices/registrados")}
+          >
+            Ver inventario
+          </Button>
+        ) : (
+          <Button
+            onClick={() => router.push("/privacy-notices/registro")}
+          >
+            <FilePlus2 className="mr-2 h-4 w-4" />
+            Nuevo aviso
+          </Button>
+        )
+      }
+    >
+      <div className="space-y-6">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <ModuleMetricCard
+            label="Avisos registrados"
+            value={privacyNotices.length}
+            helper="Inventario total del módulo disponible para consulta y mantenimiento."
+            icon={Files}
+          />
+          <ModuleMetricCard
+            label="Con evidencia"
+            value={noticesWithEvidence}
+            helper="Registros con evidencia de puesta a disposición o notas de soporte."
+            icon={ShieldCheck}
+            tone="positive"
+          />
+          <ModuleMetricCard
+            label="Con versión"
+            value={noticesWithVersion}
+            helper="Avisos identificados con versión o código de control documental."
+            icon={FileCheck2}
+          />
+          <ModuleMetricCard
+            label="Pendientes"
+            value={Math.max(privacyNotices.length - noticesWithEvidence, 0)}
+            helper="Avisos que aún pueden fortalecerse con soporte documental adicional."
+            icon={Trash2}
+            tone="warning"
+          />
+        </div>
 
       {isRegisterSection && (
         <Card>
@@ -1309,6 +1393,7 @@ export function PrivacyNoticesContent({ section }: PrivacyNoticesContentProps) {
             </CardContent>
           </Card>
       )}
-    </div>
+      </div>
+    </ArcoModuleShell>
   );
 }

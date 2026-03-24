@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/components/ui/use-toast"
-import { SafeLink } from "@/components/SafeLink"
+import { ArcoModuleShell } from "@/components/arco-module-shell"
+import { DPO_META, DPO_NAV } from "@/components/arco-module-config"
 import {
   ArrowLeft,
   Download,
@@ -1135,19 +1136,33 @@ export default function DPOReportsPage() {
     }
   }
 
-  return (
-    <div className="container mx-auto py-8">
-      <div className="flex items-center mb-8">
-        <SafeLink href="/dpo">
-          <Button variant="outline" size="icon">
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-        </SafeLink>
-        <h1 className="text-3xl font-bold">Generación de Informes del DPD</h1>
-      </div>
+  const navItems = DPO_NAV.map((item) => {
+    if (item.href === "/dpo/reports") {
+      return { ...item, badge: reports.length + actas.length }
+    }
+    return item
+  })
 
-      <Tabs defaultValue="acta">
-        <TabsList className="mb-6">
+  const finalReports = reports.filter((report) => report.status === "final").length
+
+  return (
+    <ArcoModuleShell
+      moduleLabel={DPO_META.moduleLabel}
+      moduleTitle={DPO_META.moduleTitle}
+      moduleDescription={DPO_META.moduleDescription}
+      pageLabel="Informes"
+      pageTitle="Actas e informes del DPO"
+      pageDescription="Genera actas de reunión, conserva versiones de informes y mantiene trazabilidad documental del Oficial de Protección de Datos."
+      navItems={navItems}
+      headerBadges={[
+        { label: `${actas.length} actas`, tone: "neutral" },
+        { label: `${reports.length} informes`, tone: "primary" },
+        { label: `${finalReports} finales`, tone: finalReports > 0 ? "positive" : "neutral" },
+      ]}
+      contentClassName="space-y-6"
+    >
+      <Tabs defaultValue="acta" className="space-y-6">
+        <TabsList className="h-auto flex-wrap justify-start gap-2 rounded-2xl bg-[#edf4ff] p-2">
           <TabsTrigger value="acta">Acta de Reunión</TabsTrigger>
           <TabsTrigger value="actas-list">Actas Guardadas</TabsTrigger>
           <TabsTrigger value="create">Crear Informe</TabsTrigger>
@@ -1953,6 +1968,6 @@ export default function DPOReportsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </ArcoModuleShell>
   )
 }

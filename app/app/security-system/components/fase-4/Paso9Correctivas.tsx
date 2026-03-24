@@ -102,7 +102,7 @@ export function Paso9Correctivas() {
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-xl font-bold text-slate-900">Acciones Correctivas</h2>
+          <h2 className="text-xl font-semibold text-slate-900">Acciones Correctivas</h2>
           <p className="text-sm text-slate-500 mt-1">
             Registro y seguimiento de acciones derivadas de incidentes, auditorías o fallas detectadas.
           </p>
@@ -137,7 +137,7 @@ export function Paso9Correctivas() {
               <CardContent className="p-6 space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div>
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-1">Origen del Hallazgo *</label>
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-widest block mb-1">Origen del Hallazgo *</label>
                     <select 
                       value={newCapa.origenTipo}
                       onChange={(e) => setNewCapa({...newCapa, origenTipo: e.target.value as any, auditoriaOrigenId: "", vulneracionOrigenId: ""})}
@@ -152,7 +152,7 @@ export function Paso9Correctivas() {
 
                   {newCapa.origenTipo === 'auditoria' && (
                     <div>
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-1">Referencia a Auditoría</label>
+                      <label className="text-xs font-semibold text-slate-500 uppercase tracking-widest block mb-1">Referencia a Auditoría</label>
                       <select 
                         value={newCapa.auditoriaOrigenId}
                         onChange={(e) => setNewCapa({...newCapa, auditoriaOrigenId: e.target.value})}
@@ -168,7 +168,7 @@ export function Paso9Correctivas() {
 
                   {newCapa.origenTipo === 'incidente' && (
                     <div>
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-1">Referencia a Incidente</label>
+                      <label className="text-xs font-semibold text-slate-500 uppercase tracking-widest block mb-1">Referencia a Incidente</label>
                       <select 
                         value={newCapa.vulneracionOrigenId}
                         onChange={(e) => setNewCapa({...newCapa, vulneracionOrigenId: e.target.value})}
@@ -183,7 +183,7 @@ export function Paso9Correctivas() {
                   )}
 
                   <div className="md:col-span-2">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-1">Descripción de la Falla/Incidente *</label>
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-widest block mb-1">Descripción de la Falla/Incidente *</label>
                     <textarea 
                       value={newCapa.descripcion}
                       onChange={(e) => setNewCapa({...newCapa, descripcion: e.target.value})}
@@ -193,7 +193,7 @@ export function Paso9Correctivas() {
                   </div>
 
                   <div className="md:col-span-2">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-1">Análisis de Causa Raíz</label>
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-widest block mb-1">Análisis de Causa Raíz</label>
                     <textarea 
                       value={newCapa.causaRaiz}
                       onChange={(e) => setNewCapa({...newCapa, causaRaiz: e.target.value})}
@@ -203,7 +203,7 @@ export function Paso9Correctivas() {
                   </div>
 
                   <div>
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-1">Responsable del Cierre *</label>
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-widest block mb-1">Responsable del Cierre *</label>
                     <input 
                       type="text"
                       value={newCapa.responsableId}
@@ -213,7 +213,7 @@ export function Paso9Correctivas() {
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-1">Fecha Límite *</label>
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-widest block mb-1">Fecha Límite *</label>
                     <input 
                       type="date"
                       value={newCapa.fechaLimite}
@@ -255,10 +255,10 @@ export function Paso9Correctivas() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-mono font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">{mej.folio}</span>
+                      <span className="text-xs font-mono font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">{mej.folio}</span>
                       {getStatusBadge(mej.estado)}
                       {mej.origenTipo !== 'manual' && (
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-purple-600 bg-purple-50 px-2 py-0.5 rounded">
+                        <span className="text-[10px] font-semibold uppercase tracking-widest text-purple-600 bg-purple-50 px-2 py-0.5 rounded">
                           Origen: {mej.origenTipo}
                         </span>
                       )}
@@ -286,13 +286,13 @@ export function Paso9Correctivas() {
                         {/* Detalles */}
                         <div className="grid sm:grid-cols-2 gap-6">
                           <div>
-                            <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Análisis de Causa Raíz</h4>
+                            <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-2">Análisis de Causa Raíz</h4>
                             <p className="text-sm text-slate-700 bg-white p-3 rounded-lg border border-slate-200 min-h-[60px]">
                               {mej.causaRaiz || <span className="text-slate-400 italic">No documentado</span>}
                             </p>
                           </div>
                           <div>
-                            <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Cambiar Estado</h4>
+                            <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-2">Cambiar Estado</h4>
                             <select 
                               value={mej.estado}
                               onChange={(e) => moveMejoraEstado(mej.id, e.target.value as any)}
@@ -308,7 +308,7 @@ export function Paso9Correctivas() {
                               <div className="mt-3 p-3 bg-emerald-50 border border-emerald-100 rounded-lg flex items-start gap-2">
                                 <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
                                 <div className="text-xs text-emerald-800">
-                                  <strong>CAPA Cerrada.</strong> Cerrada el {mej.fechaCierre || new Date().toISOString().split('T')[0]}.
+                                  <span className="font-semibold">CAPA Cerrada.</span> Cerrada el {mej.fechaCierre || new Date().toISOString().split('T')[0]}.
                                 </div>
                               </div>
                             )}
@@ -318,7 +318,7 @@ export function Paso9Correctivas() {
                         {/* Tareas / Acciones */}
                         <div>
                           <div className="flex items-center justify-between mb-3 border-t border-slate-200 pt-6">
-                            <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                            <h4 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
                               <CheckCircle2 className="h-4 w-4 text-primary" />
                               Plan de Acción ({Math.round(progress)}%)
                             </h4>
@@ -365,7 +365,7 @@ export function Paso9Correctivas() {
 
                         {/* Verificion / Eficacia */}
                         <div className="border-t border-slate-200 pt-6">
-                           <h4 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
+                           <h4 className="text-sm font-semibold text-slate-900 mb-3 flex items-center gap-2">
                              <TrendingDown className="h-4 w-4 text-emerald-600" />
                              Evaluación de Eficacia
                            </h4>

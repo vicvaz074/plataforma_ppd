@@ -19,6 +19,8 @@ import {
 } from "recharts"
 
 import { Button } from "@/components/ui/button"
+import { ArcoModuleShell } from "@/components/arco-module-shell"
+import { PRIVACY_NOTICES_META, PRIVACY_NOTICES_NAV } from "@/components/arco-module-config"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { getFilesByCategory, type StoredFile } from "@/lib/fileStorage"
 
@@ -122,21 +124,31 @@ export default function PrivacyNoticesReportsPage() {
   }, [notices])
 
   const maxHeat = Math.max(...metrics.heatmap.map((cell) => cell.value), 1)
+  const navItems = PRIVACY_NOTICES_NAV.map((item) =>
+    item.href === "/privacy-notices/registrados" ? { ...item, badge: notices.length } : item,
+  )
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-12">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-sm font-semibold text-muted-foreground">Módulo Avisos de Privacidad</p>
-          <h1 className="text-3xl font-semibold">Reportes visuales de avisos</h1>
-          <p className="text-sm text-muted-foreground">Compara tipologías, tendencias y flujo documental con visualizaciones dinámicas.</p>
-        </div>
-        <Button asChild variant="outline">
-          <Link href="/privacy-notices">Volver al módulo</Link>
+    <ArcoModuleShell
+      moduleLabel={PRIVACY_NOTICES_META.moduleLabel}
+      moduleTitle={PRIVACY_NOTICES_META.moduleTitle}
+      moduleDescription={PRIVACY_NOTICES_META.moduleDescription}
+      pageLabel="Reportes"
+      pageTitle="Analítica visual de avisos"
+      pageDescription="Compara tipologías, tendencias mensuales y cobertura documental con visualizaciones a color basadas en datos reales del módulo."
+      navItems={navItems}
+      headerBadges={[
+        { label: `${metrics.total} registros`, tone: "neutral" },
+        { label: `${metrics.withEvidencePct}% con evidencia`, tone: metrics.withEvidencePct >= 70 ? "positive" : "warning" },
+      ]}
+      actions={
+        <Button asChild>
+          <Link href="/privacy-notices/registro">Registrar aviso</Link>
         </Button>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-4">
+      }
+    >
+      <div className="space-y-6">
+        <div className="grid gap-4 md:grid-cols-4">
         {[
           { label: "Total de avisos", value: metrics.total, icon: Sparkles },
           { label: "Con evidencia", value: metrics.withEvidence, icon: Flame },
@@ -163,9 +175,9 @@ export default function PrivacyNoticesReportsPage() {
             </Card>
           </motion.div>
         ))}
-      </div>
+        </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+        <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>Comparativo por tipología</CardTitle>
@@ -214,50 +226,50 @@ export default function PrivacyNoticesReportsPage() {
             )}
           </CardContent>
         </Card>
-      </div>
+        </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Mapa de calor mensual</CardTitle>
-          <CardDescription>Intensidad de registros por mes y por tipología dominante.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {metrics.heatmap.length === 0 || metrics.byType.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Registra avisos para habilitar el mapa de calor.</p>
-          ) : (
-            <div className="grid gap-2">
-              <div className="grid grid-cols-[120px_repeat(12,minmax(0,1fr))] gap-2 text-xs font-medium text-muted-foreground">
-                <span>Tipología</span>
-                {MONTHS.map((month) => (
-                  <span key={month} className="text-center">{month}</span>
+        <Card>
+          <CardHeader>
+            <CardTitle>Mapa de calor mensual</CardTitle>
+            <CardDescription>Intensidad de registros por mes y por tipología dominante.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {metrics.heatmap.length === 0 || metrics.byType.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Registra avisos para habilitar el mapa de calor.</p>
+            ) : (
+              <div className="grid gap-2">
+                <div className="grid grid-cols-[120px_repeat(12,minmax(0,1fr))] gap-2 text-xs font-medium text-muted-foreground">
+                  <span>Tipología</span>
+                  {MONTHS.map((month) => (
+                    <span key={month} className="text-center">{month}</span>
+                  ))}
+                </div>
+                {metrics.byType.slice(0, 4).map((type) => (
+                  <div key={type.name} className="grid grid-cols-[120px_repeat(12,minmax(0,1fr))] gap-2">
+                    <span className="self-center text-xs text-muted-foreground">{type.name}</span>
+                    {MONTHS.map((month) => {
+                      const value = metrics.heatmap.find((entry) => entry.month === month && entry.type === type.name)?.value ?? 0
+                      const opacity = value === 0 ? 0.12 : Math.max(value / maxHeat, 0.2)
+                      return (
+                        <motion.div
+                          key={`${type.name}-${month}`}
+                          whileHover={{ scale: 1.08 }}
+                          className="flex h-8 items-center justify-center rounded-md border border-primary/20 text-xs font-semibold"
+                          style={{ backgroundColor: `rgba(37, 99, 235, ${opacity})` }}
+                          title={`${type.name} · ${month}: ${value}`}
+                        >
+                          {value}
+                        </motion.div>
+                      )
+                    })}
+                  </div>
                 ))}
               </div>
-              {metrics.byType.slice(0, 4).map((type) => (
-                <div key={type.name} className="grid grid-cols-[120px_repeat(12,minmax(0,1fr))] gap-2">
-                  <span className="self-center text-xs text-muted-foreground">{type.name}</span>
-                  {MONTHS.map((month) => {
-                    const value = metrics.heatmap.find((entry) => entry.month === month && entry.type === type.name)?.value ?? 0
-                    const opacity = value === 0 ? 0.12 : Math.max(value / maxHeat, 0.2)
-                    return (
-                      <motion.div
-                        key={`${type.name}-${month}`}
-                        whileHover={{ scale: 1.08 }}
-                        className="flex h-8 items-center justify-center rounded-md border border-primary/20 text-xs font-semibold"
-                        style={{ backgroundColor: `rgba(37, 99, 235, ${opacity})` }}
-                        title={`${type.name} · ${month}: ${value}`}
-                      >
-                        {value}
-                      </motion.div>
-                    )
-                  })}
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+            )}
+          </CardContent>
+        </Card>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+        <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>Tendencia de carga</CardTitle>
@@ -298,7 +310,8 @@ export default function PrivacyNoticesReportsPage() {
             )}
           </CardContent>
         </Card>
+        </div>
       </div>
-    </div>
+    </ArcoModuleShell>
   )
 }

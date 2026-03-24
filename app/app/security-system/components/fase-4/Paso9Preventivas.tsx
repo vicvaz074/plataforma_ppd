@@ -102,7 +102,7 @@ export function Paso9Preventivas() {
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-xl font-bold text-slate-900">Acciones Preventivas</h2>
+          <h2 className="text-xl font-semibold text-slate-900">Acciones Preventivas</h2>
           <p className="text-sm text-slate-500 mt-1">
             Registro y seguimiento de acciones orientadas a evitar que fallas potenciales ocurran basadas en riesgo.
           </p>
@@ -137,7 +137,7 @@ export function Paso9Preventivas() {
               <CardContent className="p-6 space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div>
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-1">Origen de Alerta *</label>
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-widest block mb-1">Origen de Alerta *</label>
                     <select 
                       value={newCapa.origenTipo}
                       onChange={(e) => setNewCapa({...newCapa, origenTipo: e.target.value as any, riesgoOrigenId: ""})}
@@ -152,7 +152,7 @@ export function Paso9Preventivas() {
 
                   {newCapa.origenTipo === 'monitoreo' && (
                     <div>
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-1">Riesgo Asociado (Paso 5)</label>
+                      <label className="text-xs font-semibold text-slate-500 uppercase tracking-widest block mb-1">Riesgo Asociado (Paso 5)</label>
                       <select 
                         value={newCapa.riesgoOrigenId}
                         onChange={(e) => setNewCapa({...newCapa, riesgoOrigenId: e.target.value})}
@@ -169,7 +169,7 @@ export function Paso9Preventivas() {
                   )}
 
                   <div className="md:col-span-2">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-1">Descripción de la Acción Preventiva *</label>
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-widest block mb-1">Descripción de la Acción Preventiva *</label>
                     <textarea 
                       value={newCapa.descripcion}
                       onChange={(e) => setNewCapa({...newCapa, descripcion: e.target.value})}
@@ -179,7 +179,7 @@ export function Paso9Preventivas() {
                   </div>
 
                   <div>
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-1">Amenaza Analizada</label>
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-widest block mb-1">Amenaza Analizada</label>
                     <textarea 
                       value={newCapa.amenazaAnalizada}
                       onChange={(e) => setNewCapa({...newCapa, amenazaAnalizada: e.target.value})}
@@ -189,7 +189,7 @@ export function Paso9Preventivas() {
                   </div>
 
                   <div>
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-1">Fallas / Incidentes Potenciales</label>
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-widest block mb-1">Fallas / Incidentes Potenciales</label>
                     <textarea 
                       value={newCapa.fallasAnticipadas}
                       onChange={(e) => setNewCapa({...newCapa, fallasAnticipadas: e.target.value})}
@@ -199,7 +199,7 @@ export function Paso9Preventivas() {
                   </div>
 
                   <div>
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-1">Responsable del Cierre *</label>
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-widest block mb-1">Responsable del Cierre *</label>
                     <input 
                       type="text"
                       value={newCapa.responsableId}
@@ -210,7 +210,7 @@ export function Paso9Preventivas() {
                   </div>
 
                   <div>
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-1">Fecha Límite *</label>
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-widest block mb-1">Fecha Límite *</label>
                     <input 
                       type="date"
                       value={newCapa.fechaLimite}
@@ -253,10 +253,10 @@ export function Paso9Preventivas() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-mono font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">{mej.folio}</span>
+                      <span className="text-xs font-mono font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">{mej.folio}</span>
                       {getStatusBadge(mej.estado)}
                       {mej.origenTipo !== 'manual' && (
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">
+                        <span className="text-[10px] font-semibold uppercase tracking-widest text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">
                           Origen: {mej.origenTipo.replace('_', ' ')}
                         </span>
                       )}
@@ -286,12 +286,12 @@ export function Paso9Preventivas() {
                           <div className="space-y-4">
                             {riesgoReferenciado && (
                               <div className="bg-white p-3 rounded-lg border border-slate-200">
-                                <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 flex items-center gap-1">
+                                <h4 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-1 flex items-center gap-1">
                                   <Target className="h-3 w-3" /> Riesgo Asociado
                                 </h4>
                                 <p className="text-sm font-semibold">{riesgoReferenciado.amenaza}</p>
                                 <div className="flex items-center gap-2 mt-2">
-                                  <Badge variant="outline" className={`text-[10px] uppercase font-bold px-1.5 py-0 ${
+                                  <Badge variant="outline" className={`text-[10px] uppercase font-semibold px-1.5 py-0 ${
                                     riesgoReferenciado.criticidad === 'Crítico' ? 'text-red-700 bg-red-50 border-red-200' :
                                     riesgoReferenciado.criticidad === 'Alto' ? 'text-amber-700 bg-amber-50 border-amber-200' :
                                     'text-blue-700 bg-blue-50 border-blue-200'
@@ -304,7 +304,7 @@ export function Paso9Preventivas() {
                             )}
 
                             <div>
-                              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Amenaza Analizada</h4>
+                              <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-2">Amenaza Analizada</h4>
                               <p className="text-sm text-slate-700 bg-white p-3 rounded-lg border border-slate-200 min-h-[60px]">
                                 {mej.amenazaAnalizada || <span className="text-slate-400 italic">No documentado</span>}
                               </p>
@@ -312,7 +312,7 @@ export function Paso9Preventivas() {
                             
                             {(mej.fallasAnticipadas && mej.fallasAnticipadas.length > 0) && (
                               <div>
-                                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Fallas / Impactos Anticipados</h4>
+                                <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-2">Fallas / Impactos Anticipados</h4>
                                 <div className="flex flex-wrap gap-2">
                                   {mej.fallasAnticipadas.map((f, i) => (
                                     <span key={i} className="text-xs bg-slate-200 text-slate-700 px-2 py-1 rounded-md">{f}</span>
@@ -323,7 +323,7 @@ export function Paso9Preventivas() {
                           </div>
 
                           <div>
-                            <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Cambiar Estado</h4>
+                            <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-2">Cambiar Estado</h4>
                             <select 
                               value={mej.estado}
                               onChange={(e) => moveMejoraEstado(mej.id, e.target.value as any)}
@@ -339,7 +339,7 @@ export function Paso9Preventivas() {
                               <div className="mt-3 p-3 bg-emerald-50 border border-emerald-100 rounded-lg flex items-start gap-2">
                                 <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
                                 <div className="text-xs text-emerald-800">
-                                  <strong>CAPA Cerrada.</strong> Cerrada el {mej.fechaCierre || new Date().toISOString().split('T')[0]}.
+                                  <span className="font-semibold">CAPA Cerrada.</span> Cerrada el {mej.fechaCierre || new Date().toISOString().split('T')[0]}.
                                 </div>
                               </div>
                             )}
@@ -349,7 +349,7 @@ export function Paso9Preventivas() {
                         {/* Tareas / Acciones */}
                         <div>
                           <div className="flex items-center justify-between mb-3 border-t border-slate-200 pt-6">
-                            <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                            <h4 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
                               <CheckCircle2 className="h-4 w-4 text-blue-600" />
                               Plan de Acción Preventivo ({Math.round(progress)}%)
                             </h4>
@@ -396,14 +396,14 @@ export function Paso9Preventivas() {
 
                         {/* Verificion / Eficacia (Deltas de riesgo) */}
                         <div className="border-t border-slate-200 pt-6">
-                           <h4 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
+                           <h4 className="text-sm font-semibold text-slate-900 mb-3 flex items-center gap-2">
                              <TrendingDown className="h-4 w-4 text-blue-600" />
                              Evaluación de Eficacia (Reducción de Riesgo)
                            </h4>
                            <div className="bg-white p-4 rounded-lg border border-slate-200 space-y-4">
                               <div className="flex flex-col sm:flex-row sm:items-center gap-6 pb-4 border-b border-slate-100">
                                 <div>
-                                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Riesgo Residual Antes (Pre)</label>
+                                  <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest block mb-1">Riesgo Residual Antes (Pre)</label>
                                   <input 
                                     type="number" 
                                     min="1" max="25"
@@ -413,7 +413,7 @@ export function Paso9Preventivas() {
                                   />
                                 </div>
                                 <div>
-                                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Riesgo Residual Después (Post)</label>
+                                  <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest block mb-1">Riesgo Residual Después (Post)</label>
                                   <input 
                                     type="number" 
                                     min="1" max="25"
@@ -424,7 +424,7 @@ export function Paso9Preventivas() {
                                 </div>
                                 {(mej.riesgoResidualPre && mej.riesgoResidualPost) ? (
                                   <div className="ml-auto flex flex-col items-center justify-center pt-2 sm:pt-0">
-                                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Reducción</span>
+                                    <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-1">Reducción</span>
                                     <Badge className="bg-emerald-100 text-emerald-800 border-none px-3 py-1 text-sm">
                                       {Math.round(((mej.riesgoResidualPre - mej.riesgoResidualPost) / mej.riesgoResidualPre) * 100)}%
                                     </Badge>

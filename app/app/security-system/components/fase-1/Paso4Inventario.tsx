@@ -61,7 +61,7 @@ export default function Paso4Inventario() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-slate-900">Inventario de Datos Personales</h2>
+          <h2 className="text-xl font-semibold text-slate-900">Inventario de Datos Personales</h2>
           <p className="text-sm text-slate-600 mt-1 flex items-center gap-1.5">
             <span className={`flex h-2 w-2 rounded-full ${synced ? "bg-emerald-500" : "bg-amber-500"}`} />
             {synced
@@ -86,7 +86,7 @@ export default function Paso4Inventario() {
           <button
             key={t.key}
             onClick={() => setActiveView(t.key)}
-            className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
               activeView === t.key ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
             }`}
           >
@@ -101,7 +101,7 @@ export default function Paso4Inventario() {
           {!stats ? (
             <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
               <Database className="h-12 w-12 text-slate-300 mx-auto mb-4" />
-              <h3 className="text-lg font-bold text-slate-500">Sin datos del módulo RAT</h3>
+              <h3 className="text-lg font-semibold text-slate-500">Sin datos del módulo RAT</h3>
               <p className="text-sm text-slate-400 mt-1 max-w-md mx-auto">
                 Registra inventarios en el módulo de Inventario de Datos Personales (RAT)
                 para ver análisis de riesgo y estadísticas aquí.
@@ -113,35 +113,35 @@ export default function Paso4Inventario() {
               <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                 <div className="bg-white rounded-xl border border-slate-200 p-4 text-center">
                   <Database className="h-5 w-5 mx-auto text-slate-400 mb-1" />
-                  <span className="text-2xl font-black text-slate-900">{stats.totalInventarios}</span>
-                  <p className="text-[10px] font-bold text-slate-500 uppercase mt-1">Inventarios</p>
+                  <span className="text-2xl font-semibold text-slate-900">{stats.totalInventarios}</span>
+                  <p className="text-[10px] font-semibold text-slate-500 uppercase mt-1">Inventarios</p>
                 </div>
                 <div className="bg-white rounded-xl border border-slate-200 p-4 text-center">
                   <Layers className="h-5 w-5 mx-auto text-slate-400 mb-1" />
-                  <span className="text-2xl font-black text-slate-900">{stats.totalSubInventarios}</span>
-                  <p className="text-[10px] font-bold text-slate-500 uppercase mt-1">Sub-inventarios</p>
+                  <span className="text-2xl font-semibold text-slate-900">{stats.totalSubInventarios}</span>
+                  <p className="text-[10px] font-semibold text-slate-500 uppercase mt-1">Sub-inventarios</p>
                 </div>
                 <div className="bg-white rounded-xl border border-slate-200 p-4 text-center">
                   <Eye className="h-5 w-5 mx-auto text-slate-400 mb-1" />
-                  <span className="text-2xl font-black text-slate-900">{stats.datosUnicos}</span>
-                  <p className="text-[10px] font-bold text-slate-500 uppercase mt-1">Datos Únicos</p>
+                  <span className="text-2xl font-semibold text-slate-900">{stats.datosUnicos}</span>
+                  <p className="text-[10px] font-semibold text-slate-500 uppercase mt-1">Datos Únicos</p>
                 </div>
                 <div className="bg-white rounded-xl border border-slate-200 p-4 text-center">
                   <Users className="h-5 w-5 mx-auto text-slate-400 mb-1" />
-                  <span className="text-2xl font-black text-slate-900">{stats.volumenTitulares.toLocaleString()}</span>
-                  <p className="text-[10px] font-bold text-slate-500 uppercase mt-1">Titulares</p>
+                  <span className="text-2xl font-semibold text-slate-900">{stats.volumenTitulares.toLocaleString()}</span>
+                  <p className="text-[10px] font-semibold text-slate-500 uppercase mt-1">Titulares</p>
                 </div>
                 <div className={`rounded-xl border p-4 text-center ${riskScore >= 60 ? "bg-red-50 border-red-200" : riskScore >= 30 ? "bg-amber-50 border-amber-200" : "bg-emerald-50 border-emerald-200"}`}>
                   <TrendingUp className={`h-5 w-5 mx-auto mb-1 ${riskScore >= 60 ? "text-red-500" : riskScore >= 30 ? "text-amber-500" : "text-emerald-500"}`} />
-                  <span className={`text-2xl font-black ${riskScore >= 60 ? "text-red-700" : riskScore >= 30 ? "text-amber-700" : "text-emerald-700"}`}>{riskScore}%</span>
-                  <p className="text-[10px] font-bold text-slate-500 uppercase mt-1">Índice Riesgo</p>
+                  <span className={`text-2xl font-semibold ${riskScore >= 60 ? "text-red-700" : riskScore >= 30 ? "text-amber-700" : "text-emerald-700"}`}>{riskScore}%</span>
+                  <p className="text-[10px] font-semibold text-slate-500 uppercase mt-1">Índice Riesgo</p>
                 </div>
               </div>
 
               {/* Risk Distribution Chart */}
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="bg-white rounded-2xl border border-slate-200 p-6">
-                  <h4 className="font-bold text-slate-900 mb-1 flex items-center gap-2">
+                  <h4 className="font-semibold text-slate-900 mb-1 flex items-center gap-2">
                     <PieChart className="h-4 w-4 text-primary" /> Distribución de Riesgo Inherente
                   </h4>
                   <p className="text-xs text-slate-500 mb-4">{stats.totalDatosPersonales} datos personales clasificados</p>
@@ -179,8 +179,8 @@ export default function Paso4Inventario() {
                         })()}
                       </svg>
                       <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        <span className="text-lg font-black text-slate-900">{stats.totalDatosPersonales}</span>
-                        <span className="text-[9px] text-slate-500 font-bold uppercase">Datos</span>
+                        <span className="text-lg font-semibold text-slate-900">{stats.totalDatosPersonales}</span>
+                        <span className="text-[9px] text-slate-500 font-semibold uppercase">Datos</span>
                       </div>
                     </div>
                     <div className="space-y-2 flex-1">
@@ -196,7 +196,7 @@ export default function Paso4Inventario() {
                           <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
                             <div className={`h-full ${r.color} rounded-full transition-all`} style={{ width: `${r.pct}%` }} />
                           </div>
-                          <span className="text-xs font-bold text-slate-600 w-12 text-right">{r.count} ({r.pct}%)</span>
+                          <span className="text-xs font-semibold text-slate-600 w-12 text-right">{r.count} ({r.pct}%)</span>
                         </div>
                       ))}
                     </div>
@@ -205,7 +205,7 @@ export default function Paso4Inventario() {
 
                 {/* Data Categories */}
                 <div className="bg-white rounded-2xl border border-slate-200 p-6">
-                  <h4 className="font-bold text-slate-900 mb-1 flex items-center gap-2">
+                  <h4 className="font-semibold text-slate-900 mb-1 flex items-center gap-2">
                     <BarChart3 className="h-4 w-4 text-primary" /> Categorías de Datos Personales
                   </h4>
                   <p className="text-xs text-slate-500 mb-4">Agrupados por tipo, ordenados por frecuencia</p>
@@ -221,9 +221,9 @@ export default function Paso4Inventario() {
                               className={`h-full rounded-full transition-all ${rStyle.bar}`}
                               style={{ width: `${(cat.count / maxCount) * 100}%` }}
                             />
-                            <span className="absolute right-2 top-0 text-[10px] font-bold text-slate-600 leading-4">{cat.count}</span>
+                            <span className="absolute right-2 top-0 text-[10px] font-semibold text-slate-600 leading-4">{cat.count}</span>
                           </div>
-                          <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded border ${rStyle.bg} ${rStyle.border} ${rStyle.text}`}>
+                          <span className={`text-[9px] font-semibold uppercase px-1.5 py-0.5 rounded border ${rStyle.bg} ${rStyle.border} ${rStyle.text}`}>
                             {cat.riskMax}
                           </span>
                         </div>
@@ -240,7 +240,7 @@ export default function Paso4Inventario() {
               <div className="grid md:grid-cols-2 gap-4">
                 {/* Top risk */}
                 <div className="bg-white rounded-2xl border border-slate-200 p-6">
-                  <h4 className="font-bold text-slate-900 mb-1 flex items-center gap-2">
+                  <h4 className="font-semibold text-slate-900 mb-1 flex items-center gap-2">
                     <AlertTriangle className="h-4 w-4 text-red-500" /> Datos de Mayor Riesgo
                   </h4>
                   <p className="text-xs text-slate-500 mb-4">Datos con riesgo REFORZADO o ALTO que requieren atención prioritaria</p>
@@ -254,7 +254,7 @@ export default function Paso4Inventario() {
                         const rs = getRiskStyle(d.risk);
                         return (
                           <div key={i} className="flex items-center gap-2 text-xs py-1.5 px-2 rounded-lg hover:bg-slate-50 transition-colors">
-                            <span className={`px-1.5 py-0.5 text-[9px] font-bold uppercase rounded border ${rs.bg} ${rs.border} ${rs.text}`}>
+                            <span className={`px-1.5 py-0.5 text-[9px] font-semibold uppercase rounded border ${rs.bg} ${rs.border} ${rs.text}`}>
                               {d.risk}
                             </span>
                             <span className="font-semibold text-slate-800 flex-1 truncate">{d.name}</span>
@@ -268,30 +268,30 @@ export default function Paso4Inventario() {
 
                 {/* Areas + Titulares */}
                 <div className="bg-white rounded-2xl border border-slate-200 p-6">
-                  <h4 className="font-bold text-slate-900 mb-1 flex items-center gap-2">
+                  <h4 className="font-semibold text-slate-900 mb-1 flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-primary" /> Áreas y Titulares
                   </h4>
                   <p className="text-xs text-slate-500 mb-4">Distribución por área responsable y tipo de titular</p>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <h5 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Áreas</h5>
+                      <h5 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-2">Áreas</h5>
                       <div className="space-y-1">
                         {stats.areaDistribution.slice(0, 6).map(a => (
                           <div key={a.area} className="flex items-center justify-between text-xs py-1">
                             <span className="text-slate-700 font-medium truncate">{a.area}</span>
-                            <span className="font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded">{a.count}</span>
+                            <span className="font-semibold text-slate-900 bg-slate-100 px-2 py-0.5 rounded">{a.count}</span>
                           </div>
                         ))}
                         {stats.areaDistribution.length === 0 && <p className="text-[11px] text-slate-400">Sin áreas</p>}
                       </div>
                     </div>
                     <div>
-                      <h5 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Titulares</h5>
+                      <h5 className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-2">Titulares</h5>
                       <div className="space-y-1">
                         {stats.holderTypes.slice(0, 6).map(h => (
                           <div key={h.type} className="flex items-center justify-between text-xs py-1">
                             <span className="text-slate-700 font-medium truncate">{h.type}</span>
-                            <span className="font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded">{h.count}</span>
+                            <span className="font-semibold text-slate-900 bg-slate-100 px-2 py-0.5 rounded">{h.count}</span>
                           </div>
                         ))}
                         {stats.holderTypes.length === 0 && <p className="text-[11px] text-slate-400">Sin titulares</p>}
@@ -326,15 +326,15 @@ export default function Paso4Inventario() {
                     <div className="flex items-center gap-3">
                       {isExpanded ? <ChevronDown className="h-5 w-5 text-slate-400" /> : <ChevronRight className="h-5 w-5 text-slate-400" />}
                       <div>
-                        <h3 className="font-bold text-slate-900">{inv.name}</h3>
+                        <h3 className="font-semibold text-slate-900">{inv.name}</h3>
                         <p className="text-xs text-slate-500 mt-0.5">{inv.responsible} · {inv.subCount} sub-inventarios · {inv.dataCount} datos personales</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3 shrink-0">
-                      <span className={`px-2 py-0.5 text-[10px] font-bold uppercase rounded-full border ${rs.bg} ${rs.border} ${rs.text}`}>
+                      <span className={`px-2 py-0.5 text-[10px] font-semibold uppercase rounded-full border ${rs.bg} ${rs.border} ${rs.text}`}>
                         Riesgo {inv.maxRisk}
                       </span>
-                      <span className={`px-2 py-0.5 text-[10px] font-bold uppercase rounded border ${
+                      <span className={`px-2 py-0.5 text-[10px] font-semibold uppercase rounded border ${
                         inv.status === "completado" ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
                         inv.status === "en proceso" ? "bg-blue-50 text-blue-700 border-blue-200" :
                         "bg-slate-100 text-slate-600 border-slate-200"
@@ -345,25 +345,25 @@ export default function Paso4Inventario() {
                     <div className="border-t border-slate-100 px-5 py-4 bg-slate-50/50 space-y-3">
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                         <div className="bg-white rounded-lg border border-slate-200 p-3 text-center">
-                          <span className="text-lg font-black text-slate-900">{inv.totalVolume.toLocaleString()}</span>
-                          <p className="text-[10px] font-bold text-slate-500 uppercase">Titulares</p>
+                          <span className="text-lg font-semibold text-slate-900">{inv.totalVolume.toLocaleString()}</span>
+                          <p className="text-[10px] font-semibold text-slate-500 uppercase">Titulares</p>
                         </div>
                         <div className="bg-white rounded-lg border border-slate-200 p-3 text-center">
-                          <span className="text-lg font-black text-slate-900">{inv.subCount}</span>
-                          <p className="text-[10px] font-bold text-slate-500 uppercase">Sub-inventarios</p>
+                          <span className="text-lg font-semibold text-slate-900">{inv.subCount}</span>
+                          <p className="text-[10px] font-semibold text-slate-500 uppercase">Sub-inventarios</p>
                         </div>
                         <div className="bg-white rounded-lg border border-slate-200 p-3 text-center">
-                          <span className="text-lg font-black text-slate-900">{inv.dataCount}</span>
-                          <p className="text-[10px] font-bold text-slate-500 uppercase">Datos Personales</p>
+                          <span className="text-lg font-semibold text-slate-900">{inv.dataCount}</span>
+                          <p className="text-[10px] font-semibold text-slate-500 uppercase">Datos Personales</p>
                         </div>
                         <div className={`rounded-lg border p-3 text-center ${rs.bg} ${rs.border}`}>
-                          <span className={`text-lg font-black ${rs.text}`}>{inv.maxRisk.toUpperCase()}</span>
-                          <p className="text-[10px] font-bold text-slate-500 uppercase">Riesgo Max</p>
+                          <span className={`text-lg font-semibold ${rs.text}`}>{inv.maxRisk.toUpperCase()}</span>
+                          <p className="text-[10px] font-semibold text-slate-500 uppercase">Riesgo Max</p>
                         </div>
                       </div>
                       {inv.holderTypes.length > 0 && (
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-[10px] font-bold text-slate-500 uppercase">Titulares:</span>
+                          <span className="text-[10px] font-semibold text-slate-500 uppercase">Titulares:</span>
                           {inv.holderTypes.map(h => (
                             <span key={h} className="px-2 py-0.5 text-[10px] font-semibold bg-blue-50 text-blue-700 rounded border border-blue-100">{h}</span>
                           ))}
@@ -371,7 +371,7 @@ export default function Paso4Inventario() {
                       )}
                       {inv.areas.length > 0 && (
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-[10px] font-bold text-slate-500 uppercase">Áreas:</span>
+                          <span className="text-[10px] font-semibold text-slate-500 uppercase">Áreas:</span>
                           {inv.areas.map(a => (
                             <span key={a} className="px-2 py-0.5 text-[10px] font-semibold bg-slate-100 text-slate-700 rounded border border-slate-200">{a}</span>
                           ))}
@@ -400,10 +400,10 @@ export default function Paso4Inventario() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="bg-slate-50 border-b border-slate-200">
-                      <th className="text-left px-4 py-3 text-xs font-bold text-slate-500 uppercase">Dato Personal</th>
-                      <th className="text-left px-4 py-3 text-xs font-bold text-slate-500 uppercase">Categoría</th>
-                      <th className="text-left px-4 py-3 text-xs font-bold text-slate-500 uppercase">Inventario</th>
-                      <th className="text-left px-4 py-3 text-xs font-bold text-slate-500 uppercase">Riesgo Inherente</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase">Dato Personal</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase">Categoría</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase">Inventario</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase">Riesgo Inherente</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -415,7 +415,7 @@ export default function Paso4Inventario() {
                           <td className="px-4 py-3 text-slate-600">{d.category}</td>
                           <td className="px-4 py-3 text-slate-500 text-xs">{d.inventory}</td>
                           <td className="px-4 py-3">
-                            <span className={`px-2 py-0.5 text-[10px] font-bold uppercase rounded-full border ${rs.bg} ${rs.border} ${rs.text}`}>
+                            <span className={`px-2 py-0.5 text-[10px] font-semibold uppercase rounded-full border ${rs.bg} ${rs.border} ${rs.text}`}>
                               {d.risk}
                             </span>
                           </td>
@@ -437,7 +437,7 @@ export default function Paso4Inventario() {
       {/* ═══════════════════ TAB: Activos SGSDP ═══════════════════ */}
       {activeView === "sgsdp" && (
         <div>
-          <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-3">Activos Registrados en SGSDP ({activos.length})</h3>
+          <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-3">Activos Registrados en SGSDP ({activos.length})</h3>
           {activos.length === 0 ? (
             <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
               <HardDrive className="h-10 w-10 text-slate-300 mx-auto mb-3" />
@@ -451,7 +451,7 @@ export default function Paso4Inventario() {
                     <div className="h-10 w-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center">
                       <Database className="h-5 w-5 text-slate-500 group-hover:text-primary transition-colors" />
                     </div>
-                    <span className={`px-2.5 py-1 text-[11px] font-bold uppercase rounded-full border ${
+                    <span className={`px-2.5 py-1 text-[11px] font-semibold uppercase rounded-full border ${
                       activo.nivelSensibilidad === "Especial" ? "bg-red-50 border-red-200 text-red-800" :
                       activo.nivelSensibilidad === "Sensible" ? "bg-amber-50 border-amber-200 text-amber-800" :
                       "bg-slate-50 border-slate-200 text-slate-700"
@@ -459,7 +459,7 @@ export default function Paso4Inventario() {
                       {activo.nivelSensibilidad}
                     </span>
                   </div>
-                  <h3 className="font-bold text-slate-900 text-lg">{activo.nombreSistema}</h3>
+                  <h3 className="font-semibold text-slate-900 text-lg">{activo.nombreSistema}</h3>
                   <p className="text-xs text-slate-500 font-mono mt-0.5">{activo.id}</p>
                   <div className="mt-3 space-y-2">
                     <div>
@@ -491,7 +491,7 @@ export default function Paso4Inventario() {
           <ShieldCheck className="h-6 w-6 text-white" />
         </div>
         <div className="flex-1">
-          <h4 className="font-bold text-lg">Integración Bidireccional con RAT</h4>
+          <h4 className="font-semibold text-lg">Integración Bidireccional con RAT</h4>
           <p className="text-sm text-slate-300 mt-1 max-w-3xl">
             Los datos de este inventario alimentan el análisis de riesgo (Paso 5), el GAP analysis (Paso 6), y las métricas del Dashboard.
             {synced && stats && (
