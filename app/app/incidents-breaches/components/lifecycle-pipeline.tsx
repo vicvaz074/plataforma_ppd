@@ -119,31 +119,29 @@ export function LifecyclePipeline({ activeStage, onStageClick, completedStages =
                 onClick={() => isClickable && onStageClick?.(stage.id)}
                 disabled={!isClickable}
                 className={`
-                  relative z-10 flex flex-col items-center gap-2 px-4 py-3.5 rounded-2xl transition-all duration-300 w-full outline-none border-2
+                  relative z-10 flex flex-col items-center gap-2 px-4 py-3.5 rounded-2xl transition-all duration-300 w-full outline-none border-2 cursor-pointer
                   ${
                     isActive
                       ? `bg-gradient-to-br ${stage.gradient} text-white scale-105 ring-2 ring-offset-2 ring-offset-background ${stage.activeRing} ${stage.activeShadow} ${stage.borderColor}`
-                      : isClickable
-                        ? `bg-white dark:bg-slate-900 ${stage.borderColor} shadow-sm hover:shadow-lg hover:scale-[1.03] cursor-pointer`
-                        : `bg-slate-50/80 dark:bg-slate-800/30 ${stage.borderColor} opacity-60 cursor-default`
+                      : `bg-white dark:bg-slate-900 ${stage.borderColor} shadow-sm hover:shadow-lg hover:scale-[1.03]`
                   }
                 `}
               >
                 <div
                   className={`
                   p-2 rounded-xl transition-colors duration-300
-                  ${isActive ? "bg-white/20" : isClickable ? stage.iconBg : "bg-slate-100 dark:bg-slate-800"}
+                  ${isActive ? "bg-white/20" : stage.iconBg}
                 `}
                 >
                   <Icon
                     className={`h-5 w-5 flex-shrink-0 ${
-                      isActive ? "text-white" : isClickable ? stage.iconColor : "text-slate-400"
+                      isActive ? "text-white" : stage.iconColor
                     }`}
                   />
                 </div>
 
                 <span className={`text-[11px] leading-tight text-center tracking-wide ${
-                  isActive ? "font-bold text-white" : isClickable ? `font-semibold ${stage.iconColor}` : "font-semibold text-slate-400 whitespace-nowrap"
+                  isActive ? "font-bold text-white" : `font-semibold ${stage.iconColor}`
                 }`}>
                   {stage.label}
                 </span>
