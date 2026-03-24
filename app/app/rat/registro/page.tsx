@@ -8,6 +8,7 @@ import { SafeLink } from "@/components/SafeLink"
 import {
   ChevronLeft,
   Eye,
+  FilePlus,
   FileText,
   FileSpreadsheet,
   FilePenLine,
@@ -188,11 +189,13 @@ const defaultInventory = (): Inventory => ({
 
 export default function RegistroPage() {
   const [inventories, setInventories] = useState<Inventory[]>([])
-  const [mode, setMode] = useState<"menu" | "view" | "create">("menu")
+  const [mode, setMode] = useState<"menu" | "view" | "create" | "new">("menu")
   const [editingInventoryId, setEditingInventoryId] = useState<string | null>(null)
   const [formData, setFormData] = useState<Inventory>(defaultInventory())
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const setModeBase = setMode
+  const setModeBase = setMode as React.Dispatch<
+    React.SetStateAction<"menu" | "view" | "create">
+  >
   const [hasSavedProgress, setHasSavedProgress] = useState(false)
 
   // --- CARGA DE LOCALSTORAGE CON SANITIZACIÓN ---
@@ -364,6 +367,46 @@ export default function RegistroPage() {
         <div className="grid gap-6 sm:grid-cols-2 mt-8">
           <Card
             className="cursor-pointer hover:shadow-lg transition-shadow"
+            onClick={() => setMode("new")}
+          >
+            <CardContent className="flex flex-col items-center justify-center h-40 text-center">
+              <FilePlus className="h-10 w-10 mb-3 text-primary" />
+              <span className="text-xl font-semibold">Registrar inventarios</span>
+            </CardContent>
+          </Card>
+          <Card
+            className="cursor-pointer hover:shadow-lg transition-shadow"
+            onClick={() => setMode("view")}
+          >
+            <CardContent className="flex flex-col items-center justify-center h-40 text-center">
+              <Eye className="h-10 w-10 mb-3 text-primary" />
+              <span className="text-xl font-semibold">Ver y/o editar inventarios existentes</span>
+            </CardContent>
+          </Card>
+          {hasSavedProgress && (
+            <Card
+              className="cursor-pointer hover:shadow-lg transition-shadow sm:col-span-2"
+              onClick={handleContinueSavedInventory}
+            >
+              <CardContent className="flex flex-col items-center justify-center h-40 text-center">
+                <FilePenLine className="h-10 w-10 mb-3 text-primary" />
+                <span className="text-xl font-semibold">Continuar inventario en progreso</span>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      )}
+
+      {mode !== "menu" && (
+        <div className="mb-4 flex justify-end">
+          <Button variant="ghost" onClick={() => setMode("menu")}>Volver al menú</Button>
+        </div>
+      )}
+
+      {mode === "new" && (
+        <div className="grid gap-6 sm:grid-cols-2 mt-8">
+          <Card
+            className="cursor-pointer hover:shadow-lg transition-shadow"
             onClick={handleCreateNew}
           >
             <CardContent className="flex flex-col items-center justify-center h-40 text-center">
@@ -377,29 +420,11 @@ export default function RegistroPage() {
           >
             <CardContent className="flex flex-col items-center justify-center h-40 text-center">
               <FileSpreadsheet className="h-10 w-10 mb-3 text-primary" />
-              <span className="text-xl font-semibold">Importar Excel/CSV</span>
+              <span className="text-xl font-semibold">
+                Extracción automática Excel/CSV
+              </span>
             </CardContent>
           </Card>
-          <Card
-            className="cursor-pointer hover:shadow-lg transition-shadow"
-            onClick={() => setMode("view")}
-          >
-            <CardContent className="flex flex-col items-center justify-center h-40 text-center">
-              <Eye className="h-10 w-10 mb-3 text-primary" />
-              <span className="text-xl font-semibold">Ver / editar existentes</span>
-            </CardContent>
-          </Card>
-          {hasSavedProgress && (
-            <Card
-              className="cursor-pointer hover:shadow-lg transition-shadow"
-              onClick={handleContinueSavedInventory}
-            >
-              <CardContent className="flex flex-col items-center justify-center h-40 text-center">
-                <FilePenLine className="h-10 w-10 mb-3 text-primary" />
-                <span className="text-xl font-semibold">Continuar en progreso</span>
-              </CardContent>
-            </Card>
-          )}
           <input
             ref={fileInputRef}
             type="file"
@@ -417,12 +442,17 @@ export default function RegistroPage() {
               Descargar plantilla
             </a>
           </div>
-        </div>
-      )}
-
-      {mode !== "menu" && (
-        <div className="mb-4 flex justify-end">
-          <Button variant="ghost" onClick={() => setMode("menu")}>Volver al menú</Button>
+          {hasSavedProgress && (
+            <Card
+              className="cursor-pointer hover:shadow-lg transition-shadow sm:col-span-2"
+              onClick={handleContinueSavedInventory}
+            >
+              <CardContent className="flex flex-col items-center justify-center h-40 text-center">
+                <FilePenLine className="h-10 w-10 mb-3 text-primary" />
+                <span className="text-xl font-semibold">Continuar inventario en progreso</span>
+              </CardContent>
+            </Card>
+          )}
         </div>
       )}
 
