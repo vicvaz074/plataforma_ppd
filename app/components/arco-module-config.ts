@@ -57,6 +57,7 @@ export const THIRD_PARTY_CONTRACTS_NAV: ArcoModuleNavItem[] = [
 
 export const DPO_NAV: ArcoModuleNavItem[] = [
   { href: "/dpo", label: "Overview", icon: LayoutDashboard },
+  { href: "/dpo/registro", label: "Registro", icon: FilePlus2, activePaths: ["/dpo/registro"] },
   { href: "/dpo/compliance", label: "Cumplimiento", icon: ClipboardCheck, activePaths: ["/dpo/compliance"] },
   { href: "/dpo/reports", label: "Informes", icon: FileText, activePaths: ["/dpo/reports"] },
 ]

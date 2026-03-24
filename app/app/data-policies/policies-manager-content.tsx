@@ -751,7 +751,7 @@ export function PoliciesManager({ initialSection = "registro" }: PoliciesManager
     >
       <div className="mx-auto flex w-full max-w-[1460px] flex-col gap-6">
         <Card className="overflow-hidden border-slate-200 shadow-sm">
-        <CardContent className="grid gap-6 p-6 lg:grid-cols-[1.5fr_1fr] lg:p-8">
+        <CardContent className="grid gap-6 p-6 xl:grid-cols-[1.5fr_1fr] lg:p-8">
           <div className="space-y-4">
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="outline" className="border-primary/20 bg-primary/5 text-primary">
@@ -1412,7 +1412,7 @@ export function PoliciesManager({ initialSection = "registro" }: PoliciesManager
 
                 {wizardStep === 4 ? (
                   <div className="space-y-6">
-                    <div className="grid gap-4 lg:grid-cols-[minmax(0,260px)_minmax(0,1fr)]">
+                    <div className="grid gap-4 xl:grid-cols-[minmax(0,260px)_minmax(0,1fr)]">
                       <div className="rounded-[28px] border border-slate-200 bg-slate-50/70 p-5">
                         <div className="h-[220px]">
                           <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={220}>
@@ -1635,7 +1635,7 @@ export function PoliciesManager({ initialSection = "registro" }: PoliciesManager
                 <CardTitle className="text-2xl text-slate-950">Cobertura del programa</CardTitle>
                 <CardDescription>Donut de cumplimiento y barras por dimensión, con lógica real de expediente.</CardDescription>
               </CardHeader>
-              <CardContent className="grid gap-6 p-6 lg:grid-cols-[minmax(0,280px)_minmax(0,1fr)]">
+              <CardContent className="grid gap-6 p-6 xl:grid-cols-[minmax(0,280px)_minmax(0,1fr)]">
                 <div className="rounded-[28px] border border-slate-200 bg-slate-50/70 p-5">
                   <div className="h-[220px]">
                     <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={220}>

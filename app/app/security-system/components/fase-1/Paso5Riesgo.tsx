@@ -587,6 +587,12 @@ export default function Paso5Riesgo() {
                   </div>
                   <div className="mt-4 flex flex-wrap gap-2">
                     <button
+                      onClick={handleStartManualAnalysis}
+                      className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary/90"
+                    >
+                      <ShieldAlert className="h-4 w-4" /> Nuevo análisis de riesgo
+                    </button>
+                    <button
                       onClick={() => setActiveSection("bases")}
                       className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-slate-800"
                     >
@@ -773,9 +779,9 @@ export default function Paso5Riesgo() {
                     </div>
                     <button
                       onClick={handleStartManualAnalysis}
-                      className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+                      className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary/90"
                     >
-                      Añadir nuevo análisis de riesgo
+                      <ShieldAlert className="h-4 w-4" /> Nuevo análisis de riesgo
                     </button>
                     {selectedSource && (
                       <button
