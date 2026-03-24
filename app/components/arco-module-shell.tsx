@@ -119,7 +119,7 @@ export function ModuleSectionCard({
   className?: string
 }) {
   return (
-    <Card className={cn("rounded-[28px] border-[#d6e1f6] shadow-sm", className)}>
+    <Card className={cn("min-w-0 rounded-[28px] border-[#d6e1f6] shadow-sm", className)}>
       <CardHeader className="border-b border-slate-100">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -129,7 +129,7 @@ export function ModuleSectionCard({
           {action}
         </div>
       </CardHeader>
-      <CardContent className="p-6">{children}</CardContent>
+      <CardContent className="min-w-0 p-6">{children}</CardContent>
     </Card>
   )
 }
@@ -173,7 +173,7 @@ export function ArcoModuleShell({
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(10,74,191,0.08),_transparent_30%),linear-gradient(180deg,_#f8fbff_0%,_#ffffff_100%)]">
       <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
         <div className="overflow-hidden rounded-[28px] border border-stone-200 bg-white shadow-sm">
-          <div className="grid min-h-[calc(100vh-7rem)] lg:grid-cols-[260px_1fr]">
+          <div className="grid min-h-[calc(100vh-7rem)] lg:grid-cols-[260px_minmax(0,1fr)]">
             <aside className="overflow-y-auto overflow-x-hidden border-r border-[#d6e1f6] bg-[#edf4ff]">
               <div className="border-b border-[#d6e1f6] px-6 py-5">
                 <Link
@@ -228,7 +228,7 @@ export function ArcoModuleShell({
               </nav>
             </aside>
 
-            <div className="min-w-0 bg-white">
+            <div className="min-w-0 overflow-hidden bg-white">
               <div className="border-b border-stone-200 px-6 py-5">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div className="min-w-0">
@@ -256,7 +256,7 @@ export function ArcoModuleShell({
                   {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
                 </div>
               </div>
-              <div className={cn("p-6", contentClassName)}>{children}</div>
+              <div className={cn("min-w-0 p-6", contentClassName)}>{children}</div>
             </div>
           </div>
         </div>
