@@ -46,12 +46,12 @@ export function StepperNav({
           return (
             <React.Fragment key={step}>
               {/* Step circle + label */}
-              <div className="flex flex-col items-center" style={{ minWidth: 48 }}>
+              <div className="flex flex-col items-center" style={{ minWidth: 52 }}>
                 <button
                   type="button"
                   onClick={() => onStepClick(step)}
                   className={cn(
-                    "w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all duration-200 cursor-pointer border-2",
+                    "w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-200 cursor-pointer border-2",
                     isCompleted &&
                       "bg-primary border-primary text-primary-foreground hover:bg-primary/90",
                     isCurrent &&
@@ -70,7 +70,7 @@ export function StepperNav({
                 </button>
                 <span
                   className={cn(
-                    "text-[9px] leading-tight text-center mt-1 whitespace-pre-line max-w-[56px]",
+                    "text-[10px] leading-tight text-center mt-1.5 whitespace-pre-line max-w-[60px]",
                     isCurrent && "font-bold text-primary",
                     isCompleted && "font-medium text-primary/70",
                     isFuture && "text-gray-400"
@@ -82,10 +82,10 @@ export function StepperNav({
 
               {/* Connector line */}
               {step < totalSteps && (
-                <div className="flex items-center pt-[16px] flex-shrink-0" style={{ minWidth: 8 }}>
+                <div className="flex items-center pt-[18px] flex-shrink-0" style={{ minWidth: 12 }}>
                   <div
                     className={cn(
-                      "h-0.5 w-full min-w-[8px] transition-colors duration-200",
+                      "h-0.5 w-full min-w-[12px] transition-colors duration-200",
                       isCompleted ? "bg-primary" : "bg-gray-200"
                     )}
                   />
