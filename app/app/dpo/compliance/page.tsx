@@ -1997,14 +1997,14 @@ export default function DPOCompliancePage() {
           </TabsContent>
 
           <TabsContent value="results" className="space-y-6">
-            <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+            <div className="grid gap-6">
               <ModuleSectionCard
                 title="Resumen ejecutivo OPD"
                 description="Resultados vigentes del cuestionario de acreditación, la evaluación funcional y el portafolio de proyectos."
               >
                 {latestAccreditation || latestFunctional || projectReviews.length > 0 ? (
                   <div className="space-y-6">
-                    <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+                    <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-4">
                       <div className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                         <p className="min-w-0 shrink text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Acreditación</p>
                         <p className="shrink-0 text-3xl font-semibold text-slate-950">
