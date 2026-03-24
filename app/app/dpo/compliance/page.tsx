@@ -1,1697 +1,744 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { type Resolver, useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
 import jsPDF from "jspdf"
 import "jspdf-autotable"
-import { addDays, differenceInCalendarDays, format } from "date-fns"
-import { es } from "date-fns/locale"
-
-import { fileStorage, type StoredFile } from "@/lib/fileStorage"
-import { cn } from "@/lib/utils"
-import { ArcoModuleShell } from "@/components/arco-module-shell"
-import { DPO_META, DPO_NAV } from "@/components/arco-module-config"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+  AlertTriangle,
+  CheckCircle2,
+  ClipboardCheck,
+  Download,
+  Eye,
+  FileCheck2,
+  FolderKanban,
+  ListChecks,
+  ShieldCheck,
+  Trash2,
+} from "lucide-react"
+
+import {
+  ArcoModuleShell,
+  ModuleEmptyState,
+  ModuleMetricCard,
+  ModuleSectionCard,
+} from "@/components/arco-module-shell"
+import { DPO_META, DPO_NAV } from "@/components/arco-module-config"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Progress } from "@/components/ui/progress"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
+import { fileStorage, type StoredFile } from "@/lib/fileStorage"
+import { cn } from "@/lib/utils"
+import type {
+  DpoAccreditationDraft,
+  DpoAccreditationRecord,
+  DpoEvidenceScope,
+  DpoFunctionalDraft,
+  DpoFunctionalRecord,
+  DpoProjectAnalysis,
+  DpoProjectReviewDraft,
+  DpoProjectReviewRecord,
+  DpoQuestionResponse,
+  DpoSectionScore,
+} from "../opd-compliance-model"
 import {
-  AlertTriangle,
-  CheckCircle2,
-  Download,
-  FileText,
-  Lightbulb,
-  Trash2,
-} from "lucide-react"
+  ACCREDITATION_SECTIONS,
+  FUNCTIONAL_SECTIONS,
+  PROJECT_CATEGORY_OPTIONS,
+  PROJECT_DICTAMEN_OPTIONS,
+  PROJECT_PHASE_OPTIONS,
+  PROJECT_REVIEW_QUESTIONS,
+  DPO_AREA_OPTIONS,
+  DPO_EVIDENCE_SCOPE_LABELS,
+  DPO_EVIDENCE_TYPE_LABELS,
+  DPO_ROLE_OPTIONS,
+  analyzeProjectReview,
+  buildDpoSnapshot,
+  cloneAccreditationRecordToDraft,
+  cloneFunctionalRecordToDraft,
+  cloneProjectRecordToDraft,
+  createAccreditationDraft,
+  createAccreditationRecord,
+  createFunctionalDraft,
+  createFunctionalRecord,
+  createProjectReviewDraft,
+  createProjectReviewRecord,
+  formatDateLabel,
+  getEvidenceScope,
+  getOptionLabel,
+  loadAccreditationHistory,
+  loadFunctionalHistory,
+  loadProjectReviews,
+  migrateLegacyDpoSnapshot,
+  notifyDpoStorageChange,
+  persistDpoSnapshot,
+  saveAccreditationHistory,
+  saveFunctionalHistory,
+  saveProjectReviews,
+  validateResponses,
+  validateSectionCollection,
+} from "../opd-compliance-model"
 
-const DPO_ROLE_OPTIONS = [
-  { value: "oficial", label: "Oficial de Protección de Datos" },
-  { value: "cumplimiento", label: "Responsable de Cumplimiento" },
-  { value: "seguridad", label: "Encargado de Seguridad de la Información" },
-  { value: "otro", label: "Otro" },
-] as const
-const DPO_ROLE_VALUES = DPO_ROLE_OPTIONS.map((option) => option.value) as [
-  "oficial",
-  "cumplimiento",
-  "seguridad",
-  "otro",
-]
+type EvidenceFilter = "all" | DpoEvidenceScope
 
-const DPO_AREA_OPTIONS = [
-  { value: "juridico", label: "Jurídico / Cumplimiento" },
-  { value: "seguridad", label: "Seguridad de la Información / TI" },
-  { value: "rh", label: "Recursos Humanos" },
-  { value: "direccion", label: "Dirección General" },
-  { value: "otro", label: "Otro" },
-] as const
-const DPO_AREA_VALUES = DPO_AREA_OPTIONS.map((option) => option.value) as [
-  "juridico",
-  "seguridad",
-  "rh",
-  "direccion",
-  "otro",
-]
-
-const DESIGNATION_DOCUMENT_OPTIONS = [
-  { value: "nombramiento", label: "Nombramiento interno / acta de designación" },
-  { value: "reglamento", label: "Cláusula en reglamento interno" },
-  { value: "contrato", label: "Contrato o adenda de funciones" },
-  { value: "otro", label: "Otro documento oficial" },
-] as const
-const DESIGNATION_DOCUMENT_VALUES = DESIGNATION_DOCUMENT_OPTIONS.map((option) => option.value) as [
-  "nombramiento",
-  "reglamento",
-  "contrato",
-  "otro",
-]
-
-const DPO_COMPETENCY_OPTIONS = [
-  { value: "datos", label: "Conocimientos en protección de datos personales" },
-  { value: "cumplimiento", label: "Experiencia en cumplimiento normativo o ciberseguridad" },
-  { value: "capacitacion", label: "Capacitación acreditada en materia de privacidad" },
-] as const
-const DPO_COMPETENCY_VALUES = DPO_COMPETENCY_OPTIONS.map((option) => option.value) as [
-  "datos",
-  "cumplimiento",
-  "capacitacion",
-]
-
-const POLICY_OPTIONS = [
-  { value: "general", label: "Política general de protección de datos personales" },
-  { value: "arco", label: "Política de derechos ARCO" },
-  { value: "conservacion", label: "Política de conservación y supresión" },
-  { value: "incidentes", label: "Política de incidentes y brechas de seguridad" },
-  { value: "transferencias", label: "Política de transferencias y encargados" },
-  { value: "avisos", label: "Política de avisos de privacidad" },
-  { value: "otro", label: "Otro" },
-] as const
-const POLICY_VALUES = POLICY_OPTIONS.map((option) => option.value) as [
-  "general",
-  "arco",
-  "conservacion",
-  "incidentes",
-  "transferencias",
-  "avisos",
-  "otro",
-]
-
-const PROCEDURE_OPTIONS = [
-  { value: "arco", label: "Gestión de solicitudes ARCO" },
-  { value: "incidentes", label: "Notificación de incidentes" },
-  { value: "impacto", label: "Evaluación de impacto o riesgo" },
-  { value: "proveedores", label: "Auditoría de proveedores" },
-  { value: "capacitacion", label: "Capacitación interna" },
-  { value: "otro", label: "Otro" },
-] as const
-const PROCEDURE_VALUES = PROCEDURE_OPTIONS.map((option) => option.value) as [
-  "arco",
-  "incidentes",
-  "impacto",
-  "proveedores",
-  "capacitacion",
-  "otro",
-]
-
-const ACTIVITY_OPTIONS = [
-  { value: "inventario", label: "Actualización de inventario de tratamientos" },
-  { value: "avisos", label: "Supervisión de avisos de privacidad" },
-  { value: "contratos", label: "Revisión de contratos y encargados" },
-  { value: "arco", label: "Atención de solicitudes ARCO" },
-  { value: "auditorias", label: "Coordinación de auditorías internas" },
-  { value: "incidentes", label: "Registro de incidentes y brechas" },
-  { value: "capacitacion", label: "Capacitación al personal" },
-  { value: "autorregulacion", label: "Participación en autorregulación o certificación" },
-  { value: "otro", label: "Otro" },
-] as const
-const ACTIVITY_VALUES = ACTIVITY_OPTIONS.map((option) => option.value) as [
-  "inventario",
-  "avisos",
-  "contratos",
-  "arco",
-  "auditorias",
-  "incidentes",
-  "capacitacion",
-  "autorregulacion",
-  "otro",
-]
-
-const PERIODICITY_OPTIONS = [
-  { value: "mensual", label: "Mensual" },
-  { value: "trimestral", label: "Trimestral" },
-  { value: "semestral", label: "Semestral" },
-  { value: "anual", label: "Anual" },
-] as const
-const PERIODICITY_VALUES = PERIODICITY_OPTIONS.map((option) => option.value) as [
-  "mensual",
-  "trimestral",
-  "semestral",
-  "anual",
-]
-
-const REPORT_FREQUENCY_OPTIONS = [
-  { value: "trimestral", label: "Trimestral" },
-  { value: "semestral", label: "Semestral" },
-  { value: "anual", label: "Anual" },
-  { value: "evento", label: "Por evento o auditoría específica" },
-] as const
-const REPORT_FREQUENCY_VALUES = REPORT_FREQUENCY_OPTIONS.map((option) => option.value) as [
-  "trimestral",
-  "semestral",
-  "anual",
-  "evento",
-]
-
-const REPORT_CONTENT_OPTIONS = [
-  { value: "cumplimiento", label: "Estado de cumplimiento normativo" },
-  { value: "riesgos", label: "Riesgos identificados y mitigaciones" },
-  { value: "brechas", label: "Brechas o incidentes reportados" },
-  { value: "correctivas", label: "Acciones correctivas implementadas" },
-  { value: "planes", label: "Planes de mejora o actualización" },
-  { value: "kpi", label: "Indicadores clave (KPI) de cumplimiento" },
-] as const
-const REPORT_CONTENT_VALUES = REPORT_CONTENT_OPTIONS.map((option) => option.value) as [
-  "cumplimiento",
-  "riesgos",
-  "brechas",
-  "correctivas",
-  "planes",
-  "kpi",
-]
-
-const OVERALL_RESULT_OPTIONS = [
-  { value: "alto", label: "Cumplimiento alto (≥85%)" },
-  { value: "medio", label: "Cumplimiento medio (60–84%)" },
-  { value: "bajo", label: "Cumplimiento bajo (<60%)" },
-] as const
-const OVERALL_RESULT_VALUES = OVERALL_RESULT_OPTIONS.map((option) => option.value) as [
-  "alto",
-  "medio",
-  "bajo",
-]
-
-const getOptionLabel = <T extends { value: string; label: string }>(options: readonly T[], value?: string) => {
-  if (!value) return undefined
-  return options.find((option) => option.value === value)?.label ?? value
+const EMPTY_FILES: File[] = []
+type AutoTableDoc = jsPDF & {
+  autoTable: (options: {
+    startY: number
+    head: string[][]
+    body: Array<Array<string | number>>
+    styles: { fontSize: number; cellPadding: number }
+    headStyles: { fillColor: number[]; textColor: number }
+  }) => void
+  lastAutoTable?: { finalY: number }
 }
 
-const formSchema = z
-  .object({
-    hasDPO: z.enum(["si", "no"]),
-    dpoName: z.string().trim().optional(),
-    dpoRole: z.enum(DPO_ROLE_VALUES).optional(),
-    dpoRoleOther: z.string().trim().optional(),
-    dpoArea: z.enum(DPO_AREA_VALUES).optional(),
-    dpoAreaOther: z.string().trim().optional(),
-    designationDate: z.string().optional(),
-    designationDocuments: z.array(z.enum(DESIGNATION_DOCUMENT_VALUES)).default([]),
-    designationDocumentsOther: z.string().trim().optional(),
-    designationDocument: z.any().optional(),
-    dpoTerm: z.enum(["indefinida", "determinada"]).optional(),
-    dpoTermNotes: z.string().trim().optional(),
-    dpoCompetencies: z.array(z.enum(DPO_COMPETENCY_VALUES)).default([]),
-    trainingEvidence: z.any().optional(),
-    hasPolicy: z.enum(["si", "no"]),
-    policiesReviewed: z.array(z.enum(POLICY_VALUES)).default([]),
-    policiesOther: z.string().trim().optional(),
-    policyDocument: z.any().optional(),
-    policyLastUpdate: z.string().optional(),
-    hasProcedures: z.enum(["si", "no"]),
-    documentedProcedures: z.array(z.enum(PROCEDURE_VALUES)).default([]),
-    proceduresOther: z.string().trim().optional(),
-    proceduresEvidence: z.any().optional(),
-    hasDocumentedActivities: z.enum(["si", "no"]),
-    activities: z.array(z.enum(ACTIVITY_VALUES)).default([]),
-    activitiesOther: z.string().trim().optional(),
-    periodicity: z.enum(PERIODICITY_VALUES).optional(),
-    activityLog: z.any().optional(),
-    operationalEvaluation: z.enum(["alto", "medio", "bajo"]).optional(),
-    reportsToManagement: z.enum(["si", "no"]),
-    reportFrequency: z.enum(REPORT_FREQUENCY_VALUES).optional(),
-    reportContents: z.array(z.enum(REPORT_CONTENT_VALUES)).default([]),
-    reports: z.any().optional(),
-    managementFeedback: z.enum(["si", "no"]).optional(),
-    managementAck: z.any().optional(),
-    overallResult: z.enum(OVERALL_RESULT_VALUES).optional(),
-    observations: z.string().optional(),
-    actionPlanNotes: z.string().optional(),
-    plannedNextReview: z.string().optional(),
-  })
-  .superRefine((data, ctx) => {
-    if (data.hasDPO === "si") {
-      if (!data.dpoName) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["dpoName"],
-          message: "Registra el nombre del DPD.",
-        })
-      }
-      if (!data.dpoRole) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["dpoRole"],
-          message: "Indica el cargo del DPD.",
-        })
-      }
-      if (data.dpoRole === "otro" && !data.dpoRoleOther) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["dpoRoleOther"],
-          message: "Describe el cargo del DPD.",
-        })
-      }
-      if (!data.dpoArea) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["dpoArea"],
-          message: "Selecciona el área de adscripción.",
-        })
-      }
-      if (data.dpoArea === "otro" && !data.dpoAreaOther) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["dpoAreaOther"],
-          message: "Describe el área de adscripción.",
-        })
-      }
-      if (!data.designationDate) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["designationDate"],
-          message: "Indica la fecha de designación del DPD.",
-        })
-      }
-      if (data.designationDocuments.length === 0) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["designationDocuments"],
-          message: "Selecciona el tipo de documento que acredita la designación.",
-        })
-      }
-      if (data.designationDocuments.includes("otro") && !data.designationDocumentsOther) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["designationDocumentsOther"],
-          message: "Describe la evidencia de designación marcada como 'Otro'.",
-        })
-      }
-      if (!data.dpoTerm) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["dpoTerm"],
-          message: "Define la duración del cargo.",
-        })
-      }
-      if (data.dpoTerm === "determinada" && !data.dpoTermNotes) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["dpoTermNotes"],
-          message: "Describe el periodo o condiciones de la designación.",
-        })
-      }
-    }
-
-    if (data.hasPolicy === "si" && data.policiesReviewed.length === 0) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["policiesReviewed"],
-        message: "Selecciona al menos una política revisada.",
-      })
-    }
-
-    if (data.policiesReviewed.includes("otro") && !data.policiesOther) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["policiesOther"],
-        message: "Describe la política adicional que se revisó.",
-      })
-    }
-
-    if (data.hasProcedures === "si" && data.documentedProcedures.length === 0) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["documentedProcedures"],
-        message: "Selecciona los procedimientos documentados.",
-      })
-    }
-
-    if (data.documentedProcedures.includes("otro") && !data.proceduresOther) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["proceduresOther"],
-        message: "Describe el procedimiento adicional documentado.",
-      })
-    }
-
-    if (data.activities.includes("otro") && !data.activitiesOther) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["activitiesOther"],
-        message: "Describe la actividad adicional registrada.",
-      })
-    }
-
-    if (data.reportsToManagement === "si") {
-      if (!data.reportFrequency) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["reportFrequency"],
-          message: "Indica la frecuencia de los informes.",
-        })
-      }
-      if (data.reportContents.length === 0) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["reportContents"],
-          message: "Selecciona el contenido de los informes revisados.",
-        })
-      }
-      if (!data.managementFeedback) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["managementFeedback"],
-          message: "Indica si la Alta Dirección emite observaciones.",
-        })
-      }
-    }
-  })
-
-const formatDateLabel = (value?: string) => {
-  if (!value) return ""
-  const parsed = new Date(value)
-  if (Number.isNaN(parsed.getTime())) {
-    return value
-  }
-  return format(parsed, "PPP", { locale: es })
+function toneFromScore(score: number) {
+  if (score >= 90) return "positive" as const
+  if (score >= 70) return "primary" as const
+  if (score >= 50) return "warning" as const
+  return "critical" as const
 }
 
-type FormValues = z.infer<typeof formSchema>
-
-interface AnalysisResult {
-  complianceScore: number
-  maturityLevel: "Avanzado" | "Intermedio" | "Inicial"
-  riskLevel: "Bajo" | "Moderado" | "Alto"
-  summary: string
-  highlights: string[]
-  recommendations: string[]
-  actionPlan: {
-    title: string
-    description: string
-    due: string
-  }[]
-  breakdown: {
-    area: string
-    status: "Adecuado" | "En proceso" | "Crítico"
-    description: string
-    score: number
-  }[]
-  nextReviewDate: string
+function badgeClassFromTone(tone: ReturnType<typeof toneFromScore>) {
+  if (tone === "positive") return "border-emerald-200 bg-emerald-50 text-emerald-700"
+  if (tone === "warning") return "border-amber-200 bg-amber-50 text-amber-700"
+  if (tone === "critical") return "border-rose-200 bg-rose-50 text-rose-700"
+  return "border-blue-200 bg-blue-50 text-blue-700"
 }
 
-interface ComplianceRecordBase {
-  hasDPO: "si" | "no"
-  dpoName?: string
-  dpoRole?: (typeof DPO_ROLE_VALUES)[number]
-  dpoRoleOther?: string
-  dpoArea?: (typeof DPO_AREA_VALUES)[number]
-  dpoAreaOther?: string
-  designationDate?: string
-  designationDocuments: (typeof DESIGNATION_DOCUMENT_VALUES)[number][]
-  designationDocumentsOther?: string
-  dpoTerm?: "indefinida" | "determinada"
-  dpoTermNotes?: string
-  dpoCompetencies: (typeof DPO_COMPETENCY_VALUES)[number][]
-  hasTrainingEvidence: boolean
-  hasPolicy: "si" | "no"
-  policiesReviewed: (typeof POLICY_VALUES)[number][]
-  policiesOther?: string
-  policyLastUpdate?: string
-  hasProcedures: "si" | "no"
-  documentedProcedures: (typeof PROCEDURE_VALUES)[number][]
-  proceduresOther?: string
-  hasProceduresEvidence: boolean
-  hasDocumentedActivities: "si" | "no"
-  activities: (typeof ACTIVITY_VALUES)[number][]
-  activitiesOther?: string
-  periodicity?: (typeof PERIODICITY_VALUES)[number]
-  hasActivityLogEvidence: boolean
-  operationalEvaluation?: "alto" | "medio" | "bajo"
-  reportsToManagement: "si" | "no"
-  reportFrequency?: (typeof REPORT_FREQUENCY_VALUES)[number]
-  reportContents: (typeof REPORT_CONTENT_VALUES)[number][]
-  reportEvidenceCount: number
-  managementFeedback?: "si" | "no"
-  hasManagementAckEvidence: boolean
-  hasDesignationEvidence: boolean
-  hasPolicyEvidence: boolean
-  overallResult?: (typeof OVERALL_RESULT_VALUES)[number]
-  observations?: string
-  actionPlanNotes?: string
-  plannedNextReview?: string
-  updatedAt: string
+function answerLabel(answer: DpoQuestionResponse["answer"]) {
+  if (answer === "si") return "Sí"
+  if (answer === "no") return "No"
+  if (answer === "na") return "N/A"
+  return "Pendiente"
 }
 
-interface ComplianceRecord extends ComplianceRecordBase {
-  analysis: AnalysisResult
+function answerBadgeClass(answer: DpoQuestionResponse["answer"]) {
+  if (answer === "si") return "bg-emerald-50 text-emerald-700 border-emerald-200"
+  if (answer === "no") return "bg-rose-50 text-rose-700 border-rose-200"
+  if (answer === "na") return "bg-slate-50 text-slate-600 border-slate-200"
+  return "bg-amber-50 text-amber-700 border-amber-200"
 }
 
-type IndicatorStatus = "success" | "warning" | "danger"
-
-const statusFromScore = (value: number): "Adecuado" | "En proceso" | "Crítico" => {
-  if (value >= 80) return "Adecuado"
-  if (value >= 60) return "En proceso"
-  return "Crítico"
+function eipdBadge(status: DpoProjectAnalysis["eipdStatus"]) {
+  if (status === "obligatoria") return { label: "EIPD obligatoria", className: "bg-rose-50 text-rose-700 border-rose-200" }
+  if (status === "recomendada") return { label: "EIPD recomendada", className: "bg-amber-50 text-amber-700 border-amber-200" }
+  return { label: "EIPD no requerida", className: "bg-emerald-50 text-emerald-700 border-emerald-200" }
 }
 
-const calculateAnalysis = (record: ComplianceRecordBase): AnalysisResult => {
-  const highlights: string[] = []
-  const recommendations: string[] = []
-  const actionPlan: AnalysisResult["actionPlan"] = []
-  const breakdown: AnalysisResult["breakdown"] = []
+function dictamenLabel(value: string) {
+  return getOptionLabel(PROJECT_DICTAMEN_OPTIONS, value) || "Pendiente de dictamen"
+}
 
-  const pushUnique = (array: string[], value: string) => {
-    if (!array.includes(value)) {
-      array.push(value)
-    }
-  }
+function evidenceFilterLabel(filter: EvidenceFilter) {
+  if (filter === "all") return "Todos"
+  if (filter === "accreditation") return DPO_EVIDENCE_SCOPE_LABELS.accreditation
+  if (filter === "functional") return DPO_EVIDENCE_SCOPE_LABELS.functional
+  if (filter === "project") return DPO_EVIDENCE_SCOPE_LABELS.project
+  return DPO_EVIDENCE_SCOPE_LABELS.legacy
+}
 
-  const addAction = (item: AnalysisResult["actionPlan"][number]) => {
-    if (!actionPlan.some((action) => action.title === item.title)) {
-      actionPlan.push(item)
-    }
-  }
-
-  const baseDate = (() => {
-    const parsed = record.updatedAt ? new Date(record.updatedAt) : new Date()
-    return Number.isNaN(parsed.getTime()) ? new Date() : parsed
-  })()
-
-  const formatActionDate = (days: number) => format(addDays(baseDate, days), "PPP", { locale: es })
-
-  let governanceScore = 0
-  let documentationScore = 0
-  let operationsScore = 0
-  let reportingScore = 0
-
-  if (record.hasDPO === "si") {
-    governanceScore += 18
-    const roleLabel = getOptionLabel(DPO_ROLE_OPTIONS, record.dpoRole)
-    const areaLabel = getOptionLabel(DPO_AREA_OPTIONS, record.dpoArea)
-    if (record.dpoName) {
-      pushUnique(
-        highlights,
-        `DPD designado: ${record.dpoName}${roleLabel ? ` (${roleLabel})` : ""}.`,
-      )
-    }
-    if (areaLabel) {
-      pushUnique(highlights, `Área de adscripción: ${areaLabel}.`)
-    }
-    if (record.designationDate) {
-      governanceScore += 4
-      pushUnique(highlights, `Fecha de designación registrada: ${formatDateLabel(record.designationDate)}.`)
-    }
-    if (record.designationDocuments.length > 0) {
-      governanceScore += 4
-      const labels = record.designationDocuments
-        .map((value) => getOptionLabel(DESIGNATION_DOCUMENT_OPTIONS, value) ?? value)
-      if (record.designationDocumentsOther) {
-        labels.push(record.designationDocumentsOther)
-      }
-      pushUnique(highlights, `Documentos que soportan la designación: ${labels.join(", ")}.`)
-    }
-    if (record.hasDesignationEvidence) {
-      governanceScore += 6
-      pushUnique(highlights, "Se ha documentado la evidencia formal del nombramiento del DPD.")
-    } else {
-      pushUnique(
-        recommendations,
-        "Carga el acta o contrato que formaliza el nombramiento del Oficial de Protección de Datos.",
-      )
-      addAction({
-        title: "Registrar evidencia de designación",
-        description: "Adjunta el acta, contrato o comunicación interna que acredita el nombramiento del DPD.",
-        due: formatActionDate(7),
-      })
-    }
-    if (record.dpoTerm) {
-      governanceScore += 3
-      const termLabel =
-        record.dpoTerm === "indefinida"
-          ? "Duración indefinida"
-          : `Periodo determinado (${record.dpoTermNotes || "sin detalle"})`
-      pushUnique(highlights, termLabel)
-    }
-    if (record.dpoCompetencies.length > 0) {
-      governanceScore += record.dpoCompetencies.length >= 2 ? 2 : 1
-      const labels = record.dpoCompetencies
-        .map((value) => getOptionLabel(DPO_COMPETENCY_OPTIONS, value) ?? value)
-      pushUnique(highlights, `Competencias verificadas: ${labels.join(", ")}.`)
-    } else {
-      pushUnique(
-        recommendations,
-        "Verifica y documenta las competencias técnicas y normativas del DPD.",
-      )
-      addAction({
-        title: "Formalizar competencias del DPD",
-        description: "Recopila evidencia de experiencia, certificaciones o capacitaciones que respalden el perfil del DPD.",
-        due: formatActionDate(21),
-      })
-    }
-    if (record.hasTrainingEvidence) {
-      governanceScore += 2
-      pushUnique(highlights, "Se dispone de evidencia de capacitación o certificación del DPD.")
-    } else {
-      pushUnique(
-        recommendations,
-        "Adjunta constancias de capacitación o certificaciones del DPD para acreditar su actualización técnica.",
-      )
-      addAction({
-        title: "Documentar capacitación del DPD",
-        description: "Carga certificados, diplomas o constancias de cursos recientes vinculados con privacidad y protección de datos.",
-        due: formatActionDate(28),
-      })
-    }
-  } else {
-    pushUnique(recommendations, "Designa un Oficial de Protección de Datos con funciones claramente definidas.")
-    addAction({
-      title: "Designar Oficial de Protección de Datos",
-      description: "Formaliza el nombramiento del DPD y deja constancia documental de su fecha de designación.",
-      due: formatActionDate(15),
-    })
-  }
-
-  if (record.hasPolicy === "si") {
-    documentationScore += 9
-    pushUnique(highlights, "Existe un marco documental vigente para la protección de datos personales.")
-    if (record.policiesReviewed.length > 0) {
-      const labels = record.policiesReviewed
-        .map((value) => getOptionLabel(POLICY_OPTIONS, value) ?? value)
-      if (record.policiesOther) {
-        labels.push(record.policiesOther)
-      }
-      documentationScore += record.policiesReviewed.length >= 4 ? 3 : 2
-      pushUnique(highlights, `Políticas revisadas: ${labels.join(", ")}.`)
-    }
-    if (record.hasPolicyEvidence) {
-      documentationScore += 3
-      pushUnique(highlights, "La política del DPD está respaldada con documentación vigente.")
-    } else {
-      pushUnique(
-        recommendations,
-        "Centraliza y publica la política actualizada que define las responsabilidades del DPD.",
-      )
-      addAction({
-        title: "Publicar política del DPD",
-        description: "Reúne y valida la última versión de la política que regula funciones, responsabilidades y dependencia del DPD.",
-        due: formatActionDate(14),
-      })
-    }
-    if (record.policyLastUpdate) {
-      const updateLabel = formatDateLabel(record.policyLastUpdate)
-      const parsed = new Date(record.policyLastUpdate)
-      if (!Number.isNaN(parsed.getTime())) {
-        const diffDays = Math.floor((baseDate.getTime() - parsed.getTime()) / (1000 * 60 * 60 * 24))
-        if (diffDays <= 540) {
-          documentationScore += 3
-          pushUnique(highlights, `Marco documental actualizado el ${updateLabel}.`)
-        } else {
-          documentationScore += 1
-          pushUnique(
-            recommendations,
-            "Actualiza el marco documental del DPD; han transcurrido más de 18 meses desde la última revisión.",
-          )
-          addAction({
-            title: "Actualizar políticas del DPD",
-            description: "Agenda una revisión integral del marco documental para garantizar su vigencia normativa.",
-            due: formatActionDate(45),
-          })
-        }
-      }
-    } else {
-      pushUnique(
-        recommendations,
-        "Registra la fecha de última actualización del marco documental del DPD.",
-      )
-    }
-  } else {
-    pushUnique(
-      recommendations,
-      "Elabora una política que describa funciones, independencia y recursos asignados al DPD.",
-    )
-    addAction({
-      title: "Formalizar la política del DPD",
-      description: "Redacta y aprueba una política donde se recojan funciones, recursos, dependencia jerárquica y canales de reporte del DPD.",
-      due: formatActionDate(30),
-    })
-  }
-
-  if (record.hasProcedures === "si") {
-    documentationScore += 6
-    pushUnique(highlights, "Se cuenta con procedimientos o manuales que respaldan la gestión del DPD.")
-    if (record.documentedProcedures.length > 0) {
-      const labels = record.documentedProcedures
-        .map((value) => getOptionLabel(PROCEDURE_OPTIONS, value) ?? value)
-      if (record.proceduresOther) {
-        labels.push(record.proceduresOther)
-      }
-      documentationScore += record.documentedProcedures.length >= 3 ? 3 : 1
-      pushUnique(highlights, `Procedimientos documentados: ${labels.join(", ")}.`)
-    }
-    if (record.hasProceduresEvidence) {
-      documentationScore += 3
-      pushUnique(highlights, "Los procedimientos cuentan con evidencia de publicación o difusión interna.")
-    } else {
-      pushUnique(
-        recommendations,
-        "Consolida la evidencia de los procedimientos que soportan la gestión del DPD.",
-      )
-      addAction({
-        title: "Respaldar procedimientos del DPD",
-        description: "Carga manuales, flujogramas o lineamientos aprobados que describan la operación del DPD.",
-        due: formatActionDate(30),
-      })
-    }
-  } else {
-    pushUnique(
-      recommendations,
-      "Documenta procedimientos específicos para ARCO, incidentes, evaluaciones de impacto y auditorías vinculadas al DPD.",
-    )
-    addAction({
-      title: "Estandarizar procedimientos del DPD",
-      description: "Diseña y aprueba procedimientos clave (ARCO, incidentes, auditorías y capacitación) alineados al plan anual de privacidad.",
-      due: formatActionDate(45),
-    })
-  }
-
-  if (record.hasDocumentedActivities === "si") {
-    operationsScore += 8
-    pushUnique(highlights, "Las actividades del DPD se documentan periódicamente.")
-  } else {
-    pushUnique(recommendations, "Documenta la planificación, actuaciones y consultas atendidas por el DPD.")
-    addAction({
-      title: "Documentar actividades del DPD",
-      description: "Crea una bitácora mensual de actuaciones, consultas recibidas y decisiones en las que interviene el DPD.",
-      due: formatActionDate(21),
-    })
-  }
-
-  if (record.activities.length > 0) {
-    operationsScore += record.activities.length >= 5 ? 5 : 3
-    const labels = record.activities
-      .map((value) => getOptionLabel(ACTIVITY_OPTIONS, value) ?? value)
-    if (record.activitiesOther) {
-      labels.push(record.activitiesOther)
-    }
-    pushUnique(highlights, `Actividades registradas por el DPD: ${labels.join(", ")}.`)
-  } else {
-    pushUnique(
-      recommendations,
-      "Registra las actividades operativas del DPD (inventarios, avisos, contratos, auditorías, entre otras).",
-    )
-  }
-
-  if (record.periodicity) {
-    operationsScore += 3
-    const periodicityLabel = getOptionLabel(PERIODICITY_OPTIONS, record.periodicity)
-    if (periodicityLabel) {
-      pushUnique(highlights, `Periodicidad de seguimiento: ${periodicityLabel}.`)
-    }
-  } else {
-    pushUnique(
-      recommendations,
-      "Define una periodicidad clara para el seguimiento de las actividades del DPD.",
-    )
-  }
-
-  if (record.hasActivityLogEvidence) {
-    operationsScore += 2
-    pushUnique(highlights, "Existe evidencia documental de la bitácora o registros del DPD.")
-  } else {
-    pushUnique(
-      recommendations,
-      "Adjunta la bitácora o registros que respalden la ejecución de actividades del DPD.",
-    )
-    addAction({
-      title: "Respaldar bitácora del DPD",
-      description: "Carga la bitácora o tablero digital donde se registran las actividades, incidentes y acuerdos del DPD.",
-      due: formatActionDate(20),
-    })
-  }
-
-  if (record.operationalEvaluation) {
-    if (record.operationalEvaluation === "alto") {
-      operationsScore += 2
-      pushUnique(highlights, "Evaluación operativa: cumplimiento alto.")
-    } else if (record.operationalEvaluation === "medio") {
-      operationsScore += 1
-      pushUnique(highlights, "Evaluación operativa: cumplimiento medio.")
-    } else {
-      pushUnique(
-        recommendations,
-        "Define un plan de mejora para elevar el cumplimiento operativo del DPD.",
-      )
-      addAction({
-        title: "Mejorar cumplimiento operativo",
-        description: "Prioriza acciones que eleven el nivel de cumplimiento operativo del DPD (automatización, seguimiento y métricas).",
-        due: formatActionDate(35),
-      })
-    }
-  }
-
-  if (record.reportsToManagement === "si") {
-    reportingScore += 5
-    pushUnique(highlights, "Se informa a la Alta Dirección sobre las actividades del DPD.")
-
-    if (record.reportFrequency) {
-      reportingScore += 3
-      const frequencyLabel = getOptionLabel(REPORT_FREQUENCY_OPTIONS, record.reportFrequency)
-      if (frequencyLabel) {
-        pushUnique(highlights, `Frecuencia de los informes: ${frequencyLabel}.`)
-      }
-    }
-
-    if (record.reportContents.length > 0) {
-      reportingScore += record.reportContents.length >= 4 ? 3 : 2
-      const labels = record.reportContents
-        .map((value) => getOptionLabel(REPORT_CONTENT_OPTIONS, value) ?? value)
-      pushUnique(highlights, `Contenido de los informes revisados: ${labels.join(", ")}.`)
-    }
-
-    if (record.reportEvidenceCount > 0) {
-      reportingScore += record.reportEvidenceCount >= 2 ? 2 : 1
-      pushUnique(
-        highlights,
-        `Se dispone de ${record.reportEvidenceCount} informe${
-          record.reportEvidenceCount === 1 ? "" : "s"
-        } respaldatorio${record.reportEvidenceCount === 1 ? "" : "s"}.`,
-      )
-      if (record.reportEvidenceCount < 2) {
-        pushUnique(
-          recommendations,
-          "Conserva al menos los dos últimos informes remitidos a la Alta Dirección para evidenciar la trazabilidad.",
-        )
-        addAction({
-          title: "Consolidar histórico de informes",
-          description: "Centraliza los informes remitidos a la Alta Dirección y define una estructura estándar para futuras comunicaciones.",
-          due: formatActionDate(30),
-        })
-      }
-    } else {
-      pushUnique(
-        recommendations,
-        "Conserva evidencia de los informes emitidos por el DPD y compártela con la Alta Dirección.",
-      )
-      addAction({
-        title: "Respaldar informes remitidos",
-        description: "Carga los informes del último año o, en su defecto, genera un resumen ejecutivo con acuerdos y seguimiento.",
-        due: formatActionDate(14),
-      })
-    }
-
-    if (record.managementFeedback === "si") {
-      reportingScore += 1
-      pushUnique(highlights, "La Alta Dirección emite observaciones o aprobaciones a los informes del DPD.")
-    } else if (record.managementFeedback === "no") {
-      pushUnique(
-        recommendations,
-        "Solicita observaciones formales de la Alta Dirección para dar seguimiento a acuerdos y mejoras.",
-      )
-    }
-
-    if (record.hasManagementAckEvidence) {
-      reportingScore += 1
-      pushUnique(highlights, "Se cuenta con evidencia de acuses o minutas de la Alta Dirección.")
-    } else {
-      pushUnique(
-        recommendations,
-        "Adjunta acuses de recibo, minutas o acuerdos de la Alta Dirección respecto a los informes del DPD.",
-      )
-      addAction({
-        title: "Respaldar observaciones de la Alta Dirección",
-        description: "Carga minutas de comité, correos o acuses donde se registren las observaciones emitidas por la Alta Dirección.",
-        due: formatActionDate(25),
-      })
-    }
-  } else {
-    pushUnique(
-      recommendations,
-      "Establece un esquema periódico de reporte del DPD a la Alta Dirección y documenta los hallazgos principales.",
-    )
-    addAction({
-      title: "Programar informe para la Alta Dirección",
-      description: "Define una cadencia (trimestral o semestral) para presentar hallazgos, riesgos y necesidades del programa de privacidad.",
-      due: formatActionDate(21),
-    })
-  }
-
-  const complianceScore = Math.min(
-    100,
-    Math.round(governanceScore + documentationScore + operationsScore + reportingScore),
+function statusChip(label: string, className: string) {
+  return (
+    <Badge variant="outline" className={className}>
+      {label}
+    </Badge>
   )
-  const maturityLevel = complianceScore >= 80 ? "Avanzado" : complianceScore >= 55 ? "Intermedio" : "Inicial"
-  const riskLevel = complianceScore >= 80 ? "Bajo" : complianceScore >= 55 ? "Moderado" : "Alto"
-
-  let summary = ""
-  if (complianceScore >= 80) {
-    summary =
-      "El programa del DPD muestra un nivel avanzado de madurez. Mantén la evidencia actualizada, refuerza la capacitación continua y consolida la trazabilidad de los informes."
-  } else if (complianceScore >= 55) {
-    summary =
-      "El programa cuenta con bases sólidas, pero aún requiere reforzar la documentación y el seguimiento de los reportes para reducir el riesgo residual."
-  } else {
-    summary =
-      "Se identifican brechas críticas en la gobernanza del DPD. Prioriza el nombramiento formal, la documentación de actividades y la generación de informes periódicos."
-  }
-
-  const reviewDays = complianceScore >= 80 ? 120 : complianceScore >= 55 ? 90 : 60
-  const computedNextReview = format(addDays(baseDate, reviewDays), "PPP", { locale: es })
-  const nextReviewDate = record.plannedNextReview
-    ? formatDateLabel(record.plannedNextReview)
-    : computedNextReview
-
-  const governancePercent = Math.round((governanceScore / 35) * 100)
-  const documentationPercent = Math.round((documentationScore / 30) * 100)
-  const operationsPercent = Math.round((operationsScore / 20) * 100)
-  const reportingPercent = Math.round((reportingScore / 15) * 100)
-
-  breakdown.push({
-    area: "Gobernanza del DPD",
-    status: statusFromScore(governancePercent),
-    description:
-      record.hasDPO === "si"
-        ? record.hasDesignationEvidence
-          ? "El DPD está designado, se documentó el acto de nombramiento y se acredita su capacitación."
-          : "El DPD está designado, pero falta incorporar evidencia del acto de nombramiento o capacitación."
-        : "Aún no se ha formalizado la figura del Oficial de Protección de Datos en la organización.",
-    score: governancePercent,
-  })
-
-  breakdown.push({
-    area: "Marco documental",
-    status: statusFromScore(documentationPercent),
-    description:
-      record.hasPolicy === "si"
-        ? record.hasPolicyEvidence
-          ? "La política del DPD está vigente; verifica que las actualizaciones y procedimientos cuenten con soportes recientes."
-          : "Existe una política, pero debe actualizarse o hacerse accesible desde un repositorio controlado."
-        : "No se dispone de una política formal que describa funciones y responsabilidades del DPD.",
-    score: documentationPercent,
-  })
-
-  breakdown.push({
-    area: "Seguimiento operativo",
-    status: statusFromScore(operationsPercent),
-    description:
-      record.hasDocumentedActivities === "si"
-        ? "Las actividades del DPD se registran; valida que la bitácora y periodicidad estén documentadas con evidencias."
-        : "No se cuenta con un registro actualizado de actividades, consultas o actuaciones del DPD.",
-    score: operationsPercent,
-  })
-
-  breakdown.push({
-    area: "Supervisión y reporte",
-    status: statusFromScore(reportingPercent),
-    description:
-      record.reportsToManagement === "si"
-        ? record.reportEvidenceCount > 0
-          ? "Existen informes presentados a la Alta Dirección; fortalece la documentación de observaciones y acuses."
-          : "Se reporta a la Alta Dirección, pero aún no se conservan los soportes correspondientes."
-        : "Falta establecer una dinámica de reporte periódico a la Alta Dirección.",
-    score: reportingPercent,
-  })
-
-  return {
-    complianceScore,
-    maturityLevel,
-    riskLevel,
-    summary,
-    highlights,
-    recommendations,
-    actionPlan,
-    breakdown,
-    nextReviewDate,
-  }
 }
 
-const createRecordFromForm = (values: FormValues, evidence: StoredFile[]): ComplianceRecord => {
-  const designationEvidence = evidence.some((file) => file.metadata?.documentType === "designation")
-  const policyEvidence = evidence.some((file) => file.metadata?.documentType === "policy")
-  const trainingEvidence = evidence.some((file) => file.metadata?.documentType === "training")
-  const proceduresEvidence = evidence.some((file) => file.metadata?.documentType === "procedures")
-  const activityLogEvidence = evidence.some((file) => file.metadata?.documentType === "activity-log")
-  const managementAckEvidence = evidence.some((file) => file.metadata?.documentType === "management-ack")
-  const reportEvidenceCount = evidence.filter((file) => file.metadata?.documentType === "report").length
-
-  const base: ComplianceRecordBase = {
-    hasDPO: values.hasDPO,
-    dpoName: values.dpoName?.trim() || "",
-    dpoRole: values.dpoRole,
-    dpoRoleOther: values.dpoRoleOther?.trim() || "",
-    dpoArea: values.dpoArea,
-    dpoAreaOther: values.dpoAreaOther?.trim() || "",
-    designationDate: values.designationDate || "",
-    designationDocuments: values.designationDocuments || [],
-    designationDocumentsOther: values.designationDocumentsOther?.trim() || "",
-    dpoTerm: values.dpoTerm,
-    dpoTermNotes: values.dpoTermNotes?.trim() || "",
-    dpoCompetencies: values.dpoCompetencies || [],
-    hasTrainingEvidence: trainingEvidence,
-    hasPolicy: values.hasPolicy,
-    policiesReviewed: values.policiesReviewed || [],
-    policiesOther: values.policiesOther?.trim() || "",
-    policyLastUpdate: values.policyLastUpdate || "",
-    hasProcedures: values.hasProcedures,
-    documentedProcedures: values.documentedProcedures || [],
-    proceduresOther: values.proceduresOther?.trim() || "",
-    hasProceduresEvidence: proceduresEvidence,
-    hasDocumentedActivities: values.hasDocumentedActivities,
-    activities: values.activities || [],
-    activitiesOther: values.activitiesOther?.trim() || "",
-    periodicity: values.periodicity,
-    hasActivityLogEvidence: activityLogEvidence,
-    operationalEvaluation: values.operationalEvaluation,
-    reportsToManagement: values.reportsToManagement,
-    reportFrequency: values.reportFrequency,
-    reportContents: values.reportContents || [],
-    reportEvidenceCount,
-    managementFeedback: values.managementFeedback || (values.reportsToManagement === "si" ? "no" : undefined),
-    hasManagementAckEvidence: managementAckEvidence,
-    hasDesignationEvidence: designationEvidence,
-    hasPolicyEvidence: policyEvidence,
-    overallResult: values.overallResult,
-    observations: values.observations?.trim() || "",
-    actionPlanNotes: values.actionPlanNotes?.trim() || "",
-    plannedNextReview: values.plannedNextReview || "",
-    updatedAt: new Date().toISOString(),
-  }
-
-  return {
-    ...base,
-    analysis: calculateAnalysis(base),
-  }
+function QuestionCard({
+  question,
+  response,
+  onChange,
+}: {
+  question: { id: string; prompt: string; helper?: string }
+  response?: DpoQuestionResponse
+  onChange: (next: DpoQuestionResponse) => void
+}) {
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="border-slate-200 bg-slate-50 text-slate-700">
+              {question.id}
+            </Badge>
+            <Badge variant="outline" className={cn("border", answerBadgeClass(response?.answer || ""))}>
+              {answerLabel(response?.answer || "")}
+            </Badge>
+          </div>
+          <p className="text-sm font-semibold leading-6 text-slate-950">{question.prompt}</p>
+          {question.helper ? <p className="text-sm leading-6 text-slate-500">{question.helper}</p> : null}
+        </div>
+      </div>
+      <div className="mt-4 grid gap-4 lg:grid-cols-[260px_1fr]">
+        <RadioGroup
+          value={response?.answer || ""}
+          onValueChange={(value) =>
+            onChange({
+              answer: value as DpoQuestionResponse["answer"],
+              notes: response?.notes || "",
+            })
+          }
+          className="grid gap-2"
+        >
+          {[
+            { value: "si", label: "Sí" },
+            { value: "no", label: "No" },
+            { value: "na", label: "N/A" },
+          ].map((option) => (
+            <div key={option.value} className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2">
+              <RadioGroupItem value={option.value} id={`${question.id}-${option.value}`} />
+              <Label htmlFor={`${question.id}-${option.value}`}>{option.label}</Label>
+            </div>
+          ))}
+        </RadioGroup>
+        <div>
+          <Label htmlFor={`${question.id}-notes`}>Observaciones</Label>
+          <Textarea
+            id={`${question.id}-notes`}
+            className="mt-2 min-h-[92px]"
+            placeholder="Documenta evidencia, justificación o notas relevantes."
+            value={response?.notes || ""}
+            onChange={(event) =>
+              onChange({
+                answer: response?.answer || "",
+                notes: event.target.value,
+              })
+            }
+          />
+        </div>
+      </div>
+    </div>
+  )
 }
 
-const ensureRecordShape = (data: any, evidence: StoredFile[]): ComplianceRecord => {
-  const designationEvidence = evidence.some((file) => file.metadata?.documentType === "designation")
-  const policyEvidence = evidence.some((file) => file.metadata?.documentType === "policy")
-  const trainingEvidence = evidence.some((file) => file.metadata?.documentType === "training")
-  const proceduresEvidence = evidence.some((file) => file.metadata?.documentType === "procedures")
-  const activityLogEvidence = evidence.some((file) => file.metadata?.documentType === "activity-log")
-  const managementAckEvidence = evidence.some((file) => file.metadata?.documentType === "management-ack")
-  const reportEvidenceCount = evidence.filter((file) => file.metadata?.documentType === "report").length
-
-  const toArray = <T extends string>(value: unknown, allowed: readonly T[]): T[] => {
-    if (!Array.isArray(value)) return []
-    return value.filter((item): item is T => allowed.includes(item as T))
+function ScoreBreakdown({
+  sections,
+  emptyTitle,
+  emptyDescription,
+}: {
+  sections: DpoSectionScore[]
+  emptyTitle: string
+  emptyDescription: string
+}) {
+  if (sections.length === 0) {
+    return <ModuleEmptyState title={emptyTitle} description={emptyDescription} />
   }
 
-  const sanitizeOption = <T extends string>(value: unknown, allowed: readonly T[]): T | undefined => {
-    return allowed.includes(value as T) ? (value as T) : undefined
-  }
-
-  const base: ComplianceRecordBase = {
-    hasDPO: data?.hasDPO === "si" ? "si" : "no",
-    dpoName: typeof data?.dpoName === "string" ? data.dpoName : "",
-    dpoRole: sanitizeOption(data?.dpoRole, DPO_ROLE_VALUES),
-    dpoRoleOther: typeof data?.dpoRoleOther === "string" ? data.dpoRoleOther : "",
-    dpoArea: sanitizeOption(data?.dpoArea, DPO_AREA_VALUES),
-    dpoAreaOther: typeof data?.dpoAreaOther === "string" ? data.dpoAreaOther : "",
-    designationDate: data?.designationDate || "",
-    designationDocuments: toArray(data?.designationDocuments, DESIGNATION_DOCUMENT_VALUES),
-    designationDocumentsOther:
-      typeof data?.designationDocumentsOther === "string" ? data.designationDocumentsOther : "",
-    dpoTerm: data?.dpoTerm === "indefinida" || data?.dpoTerm === "determinada" ? data.dpoTerm : undefined,
-    dpoTermNotes: typeof data?.dpoTermNotes === "string" ? data.dpoTermNotes : "",
-    dpoCompetencies: toArray(data?.dpoCompetencies, DPO_COMPETENCY_VALUES),
-    hasTrainingEvidence:
-      typeof data?.hasTrainingEvidence === "boolean" ? data.hasTrainingEvidence : trainingEvidence,
-    hasPolicy: data?.hasPolicy === "si" ? "si" : "no",
-    policiesReviewed: toArray(data?.policiesReviewed, POLICY_VALUES),
-    policiesOther: typeof data?.policiesOther === "string" ? data.policiesOther : "",
-    policyLastUpdate: data?.policyLastUpdate || "",
-    hasProcedures: data?.hasProcedures === "si" ? "si" : "no",
-    documentedProcedures: toArray(data?.documentedProcedures, PROCEDURE_VALUES),
-    proceduresOther: typeof data?.proceduresOther === "string" ? data.proceduresOther : "",
-    hasProceduresEvidence:
-      typeof data?.hasProceduresEvidence === "boolean" ? data.hasProceduresEvidence : proceduresEvidence,
-    hasDocumentedActivities: data?.hasDocumentedActivities === "si" ? "si" : "no",
-    activities: toArray(data?.activities, ACTIVITY_VALUES),
-    activitiesOther: typeof data?.activitiesOther === "string" ? data.activitiesOther : "",
-    periodicity: sanitizeOption(data?.periodicity, PERIODICITY_VALUES),
-    hasActivityLogEvidence:
-      typeof data?.hasActivityLogEvidence === "boolean" ? data.hasActivityLogEvidence : activityLogEvidence,
-    operationalEvaluation:
-      data?.operationalEvaluation === "alto" || data?.operationalEvaluation === "medio" || data?.operationalEvaluation === "bajo"
-        ? data.operationalEvaluation
-        : undefined,
-    reportsToManagement: data?.reportsToManagement === "si" ? "si" : "no",
-    reportFrequency: sanitizeOption(data?.reportFrequency, REPORT_FREQUENCY_VALUES),
-    reportContents: toArray(data?.reportContents, REPORT_CONTENT_VALUES),
-    reportEvidenceCount:
-      typeof data?.reportEvidenceCount === "number" ? data.reportEvidenceCount : reportEvidenceCount,
-    managementFeedback:
-      data?.managementFeedback === "si"
-        ? "si"
-        : data?.managementFeedback === "no"
-          ? "no"
-          : data?.reportsToManagement === "si"
-            ? "no"
-            : undefined,
-    hasManagementAckEvidence:
-      typeof data?.hasManagementAckEvidence === "boolean" ? data.hasManagementAckEvidence : managementAckEvidence,
-    hasDesignationEvidence:
-      typeof data?.hasDesignationEvidence === "boolean" ? data.hasDesignationEvidence : designationEvidence,
-    hasPolicyEvidence:
-      typeof data?.hasPolicyEvidence === "boolean" ? data.hasPolicyEvidence : policyEvidence,
-    overallResult:
-      data?.overallResult === "alto" || data?.overallResult === "medio" || data?.overallResult === "bajo"
-        ? data.overallResult
-        : undefined,
-    observations: typeof data?.observations === "string" ? data.observations : "",
-    actionPlanNotes: typeof data?.actionPlanNotes === "string" ? data.actionPlanNotes : "",
-    plannedNextReview: typeof data?.plannedNextReview === "string" ? data.plannedNextReview : "",
-    updatedAt: data?.updatedAt || new Date().toISOString(),
-  }
-
-  return {
-    ...base,
-    analysis: calculateAnalysis(base),
-  }
+  return (
+    <div className="space-y-3">
+      {sections.map((section) => (
+        <div key={section.id} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold text-slate-950">{section.title}</p>
+              <p className="mt-1 text-xs text-slate-500">
+                Sí: {section.yes} · No: {section.no} · N/A: {section.na} · Peso: {section.weight}%
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-lg font-semibold text-slate-950">{Math.round(section.ratio * 100)}%</p>
+              <p className="text-xs text-slate-500">{section.passes ? "Umbral alcanzado" : "Requiere acción"}</p>
+            </div>
+          </div>
+          <Progress className="mt-3 h-2" value={Math.round(section.ratio * 100)} />
+        </div>
+      ))}
+    </div>
+  )
 }
 
-const documentTypeLabel: Record<string, string> = {
-  designation: "Designación DPD",
-  policy: "Política del DPD",
-  report: "Informe remitido",
-  training: "Capacitación del DPD",
-  procedures: "Procedimientos documentados",
-  "activity-log": "Bitácora del DPD",
-  "management-ack": "Acuse Alta Dirección",
-}
+function HistoryTable({
+  rows,
+  selectedId,
+  onSelect,
+}: {
+  rows: Array<{ id: string; date: string; label: string; score: number; level: string; extra?: string }>
+  selectedId: string | null
+  onSelect: (id: string) => void
+}) {
+  if (rows.length === 0) {
+    return (
+      <ModuleEmptyState
+        title="Sin historial todavía"
+        description="El historial aparecerá aquí conforme se guarden evaluaciones o revisiones dentro del módulo."
+      />
+    )
+  }
 
-const statusBadgeClass: Record<"Adecuado" | "En proceso" | "Crítico", string> = {
-  Adecuado: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-200",
-  "En proceso": "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-200",
-  Crítico: "bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-200",
-}
-
-const indicatorStatusClass: Record<IndicatorStatus, string> = {
-  success: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-200",
-  warning: "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-200",
-  danger: "bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-200",
+  return (
+    <div className="overflow-x-auto">
+      <Table className="min-w-[760px]">
+        <TableHeader>
+          <TableRow>
+            <TableHead>Fecha</TableHead>
+            <TableHead>Registro</TableHead>
+            <TableHead>Puntuación</TableHead>
+            <TableHead>Nivel</TableHead>
+            <TableHead />
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {rows.map((row) => (
+            <TableRow key={row.id} className={selectedId === row.id ? "bg-blue-50/50" : undefined}>
+              <TableCell>{formatDateLabel(row.date)}</TableCell>
+              <TableCell>
+                <div className="space-y-1">
+                  <p className="font-medium text-slate-950">{row.label}</p>
+                  {row.extra ? <p className="text-xs text-slate-500">{row.extra}</p> : null}
+                </div>
+              </TableCell>
+              <TableCell>{row.score}%</TableCell>
+              <TableCell>{row.level}</TableCell>
+              <TableCell className="text-right">
+                <Button variant="ghost" size="sm" onClick={() => onSelect(row.id)}>
+                  <Eye className="mr-2 h-4 w-4" />
+                  Ver
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  )
 }
 
 export default function DPOCompliancePage() {
   const { toast } = useToast()
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [analysis, setAnalysis] = useState<AnalysisResult | null>(null)
-  const [storedData, setStoredData] = useState<ComplianceRecord | null>(null)
+  const [activeTab, setActiveTab] = useState("accreditation")
+  const [evidenceFilter, setEvidenceFilter] = useState<EvidenceFilter>("all")
   const [evidenceFiles, setEvidenceFiles] = useState<StoredFile[]>([])
-  const [hasLoadedEvidence, setHasLoadedEvidence] = useState(false)
-  const [activeTab, setActiveTab] = useState("assessment")
-
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema) as Resolver<FormValues>,
-    defaultValues: {
-      hasDPO: "no",
-      dpoName: "",
-      dpoRole: undefined,
-      dpoRoleOther: "",
-      dpoArea: undefined,
-      dpoAreaOther: "",
-      designationDate: "",
-      designationDocuments: [],
-      designationDocumentsOther: "",
-      dpoTerm: undefined,
-      dpoTermNotes: "",
-      dpoCompetencies: [],
-      hasPolicy: "no",
-      policiesReviewed: [],
-      policiesOther: "",
-      policyLastUpdate: "",
-      hasProcedures: "no",
-      documentedProcedures: [],
-      proceduresOther: "",
-      hasDocumentedActivities: "no",
-      activities: [],
-      activitiesOther: "",
-      periodicity: undefined,
-      operationalEvaluation: undefined,
-      reportsToManagement: "no",
-      reportFrequency: undefined,
-      reportContents: [],
-      managementFeedback: undefined,
-      overallResult: undefined,
-      observations: "",
-      actionPlanNotes: "",
-      plannedNextReview: "",
-    },
+  const [accreditationHistory, setAccreditationHistory] = useState<DpoAccreditationRecord[]>([])
+  const [functionalHistory, setFunctionalHistory] = useState<DpoFunctionalRecord[]>([])
+  const [projectReviews, setProjectReviews] = useState<DpoProjectReviewRecord[]>([])
+  const [accreditationDraft, setAccreditationDraft] = useState<DpoAccreditationDraft>(() => createAccreditationDraft())
+  const [functionalDraft, setFunctionalDraft] = useState<DpoFunctionalDraft>(() => createFunctionalDraft())
+  const [projectDraft, setProjectDraft] = useState<DpoProjectReviewDraft>(() => createProjectReviewDraft())
+  const [selectedAccreditationId, setSelectedAccreditationId] = useState<string | null>(null)
+  const [selectedFunctionalId, setSelectedFunctionalId] = useState<string | null>(null)
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null)
+  const [draftsBootstrapped, setDraftsBootstrapped] = useState(false)
+  const [accreditationFiles, setAccreditationFiles] = useState({
+    designation: EMPTY_FILES,
+    training: EMPTY_FILES,
+    support: EMPTY_FILES,
   })
+  const [functionalFiles, setFunctionalFiles] = useState({
+    support: EMPTY_FILES,
+    activityLog: EMPTY_FILES,
+    managementAck: EMPTY_FILES,
+  })
+  const [projectFiles, setProjectFiles] = useState({
+    brief: EMPTY_FILES,
+    dictamen: EMPTY_FILES,
+  })
+  const [fileInputVersion, setFileInputVersion] = useState(0)
+
+  const refreshAll = () => {
+    const currentEvidence = fileStorage.getFilesByCategory("dpo-compliance")
+    migrateLegacyDpoSnapshot(currentEvidence)
+    const refreshedEvidence = fileStorage.getFilesByCategory("dpo-compliance")
+    setEvidenceFiles(refreshedEvidence)
+    setAccreditationHistory(loadAccreditationHistory())
+    setFunctionalHistory(loadFunctionalHistory())
+    setProjectReviews(loadProjectReviews())
+  }
 
   useEffect(() => {
-    const loadEvidence = () => {
-      try {
-        const files = fileStorage.getFilesByCategory("dpo-compliance")
-        setEvidenceFiles(files)
-        setHasLoadedEvidence(true)
-      } catch (error) {
-        console.error("No se pudieron recuperar las evidencias del DPD:", error)
-      }
-    }
-
-    loadEvidence()
-    const handleStorage = () => loadEvidence()
-    window.addEventListener("storage", handleStorage)
-    return () => window.removeEventListener("storage", handleStorage)
+    refreshAll()
+    window.addEventListener("storage", refreshAll)
+    return () => window.removeEventListener("storage", refreshAll)
   }, [])
 
   useEffect(() => {
-    if (!hasLoadedEvidence) return
-    try {
-      const stored = localStorage.getItem("dpo-compliance")
-      if (!stored) {
-        setStoredData(null)
-        setAnalysis(null)
-        return
-      }
-
-      const parsed = JSON.parse(stored)
-      const record = ensureRecordShape(parsed, evidenceFiles)
-      setStoredData(record)
-      setAnalysis(record.analysis)
-      form.reset({
-        hasDPO: record.hasDPO,
-        dpoName: record.dpoName || "",
-        dpoRole: record.dpoRole,
-        dpoRoleOther: record.dpoRoleOther || "",
-        dpoArea: record.dpoArea,
-        dpoAreaOther: record.dpoAreaOther || "",
-        designationDate: record.designationDate || "",
-        designationDocuments: record.designationDocuments || [],
-        designationDocumentsOther: record.designationDocumentsOther || "",
-        dpoTerm: record.dpoTerm,
-        dpoTermNotes: record.dpoTermNotes || "",
-        dpoCompetencies: record.dpoCompetencies || [],
-        hasPolicy: record.hasPolicy,
-        policiesReviewed: record.policiesReviewed || [],
-        policiesOther: record.policiesOther || "",
-        policyLastUpdate: record.policyLastUpdate || "",
-        hasProcedures: record.hasProcedures,
-        documentedProcedures: record.documentedProcedures || [],
-        proceduresOther: record.proceduresOther || "",
-        hasDocumentedActivities: record.hasDocumentedActivities,
-        activities: record.activities || [],
-        activitiesOther: record.activitiesOther || "",
-        periodicity: record.periodicity,
-        operationalEvaluation: record.operationalEvaluation,
-        reportsToManagement: record.reportsToManagement,
-        reportFrequency: record.reportFrequency,
-        reportContents: record.reportContents || [],
-        managementFeedback: record.managementFeedback,
-        overallResult: record.overallResult,
-        observations: record.observations || "",
-        actionPlanNotes: record.actionPlanNotes || "",
-        plannedNextReview: record.plannedNextReview || "",
-      })
-      localStorage.setItem("dpo-compliance", JSON.stringify(record))
-    } catch (error) {
-      console.error("No se pudo cargar la información del DPD:", error)
+    if (draftsBootstrapped) return
+    if (accreditationHistory[0]) {
+      setAccreditationDraft(cloneAccreditationRecordToDraft(accreditationHistory[0]))
+      setSelectedAccreditationId(accreditationHistory[0].id)
     }
-  }, [form, evidenceFiles, hasLoadedEvidence])
+    if (functionalHistory[0]) {
+      setFunctionalDraft(cloneFunctionalRecordToDraft(functionalHistory[0]))
+      setSelectedFunctionalId(functionalHistory[0].id)
+    }
+    if (projectReviews[0]) {
+      setSelectedProjectId(projectReviews[0].id)
+    }
+    setDraftsBootstrapped(true)
+  }, [accreditationHistory, draftsBootstrapped, functionalHistory, projectReviews])
 
+  const latestAccreditation = accreditationHistory[0] || null
+  const latestFunctional = functionalHistory[0] || null
+  const latestProject = projectReviews[0] || null
+
+  const selectedAccreditation =
+    accreditationHistory.find((record) => record.id === selectedAccreditationId) || latestAccreditation
+  const selectedFunctional =
+    functionalHistory.find((record) => record.id === selectedFunctionalId) || latestFunctional
+  const selectedProject =
+    projectReviews.find((record) => record.id === selectedProjectId) || latestProject
+
+  const accreditationAnalysis = selectedAccreditation?.analysis || null
+  const functionalAnalysis = selectedFunctional?.analysis || null
   const evidenceSummary = useMemo(() => {
-    const summary = {
-      total: evidenceFiles.length,
-      designation: 0,
-      policy: 0,
-      report: 0,
-      training: 0,
-      procedures: 0,
-      activityLog: 0,
-      managementAck: 0,
-    }
+    const byScope = {
+      accreditation: 0,
+      functional: 0,
+      project: 0,
+      legacy: 0,
+    } as Record<DpoEvidenceScope, number>
 
     evidenceFiles.forEach((file) => {
-      const type = file.metadata?.documentType
-      if (type === "designation") summary.designation += 1
-      if (type === "policy") summary.policy += 1
-      if (type === "report") summary.report += 1
-      if (type === "training") summary.training += 1
-      if (type === "procedures") summary.procedures += 1
-      if (type === "activity-log") summary.activityLog += 1
-      if (type === "management-ack") summary.managementAck += 1
+      byScope[getEvidenceScope(file)] += 1
     })
 
-    return summary
+    return {
+      total: evidenceFiles.length,
+      ...byScope,
+    }
   }, [evidenceFiles])
 
-  const indicatorStats = useMemo(() => {
-    if (!storedData) return []
+  const filteredEvidence = useMemo(() => {
+    if (evidenceFilter === "all") return evidenceFiles
+    return evidenceFiles.filter((file) => getEvidenceScope(file) === evidenceFilter)
+  }, [evidenceFiles, evidenceFilter])
 
-    const referenceDate = storedData.updatedAt ? new Date(storedData.updatedAt) : new Date()
+  const projectPortfolio = useMemo(
+    () => ({
+      total: projectReviews.length,
+      pendingDictamen: projectReviews.filter((review) => review.analysis.pendingDictamen).length,
+      eipdRequired: projectReviews.filter((review) => review.analysis.eipdStatus === "obligatoria").length,
+      eipdRecommended: projectReviews.filter((review) => review.analysis.eipdStatus === "recomendada").length,
+    }),
+    [projectReviews],
+  )
 
-    const policyDate = storedData.policyLastUpdate ? new Date(storedData.policyLastUpdate) : null
-    const isPolicyDateValid = policyDate && !Number.isNaN(policyDate.getTime())
-    const policyUpToDate =
-      !!isPolicyDateValid && Math.abs(differenceInCalendarDays(referenceDate, policyDate)) <= 365
+  const navItems = useMemo(
+    () =>
+      DPO_NAV.map((item) => {
+        if (item.href === "/dpo/compliance") {
+          return { ...item, badge: accreditationHistory.length + functionalHistory.length + projectReviews.length }
+        }
+        return item
+      }),
+    [accreditationHistory.length, functionalHistory.length, projectReviews.length],
+  )
 
-    const policiesIndicator = {
-      label: "% de políticas actualizadas",
-      value: policyUpToDate ? "100%" : isPolicyDateValid ? "40%" : "0%",
-      helper: policyUpToDate
-        ? "La política del DPD se actualizó en los últimos 12 meses."
-        : isPolicyDateValid
-          ? "Han pasado más de 12 meses desde la última actualización registrada."
-          : "Registra la fecha de actualización más reciente para calcular este indicador.",
-      status: policyUpToDate ? "success" : isPolicyDateValid ? "warning" : "danger",
-    } as const
+  const headerBadges = [
+    latestAccreditation
+      ? {
+          label: `Acreditación ${latestAccreditation.analysis.score}%`,
+          tone: toneFromScore(latestAccreditation.analysis.score),
+        }
+      : { label: "Acreditación pendiente", tone: "warning" as const },
+    latestFunctional
+      ? {
+          label: `Evaluación funcional ${latestFunctional.analysis.score}%`,
+          tone: toneFromScore(latestFunctional.analysis.score),
+        }
+      : { label: "Evaluación funcional pendiente", tone: "warning" as const },
+    {
+      label: `${projectPortfolio.total} proyectos OPD`,
+      tone: projectPortfolio.pendingDictamen > 0 ? ("warning" as const) : ("neutral" as const),
+    },
+    {
+      label: `${evidenceSummary.total} evidencias`,
+      tone: "neutral" as const,
+    },
+  ]
 
-    const hasAuditsActivity = storedData.activities.includes("auditorias")
-    const auditIndicator = {
-      label: "% de auditorías realizadas vs. plan anual",
-      value: hasAuditsActivity ? "100%" : storedData.hasDocumentedActivities === "si" ? "50%" : "0%",
-      helper: hasAuditsActivity
-        ? "Se registran auditorías internas coordinadas por el DPD."
-        : storedData.hasDocumentedActivities === "si"
-          ? "Documenta las auditorías previstas en la bitácora del DPD para medir el avance."
-          : "Activa el registro de actividades para dar seguimiento al plan anual de auditorías.",
-      status: hasAuditsActivity
-        ? "success"
-        : storedData.hasDocumentedActivities === "si"
-          ? "warning"
-          : "danger",
-    } as const
-
-    const reportsDelivered = storedData.reportEvidenceCount
-    const reportsIndicator = {
-      label: "Nº de informes entregados al Comité",
-      value: `${reportsDelivered}`,
-      helper:
-        reportsDelivered > 0
-          ? "Los informes documentados permiten dar seguimiento a las decisiones de la Alta Dirección."
-          : "Carga los informes o minutas remitidas a la Alta Dirección para evidenciar la trazabilidad.",
-      status: reportsDelivered >= 2 ? "success" : reportsDelivered === 1 ? "warning" : "danger",
-    } as const
-
-    const actionsImplemented =
-      storedData.actionPlanNotes && storedData.hasManagementAckEvidence ? "100%" : storedData.actionPlanNotes ? "60%" : "0%"
-    const actionsIndicator = {
-      label: "% de acciones correctivas implementadas",
-      value: actionsImplemented,
-      helper:
-        actionsImplemented === "100%"
-          ? "El plan de acción cuenta con evidencia de seguimiento y acuses de la Alta Dirección."
-          : actionsImplemented === "60%"
-            ? "Documenta los avances del plan y obtén un acuse formal de la Alta Dirección."
-            : "Registra las medidas correctivas acordadas y define responsables y plazos.",
-      status: actionsImplemented === "100%" ? "success" : actionsImplemented === "60%" ? "warning" : "danger",
-    } as const
-
-    return [policiesIndicator, auditIndicator, reportsIndicator, actionsIndicator]
-  }, [storedData])
-
-  const davaraRecommendations = useMemo(() => {
-    if (!analysis) return []
-
-    const periodicityLabel = analysis.complianceScore >= 80 ? "anuales" : "semestrales"
-    const nextReviewReference = storedData?.plannedNextReview
-      ? formatDateLabel(storedData.plannedNextReview)
-      : analysis.nextReviewDate
-
-    return [
-      {
-        title: "Periodicidad recomendada",
-        description: `Programa revisiones ${periodicityLabel} del DPD y confirma la próxima fecha para ${nextReviewReference}.`,
-      },
-      {
-        title: "Integración automática",
-        description:
-          "Vincula esta revisión con los módulos de Inventario, Avisos, Contratos y Auditorías para dar seguimiento integral a los hallazgos.",
-      },
-      {
-        title: "Bitácora probatoria",
-        description:
-          "Genera y resguarda el “Informe de Revisión del DPD” descargado desde este módulo junto con las evidencias adjuntas.",
-      },
-      {
-        title: "Alertas automáticas",
-        description: storedData?.plannedNextReview
-          ? `Activa notificaciones previas a ${formatDateLabel(storedData.plannedNextReview)} para el DPO y la Alta Dirección.`
-          : "Configura recordatorios automáticos para avisar al DPO y a la Alta Dirección antes de la entrega del próximo informe.",
-      },
-      {
-        title: "Indicadores sugeridos",
-        description:
-          "Monitorea en Davara los KPIs clave: políticas actualizadas, auditorías planificadas, informes entregados y acciones correctivas implementadas.",
-      },
-    ]
-  }, [analysis, storedData])
-
-  const lastUpdateLabel = useMemo(() => {
-    if (!storedData?.updatedAt) return "Pendiente"
-    return formatDateLabel(storedData.updatedAt)
-  }, [storedData])
-
-  const onSubmit = async (values: FormValues) => {
-    try {
-      setIsSubmitting(true)
-
-      const uploads: Promise<StoredFile>[] = []
-
-      if (values.designationDocument && values.designationDocument[0]) {
-        const file = values.designationDocument[0]
-        uploads.push(
-          fileStorage.saveFile(
-            file,
-            {
-              documentType: "designation",
-              type: "dpo-document",
-              date: values.designationDate || new Date().toISOString().split("T")[0],
-            },
-            "dpo-compliance",
-          ),
-        )
-      }
-
-      if (values.policyDocument && values.policyDocument[0]) {
-        const file = values.policyDocument[0]
-        uploads.push(
-          fileStorage.saveFile(
-            file,
-            {
-              documentType: "policy",
-              type: "dpo-document",
-              date: values.policyLastUpdate || new Date().toISOString().split("T")[0],
-            },
-            "dpo-compliance",
-          ),
-        )
-      }
-
-      if (values.trainingEvidence && values.trainingEvidence[0]) {
-        const file = values.trainingEvidence[0]
-        uploads.push(
-          fileStorage.saveFile(
-            file,
-            {
-              documentType: "training",
-              type: "dpo-document",
-              date: new Date().toISOString().split("T")[0],
-            },
-            "dpo-compliance",
-          ),
-        )
-      }
-
-      if (values.proceduresEvidence && values.proceduresEvidence[0]) {
-        const file = values.proceduresEvidence[0]
-        uploads.push(
-          fileStorage.saveFile(
-            file,
-            {
-              documentType: "procedures",
-              type: "dpo-document",
-              date: new Date().toISOString().split("T")[0],
-            },
-            "dpo-compliance",
-          ),
-        )
-      }
-
-      if (values.activityLog && values.activityLog[0]) {
-        const file = values.activityLog[0]
-        uploads.push(
-          fileStorage.saveFile(
-            file,
-            {
-              documentType: "activity-log",
-              type: "dpo-document",
-              date: new Date().toISOString().split("T")[0],
-            },
-            "dpo-compliance",
-          ),
-        )
-      }
-
-      if (values.reports && values.reports.length > 0) {
-        for (let i = 0; i < values.reports.length; i++) {
-          const file = values.reports[i]
-          uploads.push(
-            fileStorage.saveFile(
-              file,
-              {
-                documentType: "report",
-                type: "dpo-document",
-                index: i,
-                date: new Date().toISOString().split("T")[0],
-              },
-              "dpo-compliance",
-            ),
-        )
-      }
-
-      if (values.managementAck && values.managementAck[0]) {
-        const file = values.managementAck[0]
-        uploads.push(
-          fileStorage.saveFile(
-            file,
-            {
-              documentType: "management-ack",
-              type: "dpo-document",
-              date: new Date().toISOString().split("T")[0],
-            },
-            "dpo-compliance",
-          ),
-        )
-      }
-      }
-
-      if (uploads.length > 0) {
-        await Promise.all(uploads)
-      }
-
-      const updatedEvidence = fileStorage.getFilesByCategory("dpo-compliance")
-      setEvidenceFiles(updatedEvidence)
-      setHasLoadedEvidence(true)
-
-      const record = createRecordFromForm(values, updatedEvidence)
-      setStoredData(record)
-      setAnalysis(record.analysis)
-      localStorage.setItem("dpo-compliance", JSON.stringify(record))
-      setActiveTab("results")
-
-      form.setValue("designationDocument", undefined)
-      form.setValue("policyDocument", undefined)
-      form.setValue("trainingEvidence", undefined)
-      form.setValue("proceduresEvidence", undefined)
-      form.setValue("activityLog", undefined)
-      form.setValue("reports", undefined)
-      form.setValue("managementAck", undefined)
-
-      toast({
-        title: "Éxito",
-        description: "La información del DPD ha sido registrada correctamente.",
-      })
-    } catch (error) {
-      console.error(error)
-      toast({
-        title: "Error",
-        description: "Hubo un error al guardar la información.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsSubmitting(false)
+  const latestSummaryActions = useMemo(() => {
+    const actionList: string[] = []
+    if (latestAccreditation?.analysis.criticalFindings.length) {
+      actionList.push(...latestAccreditation.analysis.criticalFindings)
     }
+    if (latestFunctional?.analysis.actions.length) {
+      actionList.push(...latestFunctional.analysis.actions)
+    }
+    if (projectPortfolio.pendingDictamen > 0) {
+      actionList.push(
+        `${projectPortfolio.pendingDictamen} proyecto(s) permanecen pendientes de dictamen del OPD.`,
+      )
+    }
+    if (projectPortfolio.eipdRequired > 0) {
+      actionList.push(
+        `${projectPortfolio.eipdRequired} proyecto(s) requieren EIPD completa conforme a los criterios del módulo.`,
+      )
+    }
+    return actionList
+  }, [latestAccreditation, latestFunctional, projectPortfolio])
+
+  const updateAccreditationResponse = (questionId: string, next: DpoQuestionResponse) => {
+    setAccreditationDraft((current) => ({
+      ...current,
+      responses: { ...current.responses, [questionId]: next },
+    }))
   }
 
-  const handleDownloadPDF = () => {
-    if (!analysis || !storedData) {
+  const updateFunctionalResponse = (questionId: string, next: DpoQuestionResponse) => {
+    setFunctionalDraft((current) => ({
+      ...current,
+      responses: { ...current.responses, [questionId]: next },
+    }))
+  }
+
+  const updateProjectResponse = (questionId: string, next: DpoQuestionResponse) => {
+    setProjectDraft((current) => ({
+      ...current,
+      responses: { ...current.responses, [questionId]: next },
+    }))
+  }
+
+  const saveEvidenceBatch = async (
+    files: File[],
+    recordId: string,
+    scope: DpoEvidenceScope,
+    documentType: string,
+    title: string,
+  ) => {
+    await Promise.all(
+      files.map((file) =>
+        fileStorage.saveFile(
+          file,
+          {
+            scope,
+            documentType,
+            recordId,
+            title,
+            moduleId: "dpo",
+          },
+          "dpo-compliance",
+        ),
+      ),
+    )
+  }
+
+  const persistAll = (
+    nextAccreditationHistory: DpoAccreditationRecord[],
+    nextFunctionalHistory: DpoFunctionalRecord[],
+    nextProjectReviews: DpoProjectReviewRecord[],
+  ) => {
+    const refreshedEvidence = fileStorage.getFilesByCategory("dpo-compliance")
+    const snapshot = buildDpoSnapshot(
+      nextAccreditationHistory,
+      nextFunctionalHistory,
+      nextProjectReviews,
+      refreshedEvidence,
+    )
+    saveAccreditationHistory(nextAccreditationHistory)
+    saveFunctionalHistory(nextFunctionalHistory)
+    saveProjectReviews(nextProjectReviews)
+    persistDpoSnapshot(snapshot)
+    notifyDpoStorageChange()
+    refreshAll()
+  }
+
+  const resetFileInputs = () => {
+    setAccreditationFiles({ designation: EMPTY_FILES, training: EMPTY_FILES, support: EMPTY_FILES })
+    setFunctionalFiles({ support: EMPTY_FILES, activityLog: EMPTY_FILES, managementAck: EMPTY_FILES })
+    setProjectFiles({ brief: EMPTY_FILES, dictamen: EMPTY_FILES })
+    setFileInputVersion((current) => current + 1)
+  }
+
+  const handleSaveAccreditation = async () => {
+    const missingQuestions = validateSectionCollection(ACCREDITATION_SECTIONS, accreditationDraft.responses)
+
+    if (!accreditationDraft.dpoName.trim() || !accreditationDraft.dpoRole || !accreditationDraft.dpoArea) {
       toast({
-        title: "No hay información para exportar",
-        description: "Completa el cuestionario y guarda los resultados antes de generar el informe.",
+        title: "Completa la ficha del OPD",
+        description: "Nombre, cargo y área son obligatorios para guardar la acreditación.",
+        variant: "destructive",
       })
       return
     }
 
-    const doc = new jsPDF()
-    doc.setFontSize(16)
-    doc.text("Reporte de Cumplimiento del DPD", 14, 20)
-    doc.setFontSize(11)
-    doc.text(`Fecha de actualización: ${formatDateLabel(storedData.updatedAt)}`, 14, 30)
-    doc.text(`Índice de cumplimiento: ${analysis.complianceScore}% (${analysis.maturityLevel})`, 14, 38)
-    doc.text(`Nivel de riesgo: ${analysis.riskLevel}`, 14, 46)
-    doc.text(`Próxima revisión sugerida: ${analysis.nextReviewDate}`, 14, 54)
-
-    let currentY = 64
-
-    const ensurePage = (extraSpace = 0) => {
-      if (currentY + extraSpace > 280) {
-        doc.addPage()
-        currentY = 20
-        doc.setFontSize(10)
-      }
+    if (missingQuestions.length > 0) {
+      toast({
+        title: "Cuestionario incompleto",
+        description: `Responde los ${missingQuestions.length} reactivos pendientes antes de guardar la acreditación.`,
+        variant: "destructive",
+      })
+      return
     }
 
-    const writeLines = (lines: string[], indent = 0) => {
-      lines.forEach((line) => {
-        ensurePage()
-        doc.text(line, 14 + indent, currentY)
-        currentY += 5
+    try {
+      const record = createAccreditationRecord(accreditationDraft)
+      await saveEvidenceBatch(accreditationFiles.designation, record.id, "accreditation", "designation", record.dpoName)
+      await saveEvidenceBatch(accreditationFiles.training, record.id, "accreditation", "training", record.dpoName)
+      await saveEvidenceBatch(
+        accreditationFiles.support,
+        record.id,
+        "accreditation",
+        "accreditation-support",
+        record.dpoName,
+      )
+
+      const nextAccreditationHistory = [record, ...accreditationHistory]
+      persistAll(nextAccreditationHistory, functionalHistory, projectReviews)
+      setAccreditationDraft(cloneAccreditationRecordToDraft(record))
+      setSelectedAccreditationId(record.id)
+      resetFileInputs()
+      setActiveTab("results")
+      toast({
+        title: "Acreditación guardada",
+        description: "La evaluación de acreditación del OPD ya forma parte del historial del módulo.",
+      })
+    } catch (error) {
+      console.error("Error al guardar la acreditación del OPD:", error)
+      toast({
+        title: "No se pudo guardar la acreditación",
+        description: "Revisa los archivos adjuntos y vuelve a intentarlo.",
+        variant: "destructive",
       })
     }
-
-    doc.setFontSize(12)
-    doc.text("Resumen ejecutivo", 14, currentY)
-    currentY += 6
-    doc.setFontSize(10)
-    const summaryLines = doc.splitTextToSize(analysis.summary, 180)
-    writeLines(summaryLines)
-    currentY += 2
-
-    if (analysis.highlights.length > 0) {
-      ensurePage(6)
-      doc.setFontSize(12)
-      doc.text("Fortalezas identificadas", 14, currentY)
-      currentY += 6
-      doc.setFontSize(10)
-      writeLines(analysis.highlights.map((item) => `• ${item}`))
-      currentY += 2
-    }
-
-    if (analysis.recommendations.length > 0) {
-      ensurePage(6)
-      doc.setFontSize(12)
-      doc.text("Recomendaciones prioritarias", 14, currentY)
-      currentY += 6
-      doc.setFontSize(10)
-      writeLines(analysis.recommendations.map((item) => `• ${item}`))
-      currentY += 2
-    }
-
-    if (analysis.actionPlan.length > 0) {
-      ensurePage(6)
-      doc.setFontSize(12)
-      doc.text("Plan de acción sugerido", 14, currentY)
-      currentY += 6
-      doc.setFontSize(10)
-      analysis.actionPlan.forEach((item) => {
-        writeLines([`• ${item.title} (límite ${item.due})`])
-        const descriptionLines = doc.splitTextToSize(item.description, 170)
-        writeLines(descriptionLines, 6)
-      })
-      currentY += 2
-    }
-
-    if (analysis.breakdown.length > 0) {
-      ensurePage(10)
-      ;(doc as any).autoTable({
-        startY: currentY,
-        head: [["Área", "Estado", "Descripción", "Puntuación"]],
-        body: analysis.breakdown.map((item) => [
-          item.area,
-          item.status,
-          item.description,
-          `${item.score}%`,
-        ]),
-        styles: { fontSize: 9, cellPadding: 2 },
-        headStyles: { fillColor: [37, 99, 235], textColor: 255 },
-        columnStyles: { 2: { cellWidth: 80 } },
-      })
-      currentY = ((doc as any).lastAutoTable?.finalY || currentY) + 6
-    }
-
-    const roleLabel =
-      getOptionLabel(DPO_ROLE_OPTIONS, storedData.dpoRole) || storedData.dpoRoleOther || "Pendiente"
-    const areaLabel =
-      getOptionLabel(DPO_AREA_OPTIONS, storedData.dpoArea) || storedData.dpoAreaOther || "Pendiente"
-    const policiesList =
-      storedData.policiesReviewed.length > 0
-        ? storedData.policiesReviewed
-            .map((value) => getOptionLabel(POLICY_OPTIONS, value) || value)
-            .concat(storedData.policiesOther ? [storedData.policiesOther] : [])
-            .join(", ")
-        : "Pendiente"
-    const proceduresList =
-      storedData.documentedProcedures.length > 0
-        ? storedData.documentedProcedures
-            .map((value) => getOptionLabel(PROCEDURE_OPTIONS, value) || value)
-            .concat(storedData.proceduresOther ? [storedData.proceduresOther] : [])
-            .join(", ")
-        : "Pendiente"
-    const activitiesList =
-      storedData.activities.length > 0
-        ? storedData.activities
-            .map((value) => getOptionLabel(ACTIVITY_OPTIONS, value) || value)
-            .concat(storedData.activitiesOther ? [storedData.activitiesOther] : [])
-            .join(", ")
-        : "Pendiente"
-
-    ensurePage(12)
-    doc.setFontSize(12)
-    doc.text("Detalle del DPD y documentación", 14, currentY)
-    currentY += 6
-    doc.setFontSize(10)
-    writeLines([
-      `Nombre: ${storedData.dpoName || "Pendiente"}`,
-      `Cargo: ${roleLabel}`,
-      `Área: ${areaLabel}`,
-      `Fecha de designación: ${storedData.designationDate ? formatDateLabel(storedData.designationDate) : "Pendiente"}`,
-      `Duración: ${
-        storedData.dpoTerm === "indefinida"
-          ? "Indefinida"
-          : storedData.dpoTerm === "determinada"
-            ? `Determinada (${storedData.dpoTermNotes || "sin detalle"})`
-            : "Pendiente"
-      }`,
-      `Políticas revisadas: ${policiesList}`,
-      `Procedimientos documentados: ${proceduresList}`,
-      `Actividades registradas: ${activitiesList}`,
-      `Actualización documental: ${
-        storedData.policyLastUpdate ? formatDateLabel(storedData.policyLastUpdate) : "Pendiente"
-      }`,
-      `Próxima revisión programada: ${
-        storedData.plannedNextReview ? formatDateLabel(storedData.plannedNextReview) : analysis.nextReviewDate
-      }`,
-    ])
-
-    if (storedData.observations) {
-      ensurePage(10)
-      doc.setFontSize(10)
-      doc.text("Observaciones registradas:", 14, currentY)
-      currentY += 5
-      const observationLines = doc.splitTextToSize(storedData.observations, 180)
-      writeLines(observationLines)
-    }
-
-    if (storedData.actionPlanNotes) {
-      ensurePage(10)
-      doc.setFontSize(10)
-      doc.text("Plan de acción documentado:", 14, currentY)
-      currentY += 5
-      const actionLines = doc.splitTextToSize(storedData.actionPlanNotes, 180)
-      writeLines(actionLines)
-    }
-
-    doc.save("reporte-cumplimiento-dpd.pdf")
   }
 
-  const handleDeleteEvidence = (id: string) => {
-    const deleted = fileStorage.deleteFile(id)
+  const handleSaveFunctional = async () => {
+    const missingQuestions = validateSectionCollection(FUNCTIONAL_SECTIONS, functionalDraft.responses)
+
+    if (!functionalDraft.dpoName.trim() || !functionalDraft.evaluationDate || !functionalDraft.periodLabel.trim()) {
+      toast({
+        title: "Completa la ficha funcional",
+        description: "Nombre del OPD, fecha y periodo evaluado son obligatorios.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (missingQuestions.length > 0) {
+      toast({
+        title: "Evaluación funcional incompleta",
+        description: `Faltan ${missingQuestions.length} reactivos por responder antes de guardar.`,
+        variant: "destructive",
+      })
+      return
+    }
+
+    try {
+      const record = createFunctionalRecord(functionalDraft)
+      await saveEvidenceBatch(functionalFiles.support, record.id, "functional", "functional-support", record.dpoName)
+      await saveEvidenceBatch(functionalFiles.activityLog, record.id, "functional", "activity-log", record.dpoName)
+      await saveEvidenceBatch(functionalFiles.managementAck, record.id, "functional", "management-ack", record.dpoName)
+
+      const nextFunctionalHistory = [record, ...functionalHistory]
+      persistAll(accreditationHistory, nextFunctionalHistory, projectReviews)
+      setFunctionalDraft(cloneFunctionalRecordToDraft(record))
+      setSelectedFunctionalId(record.id)
+      resetFileInputs()
+      setActiveTab("results")
+      toast({
+        title: "Evaluación funcional guardada",
+        description: "La revisión funcional del OPD quedó registrada con su puntuación histórica.",
+      })
+    } catch (error) {
+      console.error("Error al guardar la evaluación funcional del OPD:", error)
+      toast({
+        title: "No se pudo guardar la evaluación funcional",
+        description: "Revisa los archivos adjuntos y vuelve a intentarlo.",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const handleSaveProject = async () => {
+    const missingQuestions = validateResponses(PROJECT_REVIEW_QUESTIONS, projectDraft.responses)
+    const previewAnalysis = analyzeProjectReview(projectDraft)
+
+    if (
+      !projectDraft.projectName.trim() ||
+      !projectDraft.projectCategory ||
+      !projectDraft.promotingArea.trim() ||
+      !projectDraft.projectOwner.trim() ||
+      !projectDraft.requestDate ||
+      !projectDraft.projectPhase
+    ) {
+      toast({
+        title: "Completa la identificación del proyecto",
+        description: "Nombre, categoría, área promotora, responsable, fecha y fase actual son obligatorios.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (projectDraft.projectCategory === "otro" && !projectDraft.projectCategoryOther.trim()) {
+      toast({
+        title: "Describe la categoría del proyecto",
+        description: "El campo “Otro” requiere una descripción específica.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (missingQuestions.length > 0) {
+      toast({
+        title: "Privacy Review incompleto",
+        description: `Responde los ${missingQuestions.length} reactivos del Bloque II antes de guardar.`,
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (previewAnalysis.eipdStatus === "obligatoria" && projectDraft.dictamenResult && projectDraft.dictamenResult !== "requiere-eipd") {
+      toast({
+        title: "Dictamen inconsistente",
+        description: "Los criterios activadores obligatorios exigen marcar “Requiere EIPD completa” o dejar el proyecto pendiente de dictamen.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (projectDraft.dictamenResult && (!projectDraft.dictamenFoundation.trim() || !projectDraft.recommendations.trim())) {
+      toast({
+        title: "Completa el dictamen del OPD",
+        description: "Cuando existe dictamen debes capturar el fundamento y las recomendaciones.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    try {
+      const record = createProjectReviewRecord(projectDraft)
+      await saveEvidenceBatch(projectFiles.brief, record.id, "project", "project-brief", record.projectName)
+      await saveEvidenceBatch(projectFiles.dictamen, record.id, "project", "project-dictamen", record.projectName)
+
+      const nextProjectReviews = [record, ...projectReviews]
+      persistAll(accreditationHistory, functionalHistory, nextProjectReviews)
+      setProjectDraft(createProjectReviewDraft())
+      setSelectedProjectId(record.id)
+      resetFileInputs()
+      toast({
+        title: "Proyecto OPD guardado",
+        description: "El privacy review quedó incorporado al historial del módulo.",
+      })
+    } catch (error) {
+      console.error("Error al guardar el proyecto OPD:", error)
+      toast({
+        title: "No se pudo guardar el proyecto",
+        description: "Revisa los archivos adjuntos y vuelve a intentarlo.",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const handleDeleteEvidence = (fileId: string) => {
+    const deleted = fileStorage.deleteFile(fileId)
     if (!deleted) {
       toast({
         title: "No se pudo eliminar la evidencia",
@@ -1701,66 +748,148 @@ export default function DPOCompliancePage() {
       return
     }
 
-    const updatedEvidence = fileStorage.getFilesByCategory("dpo-compliance")
-    setEvidenceFiles(updatedEvidence)
-
-    const stored = localStorage.getItem("dpo-compliance")
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored)
-        const record = ensureRecordShape(parsed, updatedEvidence)
-        setStoredData(record)
-        setAnalysis(record.analysis)
-        localStorage.setItem("dpo-compliance", JSON.stringify(record))
-      } catch (error) {
-        console.error("Error al actualizar el registro después de eliminar evidencia:", error)
-      }
-    }
-
+    persistAll(accreditationHistory, functionalHistory, projectReviews)
     toast({
       title: "Evidencia eliminada",
-      description: "El archivo se eliminó del repositorio local.",
+      description: "El archivo se eliminó del repositorio local del módulo OPD.",
     })
   }
 
-  const hasDPO = form.watch("hasDPO")
-  const hasPolicy = form.watch("hasPolicy")
-  const reportsToManagement = form.watch("reportsToManagement")
-  const dpoRoleValue = form.watch("dpoRole")
-  const dpoAreaValue = form.watch("dpoArea")
-  const dpoTermValue = form.watch("dpoTerm")
-  const designationDocumentsSelected = form.watch("designationDocuments")
-  const dpoCompetenciesSelected = form.watch("dpoCompetencies")
-  const policiesReviewedSelected = form.watch("policiesReviewed")
-  const hasProcedures = form.watch("hasProcedures")
-  const documentedProceduresSelected = form.watch("documentedProcedures")
-  const activitiesSelected = form.watch("activities")
-  const periodicityValue = form.watch("periodicity")
-  const reportFrequencyValue = form.watch("reportFrequency")
-  const reportContentsSelected = form.watch("reportContents")
-  const managementFeedbackValue = form.watch("managementFeedback")
-  const overallResultValue = form.watch("overallResult")
+  const handleExportReport = () => {
+    if (!latestAccreditation && !latestFunctional && projectReviews.length === 0) {
+      toast({
+        title: "Sin información para exportar",
+        description: "Guarda al menos una evaluación o un proyecto antes de generar el reporte.",
+        variant: "destructive",
+      })
+      return
+    }
 
-  type ArrayFieldKeys =
-    | "designationDocuments"
-    | "dpoCompetencies"
-    | "policiesReviewed"
-    | "documentedProcedures"
-    | "activities"
-    | "reportContents"
+    const doc = new jsPDF()
+    const tableDoc = doc as AutoTableDoc
+    let currentY = 16
 
-  const toggleSelection = (field: ArrayFieldKeys, value: string, checked: boolean) => {
-    const current = (form.getValues(field) as string[]) || []
-    const next = checked
-      ? [...new Set([...current, value])]
-      : current.filter((item) => item !== value)
-    form.setValue(field, next as any, { shouldDirty: true })
+    const ensureSpace = (height = 12) => {
+      if (currentY + height > 280) {
+        doc.addPage()
+        currentY = 18
+      }
+    }
+
+    const writeParagraph = (text: string, indent = 14) => {
+      const lines = doc.splitTextToSize(text, 180)
+      ensureSpace(lines.length * 5 + 6)
+      doc.text(lines, indent, currentY)
+      currentY += lines.length * 5 + 4
+    }
+
+    doc.setFontSize(18)
+    doc.text("Reporte ejecutivo del módulo OPD", 14, currentY)
+    currentY += 8
+    doc.setFontSize(10)
+    doc.text(`Fecha de exportación: ${formatDateLabel(new Date().toISOString())}`, 14, currentY)
+    currentY += 10
+
+    if (latestAccreditation) {
+      doc.setFontSize(13)
+      doc.text("1. Última acreditación del OPD", 14, currentY)
+      currentY += 7
+      doc.setFontSize(10)
+      writeParagraph(
+        `${latestAccreditation.dpoName} · ${getOptionLabel(DPO_ROLE_OPTIONS, latestAccreditation.dpoRole) || latestAccreditation.dpoRoleOther || "Sin cargo"} · ${getOptionLabel(DPO_AREA_OPTIONS, latestAccreditation.dpoArea) || latestAccreditation.dpoAreaOther || "Sin área"}`,
+      )
+      writeParagraph(
+        `Puntuación ${latestAccreditation.analysis.score}% · Nivel ${latestAccreditation.analysis.level}${latestAccreditation.analysis.criticalInvalidation ? " · Designación inválida por no conformidades críticas en Bloque A" : ""}`,
+      )
+
+      tableDoc.autoTable({
+        startY: currentY,
+        head: [["Bloque", "Sí", "No", "N/A", "Puntuación", "Umbral"]],
+        body: latestAccreditation.analysis.blockScores.map((item) => [
+          item.id,
+          item.yes,
+          item.no,
+          item.na,
+          `${Math.round(item.ratio * 100)}%`,
+          item.passes ? "Cumple" : "No cumple",
+        ]),
+        styles: { fontSize: 9, cellPadding: 2 },
+        headStyles: { fillColor: [10, 74, 191], textColor: 255 },
+      })
+      currentY = (tableDoc.lastAutoTable?.finalY || currentY) + 8
+
+      if (latestAccreditation.analysis.criticalFindings.length > 0) {
+        doc.setFontSize(11)
+        doc.text("No conformidades críticas", 14, currentY)
+        currentY += 6
+        doc.setFontSize(10)
+        latestAccreditation.analysis.criticalFindings.forEach((item) => writeParagraph(`• ${item}`, 18))
+      }
+    }
+
+    if (latestFunctional) {
+      ensureSpace(20)
+      doc.setFontSize(13)
+      doc.text("2. Última evaluación funcional", 14, currentY)
+      currentY += 7
+      doc.setFontSize(10)
+      writeParagraph(
+        `${latestFunctional.dpoName} · Periodo ${latestFunctional.periodLabel} · Puntuación ${latestFunctional.analysis.score}% · Nivel ${latestFunctional.analysis.level}`,
+      )
+      tableDoc.autoTable({
+        startY: currentY,
+        head: [["Función", "Sí", "No", "N/A", "Puntuación", "Umbral"]],
+        body: latestFunctional.analysis.functionScores.map((item) => [
+          item.id,
+          item.yes,
+          item.no,
+          item.na,
+          `${Math.round(item.ratio * 100)}%`,
+          item.passes ? "Cumple" : "No cumple",
+        ]),
+        styles: { fontSize: 9, cellPadding: 2 },
+        headStyles: { fillColor: [20, 184, 166], textColor: 255 },
+      })
+      currentY = (tableDoc.lastAutoTable?.finalY || currentY) + 8
+    }
+
+    ensureSpace(18)
+    doc.setFontSize(13)
+    doc.text("3. Portafolio de proyectos OPD", 14, currentY)
+    currentY += 7
+    doc.setFontSize(10)
+    writeParagraph(
+      `Total: ${projectPortfolio.total} · Pendientes de dictamen: ${projectPortfolio.pendingDictamen} · EIPD obligatoria: ${projectPortfolio.eipdRequired} · EIPD recomendada: ${projectPortfolio.eipdRecommended}`,
+    )
+
+    if (projectReviews.length > 0) {
+      tableDoc.autoTable({
+        startY: currentY,
+        head: [["Código", "Proyecto", "Dictamen", "EIPD", "Riesgo"]],
+        body: projectReviews.slice(0, 8).map((item) => [
+          item.projectCode,
+          item.projectName,
+          dictamenLabel(item.dictamenResult),
+          eipdBadge(item.analysis.eipdStatus).label,
+          item.analysis.riskLevel,
+        ]),
+        styles: { fontSize: 9, cellPadding: 2 },
+        headStyles: { fillColor: [37, 99, 235], textColor: 255 },
+      })
+      currentY = (tableDoc.lastAutoTable?.finalY || currentY) + 8
+    }
+
+    if (latestSummaryActions.length > 0) {
+      ensureSpace(12)
+      doc.setFontSize(13)
+      doc.text("4. Acciones prioritarias", 14, currentY)
+      currentY += 6
+      doc.setFontSize(10)
+      latestSummaryActions.forEach((item) => writeParagraph(`• ${item}`, 18))
+    }
+
+    doc.save("reporte-opd-cumplimiento.pdf")
   }
-
-  const isOptionChecked = (list: string[] | undefined, value: string) => list?.includes(value) ?? false
-  const navItems = DPO_NAV.map((item) =>
-    item.href === "/dpo/compliance" ? { ...item, badge: evidenceSummary.total } : item,
-  )
 
   return (
     <ArcoModuleShell
@@ -1768,1153 +897,1310 @@ export default function DPOCompliancePage() {
       moduleTitle={DPO_META.moduleTitle}
       moduleDescription={DPO_META.moduleDescription}
       pageLabel="Cumplimiento"
-      pageTitle="Revisión de Cumplimiento del DPD"
-      pageDescription="Diagnostica el nivel de madurez del programa del Oficial de Protección de Datos y genera acciones inmediatas sin modificar el cuestionario ni el análisis."
+      pageTitle="Acreditación, evaluación funcional y Privacy Review del OPD"
+      pageDescription="El módulo consolida el cuestionario de acreditación, la evaluación funcional F1-F5, el análisis de proyectos y el expediente histórico del Oficial de Protección de Datos con la estética ARCO."
       navItems={navItems}
-      headerBadges={[
-        { label: `${evidenceSummary.total} evidencias`, tone: "neutral" },
-        {
-          label: analysis ? `${analysis.complianceScore}% cumplimiento` : "Sin análisis",
-          tone: analysis ? (analysis.complianceScore >= 70 ? "positive" : "warning") : "neutral",
-        },
-        {
-          label: analysis ? `Riesgo ${analysis.riskLevel}` : "Diagnóstico pendiente",
-          tone: analysis ? "primary" : "warning",
-        },
-      ]}
+      headerBadges={headerBadges}
       actions={
         <>
           <Button variant="outline" onClick={() => setActiveTab("evidence")}>
             Evidencias ({evidenceSummary.total})
           </Button>
-          <Button variant="default" onClick={handleDownloadPDF} disabled={!analysis}>
-            <Download className="mr-2 h-4 w-4" /> Exportar reporte
+          <Button onClick={handleExportReport}>
+            <Download className="mr-2 h-4 w-4" />
+            Exportar reporte
           </Button>
         </>
       }
     >
-      <div className="space-y-8">
-
-      {analysis ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-xl border bg-card p-4 shadow-sm">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Índice de cumplimiento
-            </p>
-            <p className="mt-2 text-3xl font-bold">{analysis.complianceScore}%</p>
-            <p className="mt-1 text-sm text-muted-foreground">Actualizado {lastUpdateLabel}</p>
-          </div>
-          <div className="rounded-xl border bg-card p-4 shadow-sm">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Madurez</p>
-            <p className="mt-2 text-2xl font-bold">{analysis.maturityLevel}</p>
-            <p className="mt-1 text-sm text-muted-foreground">Riesgo {analysis.riskLevel}</p>
-          </div>
-          <div className="rounded-xl border bg-card p-4 shadow-sm">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Próxima revisión sugerida
-            </p>
-            <p className="mt-2 text-xl font-semibold">{analysis.nextReviewDate}</p>
-            <p className="mt-1 text-sm text-muted-foreground">Define un recordatorio en tu agenda</p>
-          </div>
-          <div className="rounded-xl border bg-card p-4 shadow-sm">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Evidencias registradas
-            </p>
-            <p className="mt-2 text-2xl font-bold">{evidenceSummary.total}</p>
-            <div className="mt-1 space-y-1 text-xs text-muted-foreground">
-              <p>
-                Designación: {evidenceSummary.designation} · Políticas: {evidenceSummary.policy} · Procedimientos:
-                {" "}
-                {evidenceSummary.procedures}
-              </p>
-              <p>
-                Capacitación: {evidenceSummary.training} · Bitácoras: {evidenceSummary.activityLog} · Informes:
-                {" "}
-                {evidenceSummary.report} · Acuses: {evidenceSummary.managementAck}
-              </p>
-            </div>
-          </div>
+      <div className="space-y-6">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <ModuleMetricCard
+            label="Acreditación"
+            value={latestAccreditation ? `${latestAccreditation.analysis.score}%` : "Pendiente"}
+            helper={
+              latestAccreditation
+                ? `${latestAccreditation.analysis.level}${latestAccreditation.analysis.criticalInvalidation ? " · Con bloqueo crítico" : ""}`
+                : "Completa los 29 reactivos de acreditación del OPD."
+            }
+            icon={ClipboardCheck}
+            tone={latestAccreditation ? toneFromScore(latestAccreditation.analysis.score) : "warning"}
+          />
+          <ModuleMetricCard
+            label="Evaluación funcional"
+            value={latestFunctional ? `${latestFunctional.analysis.score}%` : "Pendiente"}
+            helper={
+              latestFunctional
+                ? `${latestFunctional.analysis.level} · Periodo ${latestFunctional.periodLabel}`
+                : "Completa la evaluación F1-F5 para medir el ejercicio efectivo del OPD."
+            }
+            icon={ShieldCheck}
+            tone={latestFunctional ? toneFromScore(latestFunctional.analysis.score) : "warning"}
+          />
+          <ModuleMetricCard
+            label="Proyectos OPD"
+            value={projectPortfolio.total}
+            helper={`${projectPortfolio.pendingDictamen} pendientes de dictamen · ${projectPortfolio.eipdRequired} con EIPD obligatoria.`}
+            icon={FolderKanban}
+            tone={projectPortfolio.pendingDictamen > 0 ? "warning" : "primary"}
+          />
+          <ModuleMetricCard
+            label="Evidencias"
+            value={evidenceSummary.total}
+            helper={`Acreditación ${evidenceSummary.accreditation} · Funcional ${evidenceSummary.functional} · Proyectos ${evidenceSummary.project}`}
+            icon={FileCheck2}
+            tone="neutral"
+          />
         </div>
-      ) : (
-        <Card className="border-dashed">
-          <CardContent className="py-10">
-            <p className="text-center text-sm text-muted-foreground">
-              Completa el cuestionario para obtener un análisis automático, recomendaciones y un reporte descargable.
-            </p>
-          </CardContent>
-        </Card>
-      )}
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full gap-2 md:w-auto md:grid-cols-3">
-          <TabsTrigger value="assessment">Cuestionario</TabsTrigger>
-          <TabsTrigger value="results">Resultados</TabsTrigger>
-          <TabsTrigger value="evidence">Evidencias</TabsTrigger>
-        </TabsList>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full gap-2 md:grid-cols-5">
+            <TabsTrigger value="accreditation">Acreditación</TabsTrigger>
+            <TabsTrigger value="functional">Evaluación funcional</TabsTrigger>
+            <TabsTrigger value="projects">Proyectos</TabsTrigger>
+            <TabsTrigger value="results">Resultados</TabsTrigger>
+            <TabsTrigger value="evidence">Evidencias</TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="assessment">
-          <Card>
-            <CardHeader>
-              <CardTitle>Diagnóstico rápido</CardTitle>
-              <CardDescription>
-                Registra la información clave del DPD. Al guardar obtendrás un análisis automático con recomendaciones y plan de acción.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-lg font-semibold">Verificación de designación del DPD</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Registra la información del nombramiento, perfil y evidencias del Oficial o Delegado de Protección de Datos.
-                    </p>
-                  </div>
-                  <div className="space-y-6 rounded-lg border bg-muted/30 p-4">
+          <TabsContent value="accreditation" className="space-y-6">
+            <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+              <div className="space-y-6">
+                <ModuleSectionCard
+                  title="Ficha breve del OPD"
+                  description="Datos base del oficial, usando la misma superficie ARCO antes de entrar a los 29 reactivos."
+                >
+                  <div className="grid gap-4 md:grid-cols-2">
                     <div>
-                      <Label>¿Existe un Oficial o Delegado de Protección de Datos formalmente designado?</Label>
-                      <RadioGroup
-                        value={hasDPO}
-                        onValueChange={(value) => form.setValue("hasDPO", value as "si" | "no")}
-                        className="mt-2 flex flex-wrap gap-4"
-                      >
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="si" id="has-dpo-yes" />
-                          <Label htmlFor="has-dpo-yes">Sí</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="no" id="has-dpo-no" />
-                          <Label htmlFor="has-dpo-no">No</Label>
-                        </div>
-                      </RadioGroup>
+                      <Label htmlFor="accreditation-dpo-name">Nombre completo del OPD</Label>
+                      <Input
+                        id="accreditation-dpo-name"
+                        className="mt-2"
+                        value={accreditationDraft.dpoName}
+                        onChange={(event) =>
+                          setAccreditationDraft((current) => ({ ...current, dpoName: event.target.value }))
+                        }
+                        placeholder="Nombre y apellidos"
+                      />
                     </div>
+                    <div>
+                      <Label>Cargo / Puesto</Label>
+                      <Select
+                        value={accreditationDraft.dpoRole || undefined}
+                        onValueChange={(value) =>
+                          setAccreditationDraft((current) => ({
+                            ...current,
+                            dpoRole: value as DpoAccreditationDraft["dpoRole"],
+                          }))
+                        }
+                      >
+                        <SelectTrigger className="mt-2">
+                          <SelectValue placeholder="Selecciona un cargo" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {DPO_ROLE_OPTIONS.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {accreditationDraft.dpoRole === "otro" ? (
+                        <Input
+                          className="mt-2"
+                          value={accreditationDraft.dpoRoleOther}
+                          onChange={(event) =>
+                            setAccreditationDraft((current) => ({
+                              ...current,
+                              dpoRoleOther: event.target.value,
+                            }))
+                          }
+                          placeholder="Describe el cargo"
+                        />
+                      ) : null}
+                    </div>
+                    <div>
+                      <Label>Área de adscripción</Label>
+                      <Select
+                        value={accreditationDraft.dpoArea || undefined}
+                        onValueChange={(value) =>
+                          setAccreditationDraft((current) => ({
+                            ...current,
+                            dpoArea: value as DpoAccreditationDraft["dpoArea"],
+                          }))
+                        }
+                      >
+                        <SelectTrigger className="mt-2">
+                          <SelectValue placeholder="Selecciona un área" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {DPO_AREA_OPTIONS.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {accreditationDraft.dpoArea === "otro" ? (
+                        <Input
+                          className="mt-2"
+                          value={accreditationDraft.dpoAreaOther}
+                          onChange={(event) =>
+                            setAccreditationDraft((current) => ({
+                              ...current,
+                              dpoAreaOther: event.target.value,
+                            }))
+                          }
+                          placeholder="Describe el área"
+                        />
+                      ) : null}
+                    </div>
+                    <div>
+                      <Label htmlFor="accreditation-date">Fecha de designación vigente</Label>
+                      <Input
+                        id="accreditation-date"
+                        type="date"
+                        className="mt-2"
+                        value={accreditationDraft.designationDate}
+                        onChange={(event) =>
+                          setAccreditationDraft((current) => ({
+                            ...current,
+                            designationDate: event.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="accreditation-next-review">Próxima revisión programada</Label>
+                      <Input
+                        id="accreditation-next-review"
+                        type="date"
+                        className="mt-2"
+                        value={accreditationDraft.plannedNextReview}
+                        onChange={(event) =>
+                          setAccreditationDraft((current) => ({
+                            ...current,
+                            plannedNextReview: event.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <Label htmlFor="accreditation-notes">Observaciones generales de acreditación</Label>
+                      <Textarea
+                        id="accreditation-notes"
+                        className="mt-2 min-h-[100px]"
+                        value={accreditationDraft.notes}
+                        onChange={(event) =>
+                          setAccreditationDraft((current) => ({ ...current, notes: event.target.value }))
+                        }
+                        placeholder="Incluye contexto adicional del nombramiento, cambios de titular o aclaraciones del expediente."
+                      />
+                    </div>
+                  </div>
+                </ModuleSectionCard>
 
-                    {hasDPO === "si" && (
-                      <div className="grid gap-6 md:grid-cols-2">
-                        <div className="space-y-4">
-                          <div>
-                            <Label htmlFor="dpo-name">Nombre completo del DPD</Label>
-                            <Input
-                              id="dpo-name"
-                              placeholder="Nombre y apellidos"
-                              {...form.register("dpoName")}
-                              className="mt-2"
-                            />
-                            {form.formState.errors.dpoName && (
-                              <p className="mt-1 text-xs text-red-500">
-                                {form.formState.errors.dpoName.message}
-                              </p>
-                            )}
-                          </div>
-                          <div>
-                            <Label>Cargo / Puesto</Label>
-                            <RadioGroup
-                              value={dpoRoleValue ?? undefined}
-                              onValueChange={(value) =>
-                                form.setValue("dpoRole", value as (typeof DPO_ROLE_VALUES)[number])
-                              }
-                              className="mt-2 grid gap-2"
-                            >
-                              {DPO_ROLE_OPTIONS.map((option) => (
-                                <div key={option.value} className="flex items-center gap-2">
-                                  <RadioGroupItem value={option.value} id={`dpo-role-${option.value}`} />
-                                  <Label htmlFor={`dpo-role-${option.value}`}>{option.label}</Label>
-                                </div>
-                              ))}
-                            </RadioGroup>
-                            {form.formState.errors.dpoRole && (
-                              <p className="mt-1 text-xs text-red-500">
-                                {form.formState.errors.dpoRole.message}
-                              </p>
-                            )}
-                            {dpoRoleValue === "otro" && (
-                              <>
-                                <Input
-                                  {...form.register("dpoRoleOther")}
-                                  placeholder="Describe el cargo"
-                                  className="mt-2"
-                                />
-                                {form.formState.errors.dpoRoleOther && (
-                                  <p className="mt-1 text-xs text-red-500">
-                                    {form.formState.errors.dpoRoleOther.message}
-                                  </p>
-                                )}
-                              </>
-                            )}
-                          </div>
-                          <div>
-                            <Label htmlFor="designation-date">Fecha de designación</Label>
-                            <Input type="date" id="designation-date" {...form.register("designationDate")} className="mt-2" />
-                            {form.formState.errors.designationDate && (
-                              <p className="mt-1 text-xs text-red-500">
-                                {form.formState.errors.designationDate.message}
-                              </p>
-                            )}
-                          </div>
-                          <div>
-                            <Label>Duración del cargo</Label>
-                            <RadioGroup
-                              value={dpoTermValue ?? undefined}
-                              onValueChange={(value) => form.setValue("dpoTerm", value as "indefinida" | "determinada")}
-                              className="mt-2 flex flex-wrap gap-4"
-                            >
-                              <div className="flex items-center gap-2">
-                                <RadioGroupItem value="indefinida" id="term-indefinida" />
-                                <Label htmlFor="term-indefinida">Indefinida</Label>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <RadioGroupItem value="determinada" id="term-determinada" />
-                                <Label htmlFor="term-determinada">Por periodo determinado</Label>
-                              </div>
-                            </RadioGroup>
-                            {form.formState.errors.dpoTerm && (
-                              <p className="mt-1 text-xs text-red-500">
-                                {form.formState.errors.dpoTerm.message}
-                              </p>
-                            )}
-                            {dpoTermValue === "determinada" && (
-                              <>
-                                <Input
-                                  {...form.register("dpoTermNotes")}
-                                  placeholder="Describe el periodo o condiciones de la designación"
-                                  className="mt-2"
-                                />
-                                {form.formState.errors.dpoTermNotes && (
-                                  <p className="mt-1 text-xs text-red-500">
-                                    {form.formState.errors.dpoTermNotes.message}
-                                  </p>
-                                )}
-                              </>
-                            )}
-                          </div>
-                          <div>
-                            <Label>Adjuntar evidencia de nombramiento</Label>
-                            <Input
-                              type="file"
-                              className="mt-2"
-                              onChange={(event) => form.setValue("designationDocument", event.target.files)}
-                            />
-                            <p className="mt-1 text-xs text-muted-foreground">
-                              Carga el acta, contrato o documento que formaliza la designación del DPD.
-                            </p>
-                          </div>
+                {ACCREDITATION_SECTIONS.map((section) => (
+                  <ModuleSectionCard
+                    key={section.id}
+                    title={section.title}
+                    description={section.description}
+                  >
+                    <div className="space-y-4">
+                      {section.questions.map((question) => (
+                        <QuestionCard
+                          key={question.id}
+                          question={question}
+                          response={accreditationDraft.responses[question.id]}
+                          onChange={(next) => updateAccreditationResponse(question.id, next)}
+                        />
+                      ))}
+                    </div>
+                  </ModuleSectionCard>
+                ))}
+
+                <ModuleSectionCard title="Evidencias de acreditación" description="Carga la documentación del nombramiento, formación y soportes del expediente del OPD.">
+                  <div className="grid gap-4 md:grid-cols-3">
+                    <div>
+                      <Label>Documento de designación</Label>
+                      <Input
+                        key={`designation-${fileInputVersion}`}
+                        type="file"
+                        className="mt-2"
+                        onChange={(event) =>
+                          setAccreditationFiles((current) => ({
+                            ...current,
+                            designation: event.target.files ? Array.from(event.target.files) : EMPTY_FILES,
+                          }))
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label>Formación / certificaciones</Label>
+                      <Input
+                        key={`training-${fileInputVersion}`}
+                        type="file"
+                        multiple
+                        className="mt-2"
+                        onChange={(event) =>
+                          setAccreditationFiles((current) => ({
+                            ...current,
+                            training: event.target.files ? Array.from(event.target.files) : EMPTY_FILES,
+                          }))
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label>Soporte adicional</Label>
+                      <Input
+                        key={`accreditation-support-${fileInputVersion}`}
+                        type="file"
+                        multiple
+                        className="mt-2"
+                        onChange={(event) =>
+                          setAccreditationFiles((current) => ({
+                            ...current,
+                            support: event.target.files ? Array.from(event.target.files) : EMPTY_FILES,
+                          }))
+                        }
+                      />
+                    </div>
+                  </div>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <Button onClick={handleSaveAccreditation}>
+                      <ClipboardCheck className="mr-2 h-4 w-4" />
+                      Guardar acreditación
+                    </Button>
+                    {latestAccreditation ? (
+                      <Button
+                        variant="outline"
+                        onClick={() => setAccreditationDraft(cloneAccreditationRecordToDraft(latestAccreditation))}
+                      >
+                        Cargar último registro
+                      </Button>
+                    ) : null}
+                  </div>
+                </ModuleSectionCard>
+              </div>
+
+              <div className="space-y-6">
+                <ModuleSectionCard
+                  title="Puntuación e interpretación del Cuestionario de Designación"
+                  description="Pesos del documento: A 25%, B 30%, C 25%, D 20%. Cualquier “No” en Bloque A invalida la designación."
+                >
+                  <ScoreBreakdown
+                    sections={latestAccreditation?.analysis.blockScores || []}
+                    emptyTitle="Sin acreditación guardada"
+                    emptyDescription="Cuando registres la primera acreditación, aquí verás el score ponderado por bloque y el semáforo del documento."
+                  />
+                </ModuleSectionCard>
+
+                {latestAccreditation ? (
+                  <Card className="rounded-[28px] border-[#d6e1f6] shadow-sm">
+                    <CardHeader>
+                      <CardTitle>Última acreditación</CardTitle>
+                      <CardDescription>{latestAccreditation.dpoName}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {statusChip(
+                        `${latestAccreditation.analysis.score}% · ${latestAccreditation.analysis.level}`,
+                        badgeClassFromTone(toneFromScore(latestAccreditation.analysis.score)),
+                      )}
+                      {latestAccreditation.analysis.criticalInvalidation ? (
+                        <div className="flex items-start gap-3 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
+                          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                          <span>
+                            Existe al menos una no conformidad crítica en el Bloque A. La designación no debe considerarse válida hasta corregirla.
+                          </span>
                         </div>
-                        <div className="space-y-4">
-                          <div>
-                            <Label>Área de adscripción</Label>
-                            <RadioGroup
-                              value={dpoAreaValue ?? undefined}
-                              onValueChange={(value) =>
-                                form.setValue("dpoArea", value as (typeof DPO_AREA_VALUES)[number])
-                              }
-                              className="mt-2 grid gap-2"
-                            >
-                              {DPO_AREA_OPTIONS.map((option) => (
-                                <div key={option.value} className="flex items-center gap-2">
-                                  <RadioGroupItem value={option.value} id={`dpo-area-${option.value}`} />
-                                  <Label htmlFor={`dpo-area-${option.value}`}>{option.label}</Label>
-                                </div>
-                              ))}
-                            </RadioGroup>
-                            {form.formState.errors.dpoArea && (
-                              <p className="mt-1 text-xs text-red-500">
-                                {form.formState.errors.dpoArea.message}
-                              </p>
-                            )}
-                            {dpoAreaValue === "otro" && (
-                              <>
-                                <Input
-                                  {...form.register("dpoAreaOther")}
-                                  placeholder="Describe el área de adscripción"
-                                  className="mt-2"
-                                />
-                                {form.formState.errors.dpoAreaOther && (
-                                  <p className="mt-1 text-xs text-red-500">
-                                    {form.formState.errors.dpoAreaOther.message}
-                                  </p>
-                                )}
-                              </>
-                            )}
-                          </div>
-                          <div>
-                            <Label>Tipos de documentación de designación</Label>
-                            <div className="mt-2 grid gap-2">
-                              {DESIGNATION_DOCUMENT_OPTIONS.map((option) => (
-                                <div key={option.value} className="flex items-center gap-2">
-                                  <Checkbox
-                                    id={`designation-doc-${option.value}`}
-                                    checked={isOptionChecked(designationDocumentsSelected, option.value)}
-                                    onCheckedChange={(checked) =>
-                                      toggleSelection("designationDocuments", option.value, !!checked)
-                                    }
-                                  />
-                                  <Label htmlFor={`designation-doc-${option.value}`}>{option.label}</Label>
-                                </div>
-                              ))}
-                            </div>
-                            {form.formState.errors.designationDocuments && (
-                              <p className="mt-1 text-xs text-red-500">
-                                {form.formState.errors.designationDocuments.message as string}
-                              </p>
-                            )}
-                            {isOptionChecked(designationDocumentsSelected, "otro") && (
-                              <>
-                                <Input
-                                  {...form.register("designationDocumentsOther")}
-                                  placeholder="Describe el documento adicional"
-                                  className="mt-2"
-                                />
-                                {form.formState.errors.designationDocumentsOther && (
-                                  <p className="mt-1 text-xs text-red-500">
-                                    {form.formState.errors.designationDocumentsOther.message}
-                                  </p>
-                                )}
-                              </>
-                            )}
-                          </div>
-                          <div>
-                            <Label>Competencias verificadas</Label>
-                            <div className="mt-2 grid gap-2">
-                              {DPO_COMPETENCY_OPTIONS.map((option) => (
-                                <div key={option.value} className="flex items-center gap-2">
-                                  <Checkbox
-                                    id={`dpo-competency-${option.value}`}
-                                    checked={isOptionChecked(dpoCompetenciesSelected, option.value)}
-                                    onCheckedChange={(checked) =>
-                                      toggleSelection("dpoCompetencies", option.value, !!checked)
-                                    }
-                                  />
-                                  <Label htmlFor={`dpo-competency-${option.value}`}>{option.label}</Label>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                          <div>
-                            <Label>Adjuntar evidencia de capacitación o certificación</Label>
-                            <Input
-                              type="file"
-                              className="mt-2"
-                              onChange={(event) => form.setValue("trainingEvidence", event.target.files)}
-                            />
-                            <p className="mt-1 text-xs text-muted-foreground">
-                              Incluye constancias que acrediten conocimientos en privacidad o ciberseguridad.
-                            </p>
-                          </div>
+                      ) : (
+                        <div className="flex items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700">
+                          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
+                          <span>No hay bloqueos críticos activos en la acreditación vigente.</span>
                         </div>
+                      )}
+                      {latestAccreditation.analysis.criticalFindings.length > 0 ? (
+                        <div className="space-y-2">
+                          <p className="text-sm font-semibold text-slate-950">No conformidades críticas</p>
+                          {latestAccreditation.analysis.criticalFindings.map((item) => (
+                            <div key={item} className="rounded-xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                              {item}
+                            </div>
+                          ))}
+                        </div>
+                      ) : null}
+                    </CardContent>
+                  </Card>
+                ) : null}
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="functional" className="space-y-6">
+            <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+              <div className="space-y-6">
+                <ModuleSectionCard
+                  title="Ficha de evaluación funcional"
+                  description="Esta revisión debe aplicarse de forma trimestral o semestral según el ciclo del SGDP."
+                >
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div>
+                      <Label htmlFor="functional-name">Nombre del OPD</Label>
+                      <Input
+                        id="functional-name"
+                        className="mt-2"
+                        value={functionalDraft.dpoName}
+                        onChange={(event) =>
+                          setFunctionalDraft((current) => ({ ...current, dpoName: event.target.value }))
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="functional-date">Fecha de evaluación</Label>
+                      <Input
+                        id="functional-date"
+                        type="date"
+                        className="mt-2"
+                        value={functionalDraft.evaluationDate}
+                        onChange={(event) =>
+                          setFunctionalDraft((current) => ({ ...current, evaluationDate: event.target.value }))
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="functional-period">Periodo evaluado</Label>
+                      <Input
+                        id="functional-period"
+                        className="mt-2"
+                        value={functionalDraft.periodLabel}
+                        onChange={(event) =>
+                          setFunctionalDraft((current) => ({ ...current, periodLabel: event.target.value }))
+                        }
+                        placeholder="Ej. 1er semestre 2026"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="functional-next-review">Próxima revisión</Label>
+                      <Input
+                        id="functional-next-review"
+                        type="date"
+                        className="mt-2"
+                        value={functionalDraft.plannedNextReview}
+                        onChange={(event) =>
+                          setFunctionalDraft((current) => ({
+                            ...current,
+                            plannedNextReview: event.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <Label htmlFor="functional-notes">Observaciones generales</Label>
+                      <Textarea
+                        id="functional-notes"
+                        className="mt-2 min-h-[100px]"
+                        value={functionalDraft.notes}
+                        onChange={(event) =>
+                          setFunctionalDraft((current) => ({ ...current, notes: event.target.value }))
+                        }
+                        placeholder="Documenta el contexto del periodo, notas de revisión y elementos de seguimiento."
+                      />
+                    </div>
+                  </div>
+                </ModuleSectionCard>
+
+                {FUNCTIONAL_SECTIONS.map((section) => (
+                  <ModuleSectionCard
+                    key={section.id}
+                    title={section.title}
+                    description={section.description}
+                  >
+                    <div className="space-y-4">
+                      {section.questions.map((question) => (
+                        <QuestionCard
+                          key={question.id}
+                          question={question}
+                          response={functionalDraft.responses[question.id]}
+                          onChange={(next) => updateFunctionalResponse(question.id, next)}
+                        />
+                      ))}
+                    </div>
+                  </ModuleSectionCard>
+                ))}
+
+                <ModuleSectionCard
+                  title="Evidencias de evaluación funcional"
+                  description="Bitácoras, soportes funcionales y acuses vinculados a la evaluación del periodo."
+                >
+                  <div className="grid gap-4 md:grid-cols-3">
+                    <div>
+                      <Label>Soporte funcional</Label>
+                      <Input
+                        key={`functional-support-${fileInputVersion}`}
+                        type="file"
+                        multiple
+                        className="mt-2"
+                        onChange={(event) =>
+                          setFunctionalFiles((current) => ({
+                            ...current,
+                            support: event.target.files ? Array.from(event.target.files) : EMPTY_FILES,
+                          }))
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label>Bitácora del DPD</Label>
+                      <Input
+                        key={`functional-log-${fileInputVersion}`}
+                        type="file"
+                        multiple
+                        className="mt-2"
+                        onChange={(event) =>
+                          setFunctionalFiles((current) => ({
+                            ...current,
+                            activityLog: event.target.files ? Array.from(event.target.files) : EMPTY_FILES,
+                          }))
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label>Acuses o minutas de dirección</Label>
+                      <Input
+                        key={`functional-ack-${fileInputVersion}`}
+                        type="file"
+                        multiple
+                        className="mt-2"
+                        onChange={(event) =>
+                          setFunctionalFiles((current) => ({
+                            ...current,
+                            managementAck: event.target.files ? Array.from(event.target.files) : EMPTY_FILES,
+                          }))
+                        }
+                      />
+                    </div>
+                  </div>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <Button onClick={handleSaveFunctional}>
+                      <ListChecks className="mr-2 h-4 w-4" />
+                      Guardar evaluación funcional
+                    </Button>
+                    {latestFunctional ? (
+                      <Button
+                        variant="outline"
+                        onClick={() => setFunctionalDraft(cloneFunctionalRecordToDraft(latestFunctional))}
+                      >
+                        Cargar última evaluación
+                      </Button>
+                    ) : null}
+                  </div>
+                </ModuleSectionCard>
+              </div>
+
+              <div className="space-y-6">
+                <ModuleSectionCard
+                  title="Puntuación consolidada de evaluación funcional"
+                  description="Pesos del documento: F1 25%, F2 20%, F3 20%, F4 20%, F5 15%."
+                >
+                  <ScoreBreakdown
+                    sections={latestFunctional?.analysis.functionScores || []}
+                    emptyTitle="Sin evaluación funcional guardada"
+                    emptyDescription="Cuando registres la primera evaluación funcional, aquí verás el desempeño por función y el score consolidado."
+                  />
+                </ModuleSectionCard>
+
+                {latestFunctional ? (
+                  <Card className="rounded-[28px] border-[#d6e1f6] shadow-sm">
+                    <CardHeader>
+                      <CardTitle>Última evaluación funcional</CardTitle>
+                      <CardDescription>{latestFunctional.periodLabel}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {statusChip(
+                        `${latestFunctional.analysis.score}% · ${latestFunctional.analysis.level}`,
+                        badgeClassFromTone(toneFromScore(latestFunctional.analysis.score)),
+                      )}
+                      <p className="text-sm leading-6 text-slate-600">
+                        Fecha de evaluación: {formatDateLabel(latestFunctional.evaluationDate)} · Próxima revisión:
+                        {" "}
+                        {formatDateLabel(latestFunctional.plannedNextReview)}
+                      </p>
+                      {latestFunctional.analysis.actions.length > 0 ? (
+                        <div className="space-y-2">
+                          <p className="text-sm font-semibold text-slate-950">Acciones de mejora</p>
+                          {latestFunctional.analysis.actions.map((item) => (
+                            <div key={item} className="rounded-xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                              {item}
+                            </div>
+                          ))}
+                        </div>
+                      ) : null}
+                    </CardContent>
+                  </Card>
+                ) : null}
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="projects" className="space-y-6">
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Proyectos revisados</p>
+                <p className="mt-3 text-3xl font-semibold text-slate-950">{projectPortfolio.total}</p>
+              </div>
+              <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 shadow-sm">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-700">Pendientes de dictamen</p>
+                <p className="mt-3 text-3xl font-semibold text-amber-800">{projectPortfolio.pendingDictamen}</p>
+              </div>
+              <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 shadow-sm">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-rose-700">EIPD obligatoria</p>
+                <p className="mt-3 text-3xl font-semibold text-rose-800">{projectPortfolio.eipdRequired}</p>
+              </div>
+              <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 shadow-sm">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-blue-700">EIPD recomendada</p>
+                <p className="mt-3 text-3xl font-semibold text-blue-800">{projectPortfolio.eipdRecommended}</p>
+              </div>
+            </div>
+
+            <div className="grid gap-6 xl:grid-cols-[1.08fr_0.92fr]">
+              <div className="space-y-6">
+                <ModuleSectionCard
+                  title="Bloque I — Identificación del proyecto"
+                  description="Ficha de análisis de proyecto (Privacy Review) conforme al documento del módulo OPD."
+                >
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div>
+                      <Label htmlFor="project-name">Nombre del proyecto</Label>
+                      <Input
+                        id="project-name"
+                        className="mt-2"
+                        value={projectDraft.projectName}
+                        onChange={(event) =>
+                          setProjectDraft((current) => ({ ...current, projectName: event.target.value }))
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label>Categoría</Label>
+                      <Select
+                        value={projectDraft.projectCategory || undefined}
+                        onValueChange={(value) =>
+                          setProjectDraft((current) => ({
+                            ...current,
+                            projectCategory: value as DpoProjectReviewDraft["projectCategory"],
+                          }))
+                        }
+                      >
+                        <SelectTrigger className="mt-2">
+                          <SelectValue placeholder="Selecciona una categoría" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {PROJECT_CATEGORY_OPTIONS.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {projectDraft.projectCategory === "otro" ? (
+                        <Input
+                          className="mt-2"
+                          value={projectDraft.projectCategoryOther}
+                          onChange={(event) =>
+                            setProjectDraft((current) => ({
+                              ...current,
+                              projectCategoryOther: event.target.value,
+                            }))
+                          }
+                          placeholder="Describe la categoría"
+                        />
+                      ) : null}
+                    </div>
+                    <div className="md:col-span-2">
+                      <Label htmlFor="project-summary">Descripción ejecutiva en 2-3 líneas</Label>
+                      <Textarea
+                        id="project-summary"
+                        className="mt-2 min-h-[100px]"
+                        value={projectDraft.projectSummary}
+                        onChange={(event) =>
+                          setProjectDraft((current) => ({
+                            ...current,
+                            projectSummary: event.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="project-area">Área promotora</Label>
+                      <Input
+                        id="project-area"
+                        className="mt-2"
+                        value={projectDraft.promotingArea}
+                        onChange={(event) =>
+                          setProjectDraft((current) => ({
+                            ...current,
+                            promotingArea: event.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="project-owner">Responsable del proyecto</Label>
+                      <Input
+                        id="project-owner"
+                        className="mt-2"
+                        value={projectDraft.projectOwner}
+                        onChange={(event) =>
+                          setProjectDraft((current) => ({
+                            ...current,
+                            projectOwner: event.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="project-request-date">Fecha de solicitud de análisis</Label>
+                      <Input
+                        id="project-request-date"
+                        type="date"
+                        className="mt-2"
+                        value={projectDraft.requestDate}
+                        onChange={(event) =>
+                          setProjectDraft((current) => ({ ...current, requestDate: event.target.value }))
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="project-deadline">Fecha límite para dictamen</Label>
+                      <Input
+                        id="project-deadline"
+                        type="date"
+                        className="mt-2"
+                        value={projectDraft.reviewDeadline}
+                        onChange={(event) =>
+                          setProjectDraft((current) => ({
+                            ...current,
+                            reviewDeadline: event.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label>Fase actual del proyecto</Label>
+                      <Select
+                        value={projectDraft.projectPhase || undefined}
+                        onValueChange={(value) =>
+                          setProjectDraft((current) => ({
+                            ...current,
+                            projectPhase: value as DpoProjectReviewDraft["projectPhase"],
+                          }))
+                        }
+                      >
+                        <SelectTrigger className="mt-2">
+                          <SelectValue placeholder="Selecciona una fase" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {PROJECT_PHASE_OPTIONS.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="project-budget">Presupuesto estimado</Label>
+                      <Input
+                        id="project-budget"
+                        className="mt-2"
+                        value={projectDraft.estimatedBudget}
+                        onChange={(event) =>
+                          setProjectDraft((current) => ({
+                            ...current,
+                            estimatedBudget: event.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                  </div>
+                </ModuleSectionCard>
+
+                <ModuleSectionCard
+                  title="Bloque II — Análisis de privacidad (preguntas diagnóstico)"
+                  description="Cada reactivo conserva el texto exacto del documento y se acompaña de observaciones."
+                >
+                  <div className="space-y-4">
+                    {PROJECT_REVIEW_QUESTIONS.map((question) => (
+                      <QuestionCard
+                        key={question.id}
+                        question={question}
+                        response={projectDraft.responses[question.id]}
+                        onChange={(next) => updateProjectResponse(question.id, next)}
+                      />
+                    ))}
+                  </div>
+                </ModuleSectionCard>
+
+                <ModuleSectionCard
+                  title="Campos operativos adicionales para lógica EIPD"
+                  description="Estos campos complementan los criterios del documento sin modificar el contenido base del cuestionario."
+                >
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div>
+                      <Label htmlFor="project-subjects">Número estimado de titulares afectados</Label>
+                      <Input
+                        id="project-subjects"
+                        type="number"
+                        className="mt-2"
+                        value={projectDraft.estimatedSubjects}
+                        onChange={(event) =>
+                          setProjectDraft((current) => ({
+                            ...current,
+                            estimatedSubjects: event.target.value ? Number(event.target.value) : "",
+                          }))
+                        }
+                      />
+                    </div>
+                    <div className="flex items-end">
+                      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+                        El sistema marcará “EIPD recomendada” si el proyecto supera 10,000 titulares o combina múltiples fuentes.
                       </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-lg font-semibold">Evaluación de políticas y documentación</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Documenta el marco normativo interno y los procedimientos que respaldan la gestión del DPD.
-                    </p>
-                  </div>
-                  <div className="space-y-6 rounded-lg border bg-muted/30 p-4">
-                    <div>
-                      <Label>¿Existen políticas internas de protección de datos personales vigentes?</Label>
-                      <RadioGroup
-                        value={hasPolicy}
-                        onValueChange={(value) => form.setValue("hasPolicy", value as "si" | "no")}
-                        className="mt-2 flex flex-wrap gap-4"
-                      >
-                        <div className="flex items-center gap-2">
-                          <RadioGroupItem value="si" id="policy-yes" />
-                          <Label htmlFor="policy-yes">Sí</Label>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <RadioGroupItem value="no" id="policy-no" />
-                          <Label htmlFor="policy-no">No</Label>
-                        </div>
-                      </RadioGroup>
                     </div>
-
-                    {hasPolicy === "si" && (
-                      <div className="grid gap-6 md:grid-cols-2">
-                        <div className="space-y-4">
-                          <div>
-                            <Label>Políticas revisadas</Label>
-                            <div className="mt-2 grid gap-2">
-                              {POLICY_OPTIONS.map((option) => (
-                                <div key={option.value} className="flex items-center gap-2">
-                                  <Checkbox
-                                    id={`policy-${option.value}`}
-                                    checked={isOptionChecked(policiesReviewedSelected, option.value)}
-                                    onCheckedChange={(checked) =>
-                                      toggleSelection("policiesReviewed", option.value, !!checked)
-                                    }
-                                  />
-                                  <Label htmlFor={`policy-${option.value}`}>{option.label}</Label>
-                                </div>
-                              ))}
-                            </div>
-                            {form.formState.errors.policiesReviewed && (
-                              <p className="mt-1 text-xs text-red-500">
-                                {form.formState.errors.policiesReviewed.message as string}
-                              </p>
-                            )}
-                            {isOptionChecked(policiesReviewedSelected, "otro") && (
-                              <>
-                                <Input
-                                  {...form.register("policiesOther")}
-                                  placeholder="Describe la política adicional"
-                                  className="mt-2"
-                                />
-                                {form.formState.errors.policiesOther && (
-                                  <p className="mt-1 text-xs text-red-500">
-                                    {form.formState.errors.policiesOther.message}
-                                  </p>
-                                )}
-                              </>
-                            )}
-                          </div>
-                          <div>
-                            <Label htmlFor="policy-update">Fecha de última actualización del marco documental</Label>
-                            <Input type="date" id="policy-update" {...form.register("policyLastUpdate")} className="mt-2" />
-                          </div>
-                        </div>
-                        <div className="space-y-4">
-                          <div>
-                            <Label>Adjuntar políticas o normativas</Label>
-                            <Input
-                              type="file"
-                              className="mt-2"
-                              onChange={(event) => form.setValue("policyDocument", event.target.files)}
-                            />
-                            <p className="mt-1 text-xs text-muted-foreground">
-                              Carga la versión vigente de las políticas o manuales aplicables.
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    <div>
-                      <Label>¿Se cuenta con procedimientos o manuales documentados?</Label>
-                      <RadioGroup
-                        value={hasProcedures}
-                        onValueChange={(value) => form.setValue("hasProcedures", value as "si" | "no")}
-                        className="mt-2 flex flex-wrap gap-4"
-                      >
-                        <div className="flex items-center gap-2">
-                          <RadioGroupItem value="si" id="procedures-yes" />
-                          <Label htmlFor="procedures-yes">Sí</Label>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <RadioGroupItem value="no" id="procedures-no" />
-                          <Label htmlFor="procedures-no">No</Label>
-                        </div>
-                      </RadioGroup>
+                    <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3">
+                      <Checkbox
+                        id="project-combines-sources"
+                        checked={projectDraft.combinesMultipleSources}
+                        onCheckedChange={(checked) =>
+                          setProjectDraft((current) => ({
+                            ...current,
+                            combinesMultipleSources: checked === true,
+                          }))
+                        }
+                      />
+                      <Label htmlFor="project-combines-sources">
+                        ¿Existe combinación de bases de datos de múltiples fuentes?
+                      </Label>
                     </div>
+                    <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3">
+                      <Checkbox
+                        id="project-auto-decisions"
+                        checked={projectDraft.hasAutomatedDecisionsWithSignificantEffect}
+                        onCheckedChange={(checked) =>
+                          setProjectDraft((current) => ({
+                            ...current,
+                            hasAutomatedDecisionsWithSignificantEffect: checked === true,
+                          }))
+                        }
+                      />
+                      <Label htmlFor="project-auto-decisions">
+                        ¿Existen decisiones automatizadas con impacto legal o significativo?
+                      </Label>
+                    </div>
+                    <div className="md:col-span-2">
+                      <Label htmlFor="project-transfer-details">Detalle de transferencia internacional o condiciones equivalentes</Label>
+                      <Textarea
+                        id="project-transfer-details"
+                        className="mt-2 min-h-[90px]"
+                        value={projectDraft.crossBorderTransferDetails}
+                        onChange={(event) =>
+                          setProjectDraft((current) => ({
+                            ...current,
+                            crossBorderTransferDetails: event.target.value,
+                          }))
+                        }
+                        placeholder="Documenta país destino, medidas equivalentes y condiciones de transferencia internacional, si aplican."
+                      />
+                    </div>
+                  </div>
+                </ModuleSectionCard>
 
-                    {hasProcedures === "si" && (
-                      <div className="grid gap-6 md:grid-cols-2">
-                        <div className="space-y-4">
-                          <Label>Procedimientos documentados</Label>
-                          <div className="mt-2 grid gap-2">
-                            {PROCEDURE_OPTIONS.map((option) => (
-                              <div key={option.value} className="flex items-center gap-2">
-                                <Checkbox
-                                  id={`procedure-${option.value}`}
-                                  checked={isOptionChecked(documentedProceduresSelected, option.value)}
-                                  onCheckedChange={(checked) =>
-                                    toggleSelection("documentedProcedures", option.value, !!checked)
-                                  }
-                                />
-                                <Label htmlFor={`procedure-${option.value}`}>{option.label}</Label>
+                <ModuleSectionCard
+                  title="Bloque III — Dictamen del OPD"
+                  description="El dictamen puede dejarse pendiente o registrarse formalmente con fundamento, riesgos y recomendaciones."
+                >
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div>
+                      <Label>Resultado del análisis</Label>
+                      <Select
+                        value={projectDraft.dictamenResult || undefined}
+                        onValueChange={(value) =>
+                          setProjectDraft((current) => ({
+                            ...current,
+                            dictamenResult: value as DpoProjectReviewDraft["dictamenResult"],
+                          }))
+                        }
+                      >
+                        <SelectTrigger className="mt-2">
+                          <SelectValue placeholder="Puedes dejarlo pendiente" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {PROJECT_DICTAMEN_OPTIONS.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="project-implementation-deadline">Plazo para implementar condiciones</Label>
+                      <Input
+                        id="project-implementation-deadline"
+                        type="date"
+                        className="mt-2"
+                        value={projectDraft.implementationDeadline}
+                        onChange={(event) =>
+                          setProjectDraft((current) => ({
+                            ...current,
+                            implementationDeadline: event.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <Label htmlFor="project-foundation">Fundamento del dictamen</Label>
+                      <Textarea
+                        id="project-foundation"
+                        className="mt-2 min-h-[90px]"
+                        value={projectDraft.dictamenFoundation}
+                        onChange={(event) =>
+                          setProjectDraft((current) => ({
+                            ...current,
+                            dictamenFoundation: event.target.value,
+                          }))
+                        }
+                        placeholder="Artículos de la LFPDPPP o principios del SGDP que sustentan la decisión."
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <Label htmlFor="project-conditions">Condiciones de aprobación</Label>
+                      <Textarea
+                        id="project-conditions"
+                        className="mt-2 min-h-[90px]"
+                        value={projectDraft.dictamenConditions}
+                        onChange={(event) =>
+                          setProjectDraft((current) => ({
+                            ...current,
+                            dictamenConditions: event.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <Label htmlFor="project-risks">Riesgos identificados</Label>
+                      <Textarea
+                        id="project-risks"
+                        className="mt-2 min-h-[90px]"
+                        value={projectDraft.risksIdentified}
+                        onChange={(event) =>
+                          setProjectDraft((current) => ({
+                            ...current,
+                            risksIdentified: event.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <Label htmlFor="project-recommendations">Recomendaciones</Label>
+                      <Textarea
+                        id="project-recommendations"
+                        className="mt-2 min-h-[90px]"
+                        value={projectDraft.recommendations}
+                        onChange={(event) =>
+                          setProjectDraft((current) => ({
+                            ...current,
+                            recommendations: event.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <Label htmlFor="project-follow-up">Seguimiento requerido</Label>
+                      <Textarea
+                        id="project-follow-up"
+                        className="mt-2 min-h-[90px]"
+                        value={projectDraft.followUpRequired}
+                        onChange={(event) =>
+                          setProjectDraft((current) => ({
+                            ...current,
+                            followUpRequired: event.target.value,
+                          }))
+                        }
+                        placeholder="¿El OPD dará seguimiento posterior? ¿En qué reunión o fecha?"
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <Label htmlFor="project-notes">Observaciones generales</Label>
+                      <Textarea
+                        id="project-notes"
+                        className="mt-2 min-h-[90px]"
+                        value={projectDraft.notes}
+                        onChange={(event) =>
+                          setProjectDraft((current) => ({ ...current, notes: event.target.value }))
+                        }
+                      />
+                    </div>
+                  </div>
+                </ModuleSectionCard>
+
+                <ModuleSectionCard
+                  title="Documentos del proyecto"
+                  description="Adjunta brief, solicitud, dictamen firmado u otra evidencia del análisis del OPD."
+                >
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div>
+                      <Label>Documentación base del proyecto</Label>
+                      <Input
+                        key={`project-brief-${fileInputVersion}`}
+                        type="file"
+                        multiple
+                        className="mt-2"
+                        onChange={(event) =>
+                          setProjectFiles((current) => ({
+                            ...current,
+                            brief: event.target.files ? Array.from(event.target.files) : EMPTY_FILES,
+                          }))
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label>Dictamen o anexos del OPD</Label>
+                      <Input
+                        key={`project-dictamen-${fileInputVersion}`}
+                        type="file"
+                        multiple
+                        className="mt-2"
+                        onChange={(event) =>
+                          setProjectFiles((current) => ({
+                            ...current,
+                            dictamen: event.target.files ? Array.from(event.target.files) : EMPTY_FILES,
+                          }))
+                        }
+                      />
+                    </div>
+                  </div>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <Button onClick={handleSaveProject}>
+                      <FolderKanban className="mr-2 h-4 w-4" />
+                      Guardar Privacy Review
+                    </Button>
+                    <Button variant="outline" onClick={() => setProjectDraft(createProjectReviewDraft())}>
+                      Reiniciar formulario
+                    </Button>
+                  </div>
+                </ModuleSectionCard>
+              </div>
+
+              <div className="space-y-6">
+                <ModuleSectionCard
+                  title="Lectura automática EIPD"
+                  description="La pantalla identifica si el proyecto dispara EIPD obligatoria, recomendada o no requerida."
+                >
+                  {(() => {
+                    const preview = analyzeProjectReview(projectDraft)
+                    const badge = eipdBadge(preview.eipdStatus)
+                    return (
+                      <div className="space-y-4">
+                        {statusChip(badge.label, `border ${badge.className}`)}
+                        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+                          Riesgo preliminar del proyecto: <span className="font-semibold text-slate-900">{preview.riskLevel}</span>
+                        </div>
+                        {preview.eipdReasons.length > 0 ? (
+                          <div className="space-y-2">
+                            <p className="text-sm font-semibold text-slate-950">Motivos activadores</p>
+                            {preview.eipdReasons.map((item) => (
+                              <div key={item} className="rounded-xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                                {item}
                               </div>
                             ))}
                           </div>
-                          {form.formState.errors.documentedProcedures && (
-                            <p className="mt-1 text-xs text-red-500">
-                              {form.formState.errors.documentedProcedures.message as string}
-                            </p>
-                          )}
-                          {isOptionChecked(documentedProceduresSelected, "otro") && (
-                            <>
-                              <Input
-                                {...form.register("proceduresOther")}
-                                placeholder="Describe el procedimiento adicional"
-                                className="mt-2"
-                              />
-                              {form.formState.errors.proceduresOther && (
-                                <p className="mt-1 text-xs text-red-500">
-                                  {form.formState.errors.proceduresOther.message}
-                                </p>
-                              )}
-                            </>
-                          )}
-                        </div>
-                        <div className="space-y-4">
-                          <Label>Adjuntar evidencia de procedimientos</Label>
-                          <Input
-                            type="file"
-                            className="mt-2"
-                            onChange={(event) => form.setValue("proceduresEvidence", event.target.files)}
-                          />
-                          <p className="mt-1 text-xs text-muted-foreground">
-                            Comparte manuales, flujogramas o lineamientos aprobados que respalden la operación del DPD.
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-lg font-semibold">Revisión de actividades documentadas del DPD</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Evalúa la gestión operativa, registros y periodicidad de las actividades a cargo del DPD.
-                    </p>
-                  </div>
-                  <div className="space-y-6 rounded-lg border bg-muted/30 p-4">
-                    <div>
-                      <Label>¿Se han documentado las actividades del DPD en el último año?</Label>
-                      <RadioGroup
-                        value={form.watch("hasDocumentedActivities")}
-                        onValueChange={(value) => form.setValue("hasDocumentedActivities", value as "si" | "no")}
-                        className="mt-2 flex flex-wrap gap-4"
-                      >
-                        <div className="flex items-center gap-2">
-                          <RadioGroupItem value="si" id="activities-documented-yes" />
-                          <Label htmlFor="activities-documented-yes">Sí</Label>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <RadioGroupItem value="no" id="activities-documented-no" />
-                          <Label htmlFor="activities-documented-no">No</Label>
-                        </div>
-                      </RadioGroup>
-                    </div>
-
-                    <div>
-                      <Label>Actividades realizadas durante el periodo de revisión</Label>
-                      <div className="mt-2 grid gap-2">
-                        {ACTIVITY_OPTIONS.map((option) => (
-                          <div key={option.value} className="flex items-center gap-2">
-                            <Checkbox
-                              id={`activity-${option.value}`}
-                              checked={isOptionChecked(activitiesSelected, option.value)}
-                              onCheckedChange={(checked) =>
-                                toggleSelection("activities", option.value, !!checked)
-                              }
-                            />
-                            <Label htmlFor={`activity-${option.value}`}>{option.label}</Label>
-                          </div>
-                        ))}
-                      </div>
-                      {isOptionChecked(activitiesSelected, "otro") && (
-                        <>
-                          <Input
-                            {...form.register("activitiesOther")}
-                            placeholder="Describe la actividad adicional"
-                            className="mt-2"
-                          />
-                          {form.formState.errors.activitiesOther && (
-                            <p className="mt-1 text-xs text-red-500">
-                              {form.formState.errors.activitiesOther.message}
-                            </p>
-                          )}
-                        </>
-                      )}
-                    </div>
-
-                    <div>
-                      <Label>Periodicidad de las actividades del DPD</Label>
-                      <RadioGroup
-                        value={periodicityValue ?? undefined}
-                        onValueChange={(value) => form.setValue("periodicity", value as (typeof PERIODICITY_VALUES)[number])}
-                        className="mt-2 flex flex-wrap gap-4"
-                      >
-                        {PERIODICITY_OPTIONS.map((option) => (
-                          <div key={option.value} className="flex items-center gap-2">
-                            <RadioGroupItem value={option.value} id={`periodicity-${option.value}`} />
-                            <Label htmlFor={`periodicity-${option.value}`}>{option.label}</Label>
-                          </div>
-                        ))}
-                      </RadioGroup>
-                    </div>
-
-                    <div>
-                      <Label>Bitácora o registros de actividades</Label>
-                      <Input
-                        type="file"
-                        className="mt-2"
-                        onChange={(event) => form.setValue("activityLog", event.target.files)}
-                      />
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        Sube la bitácora o enlace al registro digital que soporte la gestión del DPD.
-                      </p>
-                    </div>
-
-                    <div>
-                      <Label>Evaluación general del cumplimiento operativo</Label>
-                      <RadioGroup
-                        value={form.watch("operationalEvaluation") ?? undefined}
-                        onValueChange={(value) => form.setValue("operationalEvaluation", value as "alto" | "medio" | "bajo")}
-                        className="mt-2 flex flex-wrap gap-4"
-                      >
-                        <div className="flex items-center gap-2">
-                          <RadioGroupItem value="alto" id="operational-alto" />
-                          <Label htmlFor="operational-alto">Alto</Label>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <RadioGroupItem value="medio" id="operational-medio" />
-                          <Label htmlFor="operational-medio">Medio</Label>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <RadioGroupItem value="bajo" id="operational-bajo" />
-                          <Label htmlFor="operational-bajo">Bajo</Label>
-                        </div>
-                      </RadioGroup>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-lg font-semibold">Análisis de informes a la Alta Dirección</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Revisa la frecuencia, contenido y evidencias de los reportes entregados a la Alta Dirección o Comité de Privacidad.
-                    </p>
-                  </div>
-                  <div className="space-y-6 rounded-lg border bg-muted/30 p-4">
-                    <div>
-                      <Label>¿Se elaboran informes periódicos a la Alta Dirección o Comité de Privacidad?</Label>
-                      <RadioGroup
-                        value={reportsToManagement}
-                        onValueChange={(value) => form.setValue("reportsToManagement", value as "si" | "no")}
-                        className="mt-2 flex flex-wrap gap-4"
-                      >
-                        <div className="flex items-center gap-2">
-                          <RadioGroupItem value="si" id="reports-management-yes" />
-                          <Label htmlFor="reports-management-yes">Sí</Label>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <RadioGroupItem value="no" id="reports-management-no" />
-                          <Label htmlFor="reports-management-no">No</Label>
-                        </div>
-                      </RadioGroup>
-                    </div>
-
-                    {reportsToManagement === "si" && (
-                      <div className="grid gap-6 md:grid-cols-2">
-                        <div className="space-y-4">
-                          <div>
-                            <Label>Frecuencia de los informes</Label>
-                            <RadioGroup
-                              value={reportFrequencyValue ?? undefined}
-                              onValueChange={(value) =>
-                                form.setValue("reportFrequency", value as (typeof REPORT_FREQUENCY_VALUES)[number])
-                              }
-                              className="mt-2 grid gap-2"
-                            >
-                              {REPORT_FREQUENCY_OPTIONS.map((option) => (
-                                <div key={option.value} className="flex items-center gap-2">
-                                  <RadioGroupItem value={option.value} id={`report-frequency-${option.value}`} />
-                                  <Label htmlFor={`report-frequency-${option.value}`}>{option.label}</Label>
-                                </div>
-                              ))}
-                            </RadioGroup>
-                            {form.formState.errors.reportFrequency && (
-                              <p className="mt-1 text-xs text-red-500">
-                                {form.formState.errors.reportFrequency.message}
-                              </p>
-                            )}
-                          </div>
-                          <div>
-                            <Label>Contenido mínimo de los informes revisados</Label>
-                            <div className="mt-2 grid gap-2">
-                              {REPORT_CONTENT_OPTIONS.map((option) => (
-                                <div key={option.value} className="flex items-center gap-2">
-                                  <Checkbox
-                                    id={`report-content-${option.value}`}
-                                    checked={isOptionChecked(reportContentsSelected, option.value)}
-                                    onCheckedChange={(checked) =>
-                                      toggleSelection("reportContents", option.value, !!checked)
-                                    }
-                                  />
-                                  <Label htmlFor={`report-content-${option.value}`}>{option.label}</Label>
-                                </div>
-                              ))}
-                            </div>
-                            {form.formState.errors.reportContents && (
-                              <p className="mt-1 text-xs text-red-500">
-                                {form.formState.errors.reportContents.message as string}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                        <div className="space-y-4">
-                          <div>
-                            <Label>Adjuntar informes recientes</Label>
-                            <Input
-                              type="file"
-                              multiple
-                              className="mt-2"
-                              onChange={(event) => form.setValue("reports", event.target.files)}
-                            />
-                            <p className="mt-1 text-xs text-muted-foreground">
-                              Puedes cargar informes o resúmenes ejecutivos entregados a la Alta Dirección.
-                            </p>
-                          </div>
-                          <div>
-                            <Label>¿La Alta Dirección emite observaciones o aprobaciones?</Label>
-                            <RadioGroup
-                              value={managementFeedbackValue ?? undefined}
-                              onValueChange={(value) => form.setValue("managementFeedback", value as "si" | "no")}
-                              className="mt-2 flex flex-wrap gap-4"
-                            >
-                              <div className="flex items-center gap-2">
-                                <RadioGroupItem value="si" id="management-feedback-yes" />
-                                <Label htmlFor="management-feedback-yes">Sí</Label>
+                        ) : null}
+                        {preview.missingSafeguards.length > 0 ? (
+                          <div className="space-y-2">
+                            <p className="text-sm font-semibold text-slate-950">Salvaguardas pendientes</p>
+                            {preview.missingSafeguards.map((item) => (
+                              <div key={item} className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-700">
+                                {item}
                               </div>
-                              <div className="flex items-center gap-2">
-                                <RadioGroupItem value="no" id="management-feedback-no" />
-                                <Label htmlFor="management-feedback-no">No</Label>
-                              </div>
-                            </RadioGroup>
-                            {form.formState.errors.managementFeedback && (
-                              <p className="mt-1 text-xs text-red-500">
-                                {form.formState.errors.managementFeedback.message}
-                              </p>
-                            )}
+                            ))}
                           </div>
-                          <div>
-                            <Label>Adjuntar acuse o minuta de sesión</Label>
-                            <Input
-                              type="file"
-                              className="mt-2"
-                              onChange={(event) => form.setValue("managementAck", event.target.files)}
-                            />
-                            <p className="mt-1 text-xs text-muted-foreground">
-                              Incluye minutas, acuses o correos que registren observaciones de la Alta Dirección.
-                            </p>
-                          </div>
-                        </div>
+                        ) : null}
                       </div>
-                    )}
-                  </div>
-                </div>
+                    )
+                  })()}
+                </ModuleSectionCard>
 
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-lg font-semibold">Conclusiones y plan de acción</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Resume el resultado de la revisión e identifica acciones de mejora y próximos hitos.
-                    </p>
-                  </div>
-                  <div className="space-y-6 rounded-lg border bg-muted/30 p-4">
-                    <div>
-                      <Label>Resultado general de la revisión</Label>
-                      <RadioGroup
-                        value={overallResultValue ?? undefined}
-                        onValueChange={(value) => form.setValue("overallResult", value as (typeof OVERALL_RESULT_VALUES)[number])}
-                        className="mt-2 flex flex-col gap-2 md:flex-row md:gap-6"
-                      >
-                        {OVERALL_RESULT_OPTIONS.map((option) => (
-                          <div key={option.value} className="flex items-center gap-2">
-                            <RadioGroupItem value={option.value} id={`overall-${option.value}`} />
-                            <Label htmlFor={`overall-${option.value}`}>{option.label}</Label>
-                          </div>
-                        ))}
-                      </RadioGroup>
-                    </div>
-                    <div>
-                      <Label htmlFor="observations">Observaciones principales</Label>
-                      <Textarea
-                        id="observations"
-                        {...form.register("observations")}
-                        placeholder="Resume los hallazgos relevantes detectados durante la revisión."
-                        className="mt-2"
-                        rows={4}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="action-plan-notes">Plan de acción o medidas correctivas</Label>
-                      <Textarea
-                        id="action-plan-notes"
-                        {...form.register("actionPlanNotes")}
-                        placeholder="Define responsables, plazos y actividades para mejorar la gestión del DPD."
-                        className="mt-2"
-                        rows={4}
-                      />
-                    </div>
-                    <div className="grid gap-2 md:grid-cols-2">
-                      <div>
-                        <Label htmlFor="next-review">Fecha de próxima revisión programada</Label>
-                        <Input type="date" id="next-review" {...form.register("plannedNextReview")} className="mt-2" />
-                      </div>
-                      <div className="rounded-lg border border-dashed bg-background p-4 text-xs text-muted-foreground">
-                        <p className="flex items-center gap-2 font-medium text-foreground">
-                          <Lightbulb className="h-4 w-4" /> Recomendaciones para configuración
-                        </p>
-                        <ul className="mt-2 list-disc space-y-1 pl-5">
-                          <li>Programa revisiones anuales o semestrales alineadas al ciclo del SGDP.</li>
-                          <li>Vincula este módulo con Inventario, Avisos, Contratos y Auditorías para automatizar evidencias.</li>
-                          <li>Genera alertas automáticas para recordar entregas de informes y seguimiento del plan.</li>
-                          <li>Da seguimiento a indicadores como % de políticas actualizadas o acciones correctivas implementadas.</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <ModuleSectionCard
+                  title="Historial de proyectos analizados"
+                  description="Cada privacy review se conserva como registro histórico independiente."
+                >
+                  <HistoryTable
+                    rows={projectReviews.map((item) => ({
+                      id: item.id,
+                      date: item.updatedAt,
+                      label: item.projectName,
+                      score: item.analysis.eipdStatus === "obligatoria" ? 100 : item.analysis.eipdStatus === "recomendada" ? 70 : 40,
+                      level: dictamenLabel(item.dictamenResult),
+                      extra: `${item.projectCode} · ${eipdBadge(item.analysis.eipdStatus).label}`,
+                    }))}
+                    selectedId={selectedProject?.id || null}
+                    onSelect={setSelectedProjectId}
+                  />
+                </ModuleSectionCard>
 
-                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                  <p className="text-sm text-muted-foreground">
-                    La información es guardada en el almacenamiento local para que puedas actualizarla en cualquier momento.
-                  </p>
-                  <Button type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? "Guardando..." : "Guardar evaluación"}
-                  </Button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="results">
-          {analysis ? (
-            <div className="grid gap-6">
-              <div className="grid gap-6 lg:grid-cols-2">
-                <Card className="shadow-sm">
-                  <CardHeader>
-                    <CardTitle>Resumen ejecutivo</CardTitle>
-                    <CardDescription>
-                      Panorama general del cumplimiento actual del DPD y foco de mejora inmediato.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between gap-4">
-                        <div>
-                          <p className="text-sm font-medium text-muted-foreground">Índice de cumplimiento</p>
-                          <p className="text-4xl font-bold">{analysis.complianceScore}%</p>
-                        </div>
-                        <div className="w-full max-w-sm">
-                          <Progress value={analysis.complianceScore} className="h-2" />
-                          <p className="mt-2 text-xs text-muted-foreground">
-                            Última actualización: {lastUpdateLabel}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="secondary">Madurez: {analysis.maturityLevel}</Badge>
-                        <Badge variant="outline">Riesgo: {analysis.riskLevel}</Badge>
-                      </div>
-                    </div>
-                    <p className="text-sm text-muted-foreground">{analysis.summary}</p>
-                    <div className="rounded-lg border bg-muted/40 p-4 text-sm">
-                      <p className="font-semibold">Próxima revisión sugerida</p>
-                      <p className="text-muted-foreground">{analysis.nextReviewDate}</p>
-                      <p className="mt-1 text-muted-foreground">
-                        Agenda una reunión de seguimiento con la Alta Dirección para revisar los avances del plan.
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="shadow-sm">
-                  <CardHeader>
-                    <CardTitle>Plan de acción prioritario</CardTitle>
-                    <CardDescription>
-                      Tareas sugeridas para cerrar brechas en las próximas semanas.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {analysis.actionPlan.length > 0 ? (
-                      analysis.actionPlan.map((item) => (
-                        <div key={item.title} className="rounded-lg border bg-muted/30 p-4">
-                          <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-                            <p className="font-semibold">{item.title}</p>
-                            <Badge variant="outline">Prioridad: {item.due}</Badge>
-                          </div>
-                          <p className="mt-2 text-sm text-muted-foreground">{item.description}</p>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-sm text-muted-foreground">
-                        ¡Excelente! No hay acciones críticas pendientes. Mantén la revisión periódica del programa.
-                      </p>
-                    )}
-                  </CardContent>
-                </Card>
-
-                {storedData && (
-                  <Card className="shadow-sm">
+                {selectedProject ? (
+                  <Card className="rounded-[28px] border-[#d6e1f6] shadow-sm">
                     <CardHeader>
-                      <CardTitle>Detalle del DPD y documentación</CardTitle>
+                      <CardTitle>{selectedProject.projectName}</CardTitle>
                       <CardDescription>
-                        Información registrada en la última evaluación para consultas rápidas y seguimiento.
+                        {selectedProject.projectCode} · {selectedProject.promotingArea}
                       </CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-5 text-sm">
-                      <div className="grid gap-4 md:grid-cols-2">
-                        <div className="space-y-2">
-                          <p className="font-semibold">Designación del DPD</p>
-                          <ul className="space-y-1 text-muted-foreground">
-                            <li>Nombre: {storedData.dpoName || "Pendiente"}</li>
-                            <li>
-                              Cargo:{" "}
-                              {getOptionLabel(DPO_ROLE_OPTIONS, storedData.dpoRole) ||
-                                storedData.dpoRoleOther ||
-                                "Pendiente"}
-                            </li>
-                            <li>
-                              Área:{" "}
-                              {getOptionLabel(DPO_AREA_OPTIONS, storedData.dpoArea) ||
-                                storedData.dpoAreaOther ||
-                                "Pendiente"}
-                            </li>
-                            <li>
-                              Fecha de designación:{" "}
-                              {storedData.designationDate ? formatDateLabel(storedData.designationDate) : "Pendiente"}
-                            </li>
-                            <li>
-                              Duración:{" "}
-                              {storedData.dpoTerm === "indefinida"
-                                ? "Indefinida"
-                                : storedData.dpoTerm === "determinada"
-                                  ? `Determinada (${storedData.dpoTermNotes || "sin detalle"})`
-                                  : "Pendiente"}
-                            </li>
-                          </ul>
-                        </div>
-                        <div className="space-y-2">
-                          <p className="font-semibold">Marco documental y operaciones</p>
-                          <ul className="space-y-1 text-muted-foreground">
-                            <li>
-                              Políticas revisadas:{" "}
-                              {storedData.policiesReviewed.length > 0
-                                ? storedData.policiesReviewed
-                                    .map((value) => getOptionLabel(POLICY_OPTIONS, value) || value)
-                                    .concat(
-                                      storedData.policiesOther ? [storedData.policiesOther] : [],
-                                    )
-                                    .join(", ")
-                                : "Pendiente"}
-                            </li>
-                            <li>
-                              Procedimientos documentados:{" "}
-                              {storedData.documentedProcedures.length > 0
-                                ? storedData.documentedProcedures
-                                    .map((value) => getOptionLabel(PROCEDURE_OPTIONS, value) || value)
-                                    .concat(
-                                      storedData.proceduresOther ? [storedData.proceduresOther] : [],
-                                    )
-                                    .join(", ")
-                                : "Pendiente"}
-                            </li>
-                            <li>
-                              Actividades registradas:{" "}
-                              {storedData.activities.length > 0
-                                ? storedData.activities
-                                    .map((value) => getOptionLabel(ACTIVITY_OPTIONS, value) || value)
-                                    .concat(
-                                      storedData.activitiesOther ? [storedData.activitiesOther] : [],
-                                    )
-                                    .join(", ")
-                                : "Pendiente"}
-                            </li>
-                            <li>
-                              Última actualización de políticas:{" "}
-                              {storedData.policyLastUpdate
-                                ? formatDateLabel(storedData.policyLastUpdate)
-                                : "Pendiente"}
-                            </li>
-                            <li>
-                              Próxima revisión programada:{" "}
-                              {storedData.plannedNextReview
-                                ? formatDateLabel(storedData.plannedNextReview)
-                                : "Pendiente"}
-                            </li>
-                          </ul>
-                        </div>
+                    <CardContent className="space-y-4">
+                      <div className="flex flex-wrap gap-2">
+                        <Button variant="outline" size="sm" onClick={() => setProjectDraft(cloneProjectRecordToDraft(selectedProject))}>
+                          Usar como plantilla
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => setActiveTab("projects")}>
+                          Seguir editando
+                        </Button>
                       </div>
-                      <div className="space-y-3">
-                        <div>
-                          <p className="font-semibold">Observaciones registradas</p>
-                          <p className="text-muted-foreground">
-                            {storedData.observations ? storedData.observations : "Sin observaciones registradas."}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="font-semibold">Plan de acción documentado</p>
-                          <p className="text-muted-foreground">
-                            {storedData.actionPlanNotes
-                              ? storedData.actionPlanNotes
-                              : "Sin plan de acción complementario."}
-                          </p>
-                        </div>
+                      {statusChip(
+                        dictamenLabel(selectedProject.dictamenResult),
+                        badgeClassFromTone(
+                          selectedProject.analysis.pendingDictamen ? "warning" : toneFromScore(80),
+                        ),
+                      )}
+                      {statusChip(
+                        eipdBadge(selectedProject.analysis.eipdStatus).label,
+                        `border ${eipdBadge(selectedProject.analysis.eipdStatus).className}`,
+                      )}
+                      <div className="grid gap-3 text-sm text-slate-600 md:grid-cols-2">
+                        <p>Fase actual: <span className="font-semibold text-slate-900">{getOptionLabel(PROJECT_PHASE_OPTIONS, selectedProject.projectPhase)}</span></p>
+                        <p>Responsable: <span className="font-semibold text-slate-900">{selectedProject.projectOwner}</span></p>
+                        <p>Solicitud: <span className="font-semibold text-slate-900">{formatDateLabel(selectedProject.requestDate)}</span></p>
+                        <p>Fecha límite: <span className="font-semibold text-slate-900">{formatDateLabel(selectedProject.reviewDeadline)}</span></p>
                       </div>
+                      {selectedProject.analysis.eipdReasons.length > 0 ? (
+                        <div className="space-y-2">
+                          <p className="text-sm font-semibold text-slate-950">Criterios activados</p>
+                          {selectedProject.analysis.eipdReasons.map((item) => (
+                            <div key={item} className="rounded-xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                              {item}
+                            </div>
+                          ))}
+                        </div>
+                      ) : null}
                     </CardContent>
                   </Card>
-                )}
+                ) : null}
               </div>
+            </div>
+          </TabsContent>
 
-              <div className="grid gap-6 md:grid-cols-2">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Fortalezas</CardTitle>
-                    <CardDescription>Aspectos que ya cumplen con las mejores prácticas.</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    {analysis.highlights.length > 0 ? (
-                      <ul className="space-y-3">
-                        {analysis.highlights.map((item) => (
-                          <li key={item} className="flex items-start gap-3 text-sm">
-                            <CheckCircle2 className="mt-0.5 h-4 w-4 text-emerald-500" />
-                            <span>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p className="text-sm text-muted-foreground">
-                        Aún no se registran fortalezas. Completa el cuestionario y añade evidencias para identificarlas.
-                      </p>
-                    )}
-                  </CardContent>
-                </Card>
+          <TabsContent value="results" className="space-y-6">
+            <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+              <ModuleSectionCard
+                title="Resumen ejecutivo OPD"
+                description="Resultados vigentes del cuestionario de acreditación, la evaluación funcional y el portafolio de proyectos."
+              >
+                {latestAccreditation || latestFunctional || projectReviews.length > 0 ? (
+                  <div className="space-y-6">
+                    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Acreditación</p>
+                        <p className="mt-3 text-3xl font-semibold text-slate-950">
+                          {latestAccreditation ? `${latestAccreditation.analysis.score}%` : "—"}
+                        </p>
+                        <p className="mt-1 text-sm text-slate-500">
+                          {latestAccreditation?.analysis.level || "Sin registro"}
+                        </p>
+                      </div>
+                      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Evaluación funcional</p>
+                        <p className="mt-3 text-3xl font-semibold text-slate-950">
+                          {latestFunctional ? `${latestFunctional.analysis.score}%` : "—"}
+                        </p>
+                        <p className="mt-1 text-sm text-slate-500">
+                          {latestFunctional?.analysis.level || "Sin registro"}
+                        </p>
+                      </div>
+                      <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 shadow-sm">
+                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-700">Pendientes de dictamen</p>
+                        <p className="mt-3 text-3xl font-semibold text-amber-800">{projectPortfolio.pendingDictamen}</p>
+                        <p className="mt-1 text-sm text-amber-700">Privacy reviews en espera</p>
+                      </div>
+                      <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 shadow-sm">
+                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-rose-700">EIPD obligatoria</p>
+                        <p className="mt-3 text-3xl font-semibold text-rose-800">{projectPortfolio.eipdRequired}</p>
+                        <p className="mt-1 text-sm text-rose-700">Proyectos activados</p>
+                      </div>
+                    </div>
 
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Recomendaciones</CardTitle>
-                    <CardDescription>Brechas que conviene abordar de manera prioritaria.</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    {analysis.recommendations.length > 0 ? (
-                      <ul className="space-y-3">
-                        {analysis.recommendations.map((item) => (
-                          <li key={item} className="flex items-start gap-3 text-sm">
-                            <AlertTriangle className="mt-0.5 h-4 w-4 text-amber-500" />
-                            <span>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p className="text-sm text-muted-foreground">
-                        No se detectaron brechas relevantes. Sigue actualizando la evidencia para conservar este estado.
-                      </p>
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
-
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Desglose por dimensión</h3>
-                <div className="grid gap-4 md:grid-cols-2">
-                  {analysis.breakdown.map((item) => (
-                    <Card key={item.area} className="border border-border/60">
-                      <CardHeader className="space-y-2">
-                        <div className="flex items-center justify-between gap-2">
-                          <CardTitle className="text-base">{item.area}</CardTitle>
-                          <Badge className={cn("text-xs", statusBadgeClass[item.status])}>{item.status}</Badge>
-                        </div>
-                        <p className="text-sm text-muted-foreground">{item.description}</p>
-                      </CardHeader>
-                      <CardContent>
-                        <Progress value={item.score} className="h-2" />
-                        <p className="mt-2 text-sm font-medium">{item.score}% de cumplimiento</p>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-
-              {(indicatorStats.length > 0 || davaraRecommendations.length > 0) && (
-                <div className="grid gap-6 lg:grid-cols-2">
-                  {indicatorStats.length > 0 && (
-                    <Card className="shadow-sm">
-                      <CardHeader>
-                        <CardTitle>Indicadores sugeridos</CardTitle>
-                        <CardDescription>
-                          KPIs recomendados para monitorear en Davara Gobernante.
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        {indicatorStats.map((indicator) => (
-                          <div key={indicator.label} className="rounded-lg border bg-muted/30 p-4">
-                            <div className="flex items-center justify-between gap-3">
-                              <p className="font-medium">{indicator.label}</p>
-                              <Badge className={cn("text-xs", indicatorStatusClass[indicator.status])}>
-                                {indicator.value}
-                              </Badge>
-                            </div>
-                            <p className="mt-2 text-sm text-muted-foreground">{indicator.helper}</p>
+                    {latestSummaryActions.length > 0 ? (
+                      <div className="space-y-2">
+                        <p className="text-sm font-semibold text-slate-950">Hallazgos y acciones prioritarias</p>
+                        {latestSummaryActions.map((item) => (
+                          <div key={item} className="rounded-xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                            {item}
                           </div>
                         ))}
-                      </CardContent>
-                    </Card>
-                  )}
-                </div>
-              )}
-            </div>
-          ) : (
-            <Card>
-              <CardContent className="py-12 text-center text-sm text-muted-foreground">
-                Completa el cuestionario y guarda la información para generar recomendaciones automáticas.
-              </CardContent>
-            </Card>
-          )}
-        </TabsContent>
+                      </div>
+                    ) : (
+                      <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700">
+                        No hay acciones prioritarias abiertas en el último corte del módulo OPD.
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <ModuleEmptyState
+                    title="Sin resultados todavía"
+                    description="Guarda al menos una acreditación, una evaluación funcional o un proyecto para poblar esta vista."
+                  />
+                )}
+              </ModuleSectionCard>
 
-        <TabsContent value="evidence">
-          <Card>
-            <CardHeader>
-              <CardTitle>Evidencias registradas</CardTitle>
-              <CardDescription>
-                Archivos almacenados. Puedes descargarlos o eliminarlos cuando lo necesites.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {evidenceFiles.length > 0 ? (
+              <ModuleSectionCard
+                title="Consulta histórica"
+                description="Selecciona registros guardados para revisar su score, nivel y fecha."
+              >
+                <div className="space-y-6">
+                  <div>
+                    <p className="mb-3 text-sm font-semibold text-slate-950">Historial de acreditación</p>
+                    <HistoryTable
+                      rows={accreditationHistory.map((item) => ({
+                        id: item.id,
+                        date: item.updatedAt,
+                        label: item.dpoName,
+                        score: item.analysis.score,
+                        level: item.analysis.level,
+                        extra: item.analysis.criticalInvalidation ? "Con no conformidades críticas en Bloque A" : undefined,
+                      }))}
+                      selectedId={selectedAccreditation?.id || null}
+                      onSelect={setSelectedAccreditationId}
+                    />
+                  </div>
+                  <div>
+                    <p className="mb-3 text-sm font-semibold text-slate-950">Historial de evaluación funcional</p>
+                    <HistoryTable
+                      rows={functionalHistory.map((item) => ({
+                        id: item.id,
+                        date: item.updatedAt,
+                        label: item.periodLabel,
+                        score: item.analysis.score,
+                        level: item.analysis.level,
+                        extra: item.dpoName,
+                      }))}
+                      selectedId={selectedFunctional?.id || null}
+                      onSelect={setSelectedFunctionalId}
+                    />
+                  </div>
+                </div>
+              </ModuleSectionCard>
+            </div>
+
+            <div className="grid gap-6 xl:grid-cols-2">
+              <ModuleSectionCard
+                title="Detalle de acreditación seleccionada"
+                description="Score por bloque, nivel y hallazgos críticos."
+              >
+                {accreditationAnalysis ? (
+                  <div className="space-y-4">
+                    {statusChip(
+                      `${accreditationAnalysis.score}% · ${accreditationAnalysis.level}`,
+                      badgeClassFromTone(toneFromScore(accreditationAnalysis.score)),
+                    )}
+                    <ScoreBreakdown
+                      sections={accreditationAnalysis.blockScores}
+                      emptyTitle="Sin datos"
+                      emptyDescription="No hay puntuación disponible para el registro seleccionado."
+                    />
+                  </div>
+                ) : (
+                  <ModuleEmptyState
+                    title="Sin acreditación seleccionada"
+                    description="Selecciona una entrada del historial para consultar el detalle."
+                  />
+                )}
+              </ModuleSectionCard>
+
+              <ModuleSectionCard
+                title="Detalle de evaluación funcional seleccionada"
+                description="Score por función, umbrales y acciones derivadas."
+              >
+                {functionalAnalysis ? (
+                  <div className="space-y-4">
+                    {statusChip(
+                      `${functionalAnalysis.score}% · ${functionalAnalysis.level}`,
+                      badgeClassFromTone(toneFromScore(functionalAnalysis.score)),
+                    )}
+                    <ScoreBreakdown
+                      sections={functionalAnalysis.functionScores}
+                      emptyTitle="Sin datos"
+                      emptyDescription="No hay puntuación disponible para el registro seleccionado."
+                    />
+                  </div>
+                ) : (
+                  <ModuleEmptyState
+                    title="Sin evaluación seleccionada"
+                    description="Selecciona una entrada del historial para consultar el detalle."
+                  />
+                )}
+              </ModuleSectionCard>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="evidence" className="space-y-6">
+            <ModuleSectionCard
+              title="Expediente de evidencias del OPD"
+              description="Filtra por acreditación, evaluación funcional o proyectos para revisar y depurar soportes del módulo."
+              action={
+                <div className="flex flex-wrap gap-2">
+                  {(["all", "accreditation", "functional", "project", "legacy"] as EvidenceFilter[]).map((filter) => (
+                    <Button
+                      key={filter}
+                      variant={evidenceFilter === filter ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setEvidenceFilter(filter)}
+                    >
+                      {evidenceFilterLabel(filter)}
+                    </Button>
+                  ))}
+                </div>
+              }
+            >
+              {filteredEvidence.length > 0 ? (
                 <div className="overflow-x-auto">
-                  <Table>
+                  <Table className="min-w-[840px]">
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Documento</TableHead>
-                        <TableHead>Tipo</TableHead>
+                        <TableHead>Archivo</TableHead>
+                        <TableHead>Ámbito</TableHead>
+                        <TableHead>Tipología</TableHead>
                         <TableHead>Fecha</TableHead>
+                        <TableHead>Registro</TableHead>
                         <TableHead className="text-right">Acciones</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {evidenceFiles.map((file) => (
+                      {filteredEvidence.map((file) => (
                         <TableRow key={file.id}>
+                          <TableCell className="font-medium text-slate-950">{file.name}</TableCell>
+                          <TableCell>{DPO_EVIDENCE_SCOPE_LABELS[getEvidenceScope(file)]}</TableCell>
                           <TableCell>
-                            <div className="font-medium">{file.name}</div>
-                            <div className="text-xs text-muted-foreground">
-                              {(file.size / 1024).toFixed(1)} KB · Subido el {formatDateLabel(file.uploadDate)}
-                            </div>
+                            {DPO_EVIDENCE_TYPE_LABELS[file.metadata?.documentType as string] ||
+                              file.metadata?.documentType ||
+                              "Sin tipología"}
                           </TableCell>
-                          <TableCell>
-                            <Badge variant="outline">
-                              {documentTypeLabel[file.metadata?.documentType as string] || "Otro"}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>{formatDateLabel(file.metadata?.date || file.uploadDate)}</TableCell>
+                          <TableCell>{formatDateLabel(file.uploadDate)}</TableCell>
+                          <TableCell>{file.metadata?.recordId || "Legado"}</TableCell>
                           <TableCell className="text-right">
-                            <div className="flex items-center justify-end gap-2">
-                              <a
-                                href={fileStorage.createFileURL(file.content)}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                download={file.name}
-                              >
-                                <Button variant="ghost" size="icon" className="h-8 w-8" title="Ver o descargar">
-                                  <FileText className="h-4 w-4" />
-                                </Button>
-                              </a>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 text-red-500 hover:text-red-600"
-                                onClick={() => handleDeleteEvidence(file.id)}
-                                title="Eliminar evidencia"
-                              >
-                                <Trash2 className="h-4 w-4" />
+                            <div className="flex justify-end gap-2">
+                              <Button variant="ghost" size="icon" asChild>
+                                <a href={fileStorage.createFileURL(file.content)} target="_blank" rel="noreferrer">
+                                  <Eye className="h-4 w-4" />
+                                </a>
+                              </Button>
+                              <Button variant="ghost" size="icon" onClick={() => handleDeleteEvidence(file.id)}>
+                                <Trash2 className="h-4 w-4 text-rose-600" />
                               </Button>
                             </div>
                           </TableCell>
@@ -2924,14 +2210,14 @@ export default function DPOCompliancePage() {
                   </Table>
                 </div>
               ) : (
-                <div className="py-10 text-center text-sm text-muted-foreground">
-                  Todavía no has cargado evidencias. Guarda archivos desde el cuestionario para construir tu repositorio.
-                </div>
+                <ModuleEmptyState
+                  title="Sin evidencias en este filtro"
+                  description="Cuando cargues archivos en acreditación, evaluación funcional o proyectos aparecerán aquí."
+                />
               )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+            </ModuleSectionCard>
+          </TabsContent>
+        </Tabs>
       </div>
     </ArcoModuleShell>
   )

@@ -243,19 +243,19 @@ function parseDetailTab(value: string | null): DetailTab {
 
 function statusBadgeClass(status: ProcedureGeneralStatus) {
   if (status === "Concluido") return "border-emerald-200 bg-emerald-50 text-emerald-700"
-  if (status === "Pendiente de requerimiento") return "border-orange-200 bg-orange-50 text-orange-700"
-  if (status === "En trámite") return "border-indigo-200 bg-indigo-50 text-indigo-700"
+  if (status === "Pendiente de requerimiento") return "border-amber-200 bg-amber-50 text-amber-700"
+  if (status === "En trámite") return "border-blue-200 bg-blue-50 text-blue-700"
   if (status === "En contestación") return "border-blue-200 bg-blue-50 text-blue-700"
   if (status === "En resolución") return "border-slate-200 bg-slate-100 text-slate-700"
-  if (status === "Suspendido") return "border-amber-200 bg-amber-50 text-amber-700"
+  if (status === "Suspendido") return "border-red-200 bg-red-50 text-red-700"
   if (status === "Archivado") return "border-slate-200 bg-slate-50 text-slate-500"
-  return "border-slate-200 bg-white text-slate-700"
+  return "border-blue-200 bg-blue-50 text-blue-700"
 }
 
 function riskBadgeClass(risk: ProcedureRiskLevel) {
   if (risk === "Alto") return "border-red-200 bg-red-50 text-red-700"
   if (risk === "Medio") return "border-amber-200 bg-amber-50 text-amber-700"
-  return "border-lime-200 bg-lime-50 text-lime-700"
+  return "border-emerald-200 bg-emerald-50 text-emerald-700"
 }
 
 function toneClasses(tone: "critical" | "warning" | "positive" | "neutral") {
@@ -338,7 +338,7 @@ function ProcedureMetricCard({
 function ProcedureNavBadge({ count }: { count?: number }) {
   if (!count) return null
   return (
-    <span className="ml-auto rounded-full bg-rose-50 px-2 py-0.5 text-xs font-semibold text-rose-600">
+    <span className="ml-auto rounded-full bg-[#dbeafe] px-2 py-0.5 text-[11px] font-semibold text-[#0a4abf]">
       {count}
     </span>
   )
@@ -871,17 +871,7 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                     <span
                       className={cn(
                         "h-2.5 w-2.5 rounded-full",
-                        item.id === "dashboard"
-                          ? "bg-[#0a0147]"
-                          : item.id === "expedientes"
-                            ? "bg-[#8fb1df]"
-                            : item.id === "register"
-                              ? "bg-lime-600"
-                              : item.id === "alertas"
-                                ? "bg-red-500"
-                                : item.id === "reportes"
-                                  ? "bg-emerald-500"
-                                  : "bg-[#8fb1df]",
+                        isActive ? "bg-[#0a4abf]" : "bg-[#7ea4df]",
                       )}
                     />
                     <Icon className={cn("h-4 w-4", isActive ? "text-[#0a0147]" : "text-[#5f7698]")} />
@@ -967,14 +957,14 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                               key={row.procedureId}
                               type="button"
                               onClick={() => navigate("expediente", { id: row.procedureId, tab: "resumen" })}
-                              className="flex w-full items-start justify-between rounded-2xl border border-stone-200 p-4 text-left transition-colors hover:border-[#5b4fc7]/30 hover:bg-stone-50"
+                              className="flex w-full items-start justify-between rounded-2xl border border-stone-200 p-4 text-left transition-colors hover:border-[#0a4abf]/30 hover:bg-stone-50"
                             >
                               <div className="space-y-1">
                                 <div className="flex items-center gap-2">
                                   <span
                                     className={cn(
                                       "inline-flex h-2.5 w-2.5 rounded-full",
-                                      row.riskLevel === "Alto" ? "bg-red-500" : row.riskLevel === "Medio" ? "bg-amber-500" : "bg-lime-600",
+                                      row.riskLevel === "Alto" ? "bg-red-500" : row.riskLevel === "Medio" ? "bg-amber-500" : "bg-emerald-500",
                                     )}
                                   />
                                   <p className="font-semibold text-slate-900">{row.expedienteNumber}</p>
@@ -1052,7 +1042,7 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                                 <span
                                   className={cn(
                                     "mt-2 h-2.5 w-2.5 rounded-full",
-                                    row.priority === "alta" ? "bg-red-500" : row.priority === "media" ? "bg-amber-500" : "bg-stone-400",
+                                    row.priority === "alta" ? "bg-red-500" : row.priority === "media" ? "bg-amber-500" : "bg-blue-400",
                                   )}
                                 />
                                 <div className="min-w-0">
@@ -1308,9 +1298,7 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                             className={cn(
                               "flex h-8 w-8 items-center justify-center rounded-full border text-sm font-semibold",
                               wizardStep >= step
-                                ? step === 1
-                                  ? "border-emerald-500 bg-emerald-500 text-white"
-                                  : "border-[#5b4fc7] bg-[#5b4fc7] text-white"
+                                ? "border-[#0a4abf] bg-[#0a4abf] text-white"
                                 : "border-stone-300 bg-white text-stone-500",
                             )}
                           >
@@ -1862,7 +1850,7 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                   {[
                     { title: "Críticas", rows: alertGroups.critical, color: "bg-red-500" },
                     { title: "Próximas", rows: alertGroups.medium, color: "bg-amber-500" },
-                    { title: "Seguimiento", rows: alertGroups.low, color: "bg-stone-400" },
+                    { title: "Seguimiento", rows: alertGroups.low, color: "bg-blue-400" },
                   ].map((group) => (
                     <div key={group.title} className="space-y-3">
                       <div className="flex items-center gap-2">
@@ -2036,7 +2024,7 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                       <div key={entry.id} className="rounded-2xl border border-stone-200 p-4">
                         <div className="flex flex-wrap items-center justify-between gap-3">
                           <div className="flex items-center gap-2">
-                            <span className="h-2.5 w-2.5 rounded-full bg-[#5b4fc7]" />
+                            <span className="h-2.5 w-2.5 rounded-full bg-[#0a4abf]" />
                             <p className="font-semibold text-slate-900">{entry.action}</p>
                           </div>
                           <p className="text-sm text-stone-500">{formatDateTimeLabel(entry.createdAt)}</p>

@@ -524,20 +524,20 @@ const STATUS_TONES: Record<ProcedureGeneralStatus, ProcedureKpiMetric["tone"]> =
 }
 
 export const RISK_COLORS: Record<ProcedureRiskLevel, string> = {
-  "Alto": "#ef4444",
-  "Medio": "#f59e0b",
-  "Bajo": "#65a30d",
+  "Alto": "#f87171",
+  "Medio": "#facc15",
+  "Bajo": "#34d399",
 }
 
 export const STATUS_COLORS: Record<ProcedureGeneralStatus, string> = {
   "Borrador": "#94a3b8",
   "Registrado": "#64748b",
-  "En trámite": "#5b4fc7",
-  "Pendiente de requerimiento": "#ea580c",
-  "En contestación": "#3b82f6",
+  "En trámite": "#3b82f6",
+  "Pendiente de requerimiento": "#f59e0b",
+  "En contestación": "#0ea5e9",
   "En resolución": "#6b7280",
-  "Concluido": "#15803d",
-  "Suspendido": "#d97706",
+  "Concluido": "#22c55e",
+  "Suspendido": "#ef4444",
   "Archivado": "#94a3b8",
 }
 
@@ -1282,7 +1282,7 @@ export function buildProcedureDashboardSnapshot(root: ProceduresPdpRoot): Proced
       followup: followupRows,
       inactive: inactiveRows,
     },
-    byType: buildDistribution(procedures, (procedure) => procedure.procedureType, () => "#5b4fc7"),
+    byType: buildDistribution(procedures, (procedure) => procedure.procedureType, () => "#0a4abf"),
     byStatus: buildDistribution(procedures, (procedure) => procedure.generalStatus, (value) => STATUS_COLORS[value]),
     byRisk: buildDistribution(procedures, (procedure) => procedure.riskLevel, (value) => RISK_COLORS[value]),
   }

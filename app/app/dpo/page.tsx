@@ -14,7 +14,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts"
-import { BarChart3, ClipboardCheck, FileCheck2, FilePlus2, FileText } from "lucide-react"
+import { ClipboardCheck, FileCheck2, FilePlus2, FolderKanban, ShieldCheck } from "lucide-react"
 
 import {
   ArcoModuleShell,
@@ -28,12 +28,7 @@ import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { buildAdvancedMetrics } from "@/lib/module-statistics"
 import { getFilesByCategory, type StoredFile } from "@/lib/fileStorage"
-
-type DpoComplianceRecord = {
-  hasDPO?: "si" | "no"
-  dpoName?: string
-  plannedNextReview?: string
-}
+import { loadDpoSnapshot, type DpoComplianceSnapshot } from "./opd-compliance-model"
 
 type DpoReportRecord = {
   id: string
@@ -64,18 +59,14 @@ function formatDate(value?: string) {
 }
 
 export default function DPOPage() {
-  const [compliance, setCompliance] = useState<DpoComplianceRecord | null>(null)
+  const [compliance, setCompliance] = useState<DpoComplianceSnapshot | null>(null)
   const [reports, setReports] = useState<DpoReportRecord[]>([])
   const [actas, setActas] = useState<DpoActaRecord[]>([])
   const [evidenceFiles, setEvidenceFiles] = useState<StoredFile[]>([])
 
   useEffect(() => {
     const refresh = () => {
-      try {
-        setCompliance(JSON.parse(localStorage.getItem("dpo-compliance") || "null"))
-      } catch {
-        setCompliance(null)
-      }
+      setCompliance(loadDpoSnapshot())
 
       try {
         setReports(JSON.parse(localStorage.getItem("dpo-reports") || "[]"))
@@ -104,7 +95,15 @@ export default function DPOPage() {
     const documentMix = [
       { name: "Informes", value: reports.length },
       { name: "Actas", value: actas.length },
+      { name: "Proyectos", value: compliance?.projectStats.total || 0 },
       { name: "Evidencias", value: evidenceFiles.length },
+    ]
+
+    const operationMix = [
+      { name: "Acreditación", value: compliance?.latestAccreditation ? 1 : 0 },
+      { name: "Funcional", value: compliance?.latestFunctional ? 1 : 0 },
+      { name: "Pendientes", value: compliance?.projectStats.pendingDictamen || 0 },
+      { name: "EIPD obligatoria", value: compliance?.projectStats.eipdRequired || 0 },
     ]
 
     const recent = [
@@ -127,6 +126,16 @@ export default function DPOPage() {
       officerName: compliance?.dpoName || "Pendiente",
       nextReview: compliance?.plannedNextReview || "",
       documentMix,
+      operationMix,
+      accreditation: compliance?.latestAccreditation || null,
+      functional: compliance?.latestFunctional || null,
+      projectStats: compliance?.projectStats || {
+        total: 0,
+        pendingDictamen: 0,
+        eipdRequired: 0,
+        eipdRecommended: 0,
+      },
+      evidenceCount: compliance?.evidenceCount || evidenceFiles.length,
       recent: recent.slice(0, 5),
     }
   }, [actas, compliance, evidenceFiles.length, reports])
@@ -148,11 +157,29 @@ export default function DPOPage() {
       moduleDescription={DPO_META.moduleDescription}
       pageLabel="Overview"
       pageTitle="Estado operativo del programa DPO"
-      pageDescription="La raíz del módulo abre el tablero de cumplimiento, documentación y producción de informes sin pasar por un selector inicial."
+      pageDescription="La raíz del módulo concentra la acreditación vigente, la evaluación funcional F1-F5, el portafolio de proyectos revisados y la producción documental del programa OPD."
       navItems={navItems}
       headerBadges={[
-        { label: "Gobernanza · Evidencias", tone: "primary" },
-        { label: overview.hasDesignatedOfficer ? "Designación registrada" : "Designación pendiente", tone: overview.hasDesignatedOfficer ? "positive" : "warning" },
+        {
+          label: overview.accreditation
+            ? `Acreditación ${overview.accreditation.score}%`
+            : "Acreditación pendiente",
+          tone: overview.accreditation
+            ? overview.accreditation.criticalInvalidation
+              ? "critical"
+              : "positive"
+            : "warning",
+        },
+        {
+          label: overview.functional
+            ? `Evaluación funcional ${overview.functional.score}%`
+            : "Evaluación funcional pendiente",
+          tone: overview.functional ? "primary" : "warning",
+        },
+        {
+          label: `${overview.projectStats.total} proyectos OPD`,
+          tone: overview.projectStats.pendingDictamen > 0 ? "warning" : "neutral",
+        },
         { label: `${reports.length + actas.length} piezas documentales`, tone: "neutral" },
       ]}
       actions={
@@ -172,39 +199,53 @@ export default function DPOPage() {
       <div className="space-y-6">
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <ModuleMetricCard
-            label="Designación"
-            value={overview.hasDesignatedOfficer ? "Formalizada" : "Pendiente"}
-            helper={`Responsable actual: ${overview.officerName}.`}
+            label="Acreditación"
+            value={overview.accreditation ? `${overview.accreditation.score}%` : "Pendiente"}
+            helper={
+              overview.accreditation
+                ? `${overview.accreditation.level}${overview.accreditation.criticalInvalidation ? " · Bloqueo crítico" : ""}`
+                : `Responsable actual: ${overview.officerName}.`
+            }
             icon={ClipboardCheck}
-            tone={overview.hasDesignatedOfficer ? "positive" : "warning"}
+            tone={
+              overview.accreditation
+                ? overview.accreditation.criticalInvalidation
+                  ? "critical"
+                  : "positive"
+                : "warning"
+            }
           />
           <ModuleMetricCard
-            label="Informes"
-            value={reports.length}
-            helper="Informes o reportes generados desde el módulo."
-            icon={FileText}
-            tone="primary"
+            label="Evaluación funcional"
+            value={overview.functional ? `${overview.functional.score}%` : "Pendiente"}
+            helper={
+              overview.functional
+                ? `${overview.functional.level} · Próxima revisión ${formatDate(overview.nextReview)}`
+                : "Completa la revisión F1-F5 para medir el ejercicio efectivo del OPD."
+            }
+            icon={ShieldCheck}
+            tone={overview.functional ? "primary" : "warning"}
           />
           <ModuleMetricCard
-            label="Actas"
-            value={actas.length}
-            helper="Actas de reunión documentadas para seguimiento del programa."
-            icon={FileCheck2}
-            tone="primary"
+            label="Proyectos OPD"
+            value={overview.projectStats.total}
+            helper={`${overview.projectStats.pendingDictamen} pendientes · ${overview.projectStats.eipdRequired} con EIPD obligatoria`}
+            icon={FolderKanban}
+            tone={overview.projectStats.pendingDictamen > 0 ? "warning" : "primary"}
           />
           <ModuleMetricCard
             label="Evidencias"
-            value={evidenceFiles.length}
-            helper={`Próxima revisión: ${formatDate(overview.nextReview)}`}
-            icon={BarChart3}
-            tone="warning"
+            value={overview.evidenceCount}
+            helper={`${reports.length} informes · ${actas.length} actas · Próxima revisión ${formatDate(overview.nextReview)}`}
+            icon={FileCheck2}
+            tone={overview.evidenceCount > 0 ? "neutral" : "warning"}
           />
         </div>
 
         <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
           <ModuleSectionCard
-            title="Producción documental"
-            description="Tipos de informes y actas generados en la operación del DPO."
+            title="Producción documental y carga operativa"
+            description="Distribución entre informes, actas, proyectos OPD y evidencias dentro del programa."
           >
             {metrics.buckets.length > 0 ? (
               <div className="h-[320px]">
@@ -231,15 +272,15 @@ export default function DPOPage() {
           </ModuleSectionCard>
 
           <ModuleSectionCard
-            title="Mix documental"
-            description="Balance entre informes, actas y evidencias cargadas."
+            title="Estado actual del programa OPD"
+            description="Presencia de acreditación, evaluación funcional, pendientes de dictamen y proyectos con EIPD obligatoria."
           >
-            {overview.documentMix.some((item) => item.value > 0) ? (
+            {overview.operationMix.some((item) => item.value > 0) ? (
               <div className="h-[320px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
-                    <Pie data={overview.documentMix} dataKey="value" nameKey="name" innerRadius={62} outerRadius={108}>
-                      {overview.documentMix.map((entry, index) => (
+                    <Pie data={overview.operationMix} dataKey="value" nameKey="name" innerRadius={62} outerRadius={108}>
+                      {overview.operationMix.map((entry, index) => (
                         <Cell key={entry.name} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
@@ -249,8 +290,8 @@ export default function DPOPage() {
               </div>
             ) : (
               <ModuleEmptyState
-                title="Sin evidencia cargada"
-                description="Completa una revisión o genera el primer informe para poblar este módulo."
+                title="Sin evaluación operativa todavía"
+                description="Guarda la acreditación, la evaluación funcional o el primer proyecto OPD para poblar este tablero."
               />
             )}
           </ModuleSectionCard>
