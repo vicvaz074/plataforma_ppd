@@ -652,7 +652,7 @@ export default function IncidentsAndBreachesPage() {
                         <div>
                           <p className="text-sm font-medium">{inc.name}</p>
                           <p className="text-xs text-muted-foreground">
-                            Operación: {inc.data.recoveryActions?.systemOperation || "En proceso"} · Verificación: {inc.data.recoveryVerification?.integrityVerified ? "Completada" : "Pendiente"}
+                            Operación: {inc.data.recoveryActions?.systemOperation || "En proceso"} · Verificación: {inc.data.recoveryVerification ? "Completada" : "Pendiente"}
                           </p>
                         </div>
                         <Button type="button" variant="outline" size="sm" className="text-xs gap-1.5" onClick={() => handleEditIncident(inc)}>
