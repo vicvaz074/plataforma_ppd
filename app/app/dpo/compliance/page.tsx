@@ -285,29 +285,29 @@ function HistoryTable({
 
   return (
     <div className="overflow-x-auto">
-      <Table className="min-w-[760px]">
+      <Table className="table-fixed min-w-[640px]">
         <TableHeader>
           <TableRow>
-            <TableHead>Fecha</TableHead>
-            <TableHead>Registro</TableHead>
-            <TableHead>Puntuación</TableHead>
-            <TableHead>Nivel</TableHead>
+            <TableHead className="w-[120px]">Fecha</TableHead>
+            <TableHead className="w-[45%]">Registro</TableHead>
+            <TableHead className="w-[110px]">Puntuación</TableHead>
+            <TableHead className="w-[170px]">Nivel</TableHead>
             <TableHead />
           </TableRow>
         </TableHeader>
         <TableBody>
           {rows.map((row) => (
             <TableRow key={row.id} className={selectedId === row.id ? "bg-blue-50/50" : undefined}>
-              <TableCell>{formatDateLabel(row.date)}</TableCell>
-              <TableCell>
+              <TableCell className="align-top whitespace-normal text-slate-700">{formatDateLabel(row.date)}</TableCell>
+              <TableCell className="align-top whitespace-normal break-words">
                 <div className="space-y-1">
-                  <p className="font-medium text-slate-950">{row.label}</p>
-                  {row.extra ? <p className="text-xs text-slate-500">{row.extra}</p> : null}
+                  <p className="font-medium leading-6 text-slate-950">{row.label}</p>
+                  {row.extra ? <p className="text-xs leading-5 text-slate-500">{row.extra}</p> : null}
                 </div>
               </TableCell>
-              <TableCell>{row.score}%</TableCell>
-              <TableCell>{row.level}</TableCell>
-              <TableCell className="text-right">
+              <TableCell className="align-top whitespace-nowrap font-medium text-slate-900">{row.score}%</TableCell>
+              <TableCell className="align-top whitespace-normal break-words text-slate-700">{row.level}</TableCell>
+              <TableCell className="text-right align-top">
                 <Button variant="ghost" size="sm" onClick={() => onSelect(row.id)}>
                   <Eye className="mr-2 h-4 w-4" />
                   Ver
@@ -2004,7 +2004,7 @@ export default function DPOCompliancePage() {
               >
                 {latestAccreditation || latestFunctional || projectReviews.length > 0 ? (
                   <div className="space-y-6">
-                    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                    <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-4">
                       <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Acreditación</p>
                         <p className="mt-3 text-3xl font-semibold text-slate-950">
