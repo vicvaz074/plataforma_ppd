@@ -193,7 +193,15 @@ export function ArcoModuleShell({
                 {navItems.map((item) => {
                   const Icon = item.icon
                   const matchTargets = item.activePaths && item.activePaths.length > 0 ? item.activePaths : [item.href.split("?")[0]]
-                  const active = matchTargets.some((target) => pathname === target || pathname.startsWith(`${target}/`))
+                  const active = matchTargets.some((target) => {
+                    const normalizedTarget = target.endsWith("/") && target.length > 1 ? target.slice(0, -1) : target
+                    const isModuleRoot = normalizedTarget.split("/").filter(Boolean).length === 1
+
+                    if (pathname === normalizedTarget) return true
+                    if (isModuleRoot) return false
+
+                    return pathname.startsWith(`${normalizedTarget}/`)
+                  })
 
                   return (
                     <Link
