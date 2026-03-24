@@ -19,8 +19,8 @@ export default function RATPage() {
 
   const translations = {
     es: {
-      title: "Inventario de Datos Personales",
-      description: "Gestione el inventario de datos personales y genere informes detallados",
+      title: "Inventarios de Datos Personales",
+      description: "Gestione los inventarios de datos personales y genere informes detallados",
       registerTitle: "Registro de Inventarios",
       registerDescription: "Cree, edite y gestione inventarios de datos personales",
       reportsTitle: "Informes de Inventarios",
@@ -38,8 +38,8 @@ export default function RATPage() {
       ],
     },
     en: {
-      title: "Personal Data Inventory",
-      description: "Manage personal data inventory and generate detailed reports",
+      title: "Personal Data Inventories",
+      description: "Manage personal data inventories and generate detailed reports",
       registerTitle: "Inventory Registration",
       registerDescription: "Create, edit and manage personal data inventories",
       reportsTitle: "Inventory Reports",

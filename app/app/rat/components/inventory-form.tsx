@@ -18,6 +18,7 @@ import type {
   AdditionalBlocking,
 } from "../types"
 import StepRenderer from "./step-renderer"
+import { StepperNav } from "./stepper-nav"
 import { saveFile } from "@/lib/fileStorage"
 import { parseRatExcel } from "../utils/parseRatExcel"
 import { parseExcelOrCsvManual } from "../utils/fileParserManual"
@@ -372,6 +373,7 @@ export function InventoryForm({
   const [step, setStep] = useState(1)
   const [activeSub, setActiveSub] = useState(0)
   const [progressSaved, setProgressSaved] = useState(false)
+  const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set())
 
   // Estados para importación manual de datos personales
   const [fileColumns, setFileColumns] = useState<string[]>([])
@@ -1277,7 +1279,10 @@ export function InventoryForm({
     }
   }
 
-  const handleNextStep = () => setStep((s) => s + 1)
+  const handleNextStep = () => {
+    setCompletedSteps((prev) => new Set([...prev, step]))
+    setStep((s) => s + 1)
+  }
   const handlePrevStep = () => setStep((s) => s - 1)
 
   const renderSubTabs = () =>
@@ -1403,6 +1408,14 @@ export function InventoryForm({
           />
         </div>
       )}
+
+      <StepperNav
+        currentStep={step}
+        onStepClick={setStep}
+        completedSteps={completedSteps}
+      />
+
+      {step > 1 && renderSubTabs()}
 
       {step === 1 && (
         <>
@@ -1582,19 +1595,6 @@ export function InventoryForm({
         </>
       )}
 
-      {step > 1 && renderSubTabs()}
-      <div className="flex flex-wrap gap-2 mb-4">
-        {Array.from({ length: 13 }, (_, i) => i + 1).map((n) => (
-          <Button
-            key={n}
-            size="sm"
-            variant={step === n ? "default" : "outline"}
-            onClick={() => setStep(n)}
-          >
-            {n}
-          </Button>
-        ))}
-      </div>
       <AnimatePresence mode="wait">
         {step > 1 && (
           <motion.div

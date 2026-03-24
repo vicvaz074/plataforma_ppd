@@ -379,7 +379,7 @@ export default function StepRenderer({
       return (
         <div className="space-y-4">
           <h2 className="text-xl font-bold mb-4">
-            Información General de la Base de Datos
+            Información General del Inventario
           </h2>
           <div>
             <Label htmlFor="databaseName">Nombre de la Base de Datos</Label>
@@ -512,7 +512,7 @@ export default function StepRenderer({
       return (
         <div className="space-y-4">
           <h2 className="text-xl font-bold mb-4">
-            Información General de la Base de Datos
+            Datos Generales de la Base
           </h2>
           <div>
             <Label htmlFor="databaseName">Nombre de la Base de Datos</Label>
