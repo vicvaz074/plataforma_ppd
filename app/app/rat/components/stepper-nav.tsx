@@ -35,7 +35,7 @@ export function StepperNav({
 }: StepperNavProps) {
   return (
     <div className="w-full overflow-x-auto pb-2 mb-4">
-      <div className="flex items-start justify-center w-full px-1 py-3">
+      <div className="flex items-start w-full px-2 py-3">
         {Array.from({ length: totalSteps }, (_, i) => {
           const step = i + 1
           const isCompleted = completedSteps.has(step)
@@ -46,7 +46,7 @@ export function StepperNav({
           return (
             <React.Fragment key={step}>
               {/* Step circle + label */}
-              <div className="flex flex-col items-center" style={{ minWidth: 52 }}>
+              <div className="flex flex-col items-center flex-shrink-0">
                 <button
                   type="button"
                   onClick={() => onStepClick(step)}
@@ -70,7 +70,7 @@ export function StepperNav({
                 </button>
                 <span
                   className={cn(
-                    "text-[10px] leading-tight text-center mt-1.5 whitespace-pre-line max-w-[60px]",
+                    "text-[10px] leading-tight text-center mt-1.5 whitespace-pre-line max-w-[72px]",
                     isCurrent && "font-bold text-primary",
                     isCompleted && "font-medium text-primary/70",
                     isFuture && "text-gray-400"
@@ -82,10 +82,10 @@ export function StepperNav({
 
               {/* Connector line */}
               {step < totalSteps && (
-                <div className="flex items-center pt-[18px] flex-shrink-0" style={{ minWidth: 12 }}>
+                <div className="flex items-center pt-[18px] flex-1">
                   <div
                     className={cn(
-                      "h-0.5 w-full min-w-[12px] transition-colors duration-200",
+                      "h-0.5 w-full transition-colors duration-200",
                       isCompleted ? "bg-primary" : "bg-gray-200"
                     )}
                   />
