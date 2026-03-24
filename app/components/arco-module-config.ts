@@ -26,7 +26,7 @@ export const THIRD_PARTY_CONTRACTS_META = {
 export const DPO_META = {
   moduleLabel: "Módulo Oficial de Protección de Datos",
   moduleTitle: "Oficial de Protección de Datos",
-  moduleDescription: "Cumplimiento, evidencias, actas e informes del programa DPO.",
+  moduleDescription: "Acreditación, evaluación funcional, proyectos, evidencias, actas e informes del programa DPO.",
 }
 
 export const EIPD_META = {
