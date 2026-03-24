@@ -314,126 +314,126 @@ const LEGACY_SGDP_KEYS: Record<string, string> = {
 const MODULES: ModuleConfig[] = [
   {
     id: "dashboard",
-    displayId: "SM-12",
+    displayId: "12",
     label: "Dashboard ejecutivo",
-    shortLabel: "Dashboard",
+    shortLabel: "12",
     phase: "Transversal",
     icon: Gauge,
     description: "Semáforo global del SGDP, KPIs, KRIs, actividad y vencimientos.",
   },
   {
     id: "sm01",
-    displayId: "SM-01",
+    displayId: "01",
     label: "Gobierno y estructura",
-    shortLabel: "SM-01",
+    shortLabel: "01",
     phase: "Planificar",
     icon: Building2,
     description: "Define alcance, responsables, recursos y apoyo de Alta Dirección.",
   },
   {
     id: "sm02",
-    displayId: "SM-02",
+    displayId: "02",
     label: "PGDP",
-    shortLabel: "SM-02",
+    shortLabel: "02",
     phase: "Planificar",
     icon: FileCheck2,
     description: "Gestiona la política de gestión de datos personales y su vigencia.",
   },
   {
     id: "sm03",
-    displayId: "SM-03",
+    displayId: "03",
     label: "Inventario y trazabilidad",
-    shortLabel: "SM-03",
+    shortLabel: "03",
     phase: "Hacer",
     icon: Network,
     description: "Vista de accountability sobre tratamientos y flujos provenientes del RAT.",
   },
   {
     id: "sm04",
-    displayId: "SM-04",
+    displayId: "04",
     label: "Riesgos y evaluaciones",
-    shortLabel: "SM-04",
+    shortLabel: "04",
     phase: "Hacer",
     icon: ShieldAlert,
     description: "Registra riesgos, mitigaciones y banderas de EIPD.",
   },
   {
     id: "sm05",
-    displayId: "SM-05",
+    displayId: "05",
     label: "Capacitación y cultura",
-    shortLabel: "SM-05",
+    shortLabel: "05",
     phase: "Hacer",
     icon: BookOpen,
     description: "Consolida actividades, cobertura y efectividad de la capacitación.",
   },
   {
     id: "sm06",
-    displayId: "SM-06",
+    displayId: "06",
     label: "Encargados y subcontrataciones",
-    shortLabel: "SM-06",
+    shortLabel: "06",
     phase: "Hacer",
     icon: Users,
     description: "Directorio de encargados, vigencias y checklist del Art. 50.",
   },
   {
     id: "sm07",
-    displayId: "SM-07",
+    displayId: "07",
     label: "Auditorías",
-    shortLabel: "SM-07",
+    shortLabel: "07",
     phase: "Verificar",
     icon: ClipboardCheck,
     description: "Programa anual, reportes, indicadores y hallazgos.",
   },
   {
     id: "sm08",
-    displayId: "SM-08",
+    displayId: "08",
     label: "Revisiones administrativas",
-    shortLabel: "SM-08",
+    shortLabel: "08",
     phase: "Verificar",
     icon: CalendarClock,
     description: "Documenta revisiones con los ocho insumos del Num. 32.",
   },
   {
     id: "sm09",
-    displayId: "SM-09",
+    displayId: "09",
     label: "No conformidades y CAPA",
-    shortLabel: "SM-09",
+    shortLabel: "09",
     phase: "Actuar",
     icon: Siren,
     description: "Gestiona NCs, causa raíz, acciones y vencimientos.",
   },
   {
     id: "sm10",
-    displayId: "SM-10",
+    displayId: "10",
     label: "Quejas y reportes",
-    shortLabel: "SM-10",
+    shortLabel: "10",
     phase: "Hacer / Verificar",
     icon: Fingerprint,
     description: "Canal centralizado para quejas, dudas y reportes internos.",
   },
   {
     id: "sm11",
-    displayId: "SM-11",
+    displayId: "11",
     label: "Evidencias y expediente",
-    shortLabel: "SM-11",
+    shortLabel: "11",
     phase: "Transversal",
     icon: FolderKanban,
     description: "Agrega evidencias por submódulo y exporta un expediente básico.",
   },
   {
     id: "sm12",
-    displayId: "SM-12",
+    displayId: "12",
     label: "Métricas y tablero",
-    shortLabel: "SM-12",
+    shortLabel: "12",
     phase: "Transversal",
     icon: BarChart3,
     description: "Vista analítica completa del estado de Accountability.",
   },
   {
     id: "sm13",
-    displayId: "SM-13",
+    displayId: "13",
     label: "Mejora continua",
-    shortLabel: "SM-13",
+    shortLabel: "13",
     phase: "Actuar",
     icon: Workflow,
     description: "Plan de mejora con origen trazable y cierre verificado.",
@@ -2035,7 +2035,7 @@ export function AwarenessContent({ initialModule = "dashboard" }: { initialModul
         id: "sm01-governance",
         moduleId: "sm01",
         section: "01 — Gobierno y estructura",
-        code: "SM01-BASE",
+        code: "01-BASE",
         title: sm01.programName || "Gobierno del SGDP",
         status: sm01.leadershipApprovalDate ? "Activo" : "En construcción",
         source: "local",
@@ -2444,7 +2444,7 @@ export function AwarenessContent({ initialModule = "dashboard" }: { initialModul
       assignedTo: DEFAULT_REMINDER_ASSIGNEES,
       category: "KRI Accountability",
       moduleId: ACCOUNTABILITY_REMINDER_MODULE_ID,
-      notes: `Dashboard SM-12 · ${item.label}`,
+      notes: `Dashboard 12 · ${item.label}`,
       documents: [],
     }))
 
@@ -2900,7 +2900,7 @@ export function AwarenessContent({ initialModule = "dashboard" }: { initialModul
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
                       <Badge variant="outline" className="border-primary/20 bg-primary/5 text-primary">
-                        SM-01
+                        01
                       </Badge>
                       <Badge variant="outline" className="border-slate-200 bg-slate-50 text-slate-600">
                         Planificar
@@ -2916,10 +2916,10 @@ export function AwarenessContent({ initialModule = "dashboard" }: { initialModul
                   <Button
                     onClick={() => {
                       setSm01((current) => ({ ...current, updatedAt: new Date().toISOString() }))
-                      toast({ title: "Ficha guardada", description: "SM-01 se actualizó correctamente." })
+                      toast({ title: "Ficha guardada", description: "01 se actualizó correctamente." })
                     }}
                   >
-                    Guardar SM-01
+                    Guardar 01
                   </Button>
                 </div>
               </CardHeader>
@@ -3253,7 +3253,7 @@ export function AwarenessContent({ initialModule = "dashboard" }: { initialModul
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <Badge variant="outline" className="border-primary/20 bg-primary/5 text-primary">
-                          SM-03
+                          03
                         </Badge>
                         <Badge variant="outline" className="border-slate-200 bg-slate-50 text-slate-600">
                           Hacer
@@ -3279,7 +3279,7 @@ export function AwarenessContent({ initialModule = "dashboard" }: { initialModul
                       {
                         label: "Cobertura de riesgo",
                         value: `${treatmentsWithRiskCoverage}%`,
-                        hint: "Tratamientos con evaluación en SM-04.",
+                        hint: "Tratamientos con evaluación en 04.",
                         status: getTrafficLight(treatmentsWithRiskCoverage),
                       },
                     ]}
@@ -3352,7 +3352,7 @@ export function AwarenessContent({ initialModule = "dashboard" }: { initialModul
               summaryCards={sm04SummaryCards}
               createLabel="Nuevo riesgo"
               emptyMessage="No hay riesgos registrados."
-              helpText="La cobertura de riesgos se cruza con SM-03 para calcular el KPI de tratamientos evaluados."
+              helpText="La cobertura de riesgos se cruza con 03 para calcular el KPI de tratamientos evaluados."
             />
           </TabsContent>
 
@@ -3536,7 +3536,7 @@ export function AwarenessContent({ initialModule = "dashboard" }: { initialModul
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
                       <Badge variant="outline" className="border-primary/20 bg-primary/5 text-primary">
-                        SM-11
+                        11
                       </Badge>
                       <Badge variant="outline" className="border-slate-200 bg-slate-50 text-slate-600">
                         Transversal
