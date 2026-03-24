@@ -35,7 +35,7 @@ export function StepperNav({
 }: StepperNavProps) {
   return (
     <div className="w-full overflow-x-auto pb-2 mb-4">
-      <div className="flex items-start min-w-max px-2 py-3">
+      <div className="flex items-start justify-center w-full px-1 py-3">
         {Array.from({ length: totalSteps }, (_, i) => {
           const step = i + 1
           const isCompleted = completedSteps.has(step)
@@ -46,12 +46,12 @@ export function StepperNav({
           return (
             <React.Fragment key={step}>
               {/* Step circle + label */}
-              <div className="flex flex-col items-center" style={{ minWidth: 56 }}>
+              <div className="flex flex-col items-center" style={{ minWidth: 48 }}>
                 <button
                   type="button"
                   onClick={() => onStepClick(step)}
                   className={cn(
-                    "w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-200 cursor-pointer border-2",
+                    "w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all duration-200 cursor-pointer border-2",
                     isCompleted &&
                       "bg-primary border-primary text-primary-foreground hover:bg-primary/90",
                     isCurrent &&
@@ -70,7 +70,7 @@ export function StepperNav({
                 </button>
                 <span
                   className={cn(
-                    "text-[10px] leading-tight text-center mt-1.5 whitespace-pre-line max-w-[72px]",
+                    "text-[9px] leading-tight text-center mt-1 whitespace-pre-line max-w-[56px]",
                     isCurrent && "font-bold text-primary",
                     isCompleted && "font-medium text-primary/70",
                     isFuture && "text-gray-400"
@@ -82,10 +82,10 @@ export function StepperNav({
 
               {/* Connector line */}
               {step < totalSteps && (
-                <div className="flex items-center pt-[18px] flex-shrink-0" style={{ minWidth: 16 }}>
+                <div className="flex items-center pt-[16px] flex-shrink-0" style={{ minWidth: 8 }}>
                   <div
                     className={cn(
-                      "h-0.5 w-full min-w-[24px] transition-colors duration-200",
+                      "h-0.5 w-full min-w-[8px] transition-colors duration-200",
                       isCompleted ? "bg-primary" : "bg-gray-200"
                     )}
                   />
