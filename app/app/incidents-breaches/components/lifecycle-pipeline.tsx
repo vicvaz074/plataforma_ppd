@@ -14,7 +14,6 @@ const stages = [
     activeRing: "ring-[#0a0147]",
     activeShadow: "shadow-[0_10px_25px_-5px_rgba(10,1,71,0.25),0_8px_10px_-6px_rgba(10,1,71,0.15)]",
     connectorGradient: "from-[#0a0147] to-[#1e40af]",
-    clickable: false,
   },
   {
     id: "identification",
@@ -27,7 +26,6 @@ const stages = [
     activeRing: "ring-[#1e40af]",
     activeShadow: "shadow-[0_10px_25px_-5px_rgba(30,64,175,0.25),0_8px_10px_-6px_rgba(30,64,175,0.15)]",
     connectorGradient: "from-[#1e40af] to-[#b45309]",
-    clickable: false,
   },
   {
     id: "containment",
@@ -40,7 +38,6 @@ const stages = [
     activeRing: "ring-[#b45309]",
     activeShadow: "shadow-[0_10px_25px_-5px_rgba(180,83,9,0.25),0_8px_10px_-6px_rgba(180,83,9,0.15)]",
     connectorGradient: "from-[#b45309] to-[#9333ea]",
-    clickable: false,
   },
   {
     id: "mitigation",
@@ -53,7 +50,6 @@ const stages = [
     activeRing: "ring-[#9333ea]",
     activeShadow: "shadow-[0_10px_25px_-5px_rgba(147,51,234,0.25),0_8px_10px_-6px_rgba(147,51,234,0.15)]",
     connectorGradient: "from-[#9333ea] to-[#047857]",
-    clickable: false,
   },
   {
     id: "recovery",
@@ -66,7 +62,6 @@ const stages = [
     activeRing: "ring-[#047857]",
     activeShadow: "shadow-[0_10px_25px_-5px_rgba(4,120,87,0.25),0_8px_10px_-6px_rgba(4,120,87,0.15)]",
     connectorGradient: "from-[#047857] to-[#2E7D73]",
-    clickable: false,
   },
   {
     id: "continuous-improvement",
@@ -79,7 +74,6 @@ const stages = [
     activeRing: "ring-[#2E7D73]",
     activeShadow: "shadow-[0_10px_25px_-5px_rgba(46,125,115,0.25),0_8px_10px_-6px_rgba(46,125,115,0.15)]",
     connectorGradient: "from-[#2E7D73] to-[#334155]",
-    clickable: true,
   },
   {
     id: "logs",
@@ -92,7 +86,6 @@ const stages = [
     activeRing: "ring-[#334155]",
     activeShadow: "shadow-[0_10px_25px_-5px_rgba(51,65,85,0.25),0_8px_10px_-6px_rgba(51,65,85,0.15)]",
     connectorGradient: "from-[#334155] to-[#64748b]",
-    clickable: true,
   },
 ]
 
@@ -110,40 +103,36 @@ export function LifecyclePipeline({ activeStage, onStageClick, completedStages =
           const Icon = stage.icon
           const isActive = activeStage === stage.id
           const isCompleted = completedStages.includes(stage.id)
-          const isClickable = stage.clickable
 
           return (
             <div key={stage.id} className="flex items-center flex-1 min-w-0 group relative">
               <button
                 type="button"
-                onClick={() => isClickable && onStageClick?.(stage.id)}
-                disabled={!isClickable}
+                onClick={() => onStageClick?.(stage.id)}
                 className={`
-                  relative z-10 flex flex-col items-center gap-2 px-4 py-3.5 rounded-2xl transition-all duration-300 w-full outline-none border-2
+                  relative z-10 flex flex-col items-center gap-2 px-4 py-3.5 rounded-2xl transition-all duration-300 w-full outline-none border-2 cursor-pointer
                   ${
                     isActive
                       ? `bg-gradient-to-br ${stage.gradient} text-white scale-105 ring-2 ring-offset-2 ring-offset-background ${stage.activeRing} ${stage.activeShadow} ${stage.borderColor}`
-                      : isClickable
-                        ? `bg-white dark:bg-slate-900 ${stage.borderColor} shadow-sm hover:shadow-lg hover:scale-[1.03] cursor-pointer`
-                        : `bg-slate-50/80 dark:bg-slate-800/30 ${stage.borderColor} opacity-60 cursor-default`
+                      : `bg-white dark:bg-slate-900 ${stage.borderColor} shadow-sm hover:shadow-lg hover:scale-[1.03]`
                   }
                 `}
               >
                 <div
                   className={`
                   p-2 rounded-xl transition-colors duration-300
-                  ${isActive ? "bg-white/20" : isClickable ? stage.iconBg : "bg-slate-100 dark:bg-slate-800"}
+                  ${isActive ? "bg-white/20" : stage.iconBg}
                 `}
                 >
                   <Icon
                     className={`h-5 w-5 flex-shrink-0 ${
-                      isActive ? "text-white" : isClickable ? stage.iconColor : "text-slate-400"
+                      isActive ? "text-white" : stage.iconColor
                     }`}
                   />
                 </div>
 
                 <span className={`text-[11px] leading-tight text-center tracking-wide ${
-                  isActive ? "font-bold text-white" : isClickable ? `font-semibold ${stage.iconColor}` : "font-semibold text-slate-400 whitespace-nowrap"
+                  isActive ? "font-bold text-white" : `font-semibold ${stage.iconColor}`
                 }`}>
                   {stage.label}
                 </span>
