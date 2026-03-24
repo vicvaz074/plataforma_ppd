@@ -24,7 +24,7 @@ import {
   Bell,
   GraduationCap,
   Shield,
-  Sparkles,
+  BadgeCheck,
   Lock,
   type LucideIcon,
 } from "lucide-react"
@@ -171,7 +171,7 @@ const options: Option[] = [
   { name: "auditAlarms", icon: Bell, href: "/audit-alarms" },
   {
     name: "alicia",
-    icon: Sparkles,
+    icon: BadgeCheck,
     href: "/alicia",
     external: true,
     image: "/images/alicia_person.jpeg",

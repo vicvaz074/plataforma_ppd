@@ -15,7 +15,7 @@ import {
   RefreshCw,
   ShieldAlert,
   ShieldCheck,
-  Sparkles,
+  BadgeCheck,
   Target,
   Trash2,
 } from "lucide-react";
@@ -75,7 +75,7 @@ type RiskDraft = {
 
 const SECTION_ITEMS: { id: SectionId; label: string; icon: React.ReactNode }[] = [
   { id: "dashboard", label: "Dashboard", icon: <LayoutDashboard className="h-4 w-4" /> },
-  { id: "metodologia", label: "Metodología", icon: <Sparkles className="h-4 w-4" /> },
+  { id: "metodologia", label: "Metodología", icon: <BadgeCheck className="h-4 w-4" /> },
   { id: "bases", label: "Bases de Datos", icon: <Database className="h-4 w-4" /> },
   { id: "riesgos", label: "Riesgos", icon: <ShieldAlert className="h-4 w-4" /> },
   { id: "mapa", label: "Mapa de Calor", icon: <MapIcon className="h-4 w-4" /> },
