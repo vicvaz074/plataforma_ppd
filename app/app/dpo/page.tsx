@@ -95,15 +95,15 @@ export default function DPOPage() {
     const documentMix = [
       { name: "Informes", value: reports.length },
       { name: "Actas", value: actas.length },
-      { name: "Proyectos", value: compliance?.projectStats.total || 0 },
+      { name: "Proyectos", value: compliance?.projectStats?.total || 0 },
       { name: "Evidencias", value: evidenceFiles.length },
     ]
 
     const operationMix = [
       { name: "Acreditación", value: compliance?.latestAccreditation ? 1 : 0 },
       { name: "Funcional", value: compliance?.latestFunctional ? 1 : 0 },
-      { name: "Pendientes", value: compliance?.projectStats.pendingDictamen || 0 },
-      { name: "EIPD obligatoria", value: compliance?.projectStats.eipdRequired || 0 },
+      { name: "Pendientes", value: compliance?.projectStats?.pendingDictamen || 0 },
+      { name: "EIPD obligatoria", value: compliance?.projectStats?.eipdRequired || 0 },
     ]
 
     const recent = [
