@@ -19,7 +19,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Progress } from "@/components/ui/progress"
 import {
   ShieldAlert, FileDown, Plus, ClipboardList, Scale, AlertTriangle,
-  Shield, Eye, Trash2, X, Bell, ChevronRight, Activity, BookOpen, Lock, RefreshCw
+  Shield, Eye, Trash2, X, Bell, ChevronRight, Activity, BookOpen, Lock, RefreshCw, Search, Wrench, CheckCircle2, Users, FolderSearch, ShieldCheck, Zap
 } from "lucide-react"
 
 import {
@@ -69,7 +69,7 @@ function getIncidentStage(incident: StoredIncident) {
 
 export default function IncidentsAndBreachesPage() {
   const { toast } = useToast()
-  const [view, setView] = useState<"dashboard" | "review" | "legal" | "templates" | "logs" | "continuous-improvement">("dashboard")
+  const [view, setView] = useState<"dashboard" | "review" | "legal" | "templates" | "logs" | "continuous-improvement" | "preparation" | "identification" | "containment" | "mitigation" | "recovery">("dashboard")
   const [showRegisterModal, setShowRegisterModal] = useState(false)
   const [showDetailModal, setShowDetailModal] = useState(false)
   const [showNotifyModal, setShowNotifyModal] = useState(false)
@@ -386,6 +386,305 @@ export default function IncidentsAndBreachesPage() {
             </CardContent>
           </Card>
         </div>
+      ) : view === "preparation" ? (
+        <div className="space-y-4">
+          <Button variant="ghost" onClick={() => { setView("dashboard"); setActivePipelineStage(null) }} className="gap-2 text-muted-foreground">
+            <ChevronRight className="h-4 w-4 rotate-180" /> Volver al panel
+          </Button>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><Shield className="h-5 w-5 text-[#0a0147]"/> Fase de Preparación</CardTitle>
+              <CardDescription>Equipo de respuesta, contactos clave y recursos disponibles para actuar ante un incidente.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Team contacts */}
+              <div>
+                <h3 className="text-sm font-semibold mb-3 flex items-center gap-2"><Users className="h-4 w-4 text-[#0a0147]" /> Equipo de Respuesta a Incidentes</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {(form.getValues("contactGroups") ?? []).filter(g => g.contacts.some(c => c.name)).length > 0 ? (
+                    form.getValues("contactGroups").filter(g => g.contacts.some(c => c.name)).map((group, i) => (
+                      <div key={i} className="border rounded-lg p-4 bg-slate-50/50 dark:bg-slate-900/30">
+                        <p className="text-sm font-medium text-[#0a0147] mb-2">{group.groupTitle}</p>
+                        {group.contacts.filter(c => c.name).map((c, j) => (
+                          <div key={j} className="text-sm text-muted-foreground">
+                            <span className="font-medium text-foreground">{c.name}</span>
+                            {c.email && <span className="ml-2">· {c.email}</span>}
+                            {c.phone && <span className="ml-2">· {c.phone}</span>}
+                          </div>
+                        ))}
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-muted-foreground col-span-2">No hay contactos registrados. Usa la sección de Plantillas → Contactos para configurar el equipo de respuesta.</p>
+                  )}
+                </div>
+              </div>
+              {/* Checklist summary */}
+              <div>
+                <h3 className="text-sm font-semibold mb-3 flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-[#0a0147]" /> Checklist de Preparación</h3>
+                <div className="space-y-2">
+                  {["¿Se tienen identificados los medios de almacenamiento y medidas de seguridad?",
+                    "¿El personal sabe a quién contactar si identifica un incidente?",
+                    "¿El equipo de respuesta tiene acceso inmediato a sistemas y herramientas?",
+                    "¿Se han realizado simulacros de respuesta a incidentes?"
+                  ].map((q, i) => (
+                    <div key={i} className="flex items-start gap-3 p-3 border rounded-lg bg-white dark:bg-slate-900/50">
+                      <ShieldCheck className="h-4 w-4 text-[#0a0147] mt-0.5 flex-shrink-0" />
+                      <span className="text-sm">{q}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => setView("templates")} className="gap-2 text-xs">
+                  <ClipboardList className="h-3.5 w-3.5" /> Ir a Plantillas de Contactos
+                </Button>
+                <Button variant="outline" onClick={() => setView("review")} className="gap-2 text-xs">
+                  <CheckCircle2 className="h-3.5 w-3.5" /> Lista de Revisión Completa
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+      ) : view === "identification" ? (
+        <div className="space-y-4">
+          <Button variant="ghost" onClick={() => { setView("dashboard"); setActivePipelineStage(null) }} className="gap-2 text-muted-foreground">
+            <ChevronRight className="h-4 w-4 rotate-180" /> Volver al panel
+          </Button>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><Search className="h-5 w-5 text-[#1e40af]"/> Fase de Identificación</CardTitle>
+              <CardDescription>Registro y clasificación de incidentes de seguridad detectados.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="p-4 bg-blue-50/50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800 rounded-lg text-center">
+                  <p className="text-2xl font-bold text-[#1e40af]">{stats.total}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Incidentes Registrados</p>
+                </div>
+                <div className="p-4 bg-red-50/50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-lg text-center">
+                  <p className="text-2xl font-bold text-red-600">{stats.critical}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Severidad Crítica</p>
+                </div>
+                <div className="p-4 bg-purple-50/50 dark:bg-purple-900/10 border border-purple-200 dark:border-purple-800 rounded-lg text-center">
+                  <p className="text-2xl font-bold text-purple-600">{stats.withData}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Con Datos Personales</p>
+                </div>
+              </div>
+              {/* Recent incidents in identification phase */}
+              <div>
+                <h3 className="text-sm font-semibold mb-3 flex items-center gap-2"><FolderSearch className="h-4 w-4 text-[#1e40af]" /> Incidentes en fase de identificación</h3>
+                {incidents.filter(i => getIncidentStage(i) === "identification").length > 0 ? (
+                  <div className="space-y-2">
+                    {incidents.filter(i => getIncidentStage(i) === "identification").map(inc => (
+                      <div key={inc.id} className="flex items-center justify-between p-3 border rounded-lg bg-white dark:bg-slate-900/50">
+                        <div>
+                          <p className="text-sm font-medium">{inc.name}</p>
+                          <p className="text-xs text-muted-foreground">{inc.data.informacionIncidente.fecha || "Sin fecha"} · {inc.data.informacionIncidente.localizacion || "Sin ubicación"}</p>
+                        </div>
+                        <Button type="button" variant="outline" size="sm" className="text-xs gap-1.5" onClick={() => handleEditIncident(inc)}>
+                          Clasificar
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">No hay incidentes pendientes de clasificación.</p>
+                )}
+              </div>
+              <Button onClick={handleNewIncident} className="gap-2 bg-[#1e40af] hover:bg-[#1e3a8a]">
+                <Plus className="h-4 w-4" /> Registrar Nueva Vulneración
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+
+      ) : view === "containment" ? (
+        <div className="space-y-4">
+          <Button variant="ghost" onClick={() => { setView("dashboard"); setActivePipelineStage(null) }} className="gap-2 text-muted-foreground">
+            <ChevronRight className="h-4 w-4 rotate-180" /> Volver al panel
+          </Button>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><Lock className="h-5 w-5 text-[#b45309]"/> Fase de Contención</CardTitle>
+              <CardDescription>Acciones inmediatas para aislar y limitar el alcance del incidente.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-4 bg-amber-50/50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800 rounded-lg">
+                  <Lock className="h-6 w-6 text-[#b45309] mb-2" />
+                  <p className="text-sm font-semibold">Aislamiento de Sistemas</p>
+                  <p className="text-xs text-muted-foreground mt-1">Desconectar equipos afectados de la red, deshabilitar accesos comprometidos y preservar evidencia digital.</p>
+                </div>
+                <div className="p-4 bg-amber-50/50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800 rounded-lg">
+                  <ShieldAlert className="h-6 w-6 text-[#b45309] mb-2" />
+                  <p className="text-sm font-semibold">Medidas Inmediatas</p>
+                  <p className="text-xs text-muted-foreground mt-1">Cambio de contraseñas, revocación de tokens, bloqueo de IPs sospechosas y activación de controles de emergencia.</p>
+                </div>
+              </div>
+              {/* Incidents needing containment */}
+              <div>
+                <h3 className="text-sm font-semibold mb-3 flex items-center gap-2"><Zap className="h-4 w-4 text-[#b45309]" /> Incidentes en contención</h3>
+                {incidents.filter(i => getIncidentStage(i) === "containment").length > 0 ? (
+                  <div className="space-y-2">
+                    {incidents.filter(i => getIncidentStage(i) === "containment").map(inc => (
+                      <div key={inc.id} className="flex items-center justify-between p-3 border border-amber-200 dark:border-amber-800 rounded-lg bg-amber-50/30 dark:bg-amber-900/10">
+                        <div>
+                          <p className="text-sm font-medium">{inc.name}</p>
+                          <p className="text-xs text-muted-foreground">{inc.data.registroVulneracion?.medidasInmediatas ? "Medidas inmediatas documentadas" : "Pendiente de documentar medidas"}</p>
+                        </div>
+                        <Button type="button" variant="outline" size="sm" className="text-xs gap-1.5" onClick={() => handleEditIncident(inc)}>
+                          Documentar
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">No hay incidentes en fase de contención actualmente.</p>
+                )}
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold mb-3">Protocolo de Contención</h3>
+                <div className="space-y-2">
+                  {["Identificar y aislar los sistemas o activos comprometidos",
+                    "Preservar evidencia digital antes de realizar cambios",
+                    "Revocar accesos comprometidos y cambiar credenciales",
+                    "Documentar todas las acciones tomadas con fecha y hora",
+                    "Notificar al equipo legal si hay datos personales involucrados"
+                  ].map((step, i) => (
+                    <div key={i} className="flex items-start gap-3 p-2.5 border rounded-lg">
+                      <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#b45309] text-white text-[10px] font-bold flex-shrink-0 mt-0.5">{i + 1}</span>
+                      <span className="text-sm">{step}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+      ) : view === "mitigation" ? (
+        <div className="space-y-4">
+          <Button variant="ghost" onClick={() => { setView("dashboard"); setActivePipelineStage(null) }} className="gap-2 text-muted-foreground">
+            <ChevronRight className="h-4 w-4 rotate-180" /> Volver al panel
+          </Button>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><Wrench className="h-5 w-5 text-[#9333ea]"/> Fase de Mitigación</CardTitle>
+              <CardDescription>Erradicación de la causa raíz y remediación de vulnerabilidades.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-4 bg-purple-50/50 dark:bg-purple-900/10 border border-purple-200 dark:border-purple-800 rounded-lg">
+                  <Wrench className="h-6 w-6 text-[#9333ea] mb-2" />
+                  <p className="text-sm font-semibold">Análisis de Causa Raíz</p>
+                  <p className="text-xs text-muted-foreground mt-1">Investigar el vector de ataque, identificar vulnerabilidades explotadas y determinar el alcance total del compromiso.</p>
+                </div>
+                <div className="p-4 bg-purple-50/50 dark:bg-purple-900/10 border border-purple-200 dark:border-purple-800 rounded-lg">
+                  <ShieldCheck className="h-6 w-6 text-[#9333ea] mb-2" />
+                  <p className="text-sm font-semibold">Remediación</p>
+                  <p className="text-xs text-muted-foreground mt-1">Aplicar parches de seguridad, actualizar configuraciones, fortalecer controles y eliminar el acceso no autorizado.</p>
+                </div>
+              </div>
+              {/* Incidents in mitigation */}
+              <div>
+                <h3 className="text-sm font-semibold mb-3 flex items-center gap-2"><Wrench className="h-4 w-4 text-[#9333ea]" /> Incidentes en mitigación</h3>
+                {incidents.filter(i => getIncidentStage(i) === "mitigation").length > 0 ? (
+                  <div className="space-y-2">
+                    {incidents.filter(i => getIncidentStage(i) === "mitigation").map(inc => (
+                      <div key={inc.id} className="flex items-center justify-between p-3 border border-purple-200 dark:border-purple-800 rounded-lg bg-purple-50/30 dark:bg-purple-900/10">
+                        <div>
+                          <p className="text-sm font-medium">{inc.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            Impacto: {inc.data.d1Mitigacion?.impact || "No evaluado"} · Vulnerabilidades: {inc.data.d1Mitigacion?.vulnerabilitiesDetected || "No documentadas"}
+                          </p>
+                        </div>
+                        <Button type="button" variant="outline" size="sm" className="text-xs gap-1.5" onClick={() => handleEditIncident(inc)}>
+                          Detallar
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">No hay incidentes en fase de mitigación actualmente.</p>
+                )}
+              </div>
+              <Button variant="outline" onClick={() => setView("templates")} className="gap-2 text-xs">
+                <ClipboardList className="h-3.5 w-3.5" /> Ir a Plantilla de Mitigación (Sección D)
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+
+      ) : view === "recovery" ? (
+        <div className="space-y-4">
+          <Button variant="ghost" onClick={() => { setView("dashboard"); setActivePipelineStage(null) }} className="gap-2 text-muted-foreground">
+            <ChevronRight className="h-4 w-4 rotate-180" /> Volver al panel
+          </Button>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><RefreshCw className="h-5 w-5 text-[#047857]"/> Fase de Recuperación</CardTitle>
+              <CardDescription>Restauración de operaciones normales y verificación de la integridad de los sistemas.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="p-4 bg-green-50/50 dark:bg-green-900/10 border border-green-200 dark:border-green-800 rounded-lg text-center">
+                  <p className="text-2xl font-bold text-[#047857]">{resolvedCount}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Incidentes Resueltos</p>
+                </div>
+                <div className="p-4 bg-green-50/50 dark:bg-green-900/10 border border-green-200 dark:border-green-800 rounded-lg text-center">
+                  <p className="text-2xl font-bold text-[#047857]">{resolvedPercentage}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Tasa de Resolución</p>
+                </div>
+                <div className="p-4 bg-orange-50/50 dark:bg-orange-900/10 border border-orange-200 dark:border-orange-800 rounded-lg text-center">
+                  <p className="text-2xl font-bold text-orange-600">{incidents.length - resolvedCount}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Pendientes</p>
+                </div>
+              </div>
+              {/* Incidents in recovery */}
+              <div>
+                <h3 className="text-sm font-semibold mb-3 flex items-center gap-2"><RefreshCw className="h-4 w-4 text-[#047857]" /> Incidentes en recuperación</h3>
+                {incidents.filter(i => getIncidentStage(i) === "recovery").length > 0 ? (
+                  <div className="space-y-2">
+                    {incidents.filter(i => getIncidentStage(i) === "recovery").map(inc => (
+                      <div key={inc.id} className="flex items-center justify-between p-3 border border-green-200 dark:border-green-800 rounded-lg bg-green-50/30 dark:bg-green-900/10">
+                        <div>
+                          <p className="text-sm font-medium">{inc.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            Operación: {inc.data.recoveryActions?.systemOperation || "En proceso"} · Verificación: {inc.data.recoveryVerification?.integrityVerified ? "Completada" : "Pendiente"}
+                          </p>
+                        </div>
+                        <Button type="button" variant="outline" size="sm" className="text-xs gap-1.5" onClick={() => handleEditIncident(inc)}>
+                          Verificar
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">No hay incidentes en fase de recuperación actualmente.</p>
+                )}
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold mb-3">Pasos de Recuperación</h3>
+                <div className="space-y-2">
+                  {["Restaurar sistemas desde respaldos verificados",
+                    "Validar la integridad de datos y configuraciones",
+                    "Reactivar servicios de forma gradual y monitoreada",
+                    "Verificar que las vulnerabilidades fueron remediadas",
+                    "Confirmar operación normal con los usuarios afectados"
+                  ].map((step, i) => (
+                    <div key={i} className="flex items-start gap-3 p-2.5 border rounded-lg">
+                      <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#047857] text-white text-[10px] font-bold flex-shrink-0 mt-0.5">{i + 1}</span>
+                      <span className="text-sm">{step}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
       ) : view === "logs" ? (
         <div className="space-y-4">
           <Button variant="ghost" onClick={() => { setView("dashboard"); setActivePipelineStage(null) }} className="gap-2 text-muted-foreground">
