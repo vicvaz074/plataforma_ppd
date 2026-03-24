@@ -46,7 +46,7 @@ export function StepperNav({
           return (
             <React.Fragment key={step}>
               {/* Step circle + label */}
-              <div className="flex flex-col items-center" style={{ minWidth: 64 }}>
+              <div className="flex flex-col items-center" style={{ minWidth: 56 }}>
                 <button
                   type="button"
                   onClick={() => onStepClick(step)}
@@ -82,7 +82,7 @@ export function StepperNav({
 
               {/* Connector line */}
               {step < totalSteps && (
-                <div className="flex items-center pt-[18px] flex-shrink-0" style={{ minWidth: 24 }}>
+                <div className="flex items-center pt-[18px] flex-shrink-0" style={{ minWidth: 16 }}>
                   <div
                     className={cn(
                       "h-0.5 w-full min-w-[24px] transition-colors duration-200",
