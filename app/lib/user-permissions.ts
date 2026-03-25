@@ -1,5 +1,8 @@
 "use client"
 
+import bcrypt from "bcryptjs"
+import { logAuditEvent } from "./audit-log"
+
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type UserRole = "admin" | "editor" | "viewer" | "custom"
@@ -25,7 +28,7 @@ export interface PlatformUser {
 
 export interface ModulePassword {
   moduleSlug: string
-  password: string // plain text for simplicity (localStorage only)
+  password: string // bcrypt hash (cifrado en reposo via encrypted-storage)
   enabled: boolean
 }
 
@@ -242,20 +245,23 @@ function saveModulePasswords(passwords: ModulePassword[]): void {
   localStorage.setItem(MODULE_PASSWORDS_KEY, JSON.stringify(passwords))
 }
 
-export function setModulePassword(moduleSlug: string, password: string): void {
+export async function setModulePassword(moduleSlug: string, password: string): Promise<void> {
   const passwords = getModulePasswords()
+  const hashedPassword = await bcrypt.hash(password, 10)
   const idx = passwords.findIndex((p) => p.moduleSlug === moduleSlug)
   if (idx >= 0) {
-    passwords[idx] = { moduleSlug, password, enabled: true }
+    passwords[idx] = { moduleSlug, password: hashedPassword, enabled: true }
   } else {
-    passwords.push({ moduleSlug, password, enabled: true })
+    passwords.push({ moduleSlug, password: hashedPassword, enabled: true })
   }
   saveModulePasswords(passwords)
+  logAuditEvent("MODULE_PASSWORD_SET", "admin", `Contraseña establecida para módulo: ${moduleSlug}`)
 }
 
 export function removeModulePassword(moduleSlug: string): void {
   const passwords = getModulePasswords().filter((p) => p.moduleSlug !== moduleSlug)
   saveModulePasswords(passwords)
+  logAuditEvent("MODULE_PASSWORD_REMOVED", "admin", `Contraseña eliminada para módulo: ${moduleSlug}`)
 }
 
 export function toggleModulePassword(moduleSlug: string, enabled: boolean): void {
@@ -267,10 +273,15 @@ export function toggleModulePassword(moduleSlug: string, enabled: boolean): void
   }
 }
 
-export function verifyModulePassword(moduleSlug: string, password: string): boolean {
+export async function verifyModulePassword(moduleSlug: string, password: string): Promise<boolean> {
   const passwords = getModulePasswords()
   const entry = passwords.find((p) => p.moduleSlug === moduleSlug && p.enabled)
   if (!entry) return true // no password set = free access
+  // Soportar tanto hashes bcrypt como contraseñas legacy en texto plano
+  if (entry.password.startsWith("$2")) {
+    return bcrypt.compare(password, entry.password)
+  }
+  // Fallback para contraseñas legacy en texto plano (migración pendiente)
   return entry.password === password
 }
 

@@ -51,9 +51,10 @@ export function ModuleGuard({ moduleSlug, children }: ModuleGuardProps) {
     setStatus("allowed")
   }, [moduleSlug])
 
-  const handlePasswordSubmit = (e: React.FormEvent) => {
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (verifyModulePassword(moduleSlug, passwordInput)) {
+    const valid = await verifyModulePassword(moduleSlug, passwordInput)
+    if (valid) {
       unlockModule(moduleSlug)
       setStatus("allowed")
       setPasswordError(false)

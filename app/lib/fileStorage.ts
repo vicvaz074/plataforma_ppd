@@ -1,6 +1,9 @@
 // Servicio para almacenar archivos localmente usando localStorage
+// Con soporte para cifrado en reposo via encrypted-storage
 
 import { secureRandomId } from "@/lib/secure-random"
+import { setEncrypted, getEncrypted } from "@/lib/encrypted-storage"
+import { logAuditEvent } from "@/lib/audit-log"
 
 export interface StoredFile {
   id: string
@@ -24,6 +27,8 @@ type StoredFileInput = {
   uploadDate?: string
 }
 
+const STORAGE_KEY = "storedFiles"
+
 // Convertir un archivo a base64
 export const fileToBase64 = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
@@ -34,17 +39,64 @@ export const fileToBase64 = (file: File): Promise<string> => {
   })
 }
 
-// Guardar un archivo en localStorage
+// ─── Funciones con cifrado (requieren DEK) ──────────────────────────────────
+
+/** Guardar archivo cifrado en localStorage */
+export const saveFileEncrypted = async (
+  file: File,
+  dek: CryptoKey,
+  metadata: Record<string, any> = {},
+  category = "default",
+): Promise<StoredFile> => {
+  const content = await fileToBase64(file)
+  const storedFile: StoredFile = {
+    id: secureRandomId("stored-file"),
+    name: file.name,
+    type: file.type,
+    size: file.size,
+    content,
+    uploadDate: new Date().toISOString(),
+    category,
+    metadata,
+  }
+
+  const existingFiles = await getEncrypted<StoredFile[]>(STORAGE_KEY, dek, [])
+  existingFiles.push(storedFile)
+  await setEncrypted(STORAGE_KEY, existingFiles, dek)
+
+  logAuditEvent("FILE_UPLOADED", metadata.userEmail || "unknown", `Archivo subido: ${file.name} (${category})`)
+  return storedFile
+}
+
+/** Obtener todos los archivos descifrados */
+export const getAllFilesEncrypted = async (dek: CryptoKey): Promise<StoredFile[]> => {
+  return getEncrypted<StoredFile[]>(STORAGE_KEY, dek, [])
+}
+
+/** Eliminar archivo (cifrado) */
+export const deleteFileEncrypted = async (id: string, dek: CryptoKey): Promise<boolean> => {
+  try {
+    const allFiles = await getEncrypted<StoredFile[]>(STORAGE_KEY, dek, [])
+    const updatedFiles = allFiles.filter((file) => file.id !== id)
+    await setEncrypted(STORAGE_KEY, updatedFiles, dek)
+    logAuditEvent("FILE_DELETED", "system", `Archivo eliminado: ${id}`)
+    return true
+  } catch (error) {
+    console.error("Error al eliminar el archivo:", error)
+    return false
+  }
+}
+
+// ─── Funciones sin cifrado (compatibilidad hacia atrás) ─────────────────────
+
+// Guardar un archivo en localStorage (sin cifrado)
 export const saveFile = async (
   file: File,
   metadata: Record<string, any> = {},
   category = "default",
 ): Promise<StoredFile> => {
   try {
-    // Convertir archivo a base64
     const content = await fileToBase64(file)
-
-    // Crear objeto de archivo almacenado
     const storedFile: StoredFile = {
       id: secureRandomId("stored-file"),
       name: file.name,
@@ -56,15 +108,11 @@ export const saveFile = async (
       metadata: metadata,
     }
 
-    // Obtener archivos existentes
-    const existingFiles: StoredFile[] = JSON.parse(localStorage.getItem("storedFiles") || "[]")
-
-    // Añadir nuevo archivo
+    const existingFiles: StoredFile[] = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]")
     existingFiles.push(storedFile)
-
-    // Guardar en localStorage
     writeAllFiles(existingFiles)
 
+    logAuditEvent("FILE_UPLOADED", metadata.userEmail || "unknown", `Archivo subido: ${file.name} (${category})`)
     return storedFile
   } catch (error) {
     console.error("Error al guardar el archivo:", error)
@@ -74,11 +122,11 @@ export const saveFile = async (
 
 // Obtener todos los archivos
 export const getAllFiles = (): StoredFile[] => {
-  return JSON.parse(localStorage.getItem("storedFiles") || "[]")
+  return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]")
 }
 
 const writeAllFiles = (files: StoredFile[]) => {
-  localStorage.setItem("storedFiles", JSON.stringify(files))
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(files))
   if (typeof window !== "undefined") {
     window.dispatchEvent(new Event("storage"))
   }
@@ -121,6 +169,7 @@ export const deleteFile = (id: string): boolean => {
     const allFiles = getAllFiles()
     const updatedFiles = allFiles.filter((file) => file.id !== id)
     writeAllFiles(updatedFiles)
+    logAuditEvent("FILE_DELETED", "system", `Archivo eliminado: ${id}`)
     return true
   } catch (error) {
     console.error("Error al eliminar el archivo:", error)
@@ -207,11 +256,14 @@ export const createFileURL = (fileContent: string): string => {
 export const fileStorage = {
   fileToBase64,
   saveFile,
+  saveFileEncrypted,
   saveStoredFileRecord,
   getAllFiles,
+  getAllFilesEncrypted,
   getFilesByCategory,
   getFileById,
   deleteFile,
+  deleteFileEncrypted,
   updateFile,
   updateFileMetadata,
   createFileURL,
