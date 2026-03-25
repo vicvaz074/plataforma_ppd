@@ -2498,7 +2498,7 @@ export function AwarenessContent({ initialModule = "dashboard" }: { initialModul
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(10,1,71,0.06),_transparent_34%),linear-gradient(180deg,_#f8fafc_0%,_#ffffff_100%)]">
       <div className="mx-auto flex w-full max-w-[1460px] flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
         <Card className="overflow-hidden border-slate-200 shadow-sm">
-          <CardContent className="grid gap-6 p-6 lg:grid-cols-[1.5fr_1fr] lg:p-8">
+          <CardContent className="flex flex-col gap-6 p-6">
             <div className="space-y-4">
               <div className="flex flex-wrap items-center gap-2">
                 <Badge variant="outline" className="border-primary/20 bg-primary/5 text-primary">
@@ -2551,7 +2551,7 @@ export function AwarenessContent({ initialModule = "dashboard" }: { initialModul
               </div>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               <div className="rounded-[24px] border border-slate-200 bg-slate-50/90 p-5">
                 <div className="flex items-center justify-between">
                   <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Semáforo global SGDP</p>
@@ -2594,7 +2594,7 @@ export function AwarenessContent({ initialModule = "dashboard" }: { initialModul
         <Tabs
           value={activeModule}
           onValueChange={(value) => setActiveModule(value as AccountabilityModuleId)}
-          className="grid gap-6 xl:grid-cols-[280px_minmax(0,1fr)] xl:items-start"
+          className="grid gap-6 lg:grid-cols-[260px_minmax(0,1fr)] lg:items-start"
         >
           <aside className="sticky top-16 self-start overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
             <div className="border-b border-slate-100 bg-slate-50/80 px-5 py-5">
@@ -2636,7 +2636,7 @@ export function AwarenessContent({ initialModule = "dashboard" }: { initialModul
           </aside>
 
           <TabsContent value="dashboard" className="mt-0 space-y-6">
-            <div className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+            <div className="grid gap-6">
               <Card className="min-w-0 overflow-hidden border-slate-200 shadow-sm">
                 <CardHeader className="border-b border-slate-100">
                   <div className="flex items-center gap-3">
@@ -2649,7 +2649,7 @@ export function AwarenessContent({ initialModule = "dashboard" }: { initialModul
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent className="grid gap-6 p-6 lg:grid-cols-[minmax(0,280px)_minmax(0,1fr)]">
+                <CardContent className="space-y-4 p-6">
                   <div className="min-w-0 rounded-[28px] border border-slate-200 bg-slate-50/70 p-5">
                     <div className="h-[220px] min-w-0">
                       <ResponsiveContainer width="100%" height="100%">
@@ -2747,14 +2747,14 @@ export function AwarenessContent({ initialModule = "dashboard" }: { initialModul
               </Card>
             </div>
 
-            <div className="grid gap-6 xl:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
+            <div className="grid gap-6">
               <Card className="min-w-0 overflow-hidden border-slate-200 shadow-sm">
                 <CardHeader className="border-b border-slate-100">
                   <CardTitle className="text-2xl text-slate-950">KPIs y avance por submódulo</CardTitle>
                   <CardDescription>Tarjetas de cumplimiento y gráfico de avance alineado al layout de referencia.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6 p-6">
-                  <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                  <div className="grid gap-3 sm:grid-cols-2">
                     {kpiMetrics.map((metric) => (
                       <div key={metric.label} className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4">
                         <div className="flex items-center justify-between gap-3">
@@ -2821,7 +2821,7 @@ export function AwarenessContent({ initialModule = "dashboard" }: { initialModul
               </Card>
             </div>
 
-            <div className="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
+            <div className="grid gap-6">
               <Card className="min-w-0 overflow-hidden border-slate-200 shadow-sm">
                 <CardHeader className="border-b border-slate-100">
                   <div className="flex items-center gap-3">
@@ -2937,7 +2937,7 @@ export function AwarenessContent({ initialModule = "dashboard" }: { initialModul
                   ]}
                 />
 
-                <div className="grid gap-6 xl:grid-cols-2">
+                <div className="grid gap-6">
                   <Card className="border-slate-200 shadow-none">
                     <CardHeader>
                       <CardTitle className="text-lg text-slate-950">Alcance y objetivos del SGDP</CardTitle>
@@ -3119,7 +3119,7 @@ export function AwarenessContent({ initialModule = "dashboard" }: { initialModul
                   </Card>
                 </div>
 
-                <div className="grid gap-6 xl:grid-cols-2">
+                <div className="grid gap-6">
                   <Card className="border-slate-200 shadow-none">
                     <CardHeader>
                       <CardTitle className="text-lg text-slate-950">Organigrama de privacidad</CardTitle>
@@ -3636,7 +3636,7 @@ export function AwarenessContent({ initialModule = "dashboard" }: { initialModul
                     { label: "Registros evidenciables", value: String(evidenceRows.length), hint: "Fuentes del expediente básico" },
                   ]}
                 />
-                <div className="grid gap-6 xl:grid-cols-[1.1fr_1fr]">
+                <div className="grid gap-6">
                   <div className="h-[360px] min-w-0 rounded-[28px] border border-slate-200 bg-slate-50/70 p-4">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={progressByModule} layout="vertical">
