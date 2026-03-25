@@ -6,6 +6,12 @@
  *
  * La DEK se deriva del password del usuario al iniciar sesión y se limpia
  * al cerrar sesión o al cerrar la ventana.
+ *
+ * NOTA: La migración automática de datos existentes está deshabilitada.
+ * Los datos en localStorage permanecen en texto plano (JSON) para
+ * compatibilidad con las funciones existentes que leen con JSON.parse().
+ * La DEK queda disponible para uso explícito vía las funciones de
+ * encrypted-storage (saveFileEncrypted, getAllFilesEncrypted, etc.).
  */
 
 import React, { createContext, useContext, useCallback, useRef } from "react"
@@ -22,7 +28,6 @@ import {
   ENCRYPTION_INITIALIZED_KEY,
 } from "./encryption"
 import { encryptData, decryptData } from "./encryption"
-import { migrateToEncrypted, needsMigration } from "./encrypted-storage"
 
 interface SecurityContextType {
   /** Inicializa el cifrado tras un login exitoso */
@@ -74,10 +79,10 @@ export function SecurityProvider({ children }: { children: React.ReactNode }) {
 
       dekRef.current = dek
 
-      // Migrar datos existentes en texto plano
-      if (needsMigration()) {
-        await migrateToEncrypted(dek)
-      }
+      // No migrar datos existentes automáticamente para mantener
+      // compatibilidad con las funciones que leen JSON directo.
+      // La DEK queda disponible para cifrado explícito vía
+      // saveFileEncrypted(), setEncrypted(), etc.
     }
 
     setIsReady(true)

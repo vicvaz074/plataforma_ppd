@@ -11,6 +11,7 @@ function buildContentSecurityPolicy({ isDev = false } = {}) {
         "'self'",
         "'sha256-skqujXORqzxt1aE0NNXxujEanPTX6raoqSscTV/Ww/Y='",
         "'sha256-nzTgYzXYDNe6BAHiiI7NNlfK8n/auuOAhh2t92YvuXo='",
+        "'sha256-vGQdhYJbTuF+M8iCn1IZCHpdkiICocWHDq4qnQF4Rjw='",
         "https://cdn.jsdelivr.net",
         "https://fonts.cdnfonts.com",
       ]

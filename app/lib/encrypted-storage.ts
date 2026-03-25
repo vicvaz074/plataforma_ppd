@@ -3,12 +3,17 @@
  *
  * Proporciona funciones para leer/escribir datos cifrados transparentemente.
  * Requiere una DEK (Data Encryption Key) para operar.
+ *
+ * DISEÑO: El cifrado es opt-in por operación. Las funciones existentes
+ * (getUsers, getAllFiles, etc.) siguen leyendo JSON plano de localStorage.
+ * Usa setEncrypted/getEncrypted solo cuando quieras cifrar datos nuevos
+ * explícitamente. getEncrypted maneja ambos formatos (cifrado y plaintext).
  */
 
 import { encryptData, decryptData } from "./encryption"
 
-// Keys que se cifran en localStorage
-export const ENCRYPTED_KEYS = new Set([
+// Keys que pueden cifrarse en localStorage
+export const ENCRYPTABLE_KEYS = new Set([
   "platform_users",
   "storedFiles",
   "documents",
@@ -17,20 +22,6 @@ export const ENCRYPTED_KEYS = new Set([
   "users",
   "underReviewItems",
   "audit_log",
-])
-
-// Keys que nunca se cifran (necesarias antes del login)
-const PLAINTEXT_KEYS = new Set([
-  "encryption_salt",
-  "encrypted_dek",
-  "encryption_initialized",
-  "isAuthenticated",
-  "userRole",
-  "userName",
-  "userEmail",
-  "modulePermissions",
-  "current_user_permissions",
-  "unlocked_modules",
 ])
 
 /**
@@ -54,7 +45,9 @@ export async function setEncrypted(
 
 /**
  * Lee y descifra un valor de localStorage.
- * Retorna el valor parseado desde JSON, o el fallback si no existe.
+ * Soporta ambos formatos: intenta descifrar primero, si falla
+ * intenta parsear como JSON plano (datos legacy sin cifrar).
+ * Retorna el fallback si no existe la key o ambos intentos fallan.
  */
 export async function getEncrypted<T>(
   key: string,
@@ -66,21 +59,23 @@ export async function getEncrypted<T>(
   const raw = localStorage.getItem(key)
   if (!raw) return fallback
 
+  // Primero intentar como JSON plano (caso más común, datos no migrados)
+  try {
+    return JSON.parse(raw) as T
+  } catch {
+    // No es JSON válido → intentar descifrar
+  }
+
   try {
     const json = await decryptData(raw, dek)
     return JSON.parse(json) as T
   } catch {
-    // Si falla el descifrado, puede ser dato legacy sin cifrar
-    try {
-      return JSON.parse(raw) as T
-    } catch {
-      return fallback
-    }
+    return fallback
   }
 }
 
 /**
- * Elimina una entrada cifrada de localStorage.
+ * Elimina una entrada de localStorage.
  */
 export function removeEncrypted(key: string): void {
   if (typeof window === "undefined") return
@@ -103,12 +98,13 @@ export function isEncrypted(key: string): boolean {
 
 /**
  * Migra datos existentes en texto plano a formato cifrado.
- * Se ejecuta una sola vez tras el primer login con cifrado habilitado.
+ * IMPORTANTE: Solo llamar cuando TODAS las funciones de lectura
+ * usen getEncrypted() en lugar de JSON.parse() directo.
  */
 export async function migrateToEncrypted(dek: CryptoKey): Promise<void> {
   if (typeof window === "undefined") return
 
-  for (const key of ENCRYPTED_KEYS) {
+  for (const key of ENCRYPTABLE_KEYS) {
     const raw = localStorage.getItem(key)
     if (!raw) continue
 
@@ -124,15 +120,4 @@ export async function migrateToEncrypted(dek: CryptoKey): Promise<void> {
       // No es JSON válido, dejarlo como está
     }
   }
-}
-
-/**
- * Verifica si hay datos que necesitan ser migrados a formato cifrado.
- */
-export function needsMigration(): boolean {
-  for (const key of ENCRYPTED_KEYS) {
-    const raw = localStorage.getItem(key)
-    if (raw && !isEncrypted(key)) return true
-  }
-  return false
 }
