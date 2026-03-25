@@ -24,8 +24,8 @@ function getSubtleCrypto(): SubtleCrypto {
   return crypto.subtle
 }
 
-function arrayBufferToBase64(buffer: ArrayBuffer): string {
-  const bytes = new Uint8Array(buffer)
+function arrayBufferToBase64(buffer: ArrayBuffer | ArrayBufferLike): string {
+  const bytes = new Uint8Array(buffer as ArrayBuffer)
   let binary = ""
   for (let i = 0; i < bytes.byteLength; i++) {
     binary += String.fromCharCode(bytes[i])
@@ -39,7 +39,7 @@ function base64ToArrayBuffer(base64: string): ArrayBuffer {
   for (let i = 0; i < binary.length; i++) {
     bytes[i] = binary.charCodeAt(i)
   }
-  return bytes.buffer
+  return bytes.buffer as ArrayBuffer
 }
 
 // ─── Generación de salt e IV ────────────────────────────────────────────────
@@ -60,9 +60,10 @@ export async function deriveKey(
 ): Promise<CryptoKey> {
   const subtle = getSubtleCrypto()
   const encoder = new TextEncoder()
+  const passwordBytes = encoder.encode(password)
   const keyMaterial = await subtle.importKey(
     "raw",
-    encoder.encode(password),
+    passwordBytes.buffer as ArrayBuffer,
     "PBKDF2",
     false,
     ["deriveKey"],
@@ -71,7 +72,7 @@ export async function deriveKey(
   return subtle.deriveKey(
     {
       name: "PBKDF2",
-      salt,
+      salt: salt.buffer as ArrayBuffer,
       iterations: PBKDF2_ITERATIONS,
       hash: "SHA-256",
     },
@@ -102,8 +103,8 @@ export async function importDEK(raw: ArrayBuffer): Promise<CryptoKey> {
   const subtle = getSubtleCrypto()
   return subtle.importKey(
     "raw",
-    raw,
-    { name: "AES-GCM", length: KEY_LENGTH },
+    raw as ArrayBuffer,
+    { name: "AES-GCM", length: KEY_LENGTH } as AesKeyGenParams,
     true,
     ["encrypt", "decrypt"],
   )
@@ -138,9 +139,9 @@ async function encryptBuffer(
   const iv = generateIV()
 
   const ciphertext = await subtle.encrypt(
-    { name: "AES-GCM", iv },
+    { name: "AES-GCM", iv: iv.buffer as ArrayBuffer },
     key,
-    data,
+    data.buffer as ArrayBuffer,
   )
 
   // Concatenar IV + ciphertext (incluye authTag)
@@ -163,9 +164,9 @@ async function decryptBuffer(
   const ciphertext = combined.slice(IV_LENGTH)
 
   const plaintext = await subtle.decrypt(
-    { name: "AES-GCM", iv },
+    { name: "AES-GCM", iv: iv.buffer as ArrayBuffer },
     key,
-    ciphertext,
+    ciphertext.buffer as ArrayBuffer,
   )
 
   return new Uint8Array(plaintext)
