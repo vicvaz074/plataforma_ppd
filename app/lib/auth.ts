@@ -139,7 +139,7 @@ export async function authenticateUser(
 
   // Initialize permissions system
   initializeDefaultUsers()
-  ensureDemoUser()
+  await ensureDemoUser()
 
   // Admin via environment variable or fallback hardcoded (for backward compatibility)
   const adminEmail = (typeof process !== "undefined" && process.env?.ADMIN_EMAIL) || "admin@example.com"

@@ -139,15 +139,16 @@ export function initializeDefaultUsers(): void {
   }
 }
 
-export function ensureDemoUser(): void {
+export async function ensureDemoUser(): Promise<void> {
   const users = getUsers()
   const demoExists = users.some((u) => u.email === "demo@example.com")
   if (!demoExists) {
-    // We use a pre-computed bcrypt hash for "demo123"
+    // Generar el hash en tiempo de ejecución para garantizar que sea correcto
+    const hashedPassword = await bcrypt.hash("demo123", 10)
     users.push({
       name: "Usuario Demo",
       email: "demo@example.com",
-      password: "$2b$10$LK5X5dG3mRsv0X5F.K9ZAOxGfS0bRqUz7Y6mE3vN2Jc8yD4Wp.kXi",
+      password: hashedPassword,
       role: "custom",
       approved: true,
       modulePermissions: { ...DEMO_USER_PERMISSIONS },

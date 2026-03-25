@@ -315,7 +315,7 @@ export default function DashboardPage() {
   useEffect(() => {
     setUserRoleState(localStorage.getItem("userRole"))
     initializeDefaultUsers()
-    ensureDemoUser()
+    ensureDemoUser() // async, fire-and-forget is fine here (idempotent)
   }, [])
 
   if (userRole === "admin") {
