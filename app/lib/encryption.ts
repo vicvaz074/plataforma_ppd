@@ -125,7 +125,7 @@ export async function decryptDEK(
   kek: CryptoKey,
 ): Promise<CryptoKey> {
   const rawDEK = await decryptBuffer(encryptedDEK, kek)
-  return importDEK(rawDEK.buffer)
+  return importDEK(rawDEK.buffer as ArrayBuffer)
 }
 
 // ─── Cifrado / Descifrado de datos ──────────────────────────────────────────
@@ -149,7 +149,7 @@ async function encryptBuffer(
   combined.set(iv)
   combined.set(new Uint8Array(ciphertext), iv.length)
 
-  return arrayBufferToBase64(combined.buffer)
+  return arrayBufferToBase64(combined.buffer as ArrayBuffer)
 }
 
 /** Descifra un string base64(iv + ciphertext) con AES-256-GCM */
@@ -194,7 +194,7 @@ export async function decryptData(
 // ─── Helpers de serialización ───────────────────────────────────────────────
 
 export function saltToBase64(salt: Uint8Array): string {
-  return arrayBufferToBase64(salt.buffer)
+  return arrayBufferToBase64(salt.buffer as ArrayBuffer)
 }
 
 export function base64ToSalt(b64: string): Uint8Array {
