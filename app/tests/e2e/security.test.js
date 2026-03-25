@@ -50,7 +50,7 @@ describe("production security headers", () => {
     assert.ok(!csp.includes("'unsafe-eval'"), "Production CSP should not allow unsafe-eval")
     assert.ok(
       csp.includes(
-        "style-src 'self' 'sha256-skqujXORqzxt1aE0NNXxujEanPTX6raoqSscTV/Ww/Y=' 'sha256-nzTgYzXYDNe6BAHiiI7NNlfK8n/auuOAhh2t92YvuXo=' https://cdn.jsdelivr.net https://fonts.cdnfonts.com",
+        "style-src 'self' 'sha256-skqujXORqzxt1aE0NNXxujEanPTX6raoqSscTV/Ww/Y=' 'sha256-nzTgYzXYDNe6BAHiiI7NNlfK8n/auuOAhh2t92YvuXo=' 'sha256-vGQdhYJbTuF+M8iCn1IZCHpdkiICocWHDq4qnQF4Rjw=' https://cdn.jsdelivr.net https://fonts.cdnfonts.com",
       ),
       "CSP should include the required inline style hashes instead of unsafe-inline",
     )
