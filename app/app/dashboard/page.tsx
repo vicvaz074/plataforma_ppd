@@ -1049,9 +1049,9 @@ function ModulePasswordCard({
   const [showPass, setShowPass] = useState(false)
   const [saved, setSaved] = useState(false)
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (enabled && passwordValue) {
-      setModulePassword(mod.slug, passwordValue)
+      await setModulePassword(mod.slug, passwordValue)
     } else if (!enabled) {
       removeModulePassword(mod.slug)
     }

@@ -8,6 +8,10 @@ import {
   ROLE_PRESETS,
   type PlatformUser,
 } from "./user-permissions"
+import { checkRateLimit, recordFailedAttempt, clearAttempts } from "./rate-limiter"
+import { logAuditEvent } from "./audit-log"
+import { createSession } from "./session"
+import { sanitizeEmail } from "./sanitize"
 
 type StoredUser = {
   name: string
@@ -83,7 +87,7 @@ function getStoredUsers(): StoredUser[] {
 }
 
 export async function hashPassword(password: string): Promise<string> {
-  return await bcrypt.hash(password, 10)
+  return await bcrypt.hash(password, 12)
 }
 
 export async function verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
@@ -99,55 +103,92 @@ export function saveUser(user: { name: string; email: string; password: string }
 
   users.push({ ...user, approved: false })
   localStorage.setItem("users", JSON.stringify(users))
+
+  logAuditEvent("USER_CREATED", user.email, `Nuevo usuario registrado: ${user.name}`)
+}
+
+export type AuthResult = {
+  authenticated: boolean
+  user?: {
+    name: string
+    email: string
+    role: string
+    modulePermissions: Record<string, boolean>
+  }
+  rateLimited?: boolean
+  retryAfter?: number | null
+  sessionToken?: string
 }
 
 export async function authenticateUser(
   email: string,
   password: string,
-): Promise<{ authenticated: boolean; user?: any }> {
+): Promise<AuthResult> {
+  const cleanEmail = sanitizeEmail(email)
+
+  // Verificar rate limiting
+  const rateCheck = checkRateLimit(cleanEmail)
+  if (rateCheck.blocked) {
+    logAuditEvent("RATE_LIMIT_TRIGGERED", cleanEmail, "Intento de login bloqueado por rate limiting")
+    return {
+      authenticated: false,
+      rateLimited: true,
+      retryAfter: rateCheck.retryAfter,
+    }
+  }
+
   // Initialize permissions system
   initializeDefaultUsers()
   ensureDemoUser()
 
-  // Admin hardcoded
-  if (email === "admin@example.com" && password === "password") {
-    return {
-      authenticated: true,
-      user: {
-        name: "Administrador",
-        email: "admin@example.com",
-        role: "admin",
-        modulePermissions: ROLE_PRESETS.admin,
-      },
+  // Admin via environment variable or fallback hardcoded (for backward compatibility)
+  const adminEmail = (typeof process !== "undefined" && process.env?.ADMIN_EMAIL) || "admin@example.com"
+  const adminPasswordHash = (typeof process !== "undefined" && process.env?.ADMIN_PASSWORD_HASH) || null
+
+  if (cleanEmail === adminEmail) {
+    let adminAuth = false
+    if (adminPasswordHash) {
+      // Producción: verificar contra hash de variable de entorno
+      adminAuth = await verifyPassword(password, adminPasswordHash)
+    } else {
+      // Desarrollo/fallback: credenciales por defecto (solo si no hay env vars)
+      adminAuth = password === "password"
+    }
+
+    if (adminAuth) {
+      clearAttempts(cleanEmail)
+      const sessionToken = createSession()
+      logAuditEvent("LOGIN_SUCCESS", cleanEmail, "Login exitoso (admin)")
+      return {
+        authenticated: true,
+        sessionToken,
+        user: {
+          name: "Administrador",
+          email: adminEmail,
+          role: "admin",
+          modulePermissions: ROLE_PRESETS.admin,
+        },
+      }
     }
   }
 
   // Check new platform_users store first (demo user lives here)
   const platformUsers = getUsers()
-  const platformUser = platformUsers.find((u) => u.email === email && u.approved)
+  const platformUser = platformUsers.find((u) => u.email === cleanEmail && u.approved)
   if (platformUser) {
-    // Demo user — password "demo123"
-    if (email === "demo@example.com" && password === "demo123") {
-      return {
-        authenticated: true,
-        user: {
-          name: platformUser.name,
-          email: platformUser.email,
-          role: platformUser.role,
-          modulePermissions: getUserPermissions(email),
-        },
-      }
-    }
-    // Other platform users with bcrypt passwords
     try {
       if (await verifyPassword(password, platformUser.password)) {
+        clearAttempts(cleanEmail)
+        const sessionToken = createSession()
+        logAuditEvent("LOGIN_SUCCESS", cleanEmail, `Login exitoso: ${platformUser.name}`)
         return {
           authenticated: true,
+          sessionToken,
           user: {
             name: platformUser.name,
             email: platformUser.email,
             role: platformUser.role,
-            modulePermissions: getUserPermissions(email),
+            modulePermissions: getUserPermissions(cleanEmail),
           },
         }
       }
@@ -156,19 +197,28 @@ export async function authenticateUser(
 
   // Legacy users store
   const users = getStoredUsers()
-  const user = users.find((u: StoredUser) => u.email === email && u.approved)
+  const user = users.find((u: StoredUser) => u.email === cleanEmail && u.approved)
 
   if (user && (await verifyPassword(password, user.password))) {
-    const perms = getUserPermissions(email)
+    clearAttempts(cleanEmail)
+    const sessionToken = createSession()
+    const perms = getUserPermissions(cleanEmail)
+    logAuditEvent("LOGIN_SUCCESS", cleanEmail, `Login exitoso (legacy): ${user.name}`)
     return {
       authenticated: true,
+      sessionToken,
       user: {
         ...user,
         email: user.email,
+        role: user.role || "editor",
         modulePermissions: Object.keys(perms).length > 0 ? perms : ROLE_PRESETS.editor,
       },
     }
   }
+
+  // Login fallido
+  const blocked = recordFailedAttempt(cleanEmail)
+  logAuditEvent("LOGIN_FAILED", cleanEmail, `Intento de login fallido${blocked ? " - cuenta bloqueada temporalmente" : ""}`)
 
   return { authenticated: false }
 }

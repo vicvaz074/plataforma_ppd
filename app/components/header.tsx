@@ -5,6 +5,8 @@ import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
 import { useLanguage } from "@/lib/LanguageContext"
 import { useSidebar } from "@/lib/SidebarContext"
+import { destroySession } from "@/lib/session"
+import { logAuditEvent } from "@/lib/audit-log"
 import { useRouter, usePathname } from "next/navigation"
 import {
   DropdownMenu,
@@ -114,10 +116,9 @@ export function Header({ withSidebar = false }: { withSidebar?: boolean }) {
   }
 
   const handleLogout = () => {
-    localStorage.removeItem("isAuthenticated")
-    localStorage.removeItem("userRole")
-    localStorage.removeItem("userName")
-    localStorage.removeItem("userEmail")
+    const userEmail = localStorage.getItem("userEmail") || "unknown"
+    logAuditEvent("LOGOUT", userEmail, "Cierre de sesión")
+    destroySession()
 
     toast({
       title: t.logout,

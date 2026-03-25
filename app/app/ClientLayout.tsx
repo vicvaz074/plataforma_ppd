@@ -6,9 +6,11 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { LanguageProvider } from "@/lib/LanguageContext"
 import { AppProvider } from "@/lib/AppContext"
 import { SidebarProvider, useSidebar } from "@/lib/SidebarContext"
+import { SecurityProvider } from "@/lib/SecurityContext"
 import "@/lib/zod-config"
 import { Sidebar } from "@/components/sidebar"
 import { Header } from "@/components/header"
+import { isSessionValid, startInactivityMonitor, onSessionExpired, destroySession } from "@/lib/session"
 
 function AppShell({ authed, children }: { authed: boolean; children: React.ReactNode }) {
   const { collapsed, isMobile } = useSidebar()
@@ -45,7 +47,27 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     setHydrated(true)
     const authenticated = localStorage.getItem("isAuthenticated") === "true"
-    setAuthed(authenticated)
+    // Verificar también la sesión (timeout por inactividad y expiración)
+    const sessionOk = isSessionValid()
+    const isValid = authenticated && sessionOk
+
+    // Si había sesión pero expiró, limpiar
+    if (authenticated && !sessionOk) {
+      destroySession()
+    }
+
+    setAuthed(isValid)
+
+    // Configurar auto-logout por inactividad
+    if (isValid) {
+      onSessionExpired(() => {
+        destroySession()
+        setAuthed(false)
+        const fileProto = window.location.protocol === "file:"
+        window.location.href = fileProto ? "./login/index.html" : "/login"
+      })
+      startInactivityMonitor()
+    }
 
     const fileProto = window.location.protocol === "file:"
 
@@ -60,12 +82,12 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
       baseEl.setAttribute("href", baseHref)
 
       const isLogin = pathname.includes("/login")
-      if (!authenticated && !isLogin) {
+      if (!isValid && !isLogin) {
         window.location.href = "./login/index.html"
       }
     } else {
       const isLogin = pathname === "/login" || pathname === "/login/"
-      if (!authenticated && !isLogin) {
+      if (!isValid && !isLogin) {
         window.location.href = "/login"
       }
     }
@@ -80,19 +102,21 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-      <AppProvider>
-        <LanguageProvider>
-          <SidebarProvider>
-            {isLoginPage ? (
-              <>{children}</>
-            ) : (
-              <AppShell authed={authed}>
-                {children}
-              </AppShell>
-            )}
-          </SidebarProvider>
-        </LanguageProvider>
-      </AppProvider>
+      <SecurityProvider>
+        <AppProvider>
+          <LanguageProvider>
+            <SidebarProvider>
+              {isLoginPage ? (
+                <>{children}</>
+              ) : (
+                <AppShell authed={authed}>
+                  {children}
+                </AppShell>
+              )}
+            </SidebarProvider>
+          </LanguageProvider>
+        </AppProvider>
+      </SecurityProvider>
     </ThemeProvider>
   )
 }

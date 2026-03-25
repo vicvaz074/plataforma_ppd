@@ -14,6 +14,11 @@ import { Eye, EyeOff, Moon, Sun, Globe } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { hashPassword, saveUser, authenticateUser } from "@/lib/auth"
 import { cacheCurrentUserPermissions } from "@/lib/user-permissions"
+import { useSecurityContext } from "@/lib/SecurityContext"
+import { checkRateLimit, formatRetryAfter, getRemainingAttempts } from "@/lib/rate-limiter"
+import { validatePasswordStrength, getStrengthColor, getStrengthLabel } from "@/lib/password-validation"
+import { sanitizeEmail } from "@/lib/sanitize"
+import { startInactivityMonitor } from "@/lib/session"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import Image from "next/image"
@@ -30,7 +35,10 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [alert, setAlert] = useState<{ type: "success" | "error"; message: string } | null>(null)
   const [showWelcome, setShowWelcome] = useState(true)
+  const [passwordErrors, setPasswordErrors] = useState<string[]>([])
+  const [passwordStrength, setPasswordStrength] = useState<string>("")
   const router = useRouter()
+  const { initializeEncryption } = useSecurityContext()
 
   useEffect(() => {
     const isAuthenticated = localStorage.getItem("isAuthenticated") === "true"
@@ -58,18 +66,50 @@ export default function LoginPage() {
       return
     }
   
+    const cleanEmail = sanitizeEmail(email)
+
     if (isLogin) {
-      const { authenticated, user } = await authenticateUser(email, password)
-      if (authenticated) {
+      // Verificar rate limiting antes de intentar
+      const rateCheck = checkRateLimit(cleanEmail)
+      if (rateCheck.blocked) {
+        setAlert({
+          type: "error",
+          message: `Demasiados intentos. Intenta de nuevo en ${formatRetryAfter(rateCheck.retryAfter!)}`,
+        })
+        return
+      }
+
+      const result = await authenticateUser(cleanEmail, password)
+
+      if (result.rateLimited) {
+        setAlert({
+          type: "error",
+          message: `Demasiados intentos. Intenta de nuevo en ${formatRetryAfter(result.retryAfter!)}`,
+        })
+        return
+      }
+
+      if (result.authenticated && result.user) {
         localStorage.setItem("isAuthenticated", "true")
-        localStorage.setItem("userRole", user.role || "user")
-        localStorage.setItem("userName", user.name)
-        localStorage.setItem("userEmail", user.email || email)
-        if (user.modulePermissions) {
-          localStorage.setItem("modulePermissions", JSON.stringify(user.modulePermissions))
+        localStorage.setItem("userRole", result.user.role || "user")
+        localStorage.setItem("userName", result.user.name)
+        localStorage.setItem("userEmail", result.user.email || cleanEmail)
+        if (result.user.modulePermissions) {
+          localStorage.setItem("modulePermissions", JSON.stringify(result.user.modulePermissions))
         }
-        cacheCurrentUserPermissions(user.email || email)
-  
+        cacheCurrentUserPermissions(result.user.email || cleanEmail)
+
+        // Inicializar cifrado en reposo (derivar KEK del password, descifrar/crear DEK)
+        try {
+          await initializeEncryption(password)
+        } catch {
+          // Si falla el cifrado, continuar sin cifrado (primer uso o datos corruptos)
+          console.warn("No se pudo inicializar el cifrado en reposo")
+        }
+
+        // Iniciar monitor de inactividad
+        startInactivityMonitor()
+
         const isFile = window.location.protocol === "file:"
         if (isFile) {
           window.location.href = "./index.html"
@@ -77,11 +117,22 @@ export default function LoginPage() {
           router.push("/")
         }
       } else {
-        setAlert({ type: "error", message: t.invalidCredentials })
+        const remaining = getRemainingAttempts(cleanEmail)
+        const msg = remaining > 0
+          ? `${t.invalidCredentials} (${remaining} intentos restantes)`
+          : t.invalidCredentials
+        setAlert({ type: "error", message: msg })
       }
     } else {
+      // Validar fortaleza de contraseña en registro
+      const validation = validatePasswordStrength(password)
+      if (!validation.valid) {
+        setAlert({ type: "error", message: validation.errors[0] })
+        return
+      }
+
       const hashedPassword = await hashPassword(password)
-      saveUser({ name, email, password: hashedPassword })
+      saveUser({ name, email: cleanEmail, password: hashedPassword })
       setAlert({ type: "success", message: t.accountCreatedDescription })
       setIsLogin(true)
     }
@@ -211,7 +262,17 @@ export default function LoginPage() {
                     id="password"
                     type={showPassword ? "text" : "password"}
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => {
+                      setPassword(e.target.value)
+                      if (!isLogin && e.target.value) {
+                        const v = validatePasswordStrength(e.target.value)
+                        setPasswordErrors(v.errors)
+                        setPasswordStrength(getStrengthLabel(v.strength))
+                      } else {
+                        setPasswordErrors([])
+                        setPasswordStrength("")
+                      }
+                    }}
                   />
                   <Button
                     type="button"
@@ -235,6 +296,18 @@ export default function LoginPage() {
                     </motion.div>
                   </Button>
                 </div>
+                {!isLogin && password && (
+                  <div className="mt-1 space-y-1">
+                    <p className={`text-xs font-medium ${
+                      passwordErrors.length === 0 ? "text-green-500" : "text-orange-500"
+                    }`}>
+                      Fortaleza: {passwordStrength}
+                    </p>
+                    {passwordErrors.slice(0, 2).map((err, i) => (
+                      <p key={i} className="text-xs text-red-500">{err}</p>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </form>
