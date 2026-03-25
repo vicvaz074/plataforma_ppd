@@ -1675,13 +1675,6 @@ export default function EipdPage() {
               <Badge variant="secondary" className="w-fit">
                 Evaluación EIPD
               </Badge>
-              <h1 className="text-3xl font-semibold text-foreground sm:text-4xl">
-                Registro de Evaluación de Impacto en Protección de Datos
-              </h1>
-              <p className="text-sm text-muted-foreground sm:text-base">
-                Consolida las respuestas, evidencias y decisiones para documentar el impacto del tratamiento de datos
-                personales. Guarda varios formularios, genera reportes finales al cierre y conserva un historial auditable.
-              </p>
               <p className="text-sm text-muted-foreground sm:text-base">
                 El módulo EIPD ayuda a identificar, analizar y mitigar riesgos del tratamiento de datos personales,
                 fortaleciendo el cumplimiento proactivo, la privacidad desde el diseño y por defecto, y la rendición de
