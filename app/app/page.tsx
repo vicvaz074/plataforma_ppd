@@ -173,7 +173,6 @@ const options: Option[] = [
     name: "alicia",
     icon: BadgeCheck,
     href: "/alicia",
-    external: true,
     image: "/images/alicia_person.jpeg",
   },
 ]
