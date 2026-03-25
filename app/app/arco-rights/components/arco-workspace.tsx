@@ -105,10 +105,10 @@ type SectionItem = {
 
 const SECTION_ITEMS: SectionItem[] = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { id: "new", label: "Nueva solicitud", icon: PlusCircle },
   { id: "requests", label: "Solicitudes", icon: ClipboardList },
   { id: "detail", label: "Expediente", icon: FolderOpen },
   { id: "alerts", label: "Alertas", icon: Bell },
-  { id: "new", label: "Nueva solicitud", icon: PlusCircle },
   { id: "reports", label: "Reportes", icon: BarChart3 },
   { id: "log", label: "Bitácora", icon: History },
 ]
