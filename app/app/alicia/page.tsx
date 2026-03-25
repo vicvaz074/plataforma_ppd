@@ -46,7 +46,7 @@ export default function AliciaPage() {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-gray-200 dark:border-slate-700 bg-slate-950 p-6 text-white shadow-sm">
+            <div className="rounded-2xl border border-gray-200 dark:border-slate-700 bg-primary p-6 text-white shadow-sm">
               <div className="flex items-center gap-3 text-sm uppercase tracking-[0.24em] text-slate-400">
                 <Mail className="h-4 w-4" />
                 <span>Escríbenos a</span>
