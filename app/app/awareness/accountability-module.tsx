@@ -314,126 +314,126 @@ const LEGACY_SGDP_KEYS: Record<string, string> = {
 const MODULES: ModuleConfig[] = [
   {
     id: "dashboard",
-    displayId: "SM-12",
+    displayId: "",
     label: "Dashboard ejecutivo",
-    shortLabel: "Dashboard",
+    shortLabel: "",
     phase: "Transversal",
     icon: Gauge,
     description: "Semáforo global del SGDP, KPIs, KRIs, actividad y vencimientos.",
   },
   {
     id: "sm01",
-    displayId: "SM-01",
+    displayId: "",
     label: "Gobierno y estructura",
-    shortLabel: "SM-01",
+    shortLabel: "",
     phase: "Planificar",
     icon: Building2,
     description: "Define alcance, responsables, recursos y apoyo de Alta Dirección.",
   },
   {
     id: "sm02",
-    displayId: "SM-02",
+    displayId: "",
     label: "PGDP",
-    shortLabel: "SM-02",
+    shortLabel: "",
     phase: "Planificar",
     icon: FileCheck2,
     description: "Gestiona la política de gestión de datos personales y su vigencia.",
   },
   {
     id: "sm03",
-    displayId: "SM-03",
+    displayId: "",
     label: "Inventario y trazabilidad",
-    shortLabel: "SM-03",
+    shortLabel: "",
     phase: "Hacer",
     icon: Network,
     description: "Vista de accountability sobre tratamientos y flujos provenientes del RAT.",
   },
   {
     id: "sm04",
-    displayId: "SM-04",
+    displayId: "",
     label: "Riesgos y evaluaciones",
-    shortLabel: "SM-04",
+    shortLabel: "",
     phase: "Hacer",
     icon: ShieldAlert,
     description: "Registra riesgos, mitigaciones y banderas de EIPD.",
   },
   {
     id: "sm05",
-    displayId: "SM-05",
+    displayId: "",
     label: "Capacitación y cultura",
-    shortLabel: "SM-05",
+    shortLabel: "",
     phase: "Hacer",
     icon: BookOpen,
     description: "Consolida actividades, cobertura y efectividad de la capacitación.",
   },
   {
     id: "sm06",
-    displayId: "SM-06",
+    displayId: "",
     label: "Encargados y subcontrataciones",
-    shortLabel: "SM-06",
+    shortLabel: "",
     phase: "Hacer",
     icon: Users,
     description: "Directorio de encargados, vigencias y checklist del Art. 50.",
   },
   {
     id: "sm07",
-    displayId: "SM-07",
+    displayId: "",
     label: "Auditorías",
-    shortLabel: "SM-07",
+    shortLabel: "",
     phase: "Verificar",
     icon: ClipboardCheck,
     description: "Programa anual, reportes, indicadores y hallazgos.",
   },
   {
     id: "sm08",
-    displayId: "SM-08",
+    displayId: "",
     label: "Revisiones administrativas",
-    shortLabel: "SM-08",
+    shortLabel: "",
     phase: "Verificar",
     icon: CalendarClock,
     description: "Documenta revisiones con los ocho insumos del Num. 32.",
   },
   {
     id: "sm09",
-    displayId: "SM-09",
+    displayId: "",
     label: "No conformidades y CAPA",
-    shortLabel: "SM-09",
+    shortLabel: "",
     phase: "Actuar",
     icon: Siren,
     description: "Gestiona NCs, causa raíz, acciones y vencimientos.",
   },
   {
     id: "sm10",
-    displayId: "SM-10",
+    displayId: "",
     label: "Quejas y reportes",
-    shortLabel: "SM-10",
+    shortLabel: "",
     phase: "Hacer / Verificar",
     icon: Fingerprint,
     description: "Canal centralizado para quejas, dudas y reportes internos.",
   },
   {
     id: "sm11",
-    displayId: "SM-11",
+    displayId: "",
     label: "Evidencias y expediente",
-    shortLabel: "SM-11",
+    shortLabel: "",
     phase: "Transversal",
     icon: FolderKanban,
     description: "Agrega evidencias por submódulo y exporta un expediente básico.",
   },
   {
     id: "sm12",
-    displayId: "SM-12",
+    displayId: "",
     label: "Métricas y tablero",
-    shortLabel: "SM-12",
+    shortLabel: "",
     phase: "Transversal",
     icon: BarChart3,
     description: "Vista analítica completa del estado de Accountability.",
   },
   {
     id: "sm13",
-    displayId: "SM-13",
+    displayId: "",
     label: "Mejora continua",
-    shortLabel: "SM-13",
+    shortLabel: "",
     phase: "Actuar",
     icon: Workflow,
     description: "Plan de mejora con origen trazable y cierre verificado.",
@@ -1242,7 +1242,7 @@ function RecordsModule({
             <div className="space-y-2">
               <div className="flex flex-wrap items-center gap-2">
                 <Badge variant="outline" className="border-primary/20 bg-primary/5 text-primary">
-                  {MODULES.find((item) => item.id === moduleId)?.displayId}
+                  {MODULES.find((item) => item.id === moduleId)?.displayId || "Submódulo"}
                 </Badge>
                 <Badge variant="outline" className="border-slate-200 bg-slate-50 text-slate-600">
                   {MODULES.find((item) => item.id === moduleId)?.phase}
@@ -2019,23 +2019,23 @@ export function AwarenessContent({ initialModule = "dashboard" }: { initialModul
       })
     }
 
-    appendEvidence("sm02", "02 — Política de gestión", [...sm02Records, ...importedPolicies])
-    appendEvidence("sm03", "03 — Inventario de tratamientos", treatmentRows)
-    appendEvidence("sm04", "04 — Gestión de riesgos", sm04Records)
-    appendEvidence("sm05", "05 — Capacitación", [...sm05Records, ...importedTrainings])
-    appendEvidence("sm06", "06 — Encargados y subcontrataciones", [...sm06Records, ...importedProcessors])
-    appendEvidence("sm07", "07 — Auditorías", [...sm07Records, ...importedAudits])
-    appendEvidence("sm08", "08 — Revisiones administrativas", sm08Records)
-    appendEvidence("sm09", "09 — NC y acciones", sm09Records)
-    appendEvidence("sm10", "10 — Quejas y reportes", sm10Records)
-    appendEvidence("sm13", "13 — Mejora continua", [...sm13Records, ...importedImprovements])
+    appendEvidence("sm02", "Política de gestión", [...sm02Records, ...importedPolicies])
+    appendEvidence("sm03", "Inventario de tratamientos", treatmentRows)
+    appendEvidence("sm04", "Gestión de riesgos", sm04Records)
+    appendEvidence("sm05", "Capacitación", [...sm05Records, ...importedTrainings])
+    appendEvidence("sm06", "Encargados y subcontrataciones", [...sm06Records, ...importedProcessors])
+    appendEvidence("sm07", "Auditorías", [...sm07Records, ...importedAudits])
+    appendEvidence("sm08", "Revisiones administrativas", sm08Records)
+    appendEvidence("sm09", "NC y acciones", sm09Records)
+    appendEvidence("sm10", "Quejas y reportes", sm10Records)
+    appendEvidence("sm13", "Mejora continua", [...sm13Records, ...importedImprovements])
 
     if (sm01.programName || sm01.scope || sm01.responsibleName) {
       rows.unshift({
         id: "sm01-governance",
         moduleId: "sm01",
-        section: "01 — Gobierno y estructura",
-        code: "SM01-BASE",
+        section: "Gobierno y estructura",
+        code: "BASE",
         title: sm01.programName || "Gobierno del SGDP",
         status: sm01.leadershipApprovalDate ? "Activo" : "En construcción",
         source: "local",
@@ -2444,7 +2444,7 @@ export function AwarenessContent({ initialModule = "dashboard" }: { initialModul
       assignedTo: DEFAULT_REMINDER_ASSIGNEES,
       category: "KRI Accountability",
       moduleId: ACCOUNTABILITY_REMINDER_MODULE_ID,
-      notes: `Dashboard SM-12 · ${item.label}`,
+      notes: `Dashboard ejecutivo · ${item.label}`,
       documents: [],
     }))
 
@@ -2619,7 +2619,7 @@ export function AwarenessContent({ initialModule = "dashboard" }: { initialModul
                         <Icon className="h-4 w-4" />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">{module.displayId}</p>
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">{module.displayId || "Submódulo"}</p>
                         <p className="line-clamp-2 break-words whitespace-normal text-sm font-medium leading-tight">{module.label}</p>
                       </div>
                     </div>
@@ -2900,7 +2900,7 @@ export function AwarenessContent({ initialModule = "dashboard" }: { initialModul
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
                       <Badge variant="outline" className="border-primary/20 bg-primary/5 text-primary">
-                        SM-01
+                        Submódulo
                       </Badge>
                       <Badge variant="outline" className="border-slate-200 bg-slate-50 text-slate-600">
                         Planificar
@@ -2916,10 +2916,10 @@ export function AwarenessContent({ initialModule = "dashboard" }: { initialModul
                   <Button
                     onClick={() => {
                       setSm01((current) => ({ ...current, updatedAt: new Date().toISOString() }))
-                      toast({ title: "Ficha guardada", description: "SM-01 se actualizó correctamente." })
+                      toast({ title: "Ficha guardada", description: "La ficha se actualizó correctamente." })
                     }}
                   >
-                    Guardar SM-01
+                    Guardar ficha
                   </Button>
                 </div>
               </CardHeader>
@@ -3253,7 +3253,7 @@ export function AwarenessContent({ initialModule = "dashboard" }: { initialModul
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <Badge variant="outline" className="border-primary/20 bg-primary/5 text-primary">
-                          SM-03
+                          Submódulo
                         </Badge>
                         <Badge variant="outline" className="border-slate-200 bg-slate-50 text-slate-600">
                           Hacer
@@ -3279,7 +3279,7 @@ export function AwarenessContent({ initialModule = "dashboard" }: { initialModul
                       {
                         label: "Cobertura de riesgo",
                         value: `${treatmentsWithRiskCoverage}%`,
-                        hint: "Tratamientos con evaluación en SM-04.",
+                        hint: "Tratamientos con evaluación de riesgos.",
                         status: getTrafficLight(treatmentsWithRiskCoverage),
                       },
                     ]}
@@ -3352,7 +3352,7 @@ export function AwarenessContent({ initialModule = "dashboard" }: { initialModul
               summaryCards={sm04SummaryCards}
               createLabel="Nuevo riesgo"
               emptyMessage="No hay riesgos registrados."
-              helpText="La cobertura de riesgos se cruza con SM-03 para calcular el KPI de tratamientos evaluados."
+              helpText="La cobertura de riesgos se cruza con inventario para calcular el KPI de tratamientos evaluados."
             />
           </TabsContent>
 
@@ -3536,7 +3536,7 @@ export function AwarenessContent({ initialModule = "dashboard" }: { initialModul
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
                       <Badge variant="outline" className="border-primary/20 bg-primary/5 text-primary">
-                        SM-11
+                        Submódulo
                       </Badge>
                       <Badge variant="outline" className="border-slate-200 bg-slate-50 text-slate-600">
                         Transversal
@@ -3571,7 +3571,7 @@ export function AwarenessContent({ initialModule = "dashboard" }: { initialModul
                 <div className="flex flex-wrap gap-2">
                   {MODULES.filter((module) => module.id !== "dashboard").map((module) => (
                     <Button key={module.id} variant="outline" size="sm" onClick={() => exportEvidencePdf(module.id)}>
-                      Exportar {module.displayId}
+                      Exportar módulo
                     </Button>
                   ))}
                 </div>
