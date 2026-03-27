@@ -30,6 +30,7 @@ import {
   Trash2,
   Users,
   Workflow,
+  type LucideIcon,
 } from "lucide-react"
 import {
   Bar,
@@ -214,7 +215,7 @@ type ModuleConfig = {
   label: string
   shortLabel: string
   phase: string
-  icon: React.ComponentType<{ className?: string }>
+  icon: LucideIcon
   description: string
 }
 
