@@ -115,25 +115,19 @@ export default function EipdLandingPage() {
       moduleDescription={EIPD_META.moduleDescription}
       pageLabel="Overview"
       pageTitle="Panorama del registro EIPD"
-      pageDescription="La pantalla inicial del módulo abre directamente el tablero operativo con formularios, vigencias, criterios de riesgo y seguimiento de revisiones."
+      pageDescription="Tablero operativo con formularios, riesgo y revisiones."
       navItems={navItems}
       headerBadges={[
-        { label: "Privacidad desde el diseño", tone: "primary" },
         { label: `${forms.length} formularios`, tone: "neutral" },
         { label: `${overview.highRisk} con riesgo alto`, tone: overview.highRisk > 0 ? "warning" : "positive" },
       ]}
       actions={
-        <>
-          <Button asChild variant="outline">
-            <Link href="/eipd/consultar">Consultar EIPD</Link>
-          </Button>
-          <Button asChild>
-            <Link href="/eipd/registro?mode=new">
-              <FilePlus2 className="mr-2 h-4 w-4" />
-              Nueva EIPD
-            </Link>
-          </Button>
-        </>
+        <Button asChild>
+          <Link href="/eipd/registro?mode=new">
+            <FilePlus2 className="mr-2 h-4 w-4" />
+            Nueva EIPD
+          </Link>
+        </Button>
       }
     >
       <div className="space-y-6">

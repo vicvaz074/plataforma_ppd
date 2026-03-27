@@ -1260,16 +1260,7 @@ export function loadPolicyRecords() {
   if (!isBrowser()) return [] as PolicyRecord[]
 
   const raw = safeParseJSON<unknown[]>(window.localStorage.getItem(POLICY_STORAGE_KEY), [])
-  const hydrated = Array.isArray(raw) ? raw.map((entry, index) => hydratePolicyRecord(entry as RawPolicyRecord, index)) : []
-  const serialized = JSON.stringify(hydrated.map(serializePolicyRecord))
-
-  if (window.localStorage.getItem(POLICY_STORAGE_KEY) !== serialized) {
-    window.localStorage.setItem(POLICY_STORAGE_KEY, serialized)
-  }
-
-  syncPolicyReminders(hydrated)
-
-  return hydrated
+  return Array.isArray(raw) ? raw.map((entry, index) => hydratePolicyRecord(entry as RawPolicyRecord, index)) : []
 }
 
 export function persistPolicyRecords(records: PolicyRecord[]) {

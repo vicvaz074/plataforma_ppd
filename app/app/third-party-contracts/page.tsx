@@ -121,25 +121,19 @@ export default function ThirdPartyContractsPage() {
       moduleDescription={THIRD_PARTY_CONTRACTS_META.moduleDescription}
       pageLabel="Overview"
       pageTitle="Panorama contractual y documental"
-      pageDescription="La ruta raíz del módulo abre directamente el tablero operativo con vigencias, riesgos, biblioteca documental y trazabilidad de contratos con terceros."
+      pageDescription="Consulta vigencias, riesgos y trazabilidad contractual."
       navItems={navItems}
       headerBadges={[
-        { label: "Encargados · Transferencias", tone: "primary" },
         { label: `${contracts.length} contratos`, tone: "neutral" },
         { label: `${overview.activeCoverage}% vigentes o por vencer`, tone: overview.activeCoverage >= 70 ? "positive" : "warning" },
       ]}
       actions={
-        <>
-          <Button asChild variant="outline">
-            <Link href="/third-party-contracts/documents">Biblioteca documental</Link>
-          </Button>
-          <Button asChild>
-            <Link href="/third-party-contracts/registration">
-              <FilePlus2 className="mr-2 h-4 w-4" />
-              Registrar contrato
-            </Link>
-          </Button>
-        </>
+        <Button asChild>
+          <Link href="/third-party-contracts/registration">
+            <FilePlus2 className="mr-2 h-4 w-4" />
+            Registrar contrato
+          </Link>
+        </Button>
       }
     >
       <div className="space-y-6">

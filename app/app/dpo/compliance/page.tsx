@@ -898,19 +898,14 @@ export default function DPOCompliancePage() {
       moduleDescription={DPO_META.moduleDescription}
       pageLabel="Cumplimiento"
       pageTitle="Acreditación, evaluación funcional y Privacy Review del OPD"
-      pageDescription="El módulo consolida el cuestionario de acreditación, la evaluación funcional F1-F5, el análisis de proyectos y el expediente histórico del Oficial de Protección de Datos con la estética ARCO."
+      pageDescription="Acreditación, evaluación funcional y privacy review del OPD."
       navItems={navItems}
       headerBadges={headerBadges}
       actions={
-        <>
-          <Button variant="outline" onClick={() => setActiveTab("evidence")}>
-            Evidencias ({evidenceSummary.total})
-          </Button>
-          <Button onClick={handleExportReport}>
-            <Download className="mr-2 h-4 w-4" />
-            Exportar reporte
-          </Button>
-        </>
+        <Button onClick={handleExportReport}>
+          <Download className="mr-2 h-4 w-4" />
+          Exportar
+        </Button>
       }
     >
       <div className="space-y-6">
@@ -954,12 +949,12 @@ export default function DPOCompliancePage() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full gap-2 md:grid-cols-5">
-            <TabsTrigger value="accreditation">Acreditación</TabsTrigger>
-            <TabsTrigger value="functional">Evaluación funcional</TabsTrigger>
-            <TabsTrigger value="projects">Proyectos</TabsTrigger>
-            <TabsTrigger value="results">Resultados</TabsTrigger>
-            <TabsTrigger value="evidence">Evidencias</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 gap-2 rounded-2xl bg-[#edf4ff] p-1 lg:grid-cols-5">
+            <TabsTrigger value="accreditation" className="text-xs sm:text-sm">Acreditación</TabsTrigger>
+            <TabsTrigger value="functional" className="text-xs sm:text-sm">Funcional</TabsTrigger>
+            <TabsTrigger value="projects" className="text-xs sm:text-sm">Proyectos</TabsTrigger>
+            <TabsTrigger value="results" className="text-xs sm:text-sm">Resumen</TabsTrigger>
+            <TabsTrigger value="evidence" className="text-xs sm:text-sm">Evid.</TabsTrigger>
           </TabsList>
 
           <TabsContent value="accreditation" className="space-y-6">

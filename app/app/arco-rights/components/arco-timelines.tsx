@@ -94,8 +94,8 @@ export function ArcoTimelines() {
               Vista operativa de los hitos que estructuran la atención de solicitudes ARCO y figuras relacionadas.
             </CardDescription>
             <TabsList className="mt-2 grid w-full grid-cols-2 rounded-2xl bg-slate-100/80 p-1">
-              <TabsTrigger value="timeline">Línea de tiempo</TabsTrigger>
-              <TabsTrigger value="table">Tabla de plazos</TabsTrigger>
+              <TabsTrigger value="timeline">Línea</TabsTrigger>
+              <TabsTrigger value="table">Tabla</TabsTrigger>
             </TabsList>
           </CardHeader>
           <CardContent>

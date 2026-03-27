@@ -1618,13 +1618,11 @@ export default function EipdPage() {
       moduleDescription={EIPD_META.moduleDescription}
       pageLabel={editingId ? "Edición" : "Registro"}
       pageTitle="Registro operativo EIPD"
-      pageDescription="Captura la evaluación completa, conserva evidencias y genera el expediente final sin alterar la estructura normativa del cuestionario."
+      pageDescription="Captura la evaluación, conserva evidencias y genera el expediente final."
       navItems={navItems}
       headerBadges={[
-        { label: `${forms.length} formularios`, tone: "neutral" },
-        { label: `${selectedPartA.length} criterios de obligatoriedad`, tone: selectedPartA.length > 0 ? "warning" : "neutral" },
         {
-          label: `${complianceSummary.percent}% de cumplimiento`,
+          label: `${complianceSummary.percent}% cumplimiento`,
           tone:
             complianceSummary.percent >= 85
               ? "positive"
@@ -1632,17 +1630,20 @@ export default function EipdPage() {
                 ? "warning"
                 : "critical",
         },
-        { label: reviewStatus.label, tone: reviewStatus.label === "Vigente" ? "positive" : reviewStatus.label === "Próxima a vencer" ? "warning" : "critical" },
+        {
+          label: reviewStatus.label,
+          tone:
+            reviewStatus.label === "Vigente"
+              ? "positive"
+              : reviewStatus.label === "Próxima a vencer"
+                ? "warning"
+                : "critical",
+        },
       ]}
       actions={
-        <>
-          <Button asChild variant="outline">
-            <Link href="/eipd/consultar">Consultar expedientes</Link>
-          </Button>
-          <Button asChild variant="outline">
-            <Link href="/eipd/reportes">Abrir reportes</Link>
-          </Button>
-        </>
+        <Button asChild variant="outline">
+          <Link href="/eipd/consultar">Expedientes</Link>
+        </Button>
       }
       contentClassName="space-y-6 overflow-x-hidden"
     >

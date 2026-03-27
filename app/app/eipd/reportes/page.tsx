@@ -74,7 +74,7 @@ export default function EipdReportsPage() {
       moduleDescription={EIPD_META.moduleDescription}
       pageLabel="Reportes"
       pageTitle="Métricas y seguimiento EIPD"
-      pageDescription="Información real basada en formularios guardados, con distribución de riesgo y vigencia del calendario de revisión."
+      pageDescription="Distribución de riesgo y vigencia de revisiones."
       navItems={navItems}
       headerBadges={[
         { label: `${stats.total} formularios`, tone: "neutral" },

@@ -126,9 +126,9 @@ export function ArcoRequestDetail({ request, onUpdate, onClose }: ArcoRequestDet
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="basic">Información Básica</TabsTrigger>
+          <TabsTrigger value="basic">Básico</TabsTrigger>
           <TabsTrigger value="process">Proceso</TabsTrigger>
-          <TabsTrigger value="resolution">Resolución</TabsTrigger>
+          <TabsTrigger value="resolution">Cierre</TabsTrigger>
         </TabsList>
 
         <TabsContent value="basic" className="space-y-4">

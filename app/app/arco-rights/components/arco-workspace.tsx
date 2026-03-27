@@ -14,7 +14,6 @@ import {
   ArrowRight,
   BarChart3,
   Bell,
-  ChevronLeft,
   ClipboardList,
   Download,
   ExternalLink,
@@ -24,8 +23,6 @@ import {
   LayoutDashboard,
   PlusCircle,
   Search,
-  Upload,
-  Users,
 } from "lucide-react"
 import {
   Bar,
@@ -39,6 +36,7 @@ import {
   YAxis,
 } from "recharts"
 
+import { ModuleWorkspaceShell } from "@/components/arco-module-shell"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -92,6 +90,7 @@ import {
   getArcoRequests,
   saveArcoRequest,
   seedArcoDemoRequests,
+  syncArcoReminders,
 } from "../utils/arco-storage"
 import { formatDateSafe, getBusinessDaysBetween, parseDateString, startOfToday, toLocalDateString } from "../utils/date-utils"
 
@@ -100,17 +99,19 @@ type WorkspaceSection = "dashboard" | "requests" | "detail" | "alerts" | "new" |
 type SectionItem = {
   id: WorkspaceSection
   label: string
+  shortLabel?: string
+  mobileLabel?: string
   icon: typeof LayoutDashboard
 }
 
 const SECTION_ITEMS: SectionItem[] = [
-  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { id: "new", label: "Nueva solicitud", icon: PlusCircle },
-  { id: "requests", label: "Solicitudes", icon: ClipboardList },
-  { id: "detail", label: "Expediente", icon: FolderOpen },
-  { id: "alerts", label: "Alertas", icon: Bell },
-  { id: "reports", label: "Reportes", icon: BarChart3 },
-  { id: "log", label: "Bitácora", icon: History },
+  { id: "dashboard", label: "Dashboard", shortLabel: "Inicio", mobileLabel: "Dashboard ARCO", icon: LayoutDashboard },
+  { id: "new", label: "Nueva solicitud", shortLabel: "Nueva", mobileLabel: "Registrar nueva solicitud", icon: PlusCircle },
+  { id: "requests", label: "Solicitudes", shortLabel: "Solicitudes", mobileLabel: "Consulta de solicitudes", icon: ClipboardList },
+  { id: "detail", label: "Expediente", shortLabel: "Expediente", mobileLabel: "Expediente activo", icon: FolderOpen },
+  { id: "alerts", label: "Alertas", shortLabel: "Alertas", mobileLabel: "Alertas y recordatorios", icon: Bell },
+  { id: "reports", label: "Reportes", shortLabel: "Reportes", mobileLabel: "Analítica y exportables", icon: BarChart3 },
+  { id: "log", label: "Bitácora", shortLabel: "Bitácora", mobileLabel: "Bitácora del módulo", icon: History },
 ]
 
 const CHART_COLORS = ["#0a4abf", "#2563eb", "#3b82f6", "#60a5fa", "#93c5fd", "#bfdbfe", "#1d4ed8", "#0f172a"]
@@ -366,8 +367,10 @@ export function ArcoWorkspace() {
     }
 
     isRefreshingRef.current = true
+    const loaded = getArcoRequests()
+    syncArcoReminders(loaded)
+
     startTransition(() => {
-      const loaded = getArcoRequests()
       setRequests(loaded)
       setDetailDraft((current) => {
         if (!current?.id) return current
@@ -410,9 +413,9 @@ export function ArcoWorkspace() {
     }
   }, [selectedRequest])
 
-  const dashboard = useMemo(() => getArcoDashboardData(), [requests])
+  const dashboard = useMemo(() => getArcoDashboardData(requests), [requests])
   const allAlerts = useMemo(() => sortAlerts(requests), [requests])
-  const auditLog = useMemo(() => getArcoAuditLog(), [requests])
+  const auditLog = useMemo(() => getArcoAuditLog(requests), [requests])
 
   const filteredRequests = useMemo(() => {
     const term = deferredSearch.trim().toLowerCase()
@@ -536,132 +539,108 @@ export function ArcoWorkspace() {
     })
   }
 
+  const pageMeta = useMemo(() => {
+    if (section === "dashboard") {
+      return {
+        label: "Dashboard",
+        title: "Estado operativo del módulo",
+        description: "KPIs, vencimientos, alertas y carga procesal del módulo ARCO en una sola superficie compacta.",
+      }
+    }
+    if (section === "requests") {
+      return {
+        label: "Solicitudes",
+        title: "Consulta y seguimiento",
+        description: "Filtra expedientes por derecho, canal, etapa y estado sin perder trazabilidad.",
+      }
+    }
+    if (section === "detail") {
+      return {
+        label: "Expediente",
+        title: selectedRequest?.folio || "Expediente",
+        description: "Gestiona identidad, plazos, soporte documental y actuaciones del expediente activo.",
+      }
+    }
+    if (section === "alerts") {
+      return {
+        label: "Alertas",
+        title: "Centro de alertas y recordatorios",
+        description: "Prioriza vencimientos y recordatorios sincronizados con el módulo y el centro global.",
+      }
+    }
+    if (section === "new") {
+      return {
+        label: "Nueva solicitud",
+        title: "Registrar nueva solicitud",
+        description: "Crea expedientes con folio, plazos, alertas y soporte documental desde un flujo más compacto.",
+      }
+    }
+    if (section === "reports") {
+      return {
+        label: "Reportes",
+        title: "Analítica y exportables",
+        description: "Consulta la vista analítica del módulo y exporta cortes operativos cuando sea necesario.",
+      }
+    }
+    return {
+      label: "Bitácora",
+      title: "Bitácora inmutable del módulo",
+      description: "Registra movimientos y acciones de los expedientes con trazabilidad persistente.",
+    }
+  }, [section, selectedRequest?.folio])
+
+  const workspaceNavItems = useMemo(
+    () =>
+      SECTION_ITEMS.map((item) => ({
+        id: item.id,
+        label: item.label,
+        shortLabel: item.shortLabel || item.label,
+        mobileLabel: item.mobileLabel || item.label,
+        icon: item.icon,
+        badge:
+          item.id === "requests"
+            ? requests.length || undefined
+            : item.id === "alerts"
+              ? allAlerts.filter((row) => row.alert.shouldSyncReminder).length || undefined
+              : item.id === "log"
+                ? auditLog.length || undefined
+                : undefined,
+      })),
+    [allAlerts, auditLog.length, requests.length],
+  )
+
   return (
-    <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-4 py-8">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2 text-sm text-stone-500">
-            <Link href="/" className="inline-flex items-center gap-1 hover:text-stone-900">
-              <ChevronLeft className="h-4 w-4" />
-              Volver al inicio
-            </Link>
-            <span>/</span>
-            <span>Derecho de titulares</span>
-          </div>
-          <h1 className="text-3xl font-semibold text-slate-950">Derecho de titulares</h1>
-          <p className="text-sm text-slate-500">
-            LFPDPPP · Control ARCO · Limitación · Revocación · Consultas · Quejas
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge className="border-emerald-200 bg-emerald-50 text-emerald-700">
-            <span className="mr-2 inline-flex h-2 w-2 rounded-full bg-emerald-500" />
-            Sistema activo
-          </Badge>
-          <Button variant="outline" onClick={() => setImportOpen(true)}>
-            <Upload className="mr-2 h-4 w-4" />
-            Importar
-          </Button>
-          <Button variant="outline" onClick={() => setExportOpen(true)}>
-            <Download className="mr-2 h-4 w-4" />
-            Exportar
-          </Button>
-          <Button variant="outline" onClick={() => setSeedOpen(true)}>
-            <Users className="mr-2 h-4 w-4" />
-            Cargar 10 ejemplos
-          </Button>
-          <Button onClick={() => setSection("new")}>
-            <FilePlus2 className="mr-2 h-4 w-4" />
-            Nueva solicitud
-          </Button>
-        </div>
-      </div>
-
-      <div className="overflow-hidden rounded-[28px] border border-stone-200 bg-white shadow-sm">
-        <div className="grid min-h-[820px] lg:grid-cols-[236px_1fr]">
-          <aside className="border-r border-[#d6e1f6] bg-[#edf4ff]">
-            <div className="border-b border-[#d6e1f6] px-6 py-5">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#5f7698]">Módulo ARCO</p>
-              <p className="mt-1 text-2xl font-semibold text-[#0a0147]">Derecho de titulares</p>
-            </div>
-            <nav className="space-y-1 p-3">
-              {SECTION_ITEMS.map((item) => {
-                const Icon = item.icon
-                const active = section === item.id
-                const badgeCount =
-                  item.id === "requests"
-                    ? requests.length
-                    : item.id === "alerts"
-                      ? allAlerts.filter((row) => row.alert.shouldSyncReminder).length
-                      : item.id === "log"
-                        ? auditLog.length
-                        : undefined
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => setSection(item.id)}
-                    className={`flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-medium transition-colors ${
-                      active
-                        ? "bg-white text-[#0a0147] shadow-[0_10px_24px_rgba(10,1,71,0.08)]"
-                        : "text-[#4f6788] hover:bg-white/80 hover:text-[#0a0147]"
-                    }`}
-                  >
-                    <span className={`h-2.5 w-2.5 rounded-full ${active ? "bg-[#0a4abf]" : "bg-[#7ea4df]"}`} />
-                    <Icon className={`h-4 w-4 ${active ? "text-[#0a0147]" : "text-[#5f7698]"}`} />
-                    <span>{item.label}</span>
-                    {badgeCount !== undefined ? (
-                      <span className="ml-auto rounded-full bg-[#dbeafe] px-2 py-0.5 text-[11px] font-semibold text-[#0a4abf]">
-                        {badgeCount}
-                      </span>
-                    ) : null}
-                  </button>
-                )
-              })}
-            </nav>
-          </aside>
-
-          <div className="min-w-0 bg-white">
-            <div className="border-b border-stone-200 px-6 py-4">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <p className="text-sm font-medium text-stone-500">
-                    {section === "dashboard" && "Dashboard"}
-                    {section === "requests" && "Solicitudes"}
-                    {section === "detail" && `Expediente ${selectedRequest?.folio || ""}`}
-                    {section === "alerts" && "Alertas"}
-                    {section === "new" && "Nueva solicitud"}
-                    {section === "reports" && "Reportes"}
-                    {section === "log" && "Bitácora"}
-                  </p>
-                  <h2 className="mt-1 text-2xl font-semibold text-slate-950">
-                    {section === "dashboard" && "Estado operativo del módulo"}
-                    {section === "requests" && "Consulta y seguimiento"}
-                    {section === "detail" && (selectedRequest?.folio || "Expediente")}
-                    {section === "alerts" && "Centro de alertas y recordatorios"}
-                    {section === "new" && "Registrar nueva solicitud"}
-                    {section === "reports" && "Analítica y exportables"}
-                    {section === "log" && "Bitácora inmutable del módulo"}
-                  </h2>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <Badge variant="outline" className="border-stone-200 bg-stone-50 text-stone-700">
-                    {dashboard.metrics[0].value} activas
-                  </Badge>
-                  <Badge variant="outline" className="border-stone-200 bg-stone-50 text-stone-700">
-                    {dashboard.metrics[3].value} en riesgo
-                  </Badge>
-                  <Link href="/audit-alarms">
-                    <Button variant="outline" className="gap-2">
-                      <Bell className="h-4 w-4" />
-                      Recordatorios
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-6">
+    <>
+      <ModuleWorkspaceShell
+        moduleLabel="Módulo ARCO"
+        moduleTitle="Derecho de titulares"
+        moduleDescription="LFPDPPP · Control ARCO · Limitación · Revocación · Consultas · Quejas dentro de una sola superficie operativa."
+        pageLabel={pageMeta.label}
+        pageTitle={pageMeta.title}
+        pageDescription={pageMeta.description}
+        navItems={workspaceNavItems}
+        activeNavId={section}
+        onNavSelect={(itemId) => setSection(itemId as WorkspaceSection)}
+        backHref="/"
+        backLabel="Volver al inicio"
+        contentClassName="space-y-6"
+        headerBadges={[
+          { label: `${dashboard.metrics[0].value} activas`, tone: "neutral" },
+          { label: `${dashboard.metrics[3].value} en riesgo`, tone: Number(dashboard.metrics[3].value) > 0 ? "warning" : "neutral" },
+        ]}
+        actions={
+          <>
+            <Button variant="outline" onClick={() => setExportOpen(true)}>
+              <Download className="mr-2 h-4 w-4" />
+              Exportar
+            </Button>
+            <Button onClick={() => setSection("new")}>
+              <FilePlus2 className="mr-2 h-4 w-4" />
+              Nueva solicitud
+            </Button>
+          </>
+        }
+      >
               {section === "dashboard" && (
                 <div className="space-y-6">
                   <SectionHeader
@@ -1000,13 +979,13 @@ export function ArcoWorkspace() {
                         }
                       />
                       <Tabs defaultValue="summary" className="space-y-4">
-                        <TabsList className="grid w-full grid-cols-3 gap-2 rounded-2xl bg-stone-100/80 p-1 lg:grid-cols-6">
-                          <TabsTrigger value="summary">Resumen</TabsTrigger>
-                          <TabsTrigger value="identity">Identidad</TabsTrigger>
-                          <TabsTrigger value="deadlines">Plazos</TabsTrigger>
-                          <TabsTrigger value="documents">Documentos</TabsTrigger>
-                          <TabsTrigger value="policy">Marco documental</TabsTrigger>
-                          <TabsTrigger value="history">Historial</TabsTrigger>
+                        <TabsList className="grid w-full grid-cols-2 gap-2 rounded-2xl bg-stone-100/80 p-1 md:grid-cols-3 xl:grid-cols-6">
+                          <TabsTrigger value="summary" className="text-xs sm:text-sm">Resumen</TabsTrigger>
+                          <TabsTrigger value="identity" className="text-xs sm:text-sm">Titular</TabsTrigger>
+                          <TabsTrigger value="deadlines" className="text-xs sm:text-sm">Plazos</TabsTrigger>
+                          <TabsTrigger value="documents" className="text-xs sm:text-sm">Docs</TabsTrigger>
+                          <TabsTrigger value="policy" className="text-xs sm:text-sm">Marco</TabsTrigger>
+                          <TabsTrigger value="history" className="text-xs sm:text-sm">Hist.</TabsTrigger>
                         </TabsList>
 
                         <TabsContent value="summary" className="space-y-6">
@@ -1476,10 +1455,7 @@ export function ArcoWorkspace() {
                   </Card>
                 </div>
               )}
-            </div>
-          </div>
-        </div>
-      </div>
+      </ModuleWorkspaceShell>
 
       <Dialog open={importOpen} onOpenChange={setImportOpen}>
         <DialogContent className="max-w-2xl">
@@ -1536,7 +1512,7 @@ export function ArcoWorkspace() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </>
   )
 }
 

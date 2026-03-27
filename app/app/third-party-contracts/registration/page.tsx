@@ -1011,11 +1011,10 @@ export default function ContractRegistrationPage() {
       moduleDescription={THIRD_PARTY_CONTRACTS_META.moduleDescription}
       pageLabel="Registro"
       pageTitle="Registro contractual integral"
-      pageDescription="Captura integral para contratos que involucren tratamiento de datos personales con terceros, con historial, evidencias y trazabilidad."
+      pageDescription="Captura contrato, evidencias y trazabilidad del expediente."
       navItems={navItems}
       headerBadges={[
         { label: `${contractsHistory.length} contratos`, tone: "neutral" },
-        { label: `${historyMetrics.statusCounts.vigente} vigentes`, tone: "positive" },
         {
           label: `${historyMetrics.expiringIn30} por vencer`,
           tone: historyMetrics.expiringIn30 > 0 ? "warning" : "neutral",
@@ -1023,7 +1022,7 @@ export default function ContractRegistrationPage() {
       ]}
       actions={
         <Button asChild variant="outline">
-          <Link href="/third-party-contracts/reportes">Abrir reportes</Link>
+          <Link href="/third-party-contracts/documents">Documentos</Link>
         </Button>
       }
     >

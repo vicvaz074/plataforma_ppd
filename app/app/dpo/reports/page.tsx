@@ -1152,7 +1152,7 @@ export default function DPOReportsPage() {
       moduleDescription={DPO_META.moduleDescription}
       pageLabel="Informes"
       pageTitle="Actas e informes del DPO"
-      pageDescription="Genera actas de reunión, conserva versiones de informes y mantiene trazabilidad documental del Oficial de Protección de Datos."
+      pageDescription="Actas e informes con trazabilidad documental."
       navItems={navItems}
       headerBadges={[
         { label: `${actas.length} actas`, tone: "neutral" },
@@ -1162,11 +1162,11 @@ export default function DPOReportsPage() {
       contentClassName="space-y-6"
     >
       <Tabs defaultValue="acta" className="space-y-6">
-        <TabsList className="h-auto flex-wrap justify-start gap-2 rounded-2xl bg-[#edf4ff] p-2">
-          <TabsTrigger value="acta">Acta de Reunión</TabsTrigger>
-          <TabsTrigger value="actas-list">Actas Guardadas</TabsTrigger>
-          <TabsTrigger value="create">Crear Informe</TabsTrigger>
-          <TabsTrigger value="view">Ver Informes</TabsTrigger>
+        <TabsList className="grid h-auto w-full grid-cols-2 gap-2 rounded-2xl bg-[#edf4ff] p-1 lg:grid-cols-4">
+          <TabsTrigger value="acta" className="text-xs sm:text-sm">Acta</TabsTrigger>
+          <TabsTrigger value="actas-list" className="text-xs sm:text-sm">Actas</TabsTrigger>
+          <TabsTrigger value="create" className="text-xs sm:text-sm">Informe</TabsTrigger>
+          <TabsTrigger value="view" className="text-xs sm:text-sm">Informes</TabsTrigger>
         </TabsList>
 
         <TabsContent value="acta">
