@@ -1,6 +1,6 @@
 "use client"
 
-import { type ComponentType, useDeferredValue, useEffect, useMemo, useRef, useState } from "react"
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import jsPDF from "jspdf"
 import autoTable from "jspdf-autotable"
@@ -19,6 +19,7 @@ import {
   MessageSquare,
   PlusCircle,
   Upload,
+  type LucideIcon,
 } from "lucide-react"
 import {
   Bar,
@@ -167,7 +168,7 @@ const WORKSPACE_SECTIONS: Array<{
   label: string
   shortLabel?: string
   mobileLabel?: string
-  icon: ComponentType<{ className?: string }>
+  icon: LucideIcon
 }> = [
   { id: "dashboard", label: "Dashboard", shortLabel: "Inicio", mobileLabel: "Dashboard del portafolio", icon: LayoutDashboard },
   { id: "expedientes", label: "Expedientes", shortLabel: "Expedientes", mobileLabel: "Consulta de expedientes", icon: FolderOpen },
