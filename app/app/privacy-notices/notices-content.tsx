@@ -768,8 +768,8 @@ export function PrivacyNoticesContent({ section }: PrivacyNoticesContentProps) {
       }
       pageDescription={
         isRegisterSection
-          ? "Captura el aviso vigente, sus responsables, la puesta a disposición y la evidencia documental asociada."
-          : "Consulta, filtra y mantiene el inventario de avisos con trazabilidad de versiones y responsables."
+          ? "Captura responsables, puesta a disposición y evidencia del aviso."
+          : "Consulta y actualiza el inventario con versiones y responsables."
       }
       navItems={navItems}
       headerBadges={[
@@ -785,7 +785,7 @@ export function PrivacyNoticesContent({ section }: PrivacyNoticesContentProps) {
             variant="outline"
             onClick={() => router.push("/privacy-notices/registrados")}
           >
-            Ver inventario
+            Inventario
           </Button>
         ) : (
           <Button

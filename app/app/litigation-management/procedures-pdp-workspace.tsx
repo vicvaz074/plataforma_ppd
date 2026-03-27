@@ -1,6 +1,5 @@
 "use client"
 
-import Link from "next/link"
 import { type ComponentType, useDeferredValue, useEffect, useMemo, useRef, useState } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import jsPDF from "jspdf"
@@ -12,21 +11,14 @@ import {
   BarChart3,
   Bell,
   BookOpen,
-  CheckCircle2,
-  ChevronLeft,
-  Clock3,
   Download,
   FilePlus2,
-  FileStack,
   FolderOpen,
   History,
   LayoutDashboard,
-  ListFilter,
   MessageSquare,
   PlusCircle,
-  Scale,
   Upload,
-  Users,
 } from "lucide-react"
 import {
   Bar,
@@ -41,6 +33,7 @@ import {
   YAxis,
 } from "recharts"
 
+import { ModuleWorkspaceShell } from "@/components/arco-module-shell"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -49,7 +42,6 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Separator } from "@/components/ui/separator"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
@@ -72,19 +64,15 @@ import {
   getFirstActiveAlert,
   getProcedureAlertRowsByGroup,
   getProcedureStageOptions,
-  getStatusTone,
   ORIGIN_OPTIONS,
   OUTCOME_OPTIONS,
   PROCEDURE_TYPE_OPTIONS,
-  RISK_COLORS,
   RISK_LEVEL_OPTIONS,
   shouldExposeSensitiveFields,
   sortAuditEntries,
   sortProcedureDocuments,
   syncDraftStageWithType,
   validateProcedureWizardStep,
-  type ProcedureActuation,
-  type ProcedureAlertRow,
   type ProcedureDocumentType,
   type ProcedureGeneralStatus,
   type ProcedurePdpRecord,
@@ -105,7 +93,6 @@ import {
   getProcedureHeaderNotificationSummary,
   getProcedureHighRiskCount,
   loadProceduresRoot,
-  persistProceduresRoot,
   registerProcedureAccess,
   saveProcedureDraft,
   updateProcedureTaskStatus,
@@ -178,25 +165,27 @@ type ReportFilters = {
 const WORKSPACE_SECTIONS: Array<{
   id: WorkspaceSection
   label: string
+  shortLabel?: string
+  mobileLabel?: string
   icon: ComponentType<{ className?: string }>
 }> = [
-  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { id: "expedientes", label: "Expedientes", icon: FolderOpen },
-  { id: "register", label: "Registrar nuevo", icon: PlusCircle },
-  { id: "alertas", label: "Alertas", icon: Bell },
-  { id: "reportes", label: "Reportes", icon: BarChart3 },
-  { id: "bitacora", label: "Bitácora", icon: History },
+  { id: "dashboard", label: "Dashboard", shortLabel: "Inicio", mobileLabel: "Dashboard del portafolio", icon: LayoutDashboard },
+  { id: "expedientes", label: "Expedientes", shortLabel: "Expedientes", mobileLabel: "Consulta de expedientes", icon: FolderOpen },
+  { id: "register", label: "Registrar nuevo", shortLabel: "Registrar", mobileLabel: "Registrar expediente", icon: PlusCircle },
+  { id: "alertas", label: "Alertas", shortLabel: "Alertas", mobileLabel: "Alertas y vencimientos", icon: Bell },
+  { id: "reportes", label: "Reportes", shortLabel: "Reportes", mobileLabel: "Reportes y exportables", icon: BarChart3 },
+  { id: "bitacora", label: "Bitácora", shortLabel: "Bitácora", mobileLabel: "Bitácora de acciones", icon: History },
 ]
 
 const DETAIL_TABS: Array<{ id: DetailTab; label: string }> = [
   { id: "resumen", label: "Resumen" },
   { id: "datos", label: "Datos" },
-  { id: "cronologia", label: "Cronología" },
-  { id: "documentos", label: "Documentos" },
-  { id: "tareas", label: "Tareas y responsables" },
-  { id: "comentarios", label: "Comentarios" },
+  { id: "cronologia", label: "Fechas" },
+  { id: "documentos", label: "Docs" },
+  { id: "tareas", label: "Tareas" },
+  { id: "comentarios", label: "Notas" },
   { id: "alertas", label: "Alertas" },
-  { id: "historial", label: "Historial" },
+  { id: "historial", label: "Hist." },
 ]
 
 function secureId(prefix: string) {
@@ -335,15 +324,6 @@ function ProcedureMetricCard({
   )
 }
 
-function ProcedureNavBadge({ count }: { count?: number }) {
-  if (!count) return null
-  return (
-    <span className="ml-auto rounded-full bg-[#dbeafe] px-2 py-0.5 text-[11px] font-semibold text-[#0a4abf]">
-      {count}
-    </span>
-  )
-}
-
 function ProcedureChartTooltip({
   active,
   payload,
@@ -438,6 +418,73 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
   const alertGroups = useMemo(() => getProcedureAlertRowsByGroup(root), [root])
   const globalAuditLog = useMemo(() => collectGlobalAuditLog(root), [root])
   const notificationSummary = useMemo(() => getProcedureHeaderNotificationSummary(root), [root])
+  const pageMeta = useMemo(() => {
+    if (viewSection === "dashboard") {
+      return {
+        label: "Dashboard",
+        title: "Estado del portafolio",
+        description: "Prioriza expedientes, riesgos, vencimientos y actividad reciente dentro del portafolio de procedimientos PDP.",
+      }
+    }
+    if (viewSection === "expedientes") {
+      return {
+        label: "Expedientes",
+        title: "Consulta y seguimiento",
+        description: "Filtra el portafolio por tipo, riesgo, estatus y responsables con foco en operación diaria.",
+      }
+    }
+    if (viewSection === "register") {
+      return {
+        label: wizardDraft.id ? "Editar expediente" : "Registrar nuevo",
+        title: "Wizard del expediente",
+        description: "Registra o ajusta un expediente con datos base, fechas críticas y soporte documental sin ensanchar el flujo.",
+      }
+    }
+    if (viewSection === "alertas") {
+      return {
+        label: "Alertas",
+        title: "Centro de alertas del módulo",
+        description: "Concentra vencimientos, expedientes críticos y recordatorios accionables del portafolio.",
+      }
+    }
+    if (viewSection === "reportes") {
+      return {
+        label: "Reportes",
+        title: "Exportables y análisis",
+        description: "Genera vistas de gestión, exportables y cortes analíticos sin salir del módulo.",
+      }
+    }
+    if (viewSection === "bitacora") {
+      return {
+        label: "Bitácora",
+        title: "Registro inmutable del portafolio",
+        description: "Consulta accesos, actuaciones y cambios relevantes con trazabilidad operativa consolidada.",
+      }
+    }
+    return {
+      label: "Expediente",
+      title: selectedProcedure?.expedienteNumber || "Expediente",
+      description: "Ficha operativa del expediente con resumen, datos, alertas, documentos y bitácora procesal.",
+    }
+  }, [selectedProcedure?.expedienteNumber, viewSection, wizardDraft.id])
+
+  const workspaceNavItems = useMemo(
+    () =>
+      WORKSPACE_SECTIONS.map((item) => ({
+        id: item.id,
+        label: item.label,
+        shortLabel: item.shortLabel || item.label,
+        mobileLabel: item.mobileLabel || item.label,
+        icon: item.icon,
+        badge:
+          item.id === "alertas"
+            ? notificationSummary.critical + notificationSummary.medium || undefined
+            : item.id === "expedientes"
+              ? root.procedures.length || undefined
+              : undefined,
+      })),
+    [notificationSummary.critical, notificationSummary.medium, root.procedures.length],
+  )
 
   const filteredProcedures = useMemo(() => {
     const search = deferredSearch.trim().toLowerCase()
@@ -811,113 +858,31 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-[1360px] flex-col gap-6 px-4 py-8">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2 text-sm text-slate-500">
-            <Link href="/litigation-management" className="inline-flex items-center gap-1 hover:text-slate-900">
-              <ChevronLeft className="h-4 w-4" />
-              Volver al módulo
-            </Link>
-            <span>/</span>
-            <span>Procedimientos PDP</span>
-          </div>
-          <h1 className="text-3xl font-semibold text-slate-950">Procedimientos PDP</h1>
-          <p className="text-sm text-slate-500">
-            Control integral de expedientes, actuaciones, vencimientos, evidencias y trazabilidad.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline" onClick={() => navigate("register")}>
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Nuevo expediente
-          </Button>
+    <>
+      <ModuleWorkspaceShell
+        moduleLabel="Davara Governance"
+        moduleTitle="Procedimientos PDP"
+        moduleDescription="Control integral de expedientes, actuaciones, vencimientos, evidencias y trazabilidad con navegación compacta y persistente."
+        pageLabel={pageMeta.label}
+        pageTitle={pageMeta.title}
+        pageDescription={pageMeta.description}
+        navItems={workspaceNavItems}
+        activeNavId={viewSection === "expediente" ? "expedientes" : viewSection}
+        onNavSelect={(itemId) => navigate(itemId as WorkspaceSection)}
+        backHref="/litigation-management"
+        backLabel="Volver al módulo"
+        contentClassName="space-y-6"
+        headerBadges={[
+          { label: `${getActiveProcedureCount(root)} activos`, tone: "neutral" },
+          { label: `${getProcedureHighRiskCount(root)} alto riesgo`, tone: getProcedureHighRiskCount(root) > 0 ? "warning" : "neutral" },
+        ]}
+        actions={
           <Button variant="outline" onClick={exportPortfolioPdf}>
             <Download className="mr-2 h-4 w-4" />
             Exportar portafolio
           </Button>
-        </div>
-      </div>
-
-      <div className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
-        <div className="grid min-h-[760px] lg:grid-cols-[220px_1fr]">
-          <aside className="border-r border-[#d6e1f6] bg-[#edf4ff]">
-            <div className="border-b border-[#d6e1f6] px-6 py-5">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#5f7698]">Davara Governance</p>
-              <p className="mt-1 text-2xl font-semibold text-[#0a4abf]">Procedimientos PDP</p>
-            </div>
-            <nav className="space-y-1 p-3">
-              {WORKSPACE_SECTIONS.map((item) => {
-                const Icon = item.icon
-                const isActive = viewSection === item.id
-                const count =
-                  item.id === "alertas"
-                    ? notificationSummary.critical + notificationSummary.medium
-                    : item.id === "expedientes"
-                      ? root.procedures.length
-                      : undefined
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => navigate(item.id)}
-                    className={cn(
-                      "flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-medium transition-colors",
-                      isActive
-                        ? "bg-white text-[#0a4abf] shadow-[0_10px_24px_rgba(10,1,71,0.08)]"
-                        : "text-[#4f6788] hover:bg-white/80 hover:text-[#0a4abf]",
-                    )}
-                  >
-                    <span
-                      className={cn(
-                        "h-2.5 w-2.5 rounded-full",
-                        isActive ? "bg-[#0a4abf]" : "bg-[#7ea4df]",
-                      )}
-                    />
-                    <Icon className={cn("h-4 w-4", isActive ? "text-[#0a4abf]" : "text-[#5f7698]")} />
-                    <span>{item.label}</span>
-                    <ProcedureNavBadge count={count} />
-                  </button>
-                )
-              })}
-            </nav>
-          </aside>
-
-          <div className="min-w-0 bg-white">
-            <div className="border-b border-slate-200 px-6 py-4">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <p className="text-sm font-medium text-slate-500">
-                    {viewSection === "dashboard" && "Dashboard"}
-                    {viewSection === "expedientes" && "Expedientes"}
-                    {viewSection === "register" && (wizardDraft.id ? "Editar expediente" : "Registrar nuevo")}
-                    {viewSection === "alertas" && "Alertas y vencimientos"}
-                    {viewSection === "reportes" && "Reportes"}
-                    {viewSection === "bitacora" && "Bitácora de acciones"}
-                    {viewSection === "expediente" && `Ficha del expediente ${selectedProcedure?.expedienteNumber || ""}`}
-                  </p>
-                  <h2 className="mt-1 text-2xl font-semibold text-slate-950">
-                    {viewSection === "dashboard" && "Estado del portafolio"}
-                    {viewSection === "expedientes" && "Consulta y seguimiento"}
-                    {viewSection === "register" && "Wizard del expediente"}
-                    {viewSection === "alertas" && "Centro de alertas del módulo"}
-                    {viewSection === "reportes" && "Exportables y análisis"}
-                    {viewSection === "bitacora" && "Registro inmutable del portafolio"}
-                    {viewSection === "expediente" && (selectedProcedure?.expedienteNumber || "Expediente")}
-                  </h2>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <Badge variant="outline" className="border-slate-200 bg-slate-50 text-slate-700">
-                    {getActiveProcedureCount(root)} activos
-                  </Badge>
-                  <Badge variant="outline" className="border-slate-200 bg-slate-50 text-slate-700">
-                    {getProcedureHighRiskCount(root)} alto riesgo
-                  </Badge>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-6">
+        }
+      >
               {viewSection === "dashboard" && (
                 <div className="space-y-6">
                   <div className="grid gap-4 xl:grid-cols-5 md:grid-cols-2">
@@ -2085,9 +2050,13 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                       navigate("expediente", { id: selectedProcedure.id, tab: nextTab })
                     }}
                   >
-                    <TabsList className="grid w-full grid-cols-4 gap-2 rounded-2xl bg-slate-100/80 p-1 lg:grid-cols-8">
+                    <TabsList className="grid w-full grid-cols-2 gap-2 rounded-2xl bg-slate-100/80 p-1 md:grid-cols-4 xl:grid-cols-8">
                       {DETAIL_TABS.map((tab) => (
-                        <TabsTrigger key={tab.id} value={tab.id} className="rounded-xl data-[state=active]:bg-white">
+                        <TabsTrigger
+                          key={tab.id}
+                          value={tab.id}
+                          className="rounded-xl px-2 text-xs data-[state=active]:bg-white sm:text-sm"
+                        >
                           {tab.label}
                         </TabsTrigger>
                       ))}
@@ -2638,10 +2607,7 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                   El expediente seleccionado ya no está disponible.
                 </div>
               ) : null}
-            </div>
-          </div>
-        </div>
-      </div>
+      </ModuleWorkspaceShell>
 
       <Dialog open={documentDialogOpen} onOpenChange={setDocumentDialogOpen}>
         <DialogContent className="max-w-xl">
@@ -2696,6 +2662,6 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   )
 }

@@ -228,8 +228,8 @@ export function ArcoWorkflow({ request }: ArcoWorkflowProps) {
           <CardTitle>Flujo de trabajo ARCO</CardTitle>
           <CardDescription>Seguimiento del proceso de la solicitud ARCO</CardDescription>
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="timeline">Línea de tiempo</TabsTrigger>
-            <TabsTrigger value="status">Estado actual</TabsTrigger>
+            <TabsTrigger value="timeline">Línea</TabsTrigger>
+            <TabsTrigger value="status">Estado</TabsTrigger>
           </TabsList>
         </CardHeader>
         <CardContent>
@@ -438,4 +438,3 @@ export function ArcoWorkflow({ request }: ArcoWorkflowProps) {
     </Tabs>
   )
 }
-

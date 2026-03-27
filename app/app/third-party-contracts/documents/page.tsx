@@ -1,6 +1,4 @@
 "use client"
-
-import Link from "next/link"
 import { useState, useEffect, useMemo, FormEvent } from "react"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -933,30 +931,24 @@ export default function DocumentsAndClausesPage() {
       moduleDescription={THIRD_PARTY_CONTRACTS_META.moduleDescription}
       pageLabel="Documentos"
       pageTitle="Biblioteca documental y cláusulas"
-      pageDescription="Repositorio de plantillas, contratos registrados y cláusulas modelo con filtros, parametrización y carga de formatos internos."
+      pageDescription="Plantillas, cláusulas y contratos relacionados en una sola biblioteca."
       navItems={navItems}
       headerBadges={[
         { label: `${templateFiles.length + uploadedContracts.length} recursos`, tone: "neutral" },
         { label: `${combinedClauses.length} cláusulas`, tone: "primary" },
-        { label: `${contractHistory.length} contratos relacionados`, tone: "neutral" },
       ]}
       actions={
-        <>
-          <Button variant="outline" onClick={() => setIsUploadDialogOpen(true)}>
-            <Upload className="mr-2 h-4 w-4" />
-            Subir plantilla
-          </Button>
-          <Button asChild>
-            <Link href="/third-party-contracts/registration">Ir al registro</Link>
-          </Button>
-        </>
+        <Button variant="outline" onClick={() => setIsUploadDialogOpen(true)}>
+          <Upload className="mr-2 h-4 w-4" />
+          Subir plantilla
+        </Button>
       }
     >
       <Tabs defaultValue="documents" className="w-full">
-        <TabsList className="mb-8 grid w-full grid-cols-3">
-          <TabsTrigger value="documents">Documentos de Utilidad</TabsTrigger>
-          <TabsTrigger value="clauses">Cláusulas Modelo</TabsTrigger>
-          <TabsTrigger value="uploaded">Contratos Registrados</TabsTrigger>
+        <TabsList className="mb-8 grid w-full grid-cols-1 gap-2 rounded-2xl bg-[#edf4ff] p-1 sm:grid-cols-3">
+          <TabsTrigger value="documents" className="text-xs sm:text-sm">Plantillas</TabsTrigger>
+          <TabsTrigger value="clauses" className="text-xs sm:text-sm">Cláusulas</TabsTrigger>
+          <TabsTrigger value="uploaded" className="text-xs sm:text-sm">Contratos</TabsTrigger>
         </TabsList>
 
         <TabsContent value="documents" className="space-y-6">

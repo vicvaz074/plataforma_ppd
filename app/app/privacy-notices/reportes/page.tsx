@@ -135,7 +135,7 @@ export default function PrivacyNoticesReportsPage() {
       moduleDescription={PRIVACY_NOTICES_META.moduleDescription}
       pageLabel="Reportes"
       pageTitle="Analítica visual de avisos"
-      pageDescription="Compara tipologías, tendencias mensuales y cobertura documental con visualizaciones a color basadas en datos reales del módulo."
+      pageDescription="Compara tipologías, tendencias y cobertura documental."
       navItems={navItems}
       headerBadges={[
         { label: `${metrics.total} registros`, tone: "neutral" },

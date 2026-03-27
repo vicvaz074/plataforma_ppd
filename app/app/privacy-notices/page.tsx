@@ -100,25 +100,19 @@ export default function PrivacyNoticesLandingPage() {
       moduleDescription={PRIVACY_NOTICES_META.moduleDescription}
       pageLabel="Overview"
       pageTitle="Panorama operativo de avisos"
-      pageDescription="Consulta cobertura documental, tipologías activas, evidencia disponible y el estado general del módulo sin pasar por una landing intermedia."
+      pageDescription="Consulta cobertura, evidencia y estado general del módulo."
       navItems={navItems}
       headerBadges={[
-        { label: "LFPDPPP · Avisos", tone: "primary" },
         { label: `${notices.length} registros`, tone: "neutral" },
         { label: `${overview.coverage}% con evidencia`, tone: overview.coverage >= 70 ? "positive" : "warning" },
       ]}
       actions={
-        <>
-          <Button asChild variant="outline">
-            <Link href="/privacy-notices/registrados">Ver registros</Link>
-          </Button>
-          <Button asChild>
-            <Link href="/privacy-notices/registro">
-              <FilePlus2 className="mr-2 h-4 w-4" />
-              Registrar aviso
-            </Link>
-          </Button>
-        </>
+        <Button asChild>
+          <Link href="/privacy-notices/registro">
+            <FilePlus2 className="mr-2 h-4 w-4" />
+            Registrar aviso
+          </Link>
+        </Button>
       }
     >
       <div className="space-y-6">

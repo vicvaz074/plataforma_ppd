@@ -42,35 +42,35 @@ export const DATA_POLICIES_META = {
 }
 
 export const PRIVACY_NOTICES_NAV: ArcoModuleNavItem[] = [
-  { href: "/privacy-notices", label: "Overview", icon: LayoutDashboard },
-  { href: "/privacy-notices/registro", label: "Registrar aviso", icon: FilePlus2, activePaths: ["/privacy-notices/registro"] },
-  { href: "/privacy-notices/registrados", label: "Avisos registrados", icon: FileSearch, activePaths: ["/privacy-notices/registrados"] },
-  { href: "/privacy-notices/reportes", label: "Reportes", icon: BarChart3, activePaths: ["/privacy-notices/reportes"] },
+  { href: "/privacy-notices", label: "Panorama", shortLabel: "Inicio", mobileLabel: "Panorama del módulo", icon: LayoutDashboard },
+  { href: "/privacy-notices/registro", label: "Registrar aviso", shortLabel: "Registrar", mobileLabel: "Registrar aviso", icon: FilePlus2, activePaths: ["/privacy-notices/registro"] },
+  { href: "/privacy-notices/registrados", label: "Avisos registrados", shortLabel: "Registros", mobileLabel: "Avisos registrados", icon: FileSearch, activePaths: ["/privacy-notices/registrados"] },
+  { href: "/privacy-notices/reportes", label: "Reportes", shortLabel: "Reportes", mobileLabel: "Reportes del módulo", icon: BarChart3, activePaths: ["/privacy-notices/reportes"] },
 ]
 
 export const THIRD_PARTY_CONTRACTS_NAV: ArcoModuleNavItem[] = [
-  { href: "/third-party-contracts", label: "Overview", icon: LayoutDashboard },
-  { href: "/third-party-contracts/registration", label: "Registro", icon: FilePlus2, activePaths: ["/third-party-contracts/registration"] },
-  { href: "/third-party-contracts/documents", label: "Documentos y cláusulas", icon: LibraryBig, activePaths: ["/third-party-contracts/documents"] },
-  { href: "/third-party-contracts/reportes", label: "Reportes", icon: BarChart3, activePaths: ["/third-party-contracts/reportes"] },
+  { href: "/third-party-contracts", label: "Panorama", shortLabel: "Inicio", mobileLabel: "Panorama contractual", icon: LayoutDashboard },
+  { href: "/third-party-contracts/registration", label: "Registro", shortLabel: "Registro", mobileLabel: "Registro contractual", icon: FilePlus2, activePaths: ["/third-party-contracts/registration"] },
+  { href: "/third-party-contracts/documents", label: "Documentos y cláusulas", shortLabel: "Docs y cláus.", mobileLabel: "Documentos y cláusulas", icon: LibraryBig, activePaths: ["/third-party-contracts/documents"] },
+  { href: "/third-party-contracts/reportes", label: "Reportes", shortLabel: "Reportes", mobileLabel: "Reportes del módulo", icon: BarChart3, activePaths: ["/third-party-contracts/reportes"] },
 ]
 
 export const DPO_NAV: ArcoModuleNavItem[] = [
-  { href: "/dpo", label: "Overview", icon: LayoutDashboard },
-  { href: "/dpo/registro", label: "Registro", icon: FilePlus2, activePaths: ["/dpo/registro"] },
-  { href: "/dpo/compliance", label: "Cumplimiento", icon: ClipboardCheck, activePaths: ["/dpo/compliance"] },
-  { href: "/dpo/reports", label: "Informes", icon: FileText, activePaths: ["/dpo/reports"] },
+  { href: "/dpo", label: "Panorama", shortLabel: "Inicio", mobileLabel: "Panorama del OPD", icon: LayoutDashboard },
+  { href: "/dpo/registro", label: "Registro", shortLabel: "Registro", mobileLabel: "Registro del OPD", icon: FilePlus2, activePaths: ["/dpo/registro"] },
+  { href: "/dpo/compliance", label: "Cumplimiento", shortLabel: "Cumpl.", mobileLabel: "Cumplimiento del OPD", icon: ClipboardCheck, activePaths: ["/dpo/compliance"] },
+  { href: "/dpo/reports", label: "Informes", shortLabel: "Informes", mobileLabel: "Informes y actas", icon: FileText, activePaths: ["/dpo/reports"] },
 ]
 
 export const EIPD_NAV: ArcoModuleNavItem[] = [
-  { href: "/eipd", label: "Overview", icon: LayoutDashboard },
-  { href: "/eipd/registro?mode=new", label: "Nueva EIPD", icon: FilePlus2, activePaths: ["/eipd/registro"] },
-  { href: "/eipd/consultar", label: "Consultar", icon: FileSearch, activePaths: ["/eipd/consultar"] },
-  { href: "/eipd/reportes", label: "Reportes", icon: BarChart3, activePaths: ["/eipd/reportes"] },
+  { href: "/eipd", label: "Panorama", shortLabel: "Inicio", mobileLabel: "Panorama EIPD", icon: LayoutDashboard },
+  { href: "/eipd/registro?mode=new", label: "Nueva EIPD", shortLabel: "Nueva", mobileLabel: "Nueva evaluación EIPD", icon: FilePlus2, activePaths: ["/eipd/registro"] },
+  { href: "/eipd/consultar", label: "Consultar", shortLabel: "Consulta", mobileLabel: "Consultar EIPD", icon: FileSearch, activePaths: ["/eipd/consultar"] },
+  { href: "/eipd/reportes", label: "Reportes", shortLabel: "Reportes", mobileLabel: "Reportes EIPD", icon: BarChart3, activePaths: ["/eipd/reportes"] },
 ]
 
 export const DATA_POLICIES_NAV: ArcoModuleNavItem[] = [
-  { href: "/data-policies", label: "Overview", icon: LayoutDashboard },
-  { href: "/data-policies/registro", label: "Registro", icon: FilePlus2, activePaths: ["/data-policies/registro"] },
-  { href: "/data-policies/consulta", label: "Consulta", icon: ShieldCheck, activePaths: ["/data-policies/consulta"] },
+  { href: "/data-policies", label: "Panorama", shortLabel: "Inicio", mobileLabel: "Panorama PGDP", icon: LayoutDashboard },
+  { href: "/data-policies/registro", label: "Registro", shortLabel: "Registro", mobileLabel: "Registro de política", icon: FilePlus2, activePaths: ["/data-policies/registro"] },
+  { href: "/data-policies/consulta", label: "Consulta", shortLabel: "Consulta", mobileLabel: "Consulta de políticas", icon: ShieldCheck, activePaths: ["/data-policies/consulta"] },
 ]

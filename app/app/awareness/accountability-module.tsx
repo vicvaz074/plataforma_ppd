@@ -14,14 +14,10 @@ import {
   Building2,
   CalendarClock,
   CalendarDays,
-  CheckCircle2,
   ClipboardCheck,
-  ClipboardList,
-  Database,
   Download,
   Eye,
   FileCheck2,
-  FileSearch,
   Fingerprint,
   FolderKanban,
   Gauge,
@@ -29,7 +25,6 @@ import {
   Network,
   Pencil,
   Plus,
-  Shield,
   ShieldAlert,
   Siren,
   Trash2,
@@ -49,6 +44,7 @@ import {
   YAxis,
 } from "recharts"
 
+import { ModuleWorkspaceShell } from "@/components/arco-module-shell"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -57,7 +53,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, TabsContent } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
 import {
@@ -228,7 +224,6 @@ type ReminderSyncDraft = Omit<AuditReminder, "id" | "createdAt"> & {
 
 const isBrowser = typeof window !== "undefined"
 
-const PRIMARY_HEX = "#0a0147"
 const GREEN_HEX = "#0f9d6b"
 const AMBER_HEX = "#d97706"
 const RED_HEX = "#dc2626"
@@ -314,126 +309,126 @@ const LEGACY_SGDP_KEYS: Record<string, string> = {
 const MODULES: ModuleConfig[] = [
   {
     id: "dashboard",
-    displayId: "",
+    displayId: "DX",
     label: "Dashboard ejecutivo",
-    shortLabel: "",
+    shortLabel: "Dashboard",
     phase: "Transversal",
     icon: Gauge,
     description: "Semáforo global del SGDP, KPIs, KRIs, actividad y vencimientos.",
   },
   {
     id: "sm01",
-    displayId: "",
+    displayId: "SM01",
     label: "Gobierno y estructura",
-    shortLabel: "",
+    shortLabel: "Gobierno",
     phase: "Planificar",
     icon: Building2,
     description: "Define alcance, responsables, recursos y apoyo de Alta Dirección.",
   },
   {
     id: "sm02",
-    displayId: "",
+    displayId: "SM02",
     label: "PGDP",
-    shortLabel: "",
+    shortLabel: "PGDP",
     phase: "Planificar",
     icon: FileCheck2,
     description: "Gestiona la política de gestión de datos personales y su vigencia.",
   },
   {
     id: "sm03",
-    displayId: "",
+    displayId: "SM03",
     label: "Inventario y trazabilidad",
-    shortLabel: "",
+    shortLabel: "Inventario",
     phase: "Hacer",
     icon: Network,
     description: "Vista de accountability sobre tratamientos y flujos provenientes del RAT.",
   },
   {
     id: "sm04",
-    displayId: "",
+    displayId: "SM04",
     label: "Riesgos y evaluaciones",
-    shortLabel: "",
+    shortLabel: "Riesgos",
     phase: "Hacer",
     icon: ShieldAlert,
     description: "Registra riesgos, mitigaciones y banderas de EIPD.",
   },
   {
     id: "sm05",
-    displayId: "",
+    displayId: "SM05",
     label: "Capacitación y cultura",
-    shortLabel: "",
+    shortLabel: "Cultura",
     phase: "Hacer",
     icon: BookOpen,
     description: "Consolida actividades, cobertura y efectividad de la capacitación.",
   },
   {
     id: "sm06",
-    displayId: "",
+    displayId: "SM06",
     label: "Encargados y subcontrataciones",
-    shortLabel: "",
+    shortLabel: "Encargados",
     phase: "Hacer",
     icon: Users,
     description: "Directorio de encargados, vigencias y checklist del Art. 50.",
   },
   {
     id: "sm07",
-    displayId: "",
+    displayId: "SM07",
     label: "Auditorías",
-    shortLabel: "",
+    shortLabel: "Auditorías",
     phase: "Verificar",
     icon: ClipboardCheck,
     description: "Programa anual, reportes, indicadores y hallazgos.",
   },
   {
     id: "sm08",
-    displayId: "",
+    displayId: "SM08",
     label: "Revisiones administrativas",
-    shortLabel: "",
+    shortLabel: "Rev. adm.",
     phase: "Verificar",
     icon: CalendarClock,
     description: "Documenta revisiones con los ocho insumos del Num. 32.",
   },
   {
     id: "sm09",
-    displayId: "",
+    displayId: "SM09",
     label: "No conformidades y CAPA",
-    shortLabel: "",
+    shortLabel: "CAPA",
     phase: "Actuar",
     icon: Siren,
     description: "Gestiona NCs, causa raíz, acciones y vencimientos.",
   },
   {
     id: "sm10",
-    displayId: "",
+    displayId: "SM10",
     label: "Quejas y reportes",
-    shortLabel: "",
+    shortLabel: "Quejas",
     phase: "Hacer / Verificar",
     icon: Fingerprint,
     description: "Canal centralizado para quejas, dudas y reportes internos.",
   },
   {
     id: "sm11",
-    displayId: "",
+    displayId: "SM11",
     label: "Evidencias y expediente",
-    shortLabel: "",
+    shortLabel: "Expediente",
     phase: "Transversal",
     icon: FolderKanban,
     description: "Agrega evidencias por submódulo y exporta un expediente básico.",
   },
   {
     id: "sm12",
-    displayId: "",
+    displayId: "SM12",
     label: "Métricas y tablero",
-    shortLabel: "",
+    shortLabel: "Tablero",
     phase: "Transversal",
     icon: BarChart3,
     description: "Vista analítica completa del estado de Accountability.",
   },
   {
     id: "sm13",
-    displayId: "",
+    displayId: "SM13",
     label: "Mejora continua",
-    shortLabel: "",
+    shortLabel: "Mejora",
     phase: "Actuar",
     icon: Workflow,
     description: "Plan de mejora con origen trazable y cierre verificado.",
@@ -2494,64 +2489,76 @@ export function AwarenessContent({ initialModule = "dashboard" }: { initialModul
     })
   }, [accountabilityReminderDrafts])
 
-  return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(10,1,71,0.06),_transparent_34%),linear-gradient(180deg,_#f8fafc_0%,_#ffffff_100%)]">
-      <div className="mx-auto flex w-full max-w-[1460px] flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
-        <Card className="overflow-hidden border-slate-200 shadow-sm">
-          <CardContent className="flex flex-col gap-6 p-6">
-            <div className="space-y-4">
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge variant="outline" className="border-primary/20 bg-primary/5 text-primary">
-                  Accountability · Responsabilidad demostrada
-                </Badge>
-                <Badge variant="outline" className="border-slate-200 bg-slate-50 text-slate-600">
-                  Arts. 48-55 RLFPDPPP · Nums. 16-37 INAI
-                </Badge>
-              </div>
-              <div className="space-y-2">
-                <h1 className="text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
-                  Módulo de Responsabilidad Demostrada
-                </h1>
-                <p className="max-w-4xl text-sm leading-6 text-slate-500 sm:text-base">
-                  El módulo ahora abre con el tablero ejecutivo del SGDP y organiza la operación en trece submódulos conectados.
-                  Reúne gobierno, PGDP, inventario, riesgos, encargados, auditorías, revisiones, no conformidades, quejas,
-                  expediente y mejora continua con la estética general de la plataforma.
-                </p>
-              </div>
+  const activeModuleConfig = useMemo(
+    () => MODULES.find((module) => module.id === activeModule) || MODULES[0],
+    [activeModule],
+  )
 
-              {dashboardCriticalAlerts.length > 0 ? (
-                <div className="rounded-2xl border border-red-200 bg-red-50/90 p-4">
-                  <div className="flex items-start gap-3">
-                    <AlertTriangle className="mt-0.5 h-5 w-5 text-red-600" />
-                    <div className="min-w-0 space-y-1">
-                      <p className="text-sm font-semibold text-red-700">Alertas críticas activas</p>
-                      <p className="break-words text-sm text-red-700/80">
-                        {dashboardCriticalAlerts.map((item) => `${item.label}: ${item.value}`).join(" · ")}
-                      </p>
-                    </div>
+  const workspaceNavItems = useMemo(
+    () =>
+      MODULES.filter((module) => module.id !== "sm12").map((module) => {
+        const moduleState = moduleStatusMap[module.id]
+
+        return {
+          id: module.id,
+          label: module.label,
+          shortLabel: module.shortLabel || module.label,
+          mobileLabel: `${module.displayId} · ${module.label}`,
+          icon: module.icon,
+          group: module.phase,
+          badge: moduleState.alerts > 0 ? moduleState.alerts : undefined,
+        }
+      }),
+    [moduleStatusMap],
+  )
+
+  return (
+    <Tabs value={activeModule} onValueChange={(value) => setActiveModule(value as AccountabilityModuleId)} className="space-y-0">
+      <ModuleWorkspaceShell
+        moduleLabel="Workspace SGDP"
+        moduleTitle="Responsabilidad demostrada"
+        moduleDescription="Gobierno, PGDP, riesgos, encargados, verificaciones, expediente y mejora continua dentro de una sola superficie operativa."
+        pageLabel={activeModuleConfig.displayId ? `${activeModuleConfig.displayId} · ${activeModuleConfig.phase}` : "Dashboard"}
+        pageTitle={activeModuleConfig.id === "dashboard" ? "Módulo de Responsabilidad Demostrada" : activeModuleConfig.label}
+        pageDescription={
+          activeModuleConfig.id === "dashboard"
+            ? "Tablero SGDP con cobertura, medidas y recordatorios."
+            : `Seguimiento operativo de ${activeModuleConfig.shortLabel || activeModuleConfig.label}.`
+        }
+        navItems={workspaceNavItems}
+        activeNavId={activeModule}
+        onNavSelect={(itemId) => setActiveModule(itemId as AccountabilityModuleId)}
+        backHref="/"
+        backLabel="Volver al inicio"
+        contentClassName="space-y-6"
+        headerBadges={[
+          { label: `${sgdpCoverage}/100 SGDP`, tone: getTrafficLight(sgdpCoverage) === "green" ? "positive" : getTrafficLight(sgdpCoverage) === "amber" ? "warning" : "critical" },
+          { label: `${reminderSummary.total} recordatorios`, tone: reminderSummary.overdue > 0 ? "warning" : "neutral" },
+        ]}
+        actions={
+          <Button variant="outline" onClick={() => exportEvidencePdf("all")}>
+            <Download className="mr-2 h-4 w-4" />
+            Exportar expediente
+          </Button>
+        }
+      >
+
+          <TabsContent value="dashboard" className="mt-0 space-y-6">
+            {dashboardCriticalAlerts.length > 0 ? (
+              <div className="rounded-[28px] border border-red-200 bg-red-50/90 p-5">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="mt-0.5 h-5 w-5 text-red-600" />
+                  <div className="min-w-0 space-y-1">
+                    <p className="text-sm font-semibold text-red-700">Alertas críticas activas</p>
+                    <p className="break-words text-sm text-red-700/80">
+                      {dashboardCriticalAlerts.map((item) => `${item.label}: ${item.value}`).join(" · ")}
+                    </p>
                   </div>
                 </div>
-              ) : null}
-
-              <div className="flex flex-wrap gap-3">
-                <Button onClick={() => setActiveModule("sm01")}>
-                  Ir a Gobierno y estructura
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-                <Button variant="outline" onClick={() => exportEvidencePdf("all")}>
-                  <Download className="mr-2 h-4 w-4" />
-                  Exportar expediente básico
-                </Button>
-                <Button variant="outline" onClick={() => setActiveModule("sm11")}>
-                  Abrir repositorio de evidencias
-                </Button>
-                <Button asChild variant="outline">
-                  <Link href="/audit-alarms">Abrir recordatorios y alertas</Link>
-                </Button>
               </div>
-            </div>
+            ) : null}
 
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
               <div className="rounded-[24px] border border-slate-200 bg-slate-50/90 p-5">
                 <div className="flex items-center justify-between">
                   <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Semáforo global SGDP</p>
@@ -2588,54 +2595,7 @@ export function AwarenessContent({ initialModule = "dashboard" }: { initialModul
                 </p>
               </div>
             </div>
-          </CardContent>
-        </Card>
 
-        <Tabs
-          value={activeModule}
-          onValueChange={(value) => setActiveModule(value as AccountabilityModuleId)}
-          className="grid gap-6 lg:grid-cols-[260px_minmax(0,1fr)] lg:items-start"
-        >
-          <aside className="sticky top-16 self-start overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
-            <div className="border-b border-slate-100 bg-slate-50/80 px-5 py-5">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Workspace SGDP</p>
-              <p className="mt-2 text-2xl font-semibold text-slate-950">Responsabilidad demostrada</p>
-              <p className="mt-3 text-sm leading-6 text-slate-500">
-                Navegación lateral de los submódulos operativos para mantener continuidad visual con el layout de referencia.
-              </p>
-            </div>
-            <TabsList className="grid h-auto w-full gap-2 bg-transparent p-3">
-              {MODULES.filter((module) => module.id !== "sm12").map((module) => {
-                const Icon = module.icon
-                const moduleState = moduleStatusMap[module.id]
-                return (
-                  <TabsTrigger
-                    key={module.id}
-                    value={module.id}
-                    className="data-[state=active]:border-primary/20 data-[state=active]:bg-primary/5 data-[state=active]:text-primary flex h-auto w-full items-start justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left text-slate-600 whitespace-normal"
-                  >
-                    <div className="flex min-w-0 items-start gap-3">
-                      <div className="rounded-xl bg-slate-100 p-2 text-slate-700">
-                        <Icon className="h-4 w-4" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">{module.displayId || "Submódulo"}</p>
-                        <p className="line-clamp-2 break-words whitespace-normal text-sm font-medium leading-tight">{module.label}</p>
-                      </div>
-                    </div>
-                    <div className="flex shrink-0 flex-col items-end gap-2">
-                      <span className={cn("h-2.5 w-2.5 rounded-full", getTrafficLightDot(moduleState.status))} />
-                      {moduleState.alerts > 0 ? (
-                        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600">{moduleState.alerts}</span>
-                      ) : null}
-                    </div>
-                  </TabsTrigger>
-                )
-              })}
-            </TabsList>
-          </aside>
-
-          <TabsContent value="dashboard" className="mt-0 space-y-6">
             <div className="grid gap-6">
               <Card className="min-w-0 overflow-hidden border-slate-200 shadow-sm">
                 <CardHeader className="border-b border-slate-100">
@@ -3698,8 +3658,7 @@ export function AwarenessContent({ initialModule = "dashboard" }: { initialModul
               emptyMessage="No hay iniciativas de mejora registradas."
             />
           </TabsContent>
-        </Tabs>
-      </div>
-    </div>
+      </ModuleWorkspaceShell>
+    </Tabs>
   )
 }

@@ -96,8 +96,8 @@ export function ArcoStats({ requests }: ArcoStatsProps) {
         <Tabs defaultValue="all" value={period} onValueChange={setPeriod}>
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="month">Mes</TabsTrigger>
-            <TabsTrigger value="quarter">Trimestre</TabsTrigger>
-            <TabsTrigger value="all">Todas</TabsTrigger>
+            <TabsTrigger value="quarter">Trim.</TabsTrigger>
+            <TabsTrigger value="all">Total</TabsTrigger>
           </TabsList>
         </Tabs>
       </CardHeader>

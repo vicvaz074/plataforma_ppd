@@ -40,13 +40,13 @@ const REPORT_TYPES: { value: ReportType; label: string }[] = [
 ]
 
 const REPORT_DIMENSIONS: { value: ReportDimension; label: string }[] = [
-  { value: "general", label: "Generales" },
-  { value: "derecho", label: "Por derecho" },
-  { value: "titular", label: "Por titular" },
-  { value: "empresa", label: "Por empresa" },
-  { value: "fecha", label: "Por fecha" },
-  { value: "estado", label: "Por estado" },
-  { value: "riesgo", label: "Por nivel de riesgo" },
+  { value: "general", label: "General" },
+  { value: "derecho", label: "Derecho" },
+  { value: "titular", label: "Titular" },
+  { value: "empresa", label: "Empresa" },
+  { value: "fecha", label: "Fecha" },
+  { value: "estado", label: "Estado" },
+  { value: "riesgo", label: "Riesgo" },
 ]
 
 const DATE_GROUPINGS: { value: DateGrouping; label: string }[] = [

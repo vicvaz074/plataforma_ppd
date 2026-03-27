@@ -208,11 +208,9 @@ export function syncArcoReminders(requests: ArcoRequest[]) {
 }
 
 export const getArcoRequests = (): ArcoRequest[] => {
-  const requests = readStoredRequests().sort((left, right) =>
+  return readStoredRequests().sort((left, right) =>
     new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime(),
   )
-  syncArcoReminders(requests)
-  return requests
 }
 
 export const getArcoRequestById = (id: string): ArcoRequest | null => {
@@ -340,10 +338,10 @@ export const seedArcoDemoRequests = (
   return demoRequests
 }
 
-export function getArcoDashboardData() {
-  return buildArcoDashboardSnapshot(getArcoRequests())
+export function getArcoDashboardData(requests: ArcoRequest[] = getArcoRequests()) {
+  return buildArcoDashboardSnapshot(requests)
 }
 
-export function getArcoAuditLog(): Array<ArcoAuditEntry & { folio: string; requestId: string }> {
-  return collectArcoAuditEntries(getArcoRequests())
+export function getArcoAuditLog(requests: ArcoRequest[] = getArcoRequests()): Array<ArcoAuditEntry & { folio: string; requestId: string }> {
+  return collectArcoAuditEntries(requests)
 }

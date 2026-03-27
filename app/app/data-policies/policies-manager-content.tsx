@@ -722,8 +722,8 @@ export function PoliciesManager({ initialSection = "registro" }: PoliciesManager
       }
       pageDescription={
         activeSection === "registro"
-          ? "Configura políticas, vigencia, responsables y envío al workflow real de aprobación."
-          : "Consulta madurez, evidencias, coberturas y seguimiento documental del programa."
+          ? "Configura políticas, vigencia y workflow de aprobación."
+          : "Consulta madurez, evidencia y seguimiento documental."
       }
       navItems={navItems}
       headerBadges={[
@@ -732,21 +732,12 @@ export function PoliciesManager({ initialSection = "registro" }: PoliciesManager
           label: `${snapshot.publishedWithEvidence} vigentes con evidencia`,
           tone: snapshot.publishedWithEvidence > 0 ? "positive" : "warning",
         },
-        {
-          label: `${snapshot.underReview} en revisión`,
-          tone: snapshot.underReview > 0 ? "primary" : "neutral",
-        },
       ]}
       actions={
-        <>
-          <Button onClick={startNewPolicy}>
-            Nueva PGDP
-            <PlusCircle className="ml-2 h-4 w-4" />
-          </Button>
-          <Button asChild variant="outline">
-            <Link href="/audit-alarms">Abrir recordatorios y alertas</Link>
-          </Button>
-        </>
+        <Button onClick={startNewPolicy}>
+          Nueva PGDP
+          <PlusCircle className="ml-2 h-4 w-4" />
+        </Button>
       }
     >
       <div className="mx-auto flex w-full max-w-[1460px] flex-col gap-6">
@@ -1875,7 +1866,7 @@ export function PoliciesManager({ initialSection = "registro" }: PoliciesManager
                     </CardHeader>
                     <CardContent className="p-5">
                       <Tabs defaultValue="preview" className="space-y-4">
-                        <TabsList className="grid w-full grid-cols-2">
+                        <TabsList className="grid w-full grid-cols-1 gap-2 rounded-2xl bg-[#edf4ff] p-1 sm:grid-cols-2">
                           <TabsTrigger value="preview">Expediente</TabsTrigger>
                           <TabsTrigger value="versions">Versiones</TabsTrigger>
                         </TabsList>

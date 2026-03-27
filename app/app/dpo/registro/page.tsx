@@ -55,12 +55,12 @@ export default function DpoRegistroPage() {
       navItems={DPO_NAV}
       pageLabel="Registro"
       pageTitle="Registro de Oficial de Protección de Datos"
-      pageDescription="Captura la información de acreditación y designación del DPO dentro de la organización."
+      pageDescription="Captura la designación y acreditación del DPO."
       backHref="/"
       backLabel="Volver al inicio"
       actions={
         <Button onClick={handleSave} className="rounded-full">
-          <Save className="mr-2 h-4 w-4" /> Guardar registro
+          <Save className="mr-2 h-4 w-4" /> Guardar
         </Button>
       }
     >

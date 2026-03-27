@@ -2,19 +2,36 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import type { ReactNode } from "react"
-import { ChevronLeft, type LucideIcon } from "lucide-react"
+import { type CSSProperties, type ReactNode, useEffect, useMemo, useRef, useState } from "react"
+import { ChevronLeft, Menu, type LucideIcon } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
 import { cn } from "@/lib/utils"
 
-export type ArcoModuleNavItem = {
-  href: string
+export type ModuleWorkspaceNavItem = {
+  id?: string
+  href?: string
   label: string
+  shortLabel?: string
+  mobileLabel?: string
   icon: LucideIcon
   badge?: number | string
   activePaths?: string[]
+  group?: string
+}
+
+export type ArcoModuleNavItem = ModuleWorkspaceNavItem & {
+  href: string
 }
 
 type HeaderBadgeTone = "primary" | "positive" | "warning" | "critical" | "neutral"
@@ -24,20 +41,27 @@ type HeaderBadge = {
   tone?: HeaderBadgeTone
 }
 
-type ArcoModuleShellProps = {
+type BaseWorkspaceShellProps = {
   moduleLabel: string
   moduleTitle: string
   moduleDescription: string
   pageLabel: string
   pageTitle: string
   pageDescription?: string
-  navItems: ArcoModuleNavItem[]
+  navItems: ModuleWorkspaceNavItem[]
   headerBadges?: HeaderBadge[]
   actions?: ReactNode
   children: ReactNode
   contentClassName?: string
   backHref?: string
   backLabel?: string
+  activeNavId?: string
+  onNavSelect?: (itemId: string) => void
+  surfaceClassName?: string
+}
+
+type ArcoModuleShellProps = Omit<BaseWorkspaceShellProps, "activeNavId" | "onNavSelect"> & {
+  navItems: ArcoModuleNavItem[]
 }
 
 type ModuleMetricCardProps = {
@@ -46,6 +70,25 @@ type ModuleMetricCardProps = {
   helper: string
   icon?: LucideIcon
   tone?: HeaderBadgeTone
+}
+
+type ResolvedNavItem = ModuleWorkspaceNavItem & {
+  key: string
+  active: boolean
+}
+
+type NavGroup = {
+  key: string
+  label?: string
+  items: ResolvedNavItem[]
+}
+
+type DesktopSidebarFrame = {
+  left: number
+  top: number
+  width: number
+  height: number
+  shellWidth: number
 }
 
 export const MODULE_COLOR_PALETTES = {
@@ -71,6 +114,161 @@ function metricAccentClasses(tone: HeaderBadgeTone = "primary") {
   if (tone === "critical") return "bg-red-500"
   if (tone === "neutral") return "bg-slate-400"
   return "bg-[#0a4abf]"
+}
+
+function getNavItemKey(item: ModuleWorkspaceNavItem, index: number) {
+  return item.id || item.href || `${item.label}-${index}`
+}
+
+function getNavItemValue(item: ModuleWorkspaceNavItem, index: number) {
+  return item.id || item.href || `${item.label}-${index}`
+}
+
+function isRouteItemActive(pathname: string, item: ModuleWorkspaceNavItem) {
+  if (!item.href) return false
+
+  const basePath = item.href.split("?")[0]
+  const matchTargets = item.activePaths && item.activePaths.length > 0 ? item.activePaths : [basePath]
+
+  return matchTargets.some((target) => {
+    const normalizedTarget = target.endsWith("/") && target.length > 1 ? target.slice(0, -1) : target
+    const isModuleRoot = normalizedTarget.split("/").filter(Boolean).length === 1
+
+    if (pathname === normalizedTarget) return true
+    if (isModuleRoot) return false
+
+    return pathname.startsWith(`${normalizedTarget}/`)
+  })
+}
+
+function buildNavGroups(items: ResolvedNavItem[]): NavGroup[] {
+  const groups: NavGroup[] = []
+
+  items.forEach((item) => {
+    const key = item.group || "__default__"
+    const existing = groups.find((group) => group.key === key)
+
+    if (existing) {
+      existing.items.push(item)
+      return
+    }
+
+    groups.push({
+      key,
+      label: item.group,
+      items: [item],
+    })
+  })
+
+  return groups
+}
+
+function DesktopNavItem({
+  item,
+  onSelect,
+}: {
+  item: ResolvedNavItem
+  onSelect?: (itemId: string) => void
+}) {
+  const Icon = item.icon
+  const label = item.shortLabel || item.label
+  const itemId = item.id || item.href || item.key
+  const classes = cn(
+    "flex min-h-[36px] w-full items-center gap-2.5 rounded-[20px] px-2.5 py-2 text-left text-[12px] font-medium transition-all",
+    item.active
+      ? "bg-white text-[#0a0147] shadow-[0_12px_24px_rgba(10,1,71,0.08)]"
+      : "text-[#4f6788] hover:bg-white/80 hover:text-[#0a0147]",
+  )
+
+  const content = (
+    <>
+      <span className={cn("h-2.5 w-2.5 rounded-full", item.active ? "bg-[#0a4abf]" : "bg-[#7ea4df]")} />
+      <Icon className={cn("h-4 w-4 shrink-0", item.active ? "text-[#0a0147]" : "text-[#5f7698]")} />
+      <span className="min-w-0 flex-1 truncate leading-tight" title={item.label}>
+        {label}
+      </span>
+      {item.badge !== undefined ? (
+        <span className="ml-auto rounded-full bg-[#dbeafe] px-2 py-0.5 text-[10px] font-semibold text-[#0a4abf]">
+          {item.badge}
+        </span>
+      ) : null}
+    </>
+  )
+
+  if (item.href) {
+    return (
+      <Link key={item.key} href={item.href} className={classes} title={item.label}>
+        {content}
+      </Link>
+    )
+  }
+
+  return (
+    <button
+      key={item.key}
+      type="button"
+      className={classes}
+      title={item.label}
+      onClick={() => onSelect?.(itemId)}
+    >
+      {content}
+    </button>
+  )
+}
+
+function MobileNavItem({
+  item,
+  close,
+  onSelect,
+}: {
+  item: ResolvedNavItem
+  close: () => void
+  onSelect?: (itemId: string) => void
+}) {
+  const Icon = item.icon
+  const label = item.mobileLabel || item.label
+  const itemId = item.id || item.href || item.key
+  const classes = cn(
+    "flex min-h-[48px] w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-medium transition-colors",
+    item.active
+      ? "bg-white text-[#0a0147] shadow-[0_12px_24px_rgba(10,1,71,0.08)]"
+      : "text-[#4f6788] hover:bg-white/80 hover:text-[#0a0147]",
+  )
+
+  const content = (
+    <>
+      <span className={cn("h-2.5 w-2.5 rounded-full", item.active ? "bg-[#0a4abf]" : "bg-[#7ea4df]")} />
+      <Icon className={cn("h-4 w-4 shrink-0", item.active ? "text-[#0a0147]" : "text-[#5f7698]")} />
+      <span className="min-w-0 flex-1 break-words leading-snug">{label}</span>
+      {item.badge !== undefined ? (
+        <span className="ml-auto rounded-full bg-[#dbeafe] px-2 py-0.5 text-[10px] font-semibold text-[#0a4abf]">
+          {item.badge}
+        </span>
+      ) : null}
+    </>
+  )
+
+  if (item.href) {
+    return (
+      <Link key={item.key} href={item.href} className={classes} onClick={close}>
+        {content}
+      </Link>
+    )
+  }
+
+  return (
+    <button
+      key={item.key}
+      type="button"
+      className={classes}
+      onClick={() => {
+        onSelect?.(itemId)
+        close()
+      }}
+    >
+      {content}
+    </button>
+  )
 }
 
 export function ModuleMetricCard({
@@ -152,7 +350,7 @@ export function ModuleEmptyState({
   )
 }
 
-export function ArcoModuleShell({
+export function ModuleWorkspaceShell({
   moduleLabel,
   moduleTitle,
   moduleDescription,
@@ -166,82 +364,244 @@ export function ArcoModuleShell({
   contentClassName,
   backHref = "/",
   backLabel = "Volver al inicio",
-}: ArcoModuleShellProps) {
+  activeNavId,
+  onNavSelect,
+  surfaceClassName,
+}: BaseWorkspaceShellProps) {
   const pathname = usePathname()
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
+  const shellSurfaceRef = useRef<HTMLDivElement | null>(null)
+  const desktopSidebarTopRef = useRef<number | null>(null)
+  const [desktopSidebarFrame, setDesktopSidebarFrame] = useState<DesktopSidebarFrame | null>(null)
+
+  const resolvedItems = useMemo<ResolvedNavItem[]>(() => {
+    return navItems.map((item, index) => {
+      const key = getNavItemKey(item, index)
+      const value = getNavItemValue(item, index)
+      const active = activeNavId ? activeNavId === value : isRouteItemActive(pathname, item)
+
+      return {
+        ...item,
+        key,
+        active,
+      }
+    })
+  }, [activeNavId, navItems, pathname])
+
+  const navGroups = useMemo(() => buildNavGroups(resolvedItems), [resolvedItems])
+  const activeItem =
+    resolvedItems.find((item) => item.active) || resolvedItems[0]
+  const ActiveIcon = activeItem?.icon
+  const visibleHeaderBadges = useMemo(() => (headerBadges ?? []).slice(0, 2), [headerBadges])
+
+  useEffect(() => {
+    const node = shellSurfaceRef.current
+    if (!node || typeof window === "undefined") return
+
+    let frame = 0
+
+    const updateFrame = () => {
+      frame = 0
+      const rect = node.getBoundingClientRect()
+      const top = desktopSidebarTopRef.current ?? rect.top
+      if (desktopSidebarTopRef.current === null) {
+        desktopSidebarTopRef.current = rect.top
+      }
+      const width = Math.round(Math.min(228, Math.max(212, rect.width * 0.18)))
+      const shellWidth = rect.width
+      const height = Math.min(rect.height, Math.max(320, window.innerHeight - top))
+
+      setDesktopSidebarFrame((current) => {
+        if (
+          current &&
+          current.left === rect.left &&
+          current.top === top &&
+          current.width === width &&
+          current.height === height &&
+          current.shellWidth === shellWidth
+        ) {
+          return current
+        }
+
+        return {
+          left: rect.left,
+          top,
+          width,
+          height,
+          shellWidth,
+        }
+      })
+    }
+
+    const scheduleFrameUpdate = () => {
+      if (frame) return
+      frame = window.requestAnimationFrame(updateFrame)
+    }
+
+    scheduleFrameUpdate()
+
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(scheduleFrameUpdate)
+    observer?.observe(node)
+    window.addEventListener("resize", scheduleFrameUpdate)
+
+    return () => {
+      if (frame) window.cancelAnimationFrame(frame)
+      observer?.disconnect()
+      window.removeEventListener("resize", scheduleFrameUpdate)
+    }
+  }, [])
+
+  const desktopSidebarStyle = useMemo<CSSProperties | undefined>(() => {
+    if (!desktopSidebarFrame) return undefined
+    return {
+      left: desktopSidebarFrame.left,
+      top: desktopSidebarFrame.top,
+      width: desktopSidebarFrame.width,
+      height: desktopSidebarFrame.height,
+    }
+  }, [desktopSidebarFrame])
+
+  const desktopContentFrameStyle = useMemo<CSSProperties | undefined>(() => {
+    if (!desktopSidebarFrame || typeof window === "undefined" || window.innerWidth < 1024) return undefined
+
+    const contentWidth = desktopSidebarFrame.shellWidth - desktopSidebarFrame.width
+    if (!Number.isFinite(contentWidth) || contentWidth <= 0) return undefined
+
+    return {
+      left: desktopSidebarFrame.left + desktopSidebarFrame.width,
+      top: desktopSidebarFrame.top,
+      width: contentWidth,
+      height: desktopSidebarFrame.height,
+    }
+  }, [desktopSidebarFrame])
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(10,74,191,0.08),_transparent_30%),linear-gradient(180deg,_#f8fbff_0%,_#ffffff_100%)]">
-      <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
-        <div className="overflow-hidden rounded-[28px] border border-stone-200 bg-white shadow-sm">
-          <div className="grid min-h-[calc(100vh-7rem)] lg:grid-cols-[260px_1fr]">
-            <aside className="overflow-y-auto overflow-x-hidden border-r border-[#d6e1f6] bg-[#edf4ff]">
-              <div className="border-b border-[#d6e1f6] px-6 py-5">
-                <Link
-                  href={backHref}
-                  className="inline-flex items-center gap-1 text-sm text-[#5f7698] transition-colors hover:text-[#0a0147]"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                  {backLabel}
-                </Link>
-                <p className="mt-5 text-xs font-semibold uppercase tracking-[0.18em] text-[#5f7698]">
-                  {moduleLabel}
-                </p>
-                <p className="mt-1 break-words text-2xl font-semibold text-[#0a0147]">{moduleTitle}</p>
-                <p className="mt-3 break-words text-sm leading-6 text-[#5f7698]">{moduleDescription}</p>
-              </div>
-              <nav className="space-y-1 p-3">
-                {navItems.map((item) => {
-                  const Icon = item.icon
-                  const matchTargets = item.activePaths && item.activePaths.length > 0 ? item.activePaths : [item.href.split("?")[0]]
-                  const active = matchTargets.some((target) => {
-                    const normalizedTarget = target.endsWith("/") && target.length > 1 ? target.slice(0, -1) : target
-                    const isModuleRoot = normalizedTarget.split("/").filter(Boolean).length === 1
+      <div className="mx-auto flex w-full max-w-[1460px] flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
+        <div
+          ref={shellSurfaceRef}
+          className="relative"
+        >
+          <aside className="hidden lg:block">
+            <div
+              className={cn(
+                "fixed z-30 hidden overflow-hidden rounded-l-[34px] border border-stone-200 border-r-[#d6e1f6] bg-[#edf4ff] shadow-[0_24px_80px_rgba(15,23,42,0.08)] lg:flex lg:flex-col",
+                desktopSidebarFrame ? "opacity-100" : "pointer-events-none opacity-0",
+              )}
+              style={desktopSidebarStyle}
+            >
+              <div className="flex h-full flex-col gap-3 px-3 py-4">
+                <div className="space-y-2.5">
+                  <Link
+                    href={backHref}
+                    className="inline-flex items-center gap-1 text-sm text-[#5f7698] transition-colors hover:text-[#0a0147]"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                    {backLabel}
+                  </Link>
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#5f7698]">{moduleLabel}</p>
+                    <p className="text-xl font-semibold leading-tight text-[#0a0147]">{moduleTitle}</p>
+                  </div>
+                </div>
 
-                    if (pathname === normalizedTarget) return true
-                    if (isModuleRoot) return false
-
-                    return pathname.startsWith(`${normalizedTarget}/`)
-                  })
-
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={cn(
-                        "flex w-full min-h-[44px] items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-medium transition-colors",
-                        active
-                          ? "bg-white text-[#0a0147] shadow-[0_10px_24px_rgba(10,1,71,0.08)]"
-                          : "text-[#4f6788] hover:bg-white/80 hover:text-[#0a0147]",
-                      )}
-                    >
-                      <span className={cn("h-2.5 w-2.5 rounded-full", active ? "bg-[#0a4abf]" : "bg-[#7ea4df]")} />
-                      <Icon className={cn("h-4 w-4", active ? "text-[#0a0147]" : "text-[#5f7698]")} />
-                      <span className="min-w-0 flex-1 break-words leading-snug">{item.label}</span>
-                      {item.badge !== undefined ? (
-                        <span className="ml-auto rounded-full bg-[#dbeafe] px-2 py-0.5 text-[11px] font-semibold text-[#0a4abf]">
-                          {item.badge}
-                        </span>
+                <nav className="flex-1 space-y-2">
+                  {navGroups.map((group) => (
+                    <div key={group.key} className="space-y-1">
+                      {group.label ? (
+                        <p className="px-2 text-[9px] font-semibold uppercase tracking-[0.18em] text-[#6f86a6]">
+                          {group.label}
+                        </p>
                       ) : null}
-                    </Link>
-                  )
-                })}
-              </nav>
-            </aside>
+                      <div className="space-y-0.5">
+                        {group.items.map((item) => (
+                          <DesktopNavItem key={item.key} item={item} onSelect={onNavSelect} />
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </nav>
+              </div>
+            </div>
+          </aside>
 
-            <div className="min-w-0 bg-white">
-              <div className="border-b border-stone-200 px-6 py-5">
+          <div className="min-h-[calc(100vh-6rem)] w-full overflow-x-hidden">
+            <div
+              className={cn(
+                "min-w-0 overflow-hidden rounded-[34px] border border-stone-200 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.08)] lg:fixed lg:z-20 lg:flex lg:min-h-0 lg:flex-col lg:rounded-l-none lg:border-l-0",
+                surfaceClassName,
+              )}
+              style={desktopContentFrameStyle}
+            >
+              <div className="border-b border-stone-200 bg-white px-4 py-4 sm:px-6 sm:py-5 lg:shrink-0 lg:px-5 lg:py-4 xl:px-6 xl:py-5">
+                {resolvedItems.length > 0 ? (
+                  <div className="mb-4 lg:hidden">
+                    <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
+                      <SheetTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="h-auto w-full justify-between rounded-2xl border-[#d6e1f6] bg-[#f8fbff] px-4 py-3 text-left text-slate-700 hover:bg-[#edf4ff]"
+                        >
+                          <div className="flex min-w-0 items-center gap-3">
+                            {ActiveIcon ? <ActiveIcon className="h-4 w-4 shrink-0 text-[#0a4abf]" /> : null}
+                            <div className="min-w-0">
+                              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#5f7698]">
+                                {moduleTitle}
+                              </p>
+                              <p className="truncate text-sm font-medium text-slate-900">
+                                {activeItem?.mobileLabel || activeItem?.label || pageTitle}
+                              </p>
+                            </div>
+                          </div>
+                          <Menu className="h-4 w-4 shrink-0 text-slate-500" />
+                        </Button>
+                      </SheetTrigger>
+                      <SheetContent side="left" className="w-[88vw] max-w-sm border-r border-[#d6e1f6] bg-[#edf4ff] p-0">
+                        <SheetHeader className="border-b border-[#d6e1f6] px-5 py-5 text-left">
+                          <SheetTitle className="text-xl text-[#0a0147]">{moduleTitle}</SheetTitle>
+                          <SheetDescription className="text-sm leading-6 text-[#5f7698]">
+                            {moduleDescription}
+                          </SheetDescription>
+                        </SheetHeader>
+                        <div className="space-y-4 px-4 py-4">
+                          {navGroups.map((group) => (
+                            <div key={group.key} className="space-y-2">
+                              {group.label ? (
+                                <p className="px-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#6f86a6]">
+                                  {group.label}
+                                </p>
+                              ) : null}
+                              <div className="space-y-1">
+                                {group.items.map((item) => (
+                                  <MobileNavItem
+                                    key={item.key}
+                                    item={item}
+                                    close={() => setMobileNavOpen(false)}
+                                    onSelect={onNavSelect}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </SheetContent>
+                    </Sheet>
+                  </div>
+                ) : null}
+
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-stone-500">{pageLabel}</p>
                     <h1 className="mt-1 break-words text-2xl font-semibold text-slate-950 sm:text-3xl">{pageTitle}</h1>
                     {pageDescription ? (
-                      <p className="mt-2 max-w-4xl break-words text-sm leading-6 text-slate-500 sm:text-base">
+                      <p className="mt-2 max-w-3xl break-words text-sm leading-6 text-slate-500 sm:text-base">
                         {pageDescription}
                       </p>
                     ) : null}
-                    {headerBadges && headerBadges.length > 0 ? (
+                    {visibleHeaderBadges.length > 0 ? (
                       <div className="mt-4 flex flex-wrap gap-2">
-                        {headerBadges.map((badge) => (
+                        {visibleHeaderBadges.map((badge) => (
                           <Badge
                             key={`${badge.label}-${badge.tone || "neutral"}`}
                             variant="outline"
@@ -256,11 +616,18 @@ export function ArcoModuleShell({
                   {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
                 </div>
               </div>
-              <div className={cn("p-6", contentClassName)}>{children}</div>
+
+              <div className={cn("p-4 sm:p-6 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:p-5 xl:p-6", contentClassName)}>
+                {children}
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
   )
+}
+
+export function ArcoModuleShell(props: ArcoModuleShellProps) {
+  return <ModuleWorkspaceShell {...props} />
 }

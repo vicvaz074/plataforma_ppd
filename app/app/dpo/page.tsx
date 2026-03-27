@@ -157,7 +157,7 @@ export default function DPOPage() {
       moduleDescription={DPO_META.moduleDescription}
       pageLabel="Overview"
       pageTitle="Estado operativo del programa DPO"
-      pageDescription="La raíz del módulo concentra la acreditación vigente, la evaluación funcional F1-F5, el portafolio de proyectos revisados y la producción documental del programa OPD."
+      pageDescription="Resumen de acreditación, evaluación funcional y proyectos del DPO."
       navItems={navItems}
       headerBadges={[
         {
@@ -183,17 +183,12 @@ export default function DPOPage() {
         { label: `${reports.length + actas.length} piezas documentales`, tone: "neutral" },
       ]}
       actions={
-        <>
-          <Button asChild variant="outline">
-            <Link href="/dpo/reports">Abrir informes</Link>
-          </Button>
-          <Button asChild>
-            <Link href="/dpo/compliance">
-              <FilePlus2 className="mr-2 h-4 w-4" />
-              Revisar cumplimiento
-            </Link>
-          </Button>
-        </>
+        <Button asChild>
+          <Link href="/dpo/compliance">
+            <FilePlus2 className="mr-2 h-4 w-4" />
+            Cumplimiento
+          </Link>
+        </Button>
       }
     >
       <div className="space-y-6">

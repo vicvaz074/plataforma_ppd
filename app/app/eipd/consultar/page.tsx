@@ -167,7 +167,7 @@ export default function EipdConsultPage() {
       moduleDescription={EIPD_META.moduleDescription}
       pageLabel="Consultar"
       pageTitle="Expedientes EIPD registrados"
-      pageDescription="Consulta formularios guardados, revisa su vigencia y reingresa a la captura sin alterar preguntas, evidencias ni trazabilidad."
+      pageDescription="Consulta formularios, vigencia y reingreso a captura."
       navItems={navItems}
       headerBadges={[
         { label: `${forms.length} formularios`, tone: "neutral" },

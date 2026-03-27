@@ -63,16 +63,15 @@ export default function ThirdPartyContractsReportsPage() {
       moduleDescription={THIRD_PARTY_CONTRACTS_META.moduleDescription}
       pageLabel="Reportes"
       pageTitle="Analítica de contratos"
-      pageDescription="Métricas reales tomadas del historial contractual con visualizaciones a color y clasificación automática de comunicaciones de datos."
+      pageDescription="Métricas contractuales y comunicaciones de datos."
       navItems={navItems}
       headerBadges={[
         { label: `${stats.total} contratos`, tone: "neutral" },
-        { label: `${stats.status.vigente} vigentes`, tone: "positive" },
         { label: `${stats.status.vencido} vencidos`, tone: stats.status.vencido > 0 ? "critical" : "neutral" },
       ]}
       actions={
         <Button asChild>
-          <Link href="/third-party-contracts/registration">Ir al registro</Link>
+          <Link href="/third-party-contracts/registration">Nuevo contrato</Link>
         </Button>
       }
     >

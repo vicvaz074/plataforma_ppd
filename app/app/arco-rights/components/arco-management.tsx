@@ -526,8 +526,8 @@ export function ArcoManagement() {
       <CardContent>
         <Tabs value={newRequestMode} onValueChange={(value) => setNewRequestMode(value as NewRequestMode)}>
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="manual">Registro manual</TabsTrigger>
-            <TabsTrigger value="automatic">Registro automático (Excel)</TabsTrigger>
+            <TabsTrigger value="manual">Manual</TabsTrigger>
+            <TabsTrigger value="automatic">Carga Excel</TabsTrigger>
           </TabsList>
           <TabsContent value="manual" className="pt-6">
             <ArcoRequestForm onSave={handleRequestSaved} />
