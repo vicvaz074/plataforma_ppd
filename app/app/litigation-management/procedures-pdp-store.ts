@@ -21,6 +21,7 @@ import {
   type KnownProcedureUser,
   type LegacyProcedureRecord,
   type ProcedureAlert,
+  type ProcedureActuation,
   type ProcedureActuationType,
   type ProcedureAuditLogEntry,
   type ProcedureComment,
@@ -32,6 +33,10 @@ import {
   type ProceduresPdpRoot,
   type ProcedureWizardDraft,
 } from "./procedures-pdp-core"
+import {
+  type ProcedureImportActuationPreview,
+  type ProcedureImportConfirmedProcedure,
+} from "./procedures-pdp-import"
 
 const ADMIN_EMAILS = new Set(["admin@example.com", "gbarco@davara.com.mx", "veronica.garciao@oxxo.com"])
 const PROCEDURE_DOCUMENT_CATEGORY = "pdp-procedure-document"
@@ -112,6 +117,96 @@ function normalizeDate(value?: string | null) {
   return parsed.toISOString()
 }
 
+function normalizeComparableText(value?: string | null) {
+  return normalizeText(value)
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "")
+}
+
+function createImportAuditEntry(
+  action: string,
+  description: string,
+  scope: ProcedureAuditLogEntry["scope"],
+  actor: KnownProcedureUser,
+  createdAt: string,
+): ProcedureAuditLogEntry {
+  return {
+    id: secureId("audit"),
+    createdAt,
+    actorName: actor.name,
+    actorEmail: actor.email,
+    action,
+    description,
+    scope,
+  }
+}
+
+function appendUniqueTags(current: string[], incoming: string[]) {
+  return Array.from(new Set([...current.map((value) => normalizeText(value)), ...incoming.map((value) => normalizeText(value))].filter(Boolean)))
+}
+
+function mergeTextBlock(current?: string, incoming?: string) {
+  const currentText = normalizeText(current)
+  const incomingText = normalizeText(incoming)
+  if (!currentText) return incomingText
+  if (!incomingText || currentText.includes(incomingText)) return currentText
+  return `${currentText}\n\n${incomingText}`.trim()
+}
+
+function buildImportedActuation(preview: ProcedureImportActuationPreview): ProcedureActuation {
+  const actuationDate = normalizeDate(preview.date) || new Date().toISOString()
+  return {
+    id: secureId("actuation"),
+    type: preview.type,
+    date: actuationDate,
+    title: normalizeText(preview.title) || preview.type,
+    description: normalizeText(preview.description),
+    createdAt: actuationDate,
+    createdBy: normalizeText(preview.createdBy) || "Importación Excel",
+    documentGroupIds: [],
+    importReference: normalizeText(preview.importReference),
+  }
+}
+
+function collectUniqueImportedActuationPreviews(
+  previews: ProcedureImportActuationPreview[],
+  initialSeenReferences?: Set<string>,
+) {
+  const seenReferences = initialSeenReferences ? new Set(initialSeenReferences) : new Set<string>()
+  const uniquePreviews: ProcedureImportActuationPreview[] = []
+  let skippedCount = 0
+
+  for (const preview of previews) {
+    const reference = normalizeText(preview.importReference) || `preview:${normalizeText(preview.id)}`
+    if (seenReferences.has(reference)) {
+      skippedCount += 1
+      continue
+    }
+    seenReferences.add(reference)
+    uniquePreviews.push(preview)
+  }
+
+  return {
+    uniquePreviews,
+    skippedCount,
+  }
+}
+
+function getProcedureMergeKey(expedienteNumber: string) {
+  return normalizeComparableText(expedienteNumber)
+}
+
+export interface ProcedureExcelImportResult {
+  createdCount: number
+  updatedCount: number
+  addedActuationCount: number
+  skippedActuationCount: number
+  importedProcedureIds: string[]
+  warnings: string[]
+}
+
 function getCurrentUserFallback(): KnownProcedureUser {
   if (!isBrowser()) return { email: "", name: "Sistema" }
   const email = normalizeText(window.localStorage.getItem("userEmail"))
@@ -186,13 +281,13 @@ function mergeAssignments(root: ProceduresPdpRoot, knownUsers: KnownProcedureUse
   }
 }
 
-export function loadProceduresRoot(): ProceduresPdpRoot {
+function resolveLoadedProceduresRoot(): { root: ProceduresPdpRoot; shouldPersist: boolean } {
   const knownUsers = getKnownProcedureUsers()
   const currentUser = getCurrentProcedureUser()
   const emptyRoot = createEmptyProceduresRoot(knownUsers)
 
   if (!isBrowser()) {
-    return emptyRoot
+    return { root: emptyRoot, shouldPersist: false }
   }
 
   ensureBrowserStorageEvents()
@@ -200,20 +295,30 @@ export function loadProceduresRoot(): ProceduresPdpRoot {
   const currentRaw = window.localStorage.getItem(PROCEDURES_PDP_STORAGE_KEY)
   if (currentRaw) {
     const parsed = safeParseJSON<ProceduresPdpRoot>(currentRaw, emptyRoot)
-    return recalculateRoot(mergeAssignments(parsed, knownUsers))
+    return {
+      root: recalculateRoot(mergeAssignments(parsed, knownUsers)),
+      shouldPersist: false,
+    }
   }
 
   const legacyRaw = safeParseJSON<LegacyProcedureRecord[]>(window.localStorage.getItem(LEGACY_PROCEDURES_PDP_STORAGE_KEY), [])
   if (legacyRaw.length > 0) {
     const migrated = createProceduresRootFromLegacy(legacyRaw, knownUsers, currentUser)
     const hydrated = mergeAssignments(migrated, knownUsers)
-    persistProceduresRoot(hydrated)
-    return hydrated
+    return { root: hydrated, shouldPersist: true }
   }
 
   const hydrated = mergeAssignments(emptyRoot, knownUsers)
-  persistProceduresRoot(hydrated)
-  return hydrated
+  return { root: hydrated, shouldPersist: true }
+}
+
+export function loadProceduresRoot(): ProceduresPdpRoot {
+  return resolveLoadedProceduresRoot().root
+}
+
+export function initializeProceduresRoot(): ProceduresPdpRoot {
+  const resolved = resolveLoadedProceduresRoot()
+  return resolved.shouldPersist ? persistProceduresRoot(resolved.root) : resolved.root
 }
 
 export function persistProceduresRoot(root: ProceduresPdpRoot) {
@@ -248,6 +353,166 @@ export function saveProcedureDraft(root: ProceduresPdpRoot, draft: ProcedureWiza
       : [...root.procedures, procedure],
     generatedAt: new Date().toISOString(),
   })
+}
+
+export function importProcedureExcelSelection(
+  root: ProceduresPdpRoot,
+  proceduresToImport: ProcedureImportConfirmedProcedure[],
+): { root: ProceduresPdpRoot; result: ProcedureExcelImportResult } {
+  if (proceduresToImport.length === 0) {
+    return {
+      root,
+      result: {
+        createdCount: 0,
+        updatedCount: 0,
+        addedActuationCount: 0,
+        skippedActuationCount: 0,
+        importedProcedureIds: [],
+        warnings: [],
+      },
+    }
+  }
+
+  const knownUsers = getKnownProcedureUsers()
+  const actor = getCurrentProcedureUser()
+  const warnings: string[] = []
+  const procedures = [...root.procedures]
+  const procedureIndex = new Map(procedures.map((procedure, index) => [getProcedureMergeKey(procedure.expedienteNumber), index]))
+  const importedProcedureIds: string[] = []
+  let createdCount = 0
+  let updatedCount = 0
+  let addedActuationCount = 0
+  let skippedActuationCount = 0
+
+  for (const selection of proceduresToImport) {
+    warnings.push(...selection.warnings.map((warning) => `${selection.expedienteNumber}: ${warning}`))
+    const mergeKey = getProcedureMergeKey(selection.expedienteNumber)
+    const existingIndex = procedureIndex.get(mergeKey)
+
+    if (existingIndex === undefined) {
+      const baseProcedure = buildProcedureFromDraft(
+        {
+          ...selection.draft,
+          registerAsDraft: true,
+        },
+        knownUsers,
+        actor,
+      )
+      const now = new Date().toISOString()
+      const { uniquePreviews, skippedCount } = collectUniqueImportedActuationPreviews(selection.actuations)
+      const importedActuations = uniquePreviews.map((preview) => buildImportedActuation(preview))
+      const createdProcedure = recalculateProcedure(
+        {
+          ...baseProcedure,
+          actuations: importedActuations,
+          strategyNotes: mergeTextBlock(baseProcedure.strategyNotes, selection.draft.strategyNotes),
+          tags: appendUniqueTags(baseProcedure.tags, ["Importado Excel"]),
+          auditLog: [
+            ...baseProcedure.auditLog,
+            createImportAuditEntry(
+              "Importación desde Excel",
+              `Se importó el expediente ${selection.expedienteNumber} con ${importedActuations.length} actuación(es) desde Excel y ${skippedCount} omitida(s) por duplicado.`,
+              "sistema",
+              actor,
+              now,
+            ),
+          ],
+          updatedAt: now,
+        },
+        root.settings,
+      )
+      procedures.push(createdProcedure)
+      procedureIndex.set(mergeKey, procedures.length - 1)
+      importedProcedureIds.push(createdProcedure.id)
+      createdCount += 1
+      addedActuationCount += importedActuations.length
+      skippedActuationCount += skippedCount
+      continue
+    }
+
+    const existingProcedure = procedures[existingIndex]
+    const seenReferences = new Set(existingProcedure.actuations.map((actuation) => normalizeText(actuation.importReference)).filter(Boolean))
+    const { uniquePreviews, skippedCount } = collectUniqueImportedActuationPreviews(selection.actuations, seenReferences)
+    const importedActuations = uniquePreviews.map((preview) => buildImportedActuation(preview))
+
+    const mergedSummary = normalizeText(existingProcedure.summary) || normalizeText(selection.draft.summary)
+    const mergedStrategyNotes = mergeTextBlock(existingProcedure.strategyNotes, selection.draft.strategyNotes)
+    const mergedTags = appendUniqueTags(existingProcedure.tags, selection.draft.tags)
+    const mergedRelatedAreas =
+      existingProcedure.relatedAreas.length > 0
+        ? existingProcedure.relatedAreas
+        : selection.draft.relatedAreas
+    const mergedCustomAuthority =
+      existingProcedure.authority === "Otra autoridad" && !normalizeText(existingProcedure.customAuthority)
+        ? normalizeText(selection.draft.customAuthority) || existingProcedure.customAuthority
+        : existingProcedure.customAuthority
+
+    const metadataChanged =
+      mergedSummary !== existingProcedure.summary ||
+      mergedStrategyNotes !== normalizeText(existingProcedure.strategyNotes) ||
+      mergedTags.join("|") !== existingProcedure.tags.join("|") ||
+      mergedRelatedAreas.join("|") !== existingProcedure.relatedAreas.join("|") ||
+      normalizeText(mergedCustomAuthority) !== normalizeText(existingProcedure.customAuthority)
+
+    skippedActuationCount += skippedCount
+    addedActuationCount += importedActuations.length
+
+    if (!metadataChanged && importedActuations.length === 0) {
+      importedProcedureIds.push(existingProcedure.id)
+      continue
+    }
+
+    const now = new Date().toISOString()
+    const mergedProcedure = recalculateProcedure(
+      {
+        ...existingProcedure,
+        customAuthority: mergedCustomAuthority,
+        summary: mergedSummary,
+        strategyNotes: mergedStrategyNotes || undefined,
+        relatedAreas: mergedRelatedAreas,
+        tags: mergedTags,
+        actuations: [...existingProcedure.actuations, ...importedActuations],
+        auditLog: [
+          ...existingProcedure.auditLog,
+          createImportAuditEntry(
+            "Importación desde Excel",
+            `Se integró información del expediente ${selection.expedienteNumber}: ${importedActuations.length} actuación(es) nueva(s) y ${skippedCount} omitida(s) por duplicado.`,
+            "sistema",
+            actor,
+            now,
+          ),
+        ],
+        dates: {
+          ...existingProcedure.dates,
+          lastUpdatedAt: now,
+        },
+        updatedAt: now,
+      },
+      root.settings,
+    )
+
+    procedures[existingIndex] = mergedProcedure
+    importedProcedureIds.push(mergedProcedure.id)
+    updatedCount += 1
+  }
+
+  const persistedRoot = persistProceduresRoot({
+    ...root,
+    procedures,
+    generatedAt: new Date().toISOString(),
+  })
+
+  return {
+    root: persistedRoot,
+    result: {
+      createdCount,
+      updatedCount,
+      addedActuationCount,
+      skippedActuationCount,
+      importedProcedureIds,
+      warnings,
+    },
+  }
 }
 
 export function registerProcedureAccess(root: ProceduresPdpRoot, procedureId: string, context: string) {
