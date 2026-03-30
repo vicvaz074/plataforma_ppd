@@ -2506,7 +2506,6 @@ export function AwarenessContent({ initialModule = "dashboard" }: { initialModul
           shortLabel: module.shortLabel || module.label,
           mobileLabel: `${module.displayId} · ${module.label}`,
           icon: module.icon,
-          group: module.phase,
           badge: moduleState.alerts > 0 ? moduleState.alerts : undefined,
         }
       }),
