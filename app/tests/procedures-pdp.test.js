@@ -88,11 +88,20 @@ function buildLongSummary() {
 
 describe("procedimientos PDP", () => {
   let core
+  let store
+  let importUtils
+  let xlsx
 
   before(async () => {
     installBrowserEnv()
     const importedCore = await importModule("app/litigation-management/procedures-pdp-core.ts")
     core = importedCore.default ? { ...importedCore.default, ...importedCore } : importedCore
+    const importedStore = await importModule("app/litigation-management/procedures-pdp-store.ts")
+    store = importedStore.default ? { ...importedStore.default, ...importedStore } : importedStore
+    const importedImportUtils = await importModule("app/litigation-management/procedures-pdp-import.ts")
+    importUtils = importedImportUtils.default ? { ...importedImportUtils.default, ...importedImportUtils } : importedImportUtils
+    const importedXlsx = await import("xlsx-js-style")
+    xlsx = importedXlsx.default ? { ...importedXlsx.default, ...importedXlsx } : importedXlsx
   })
 
   beforeEach(() => {
@@ -205,4 +214,195 @@ describe("procedimientos PDP", () => {
     assert.equal(dashboard.byType[0].label, "Verificación")
     assert.equal(dashboard.metrics[0].value, 1)
   })
+
+  it("carga el root sin persistir durante render e inicializa storage solo fuera del render", () => {
+    assert.equal(window.localStorage.getItem(core.PROCEDURES_PDP_STORAGE_KEY), null)
+
+    const loadedRoot = store.loadProceduresRoot()
+    assert.equal(window.localStorage.getItem(core.PROCEDURES_PDP_STORAGE_KEY), null)
+    assert.equal(Array.isArray(loadedRoot.procedures), true)
+
+    const initializedRoot = store.initializeProceduresRoot()
+    assert.notEqual(window.localStorage.getItem(core.PROCEDURES_PDP_STORAGE_KEY), null)
+    assert.equal(Array.isArray(initializedRoot.procedures), true)
+  })
+
+  it("parsea el workbook de procedimientos, detecta la hoja válida y conserva autoridades personalizadas", () => {
+    const workbook = buildProcedureImportWorkbook(xlsx)
+    const preview = importUtils.parseProcedureImportWorkbook(workbook, xlsx)
+
+    assert.equal(preview.sheetName, "PROCEDIMIENTOS")
+    assert.equal(preview.procedureCount, 4)
+    assert.equal(preview.actuationCount, 25)
+
+    const firstProcedure = preview.procedures.find((procedure) => procedure.expedienteNumber === "INAI.3S.08.0014/2015")
+    assert.ok(firstProcedure)
+    assert.equal(firstProcedure.startedAt, "2015-07-15")
+    assert.equal(firstProcedure.draft.authority, "Otra autoridad")
+    assert.equal(firstProcedure.draft.customAuthority, "DGIV/INAI")
+    assert.ok(firstProcedure.summary.length >= 100)
+
+    const mixedAuthorityProcedure = preview.procedures.find((procedure) => procedure.expedienteNumber === "INAI.3S.08.02-068/2015")
+    assert.ok(mixedAuthorityProcedure)
+    assert.equal(mixedAuthorityProcedure.draft.authority, "Otra autoridad")
+    assert.equal(mixedAuthorityProcedure.draft.customAuthority, "DGIV/INAI / DGV/IFAI")
+    assert.ok(mixedAuthorityProcedure.warnings.some((warning) => warning.includes("más de una autoridad")))
+  })
+
+  it("genera ids únicos de preview aunque el importReference se repita", () => {
+    const workbook = buildProcedureImportWorkbook(xlsx)
+    const preview = importUtils.parseProcedureImportWorkbook(workbook, xlsx)
+    const targetProcedure = preview.procedures.find((procedure) => procedure.expedienteNumber === "INAI.3S.08.0014/2015")
+
+    assert.ok(targetProcedure)
+
+    const previewIds = targetProcedure.actuations.map((actuation) => actuation.id)
+    const importReferences = targetProcedure.actuations.map((actuation) => actuation.importReference)
+
+    assert.equal(new Set(previewIds).size, previewIds.length)
+    assert.ok(new Set(importReferences).size < importReferences.length)
+  })
+
+  it("permite importar una selección parcial de actuaciones desde el preview del Excel", () => {
+    const workbook = buildProcedureImportWorkbook(xlsx)
+    const preview = importUtils.parseProcedureImportWorkbook(workbook, xlsx)
+    const partialSelection = importUtils.collectProcedureImportSelection(
+      preview.procedures,
+      preview.procedures[0].actuations.slice(0, 2).map((actuation) => actuation.id),
+    )
+
+    const imported = store.importProcedureExcelSelection(core.createEmptyProceduresRoot([{ email: "juridico@example.com", name: "María Jurídico" }]), partialSelection)
+
+    assert.equal(imported.root.procedures.length, 1)
+    assert.equal(imported.root.procedures[0].generalStatus, "Borrador")
+    assert.equal(imported.root.procedures[0].actuations.length, 2)
+    assert.equal(imported.result.createdCount, 1)
+    assert.equal(imported.result.addedActuationCount, 2)
+  })
+
+  it("omite duplicados dentro del mismo lote al crear un expediente nuevo", () => {
+    const workbook = buildProcedureImportWorkbook(xlsx)
+    const preview = importUtils.parseProcedureImportWorkbook(workbook, xlsx)
+    const targetProcedure = preview.procedures.find((procedure) => procedure.expedienteNumber === "INAI.3S.08.0014/2015")
+
+    assert.ok(targetProcedure)
+
+    const duplicatedSelection = [
+      {
+        ...targetProcedure,
+        draft: { ...targetProcedure.draft },
+        warnings: [...targetProcedure.warnings],
+        actuations: [...targetProcedure.actuations],
+      },
+    ]
+
+    const imported = store.importProcedureExcelSelection(
+      core.createEmptyProceduresRoot([{ email: "juridico@example.com", name: "María Jurídico" }]),
+      duplicatedSelection,
+    )
+
+    const importedProcedure = imported.root.procedures.find((procedure) => procedure.expedienteNumber === targetProcedure.expedienteNumber)
+
+    assert.ok(importedProcedure)
+    assert.equal(importedProcedure.actuations.length, new Set(targetProcedure.actuations.map((actuation) => actuation.importReference)).size)
+    assert.equal(imported.result.addedActuationCount, importedProcedure.actuations.length)
+    assert.equal(imported.result.skippedActuationCount, targetProcedure.actuations.length - importedProcedure.actuations.length)
+  })
+
+  it("fusiona reimportaciones sin duplicar actuaciones y preserva campos ya capturados", () => {
+    const knownUsers = [{ email: "juridico@example.com", name: "María Jurídico" }]
+    const workbook = buildProcedureImportWorkbook(xlsx)
+    const preview = importUtils.parseProcedureImportWorkbook(workbook, xlsx)
+    const targetProcedure = preview.procedures.find((procedure) => procedure.expedienteNumber === "INAI.3S.08.02-068/2015")
+
+    assert.ok(targetProcedure)
+
+    const manualRecord = core.buildProcedureFromDraft(
+      {
+        ...core.createProcedureWizardDraft(),
+        expedienteNumber: "INAI.3S.08.02-068/2015",
+        startedAt: "2026-03-01",
+        summary: buildLongSummary(),
+        riskLevel: "Alto",
+        areaLead: "Jurídico",
+        relatedAreas: ["Jurídico"],
+        dataCategories: ["Identificación"],
+        strategyNotes: "Nota manual previa",
+        registerAsDraft: true,
+      },
+      knownUsers,
+      knownUsers[0],
+    )
+
+    const initialRoot = core.recalculateRoot({
+      ...core.createEmptyProceduresRoot(knownUsers),
+      procedures: [manualRecord],
+    })
+    const selection = importUtils.collectProcedureImportSelection(
+      preview.procedures,
+      targetProcedure.actuations.map((actuation) => actuation.id),
+    )
+
+    const importedOnce = store.importProcedureExcelSelection(initialRoot, selection)
+    const mergedProcedure = importedOnce.root.procedures.find((procedure) => procedure.expedienteNumber === "INAI.3S.08.02-068/2015")
+
+    assert.ok(mergedProcedure)
+    assert.equal(mergedProcedure.summary, buildLongSummary())
+    assert.equal(mergedProcedure.riskLevel, "Alto")
+    assert.equal(mergedProcedure.actuations.length, targetProcedure.actuations.length)
+    assert.ok(mergedProcedure.strategyNotes.includes("Nota manual previa"))
+    assert.ok(mergedProcedure.strategyNotes.includes("Importado desde Excel"))
+
+    const importedTwice = store.importProcedureExcelSelection(importedOnce.root, selection)
+    const dedupedProcedure = importedTwice.root.procedures.find((procedure) => procedure.expedienteNumber === "INAI.3S.08.02-068/2015")
+
+    assert.ok(dedupedProcedure)
+    assert.equal(dedupedProcedure.actuations.length, targetProcedure.actuations.length)
+    assert.equal(importedTwice.result.addedActuationCount, 0)
+    assert.equal(importedTwice.result.skippedActuationCount, targetProcedure.actuations.length)
+  })
 })
+
+function toExcelSerial(date) {
+  return Math.floor(Date.parse(`${date}T00:00:00.000Z`) / 86400000) + 25569
+}
+
+function buildProcedureImportWorkbook(XLSX) {
+  const header = ["Cliente", "Expediente", "Oficio", "Autoridad", "Procedimiento", "Iniciales", "Escrito / Oficio", "Fecha"]
+  const rows = [
+    ...Array.from({ length: 10 }, () => Array(8).fill(null)),
+    header,
+    ["EMPRESA 1", "INAI.3S.08.0014/2015", "INAI-OA/CPDP/DGIV/079/15", "DGIV/INAI", "Investigación", "JMCM", "Atento requerimiento", toExcelSerial("2015-07-15")],
+    ["EMPRESA 1", "INAI.3S.08.0014/2015", null, "DGIV/INAI", "Investigación", "JMCM", "Respuesta a requerimiento", toExcelSerial("2015-08-05")],
+    ["EMPRESA 1", "INAI.3S.08.0014/2015", "INAI/CPDP/DGIV/1202/15", "DGIV/INAI", "Investigación", "JMCM", "Atento requerimiento", toExcelSerial("2015-12-01")],
+    ["EMPRESA 1", "INAI.3S.08.0014/2015", null, "DGIV/INAI", "Investigación", "JMCM", "Respuesta a requerimiento", toExcelSerial("2015-12-11")],
+    ["EMPRESA 1", "INAI.3S.08.0014/2015", "INAI/CPDP/DGIV/0229/15", "DGIV/INAI", "Investigación", "JMCM", "Acuerdo de determinación", toExcelSerial("2016-02-16")],
+    header,
+    ["EMPRESA 3", "INAI.3S.08.0014/2015", "INAI-OA/CPDP/DGIV/0283/15", "DGIV/INAI", "Investigación", "JMCM", "Atento requerimiento", toExcelSerial("2015-09-07")],
+    ["EMPRESA 3", "INAI.3S.08.0014/2015", null, "DGIV/INAI", "Investigación", "JMCM", "Solicitud de prorroga", toExcelSerial("2015-09-08")],
+    ["EMPRESA 3", "INAI.3S.08.0014/2015", null, "DGIV/INAI", "Investigación", "JMCM", "Respuesta a requerimiento", toExcelSerial("2015-09-17")],
+    ["EMPRESA 3", "INAI.3S.08.0014/2015", "INAI/CPDP/DGIV/1203/15", "DGIV/INAI", "Investigación", "JMCM", "Atento requerimiento", toExcelSerial("2015-12-01")],
+    ["EMPRESA 3", "INAI.3S.08.0014/2015", null, "DGIV/INAI", "Investigación", "JMCM", "Respuesta a requerimiento", toExcelSerial("2015-12-11")],
+    ["EMPRESA 3", "INAI.3S.08.0014/2015", "INAI/CPDP/DGIV/0229/15", "DGIV/INAI", "Investigación", "JMCM", "Determinación", toExcelSerial("2016-02-16")],
+    ["EMPRESA 3", "INAI.3S.08.0014/2015", null, "DGIV/INAI", "Investigación", "JMCM", "Solicitud de copias certificadas", toExcelSerial("2016-03-01")],
+    ["EMPRESA 3", "INAI.3S.08.0014/2015", "INAI/CPDP/DGIV/0697/15", "DGIV/INAI", "Investigación", "JMCM", "Acuerdo Pago copias", toExcelSerial("2016-03-07")],
+    ["EMPRESA 3", "INAI.3S.08.0014/2015", null, "DGIV/INAI", "Investigación", "JMCM", "Ehibición de ficha de pago", toExcelSerial("2016-03-17")],
+    header,
+    ["EMPRESA 2", "INAI.3S.08.02-068/2015", "INAI-OA/CPDP/DGIV/0283/15", "DGIV/INAI", "Investigación", "JMCM", "Atento requerimiento", toExcelSerial("2015-08-26")],
+    ["EMPRESA 2", "INAI.3S.08.02-068/2015", null, "DGIV/INAI", "Investigación", "JMCM", "Solicitud de prorroga", toExcelSerial("2015-08-28")],
+    ["EMPRESA 2", "INAI.3S.08.02-068/2015", "INAI-OA/CPDP/DGIV/0283/15", "DGIV/INAI", "Investigación", "JMCM", "Se concede prórroga", toExcelSerial("2015-08-31")],
+    ["EMPRESA 2", "INAI.3S.08.02-068/2015", null, "DGIV/INAI", "Investigación", "JMCM", "Respuesta a requerimiento", toExcelSerial("2015-09-08")],
+    ["EMPRESA 2", "INAI.3S.08.02-068/2015", "INAI-OA/CPDP/DGIV/0533/15", "DGIV/INAI", "Investigación", "JMCM", "Se requiere información", toExcelSerial("2015-09-11")],
+    ["EMPRESA 2", "INAI.3S.08.02-068/2015", "INAI/CPDP/DGIV/0939/2015", "DGV/IFAI", "Investigación", "JMCM", "Acuerdo de determinación", toExcelSerial("2015-11-19")],
+    ["EMPRESA 4", "INAI.3S.08.02-0070/2016", "INAI/CPDP/DGIV/0750/16", "DGIV/INAI", "Investigación", "CMV", "Atento requerimiento", toExcelSerial("2016-03-10")],
+    ["EMPRESA 4", "INAI.3S.08.02-0070/2016", "INAI/CPDP/DGIV/0750/16", "DGIV/INAI", "Investigación", "CMV", "Se solicita prórroga", toExcelSerial("2016-03-17")],
+    ["EMPRESA 4", "INAI.3S.08.02-0070/2016", "INAI/CPDP/DGIV/0872/16", "DGIV/INAI", "Investigación", "CMV", "Se concede prórroga", toExcelSerial("2016-03-30")],
+    ["EMPRESA 4", "INAI.3S.08.02-0070/2016", "INAI/CPDP/DGIV/0750/16", "DGIV/INAI", "Investigación", "CMV", "Respuesta a requerimiento", toExcelSerial("2016-03-31")],
+    ["EMPRESA 4", "INAI.3S.08.02-0059/2016", "INAI/CPDP/DGIV/1797/16", "DGIV/INAI", "Verificación", "CMV", "Se emitió acuerdo de inicio de verificación", toExcelSerial("2016-07-06")],
+  ]
+
+  const workbook = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet([]), "VACIA")
+  XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet(rows), "PROCEDIMIENTOS")
+  return workbook
+}

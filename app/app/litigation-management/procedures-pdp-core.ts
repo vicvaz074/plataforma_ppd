@@ -259,6 +259,7 @@ export interface ProcedureActuation {
   documentGroupIds: string[]
   suggestedStatus?: ProcedureGeneralStatus
   appliedStatus?: ProcedureGeneralStatus
+  importReference?: string
 }
 
 export interface ProcedureTask {
@@ -318,6 +319,7 @@ export interface ProcedurePdpRecord {
   procedureType: ProcedureType
   procedureFamily: ProcedureFamily
   authority: ProcedureAuthority
+  customAuthority?: string
   origin: ProcedureOrigin
   generalStatus: ProcedureGeneralStatus
   proceduralStage: string
@@ -676,6 +678,37 @@ export function getProcedureStageOptions(procedureType: ProcedureType) {
   return PROCEDURE_STAGE_OPTIONS[procedureType]
 }
 
+export function getProcedureAuthorityLabel(input: {
+  authority: ProcedureAuthority
+  customAuthority?: string
+}) {
+  return input.authority === "Otra autoridad" ? normalizeText(input.customAuthority) || input.authority : input.authority
+}
+
+export function resolveProcedureAuthorityInput(
+  value?: string | null,
+  fallback: ProcedureAuthority = "UPDP-SABG",
+): { authority: ProcedureAuthority; customAuthority?: string } {
+  const normalized = normalizeText(value)
+  if (!normalized) return { authority: fallback, customAuthority: "" }
+
+  const directMatch = AUTHORITY_OPTIONS.find((option) => option.toLowerCase() === normalized.toLowerCase())
+  if (directMatch) {
+    return {
+      authority: directMatch,
+      customAuthority: directMatch === "Otra autoridad" ? normalized : "",
+    }
+  }
+
+  const legacyMatch = LEGACY_AUTHORITY_MAP[normalized]
+  if (legacyMatch) return { authority: legacyMatch, customAuthority: "" }
+
+  return {
+    authority: "Otra autoridad",
+    customAuthority: normalized,
+  }
+}
+
 export function isFinishedStatus(status: ProcedureGeneralStatus) {
   return FINISHED_STATUSES.includes(status)
 }
@@ -732,11 +765,6 @@ function createAuditEntry(
 function inferLegacyProcedureType(value?: string): ProcedureType {
   const normalized = normalizeText(value)
   return LEGACY_TYPE_MAP[normalized] || "PPD"
-}
-
-function inferLegacyAuthority(value?: string): ProcedureAuthority {
-  const normalized = normalizeText(value)
-  return LEGACY_AUTHORITY_MAP[normalized] || "UPDP-SABG"
 }
 
 function inferLegacyOrigin(value?: string): ProcedureOrigin {
@@ -869,6 +897,7 @@ export function migrateLegacyProcedureRecord(
   const procedureType = inferLegacyProcedureType(legacyRecord.procedureType)
   const createdAt = normalizeDate(legacyRecord.startDate) || now
   const responsibles = deriveLegacyResponsibles(legacyRecord)
+  const authorityInput = resolveProcedureAuthorityInput(legacyRecord.authority)
   const auditLog = [
     createAuditEntry(
       "Migración de expediente",
@@ -886,7 +915,8 @@ export function migrateLegacyProcedureRecord(
     expedienteNumber,
     procedureType,
     procedureFamily: getProcedureFamily(procedureType),
-    authority: inferLegacyAuthority(legacyRecord.authority),
+    authority: authorityInput.authority,
+    customAuthority: authorityInput.customAuthority,
     origin: inferLegacyOrigin(legacyRecord.origin),
     generalStatus: inferLegacyStatus(legacyRecord.status),
     proceduralStage: inferLegacyStage(legacyRecord.currentStage, procedureType),
@@ -1374,6 +1404,9 @@ export function validateProcedureWizardStep(
     if (!normalizeText(draft.startedAt)) errors.startedAt = "La fecha de inicio es obligatoria."
     if (!normalizeText(draft.generalStatus)) errors.generalStatus = "Selecciona un estatus."
     if (!normalizeText(draft.proceduralStage)) errors.proceduralStage = "Selecciona una etapa procesal."
+    if (draft.authority === "Otra autoridad" && !normalizeText(draft.customAuthority)) {
+      errors.customAuthority = "Captura el nombre de la autoridad."
+    }
   }
   if (step === 2) {
     if (normalizeText(draft.summary).length < 100) errors.summary = "La descripción del asunto debe tener al menos 100 caracteres."
@@ -1462,6 +1495,7 @@ export function buildProcedureFromDraft(
     procedureType,
     procedureFamily: getProcedureFamily(procedureType),
     authority: draft.authority,
+    customAuthority: draft.authority === "Otra autoridad" ? normalizeText(draft.customAuthority) || undefined : undefined,
     origin: draft.origin,
     generalStatus: nextStatus,
     proceduralStage: draft.proceduralStage,

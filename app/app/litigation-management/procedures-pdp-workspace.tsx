@@ -64,6 +64,7 @@ import {
   getDefaultRoleForUser,
   getFirstActiveAlert,
   getProcedureAlertRowsByGroup,
+  getProcedureAuthorityLabel,
   getProcedureStageOptions,
   ORIGIN_OPTIONS,
   OUTCOME_OPTIONS,
@@ -93,11 +94,13 @@ import {
   getProcedureDocumentFile,
   getProcedureHeaderNotificationSummary,
   getProcedureHighRiskCount,
+  initializeProceduresRoot,
   loadProceduresRoot,
   registerProcedureAccess,
   saveProcedureDraft,
   updateProcedureTaskStatus,
 } from "./procedures-pdp-store"
+import { ProceduresPdpImportDialog } from "./procedures-pdp-import-dialog"
 
 type ProceduresPdpWorkspaceProps = {
   initialSection: "dashboard" | "register"
@@ -262,7 +265,7 @@ function buildDraftFromProcedure(procedure: ProcedurePdpRecord): ProcedureWizard
     expedienteNumber: procedure.expedienteNumber,
     procedureType: procedure.procedureType,
     authority: procedure.authority,
-    customAuthority: "",
+    customAuthority: procedure.customAuthority || "",
     origin: procedure.origin,
     generalStatus: procedure.generalStatus,
     proceduralStage: procedure.proceduralStage,
@@ -522,6 +525,10 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
       }),
     [reportFilters, root],
   )
+
+  useEffect(() => {
+    setRoot(initializeProceduresRoot())
+  }, [])
 
   useEffect(() => {
     const refresh = () => setRoot(loadProceduresRoot())
@@ -878,10 +885,13 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
           { label: `${getProcedureHighRiskCount(root)} alto riesgo`, tone: getProcedureHighRiskCount(root) > 0 ? "warning" : "neutral" },
         ]}
         actions={
-          <Button variant="outline" onClick={exportPortfolioPdf}>
-            <Download className="mr-2 h-4 w-4" />
-            Exportar portafolio
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <ProceduresPdpImportDialog root={root} onImported={(nextRoot) => refreshRoot(nextRoot)} />
+            <Button variant="outline" onClick={exportPortfolioPdf}>
+              <Download className="mr-2 h-4 w-4" />
+              Exportar portafolio
+            </Button>
+          </div>
         }
       >
               {viewSection === "dashboard" && (
@@ -1343,7 +1353,11 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                               <Select
                                 value={wizardDraft.authority}
                                 onValueChange={(value) =>
-                                  setWizardDraft((prev) => ({ ...prev, authority: value as ProcedureWizardDraft["authority"] }))
+                                  setWizardDraft((prev) => ({
+                                    ...prev,
+                                    authority: value as ProcedureWizardDraft["authority"],
+                                    customAuthority: value === "Otra autoridad" ? prev.customAuthority : "",
+                                  }))
                                 }
                               >
                                 <SelectTrigger>
@@ -1358,6 +1372,19 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                                 </SelectContent>
                               </Select>
                             </div>
+                            {wizardDraft.authority === "Otra autoridad" ? (
+                              <div className="space-y-2">
+                                <Label>Nombre de la autoridad</Label>
+                                <Input
+                                  value={wizardDraft.customAuthority}
+                                  onChange={(event) =>
+                                    setWizardDraft((prev) => ({ ...prev, customAuthority: event.target.value }))
+                                  }
+                                  placeholder="Ej. DGIV/INAI"
+                                />
+                                {wizardErrors.customAuthority ? <p className="text-xs text-red-600">{wizardErrors.customAuthority}</p> : null}
+                              </div>
+                            ) : null}
                             <div className="space-y-2">
                               <Label>Origen</Label>
                               <Select
@@ -2022,7 +2049,7 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                         </div>
                         <div className="flex flex-wrap gap-6 text-sm text-slate-600">
                           <span>{selectedProcedure.procedureType}</span>
-                          <span>{selectedProcedure.authority}</span>
+                          <span>{getProcedureAuthorityLabel(selectedProcedure)}</span>
                           <span>{selectedProcedure.responsibles[0]?.name || "Sin responsable"}</span>
                         </div>
                       </div>
@@ -2140,7 +2167,7 @@ export function ProceduresPdpWorkspace({ initialSection }: ProceduresPdpWorkspac
                           </div>
                           <div>
                             <p className="text-sm font-medium text-slate-500">Autoridad</p>
-                            <p className="mt-1 text-slate-900">{selectedProcedure.authority}</p>
+                            <p className="mt-1 text-slate-900">{getProcedureAuthorityLabel(selectedProcedure)}</p>
                           </div>
                           <div>
                             <p className="text-sm font-medium text-slate-500">Origen</p>
