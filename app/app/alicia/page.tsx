@@ -28,6 +28,7 @@ export default function AliciaPage() {
                       priority
                       sizes="(min-width: 640px) 280px, 220px"
                       className="object-contain brightness-0 dark:brightness-0 dark:invert"
+                      unoptimized
                     />
                   </div>
                 </div>
