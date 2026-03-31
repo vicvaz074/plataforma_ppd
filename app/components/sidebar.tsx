@@ -246,6 +246,7 @@ export function Sidebar() {
                 sizes={collapsed ? "36px" : "144px"}
                 className="object-contain drop-shadow-[0_2px_14px_rgba(255,255,255,0.18)]"
                 priority
+                unoptimized
               />
             </span>
             <span className="sr-only">Alicia</span>
