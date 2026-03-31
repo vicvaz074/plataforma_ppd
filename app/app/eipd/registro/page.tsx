@@ -15,12 +15,21 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useToast } from "@/components/ui/use-toast"
-import { Info, PlusCircle, Save } from "lucide-react"
+import { PlusCircle, Save } from "lucide-react"
 import { ArcoModuleShell } from "@/components/arco-module-shell"
 import { EIPD_META, EIPD_NAV } from "@/components/arco-module-config"
 import jsPDF from "jspdf"
 import autoTable from "jspdf-autotable"
+import InlineHelp from "../components/InlineHelp"
 import QuestionItem, { QuestionAnswer } from "../components/QuestionItem"
+import {
+  baseLegalOptions,
+  eipdNameHelp,
+  partAOperations,
+  partBOperations,
+  sections,
+  type EipdCriterion,
+} from "./catalog"
 
 type EipdForm = {
   id: string
@@ -64,155 +73,6 @@ type EipdForm = {
 }
 
 const STORAGE_KEY = "eipd_forms"
-
-const partAOperations = [
-  {
-    id: "part-a-1-1",
-    title:
-      "¿El tratamiento implica la evaluación o puntuación de personas físicas, incluyendo la elaboración de perfiles y la predicción de aspectos específicos?",
-    details:
-      "Contexto: aspectos relacionados con el rendimiento en el trabajo, situación económica, salud, preferencias o intereses personales, fiabilidad, comportamiento, ubicación o movimientos del titular.",
-  },
-  {
-    id: "part-a-1-2",
-    title:
-      "¿Se realiza una recogida de datos del sujeto en múltiples ámbitos de su vida que cubran varios aspectos de su personalidad o hábitos?",
-    details:
-      "Contexto: incluye la valoración de sujetos mediante datos combinados de su desempeño laboral, personalidad y comportamiento social.",
-  },
-  {
-    id: "part-a-2-1",
-    title:
-      "¿El tratamiento implica la observación, monitorización, supervisión, geolocalización o control del titular de forma sistemática y exhaustiva?",
-  },
-  {
-    id: "part-a-2-2",
-    title: "¿Se recogen datos y metadatos a través de redes, aplicaciones o en zonas de acceso público?",
-  },
-  {
-    id: "part-a-2-3",
-    title:
-      "¿Se procesan identificadores únicos que permitan rastrear a usuarios de servicios web, TV interactiva o aplicaciones móviles?",
-  },
-  {
-    id: "part-a-2-4",
-    title: "¿El tratamiento se utiliza para la observación sistemática de una zona de acceso público?",
-  },
-  {
-    id: "part-a-3-1",
-    title:
-      "¿El tratamiento está destinado a tomar decisiones automatizadas que produzcan efectos jurídicos para las personas o que les afecten significativamente de modo similar?",
-    details:
-      "Nota: incluye cualquier decisión que impida a un titular el ejercicio de un derecho o el acceso a un bien o servicio.",
-  },
-  {
-    id: "part-a-3-2",
-    title:
-      "¿La operación de tratamiento tiene como fin permitir, modificar o denegar el acceso del titular a un servicio o a la ejecución de un contrato?",
-  },
-  {
-    id: "part-a-4-1",
-    title: "¿El tratamiento involucra Datos Personales Sensibles según la LFPDPPP?",
-    details:
-      "Categorías: origen racial o étnico, estado de salud (presente o futuro), información genética, creencias religiosas/filosóficas/morales, opiniones políticas, preferencia sexual o antecedentes penales.",
-  },
-  {
-    id: "part-a-4-2",
-    title: "¿Se utilizan datos biométricos con el propósito de identificar de manera única a una persona física?",
-  },
-  {
-    id: "part-a-4-3",
-    title: "¿Se procesan datos genéticos para cualquier finalidad?",
-  },
-  {
-    id: "part-a-5-1",
-    title: "¿El tratamiento se considera a \"Gran Escala\" bajo los siguientes criterios?",
-    details:
-      "Número elevado de titulares afectados. Gran volumen o variedad de elementos de datos. Larga duración o permanencia de la actividad. Alcance geográfico extenso.",
-  },
-  {
-    id: "part-a-5-2",
-    title:
-      "¿Se asocian, combinan o enlazan registros de bases de datos de dos o más tratamientos con finalidades diferentes o por responsables distintos?",
-    details: "Contexto: especialmente cuando dicha combinación exceda las expectativas razonables del titular.",
-  },
-  {
-    id: "part-a-6-1",
-    title:
-      "¿El tratamiento involucra datos de sujetos en situación de vulnerabilidad o donde exista un desequilibrio de poder?",
-    details:
-      "Ejemplos: niños, niñas y adolescentes, empleados, personas mayores, pacientes, personas con enfermedades mentales o solicitantes de asilo.",
-  },
-  {
-    id: "part-a-6-2",
-    title:
-      "¿El tratamiento se realiza en un contexto donde el titular es incapaz de autorizar o denegar el tratamiento de forma libre (desequilibrio en la relación)?",
-  },
-  {
-    id: "part-a-7-1",
-    title:
-      "¿El tratamiento implica el uso innovador o la aplicación de nuevas soluciones tecnológicas u organizativas?",
-    details:
-      "Ejemplo: combinar el uso de huella dactilar y reconocimiento facial para mejorar el control físico de acceso.",
-  },
-]
-
-const partBOperations = [
-  {
-    id: "part-b-1",
-    title:
-      "¿El tratamiento ha sido informado previamente a la autoridad de control bajo un esquema de autorregulación vinculante que ya cuente con una EIPD validada e inscrita?",
-  },
-  {
-    id: "part-b-2",
-    title:
-      "¿El tratamiento se realiza sin requerir el consentimiento del titular por mandato de una disposición jurídica, orden judicial o autoridad competente?",
-  },
-  {
-    id: "part-b-3",
-    title: "¿Los datos personales objeto del tratamiento se encuentran exclusivamente en fuentes de acceso público?",
-  },
-  {
-    id: "part-b-4",
-    title:
-      "¿Los datos personales han sido sometidos a un procedimiento previo de disociación o anonimización irreversible?",
-  },
-  {
-    id: "part-b-5",
-    title:
-      "¿El tratamiento es estrictamente indispensable para ejercer un derecho o cumplir obligaciones derivadas de una relación jurídica entre el titular y el responsable?",
-  },
-  {
-    id: "part-b-6",
-    title:
-      "¿El tratamiento es indispensable para atención médica de emergencia, prevención o diagnóstico sanitario mientras el titular no pueda otorgar su consentimiento?",
-  },
-  {
-    id: "part-b-7",
-    title:
-      "¿El tratamiento se limita al uso de datos de personas morales, comerciantes o profesionales con fines exclusivos de contacto comercial?",
-  },
-  {
-    id: "part-b-8",
-    title: "¿El tratamiento es realizado por un sujeto de derecho público en términos de la normatividad aplicable?",
-  },
-  {
-    id: "part-b-9",
-    title:
-      "¿Se trata de un tratamiento para uso exclusivamente doméstico o personal, sin fines de divulgación o utilización comercial?",
-  },
-]
-
-const baseLegalOptions = [
-  "Consentimiento del titular",
-  "Disposición jurídica aplicable",
-  "Relación jurídica entre el titular y el responsable",
-  "Datos provenientes de fuentes de acceso público",
-  "Datos sometidos previamente a disociación (anonimización)",
-  "Emergencia que potencialmente puede dañar a una persona en su persona o bienes",
-  "Atención médica, diagnóstico o prestación de servicios sanitarios",
-  "Mandato judicial o de autoridad competente",
-]
 
 const riskThreats = [
   {
@@ -337,147 +197,6 @@ const controlCatalog = [
     requirement: "Sistema de monitoreo y protocolos de respuesta.",
     affects: "impact",
     levels: ["medio", "alto", "critico"],
-  },
-]
-
-const section2Questions = [
-  "¿Cuál es el tratamiento de datos? El objetivo de esta pregunta es delimitar la operación de tratamiento que se está considerando, a la vez que se hace una primera descripción.",
-  "¿Cuál es la finalidad del tratamiento? En esta pregunta debes describir la finalidad del tratamiento la cual debe ser explícita, legítima y determinada. La finalidad o las finalidades deben ser determinadas, lo cual se logra cuando con claridad, sin lugar a confusión y de manera objetiva se especifica para qué objeto serán tratados los datos personales.",
-  "¿Tipos y características de los datos a tratar? En esta sección se debe especificar claramente cuáles son los tipos y las características de los datos a tratar.",
-  "Fuente de los datos: especificar si los datos se han obtenido directamente del titular o de una tercera parte y, si es así, especificarla.",
-  "Plazo de conservación: especificar los plazos de conservación aplicables a los datos personales y su justificación legal.",
-  "Especificar si se trata algún tipo de datos sensibles. Aquí, se debe detallar el tipo de datos tratados en detalle si corresponde a alguno de estos grupos (origen racial o étnico, estado de salud presente o futuro, información genética, creencias religiosas, filosóficas y morales, opiniones políticas y preferencia sexual) o bien, se considera sensible porque su utilización indebida puede dar origen a discriminación o conllevar un riesgo grave para el titular.",
-  "Uso con una finalidad diferente de la que se informó en el aviso de privacidad. Si se quieren utilizar datos con una finalidad distinta a la que se informó en el aviso de privacidad se debe informar la finalidad nueva que se persigue y por qué no es compatible con la finalidad original.",
-  "¿Qué actores intervienen en el tratamiento? Se deben informar todos los actores que participen en el tratamiento. Indicar responsables del tratamiento en caso de ser más de un responsable el que se involucra en el tratamiento.",
-  "Indicar encargados del tratamiento, servicio que prestarán, contrato y a qué datos accederán.",
-  "Indicar el nombre de las áreas, roles y responsabilidades de los funcionarios clave que tendrán acceso a los datos personales de los titulares.",
-  "¿Cuáles son los procesos de tratamiento? Los datos se pueden tratar de forma automatizada, de forma manual o con una combinación de ambas. En esta pregunta se deben informar los procesos que se aplicarán para el tratamiento y en el caso de tratamientos automatizados describir aspectos clave como si existe intervención humana en alguna fase del tratamiento, lógica del algoritmo empleado, resultados esperados y si existe posibilidad de reconsideración de la decisión.",
-  "¿Dónde se hace el tratamiento de los datos? Se debe especificar el país donde se realizará el tratamiento de forma específica. En particular si se considera un país de la UE con nivel adecuado de protección se recomienda informarlo en esta sección: Andorra, Argentina, Canadá (org. comerciales), Corea del Sur, Guernsey, Isla de Man, Jersey, Islas Feroe, Japón, Nueva Zelanda, Reino Unido, Suiza y Uruguay.",
-]
-
-const section3Questions = [
-  "Licitud del tratamiento: ¿Cuál es la base jurídica que legitima el tratamiento?",
-  "Consentimiento del titular: ¿Se recabó de forma previa, libre, específica e informada? Adjunte evidencia.",
-  "Disposición jurídica aplicable: indique el artículo, ley o reglamento que ordena el tratamiento.",
-  "Relación jurídica entre el titular y el responsable: describa la relación jurídica aplicable.",
-  "Datos provenientes de fuentes de acceso público: especifique la fuente y fundamento legal.",
-  "Datos sometidos previamente a disociación (anonimización): describa técnica y evidencia.",
-  "Emergencia que potencialmente puede dañar a una persona en su persona o bienes: explique.",
-  "Atención médica, diagnóstico o prestación de servicios sanitarios: profesional responsable y justificación.",
-  "Mandato judicial o de autoridad competente: describa el acto de autoridad.",
-  "Principio de minimización de datos: ¿son adecuados, pertinentes y limitados a lo necesario?",
-  "¿Se recogen más datos de los estrictamente necesarios?",
-  "¿Podría lograrse la finalidad sin identificar a las personas (anonimización/seudonimización)?",
-  "Limitación del plazo de conservación: defina plazos de retención y criterios de borrado seguro.",
-  "Calidad y exactitud: ¿qué medidas garantizan datos exactos y actualizados?",
-  "Transparencia y derechos: ¿cómo se informa al titular y se garantizan derechos ARCO+?",
-  "Juicio de idoneidad y eficacia: relación causa-efecto del tratamiento.",
-  "Indicadores o métricas para validar la eficacia.",
-  "Impacto si el tratamiento no se lleva a cabo.",
-  "Juicio de necesidad: ¿se exploró uso de datos anónimos o agregados?",
-  "Alternativas tecnológicas menos intrusivas (seudonimización, edge, etc.).",
-  "¿Por qué se considera el medio menos lesivo disponible?",
-  "Minimización: ¿se limita a datos mínimos necesarios?",
-  "Proporcionalidad: ¿por qué el beneficio supera el riesgo potencial?",
-  "Medidas de mitigación adicionales para minimizar intrusión.",
-  "¿Existe desequilibrio de poder y cómo se compensa?",
-  "¿La expectativa razonable del titular coincide con la intensidad del tratamiento?",
-]
-
-const section4Questions = [
-  "Amenazas: acceso no autorizado por parte de empleados (abuso de privilegios).",
-  "Amenazas: acceso externo (ciberataque, hacking, phishing).",
-  "Amenazas: robo o pérdida de dispositivos con datos (laptops, USB, móviles).",
-  "Amenazas: interceptación de comunicaciones (man-in-the-middle).",
-  "Amenazas: errores humanos en la entrada de datos.",
-  "Amenazas: alteración malintencionada de registros (sabotaje).",
-  "Amenazas: errores de software o corrupción de bases de datos.",
-  "Amenazas: falta de control de versiones o trazabilidad de cambios.",
-  "Amenazas: fallo físico de infraestructura (discos duros, servidores).",
-  "Amenazas: desastres naturales (incendio, inundación, sismo).",
-  "Amenazas: ataque de ransomware (secuestro de datos).",
-  "Amenazas: fallo en los sistemas de copia de seguridad (backups corruptos).",
-  "Amenazas: re-identificación de datos seudonimizados.",
-  "Amenazas: transferencia internacional sin garantías.",
-]
-
-const section5Questions = [
-  "¿A través de qué canales específicos puede el titular solicitar el acceso a la totalidad de sus datos personales tratados en este sistema?",
-  "¿El sistema permite generar un reporte en formato legible y estructurado que desglose las categorías de datos, las finalidades y las transferencias realizadas?",
-  "¿Cómo garantiza el tratamiento que el titular conozca el origen de sus datos cuando estos no han sido recabados directamente de él?",
-  "¿Existen mecanismos automatizados o manuales para que el titular corrija sus datos cuando estos sean inexactos, incompletos o desactualizados?",
-  "En caso de rectificación, ¿cómo se asegura la plataforma de notificar este cambio a los terceros o proveedores a los que se les hubieran transferido los datos previamente?",
-  "¿Cuenta el tratamiento con un procedimiento de \"bloqueo\" previo a la eliminación definitiva de los datos, conforme a los periodos de prescripción legal?",
-  "¿Qué medidas técnicas garantizan que, una vez ejercido el derecho de cancelación, los datos no vuelvan a ser visibles o utilizados para las finalidades del tratamiento?",
-  "¿Puede el titular oponerse de manera específica al tratamiento para fines secundarios (ej. mercadotecnia) sin que esto afecte la finalidad primaria?",
-  "¿Qué controles técnicos se activan cuando un titular solicita la \"limitación de uso o divulgación\" para asegurar que los datos permanezcan almacenados pero no tratados?",
-  "¿Se informa al titular cuando el tratamiento incluye decisiones basadas exclusivamente en el procesamiento automatizado que produzcan efectos jurídicos o le afecten significativamente?",
-  "¿Existe un mecanismo para que el titular solicite la intervención humana, exprese su punto de vista o impugne una decisión automatizada generada por el sistema?",
-  "¿Es el proceso para revocar el consentimiento tan sencillo y accesible como lo fue para otorgarlo? (Explique el medio).",
-  "¿Qué controles aseguran el cese inmediato del tratamiento una vez que la revocación ha sido procesada legalmente?",
-  "¿El sistema registra y conserva evidencia de cada etapa de la atención a las solicitudes de derechos (recepción, análisis, respuesta y notificación)?",
-  "¿Quién es la figura responsable (ej. Oficial de Protección de Datos) encargada de supervisar que las respuestas se emitan dentro de los plazos legales previstos?",
-]
-
-const section6Questions = [
-  "¿Qué controles preventivos se han seleccionado para reducir la probabilidad de que las amenazas identificadas se materialicen? (Referencia a los códigos [org], [op.acc], [mp.if] de la tabla).",
-  "¿Qué medidas correctivas o de recuperación se han adoptado para reducir el impacto en caso de un incidente? (Referencia a [op.cont], [op.mon], [op.exp.9]).",
-  "Para cada control marcado como \"Implementado\": ¿Cuál es la evidencia documental que respalda su existencia?",
-  "¿Considera que las medidas son proporcionales al volumen y sensibilidad de los datos tratados?",
-]
-
-const section7Questions = [
-  "¿Quién es la persona física o cargo responsable de firmar y validar el resultado de esta evaluación?",
-  "¿Se ha documentado la opinión del Delegado de Protección de Datos (DPO) o del área de Privacidad sobre las conclusiones de esta EIPD?",
-  "¿Se consultó a las áreas técnicas (TI/Ciberseguridad) y de negocio para validar la viabilidad de las medidas de mitigación propuestas?",
-  "En caso de haber consultado a los titulares o a sus representantes, ¿se han integrado sus comentarios o preocupaciones al informe final?",
-  "¿Se encuentran vinculados y accesibles todos los documentos de soporte (Avisos de Privacidad, Contratos con terceros, Políticas de Seguridad, Análisis de Riesgos Técnicos)?",
-  "¿El reporte final incluye un Resumen Ejecutivo diseñado para la alta dirección que explique el riesgo residual en términos claros de impacto organizacional?",
-  "¿Desea incluir los anexos técnicos y evidencias de controles en el reporte final?",
-  "¿Existen apartados en la EIPD que contengan información sensible sobre la infraestructura (vulnerabilidades) y deban ser clasificados como \"Confidenciales\" o de acceso restringido?",
-  "¿Se ha verificado que la documentación guardada no contenga datos personales innecesarios para la evaluación misma (Minimización)?",
-  "¿Esta EIPD está correctamente asociada al ID correspondiente en el Registro de Actividades de Tratamiento (RAT) de la organización?",
-  "¿Se ha definido formalmente quién es el custodio de la versión original de esta evaluación y dónde se almacenará de forma segura?",
-]
-
-const section8Questions = [
-  "¿Ha habido cambios significativos en la tecnología utilizada o en los proveedores de servicio desde la última revisión?",
-  "¿Se han detectado nuevas vulnerabilidades o incidentes de seguridad relacionados con este tratamiento en el último periodo?",
-  "¿Ha cambiado la base de licitud o la finalidad original por la que se recolectaron los datos?",
-  "¿Se han recibido quejas o solicitudes de ejercicio de derechos ARCO que indiquen una falla en los controles implementados?",
-]
-
-const buildQuestions = (prefix: string, questions: string[]) =>
-  questions.map((question, index) => ({ id: `${prefix}-${index}`, question }))
-
-const sections = [
-  {
-    title: "Descripción de las operaciones de tratamiento",
-    questions: buildQuestions("section-2", section2Questions),
-  },
-  {
-    title: "Evaluación de la necesidad y proporcionalidad del tratamiento",
-    questions: buildQuestions("section-3", section3Questions),
-  },
-  {
-    title: "Evaluación de riesgos y seguridad de los datos",
-    questions: buildQuestions("section-4", section4Questions),
-  },
-  {
-    title: "Protección a los derechos de los titulares",
-    questions: buildQuestions("section-5", section5Questions),
-  },
-  {
-    title: "Medidas adoptadas para mitigar los riesgos",
-    questions: buildQuestions("section-6", section6Questions),
-  },
-  {
-    title: "Documentación de la EIPD",
-    questions: buildQuestions("section-7", section7Questions),
-  },
-  {
-    title: "Monitoreo y revisión de la EIPD",
-    questions: buildQuestions("section-8", section8Questions),
   },
 ]
 
@@ -656,27 +375,6 @@ const getReviewStatus = (nextReviewDate?: string) => {
   return { label: "Vigente", color: "🟢" }
 }
 
-const glossary: Record<string, string> = {
-  "criterio-obligatoriedad":
-    "Supuestos legales o de riesgo que hacen obligatoria una EIPD (perfilado, datos sensibles, gran escala, etc.).",
-  "base-juridica":
-    "Fundamento legal que permite el tratamiento (consentimiento, contrato, disposición legal, etc.).",
-  "riesgo-inherente":
-    "Nivel de riesgo antes de aplicar controles de mitigación.",
-  "riesgo-residual":
-    "Nivel de riesgo después de aplicar controles de mitigación.",
-  "control-seguridad":
-    "Medida técnica u organizativa para reducir probabilidad o impacto del riesgo.",
-}
-
-const getGlossaryKeyForSection = (index: number) => {
-  if (index === 0) return "criterio-obligatoriedad"
-  if (index === 1) return "base-juridica"
-  if (index === 2) return "riesgo-inherente"
-  if (index === 3) return "control-seguridad"
-  return "control-seguridad"
-}
-
 const getDiagnosticResult = (partACount: number, partBCount: number) => {
   if (partACount >= 2) {
     return {
@@ -756,7 +454,6 @@ export default function EipdPage() {
   const [sliderHeight, setSliderHeight] = useState<number | null>(null)
   const [previewOpen, setPreviewOpen] = useState(false)
   const [exportMode, setExportMode] = useState<"completa" | "ejecutiva" | "publica">("completa")
-  const [glossaryKey, setGlossaryKey] = useState<string | null>(null)
   const [visitedSteps, setVisitedSteps] = useState<number[]>([0])
   const [prefillId, setPrefillId] = useState("")
   const [versionInfo, setVersionInfo] = useState<{ version: string; history: { version: string; updatedAt: string }[] }>(
@@ -964,6 +661,29 @@ export default function EipdPage() {
     })
   }
   const prevStep = () => setActiveStep((prev) => Math.max(prev - 1, 0))
+
+  const renderCriterionOption = (
+    operation: EipdCriterion,
+    options: { checked: boolean; onToggle: () => void; disabled?: boolean },
+  ) => (
+    <div
+      key={operation.id}
+      className="flex items-start space-x-3 rounded-xl border border-muted/50 bg-white/80 p-4 shadow-sm dark:bg-muted/10"
+    >
+      <Checkbox
+        id={operation.id}
+        checked={options.checked}
+        disabled={options.disabled}
+        onCheckedChange={options.onToggle}
+      />
+      <div className="min-w-0 flex-1 space-y-2">
+        <label htmlFor={operation.id} className="block font-medium leading-relaxed text-foreground">
+          {operation.title}
+        </label>
+        <InlineHelp helpText={operation.helpText} buttonLabel="Cómo evaluarlo" />
+      </div>
+    </div>
+  )
 
   const complianceSummary = useMemo(() => getComplianceSummary(normalizedAnswers), [normalizedAnswers])
   const evidenceIndex = useMemo(() => {
@@ -1525,7 +1245,7 @@ export default function EipdPage() {
           body: section.questions.map((question) => {
             const answer = normalizedFormAnswers[question.id] ?? baseAnswer
             return [
-              question.question,
+              question.prompt,
               responseLabels[answer.response],
               statusLabels[answer.status],
               answer.responsible || "-",
@@ -1648,7 +1368,7 @@ export default function EipdPage() {
       contentClassName="space-y-6 overflow-x-hidden"
     >
       {activeStep >= 1 ? (
-        <div className="sticky top-4 z-20">
+        <div className="sticky top-0 z-20">
           <div className="rounded-[24px] border border-[#d6e1f6] bg-white/95 p-4 shadow-sm backdrop-blur">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
@@ -1768,11 +1488,7 @@ export default function EipdPage() {
                         onChange={(event) => setFormName(event.target.value)}
                         placeholder="Ej. EIPD – Chatbot Atención a Clientes – 2026"
                       />
-                      <div className="text-xs text-muted-foreground">
-                        <p>Usa un nombre único y descriptivo (proyecto + área + año).</p>
-                        <p>Evita abreviaturas internas no conocidas.</p>
-                        <p>Recomendación: 8–80 caracteres.</p>
-                      </div>
+                      <InlineHelp helpText={eipdNameHelp} buttonLabel="Cómo nombrarla" />
                       {nameLength > 0 && nameLength < 8 && (
                         <p className="text-xs text-amber-600">El nombre es válido, pero se recomienda más detalle.</p>
                       )}
@@ -1873,31 +1589,12 @@ export default function EipdPage() {
                           Perfilado, evaluación y análisis predictivo
                         </AccordionTrigger>
                         <AccordionContent className="space-y-4">
-                          {partAOperations.slice(0, 2).map((op) => (
-                            <div
-                              key={op.id}
-                              className="flex items-start space-x-3 rounded-xl border border-muted/50 bg-white/80 p-4 shadow-sm dark:bg-muted/10"
-                            >
-                              <Checkbox
-                                id={op.id}
-                                checked={selectedPartA.includes(op.id)}
-                                onCheckedChange={() => togglePartASelection(op.id)}
-                              />
-                              <div className="space-y-1">
-                                <label htmlFor={op.id} className="font-medium leading-none text-foreground">
-                                  {op.title}
-                                </label>
-                                {op.details && <p className="text-sm text-muted-foreground">{op.details}</p>}
-                                <button
-                                  type="button"
-                                  className="flex items-center gap-1 text-xs text-muted-foreground"
-                                  onClick={() => setGlossaryKey("criterio-obligatoriedad")}
-                                >
-                                  <Info className="h-3 w-3" /> Glosario
-                                </button>
-                              </div>
-                            </div>
-                          ))}
+                          {partAOperations.slice(0, 2).map((op) =>
+                            renderCriterionOption(op, {
+                              checked: selectedPartA.includes(op.id),
+                              onToggle: () => togglePartASelection(op.id),
+                            }),
+                          )}
                           {selectedPartA.includes("part-a-1-1") && (
                             <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 text-xs text-muted-foreground">
                               Criterio de obligatoriedad detectado. Puede seguir completando el cuestionario para un
@@ -1923,31 +1620,12 @@ export default function EipdPage() {
                           Observación, monitoreo y geolocalización
                         </AccordionTrigger>
                         <AccordionContent className="space-y-4">
-                          {partAOperations.slice(2, 6).map((op) => (
-                            <div
-                              key={op.id}
-                              className="flex items-start space-x-3 rounded-xl border border-muted/50 bg-white/80 p-4 shadow-sm dark:bg-muted/10"
-                            >
-                              <Checkbox
-                                id={op.id}
-                                checked={selectedPartA.includes(op.id)}
-                                onCheckedChange={() => togglePartASelection(op.id)}
-                              />
-                              <div className="space-y-1">
-                                <label htmlFor={op.id} className="font-medium leading-none text-foreground">
-                                  {op.title}
-                                </label>
-                                {op.details && <p className="text-sm text-muted-foreground">{op.details}</p>}
-                                <button
-                                  type="button"
-                                  className="flex items-center gap-1 text-xs text-muted-foreground"
-                                  onClick={() => setGlossaryKey("criterio-obligatoriedad")}
-                                >
-                                  <Info className="h-3 w-3" /> Glosario
-                                </button>
-                              </div>
-                            </div>
-                          ))}
+                          {partAOperations.slice(2, 6).map((op) =>
+                            renderCriterionOption(op, {
+                              checked: selectedPartA.includes(op.id),
+                              onToggle: () => togglePartASelection(op.id),
+                            }),
+                          )}
                         </AccordionContent>
                       </AccordionItem>
                       <AccordionItem value="subtema-1-3">
@@ -1955,31 +1633,12 @@ export default function EipdPage() {
                           Decisiones automatizadas y limitación de derechos
                         </AccordionTrigger>
                         <AccordionContent className="space-y-4">
-                          {partAOperations.slice(6, 8).map((op) => (
-                            <div
-                              key={op.id}
-                              className="flex items-start space-x-3 rounded-xl border border-muted/50 bg-white/80 p-4 shadow-sm dark:bg-muted/10"
-                            >
-                              <Checkbox
-                                id={op.id}
-                                checked={selectedPartA.includes(op.id)}
-                                onCheckedChange={() => togglePartASelection(op.id)}
-                              />
-                              <div className="space-y-1">
-                                <label htmlFor={op.id} className="font-medium leading-none text-foreground">
-                                  {op.title}
-                                </label>
-                                {op.details && <p className="text-sm text-muted-foreground">{op.details}</p>}
-                                <button
-                                  type="button"
-                                  className="flex items-center gap-1 text-xs text-muted-foreground"
-                                  onClick={() => setGlossaryKey("criterio-obligatoriedad")}
-                                >
-                                  <Info className="h-3 w-3" /> Glosario
-                                </button>
-                              </div>
-                            </div>
-                          ))}
+                          {partAOperations.slice(6, 8).map((op) =>
+                            renderCriterionOption(op, {
+                              checked: selectedPartA.includes(op.id),
+                              onToggle: () => togglePartASelection(op.id),
+                            }),
+                          )}
                         </AccordionContent>
                       </AccordionItem>
                       <AccordionItem value="subtema-1-4">
@@ -1987,31 +1646,12 @@ export default function EipdPage() {
                           Datos personales sensibles
                         </AccordionTrigger>
                         <AccordionContent className="space-y-4">
-                          {partAOperations.slice(8, 11).map((op) => (
-                            <div
-                              key={op.id}
-                              className="flex items-start space-x-3 rounded-xl border border-muted/50 bg-white/80 p-4 shadow-sm dark:bg-muted/10"
-                            >
-                              <Checkbox
-                                id={op.id}
-                                checked={selectedPartA.includes(op.id)}
-                                onCheckedChange={() => togglePartASelection(op.id)}
-                              />
-                              <div className="space-y-1">
-                                <label htmlFor={op.id} className="font-medium leading-none text-foreground">
-                                  {op.title}
-                                </label>
-                                {op.details && <p className="text-sm text-muted-foreground">{op.details}</p>}
-                                <button
-                                  type="button"
-                                  className="flex items-center gap-1 text-xs text-muted-foreground"
-                                  onClick={() => setGlossaryKey("criterio-obligatoriedad")}
-                                >
-                                  <Info className="h-3 w-3" /> Glosario
-                                </button>
-                              </div>
-                            </div>
-                          ))}
+                          {partAOperations.slice(8, 11).map((op) =>
+                            renderCriterionOption(op, {
+                              checked: selectedPartA.includes(op.id),
+                              onToggle: () => togglePartASelection(op.id),
+                            }),
+                          )}
                         </AccordionContent>
                       </AccordionItem>
                       <AccordionItem value="subtema-1-5">
@@ -2019,91 +1659,34 @@ export default function EipdPage() {
                           Tratamiento a gran escala y asociación de datos
                         </AccordionTrigger>
                         <AccordionContent className="space-y-4">
-                          {partAOperations.slice(11, 13).map((op) => (
-                            <div
-                              key={op.id}
-                              className="flex items-start space-x-3 rounded-xl border border-muted/50 bg-white/80 p-4 shadow-sm dark:bg-muted/10"
-                            >
-                              <Checkbox
-                                id={op.id}
-                                checked={selectedPartA.includes(op.id)}
-                                onCheckedChange={() => togglePartASelection(op.id)}
-                              />
-                              <div className="space-y-1">
-                                <label htmlFor={op.id} className="font-medium leading-none text-foreground">
-                                  {op.title}
-                                </label>
-                                {op.details && <p className="text-sm text-muted-foreground">{op.details}</p>}
-                                <button
-                                  type="button"
-                                  className="flex items-center gap-1 text-xs text-muted-foreground"
-                                  onClick={() => setGlossaryKey("criterio-obligatoriedad")}
-                                >
-                                  <Info className="h-3 w-3" /> Glosario
-                                </button>
-                              </div>
-                            </div>
-                          ))}
+                          {partAOperations.slice(11, 13).map((op) =>
+                            renderCriterionOption(op, {
+                              checked: selectedPartA.includes(op.id),
+                              onToggle: () => togglePartASelection(op.id),
+                            }),
+                          )}
                         </AccordionContent>
                       </AccordionItem>
                       <AccordionItem value="subtema-1-6">
                         <AccordionTrigger className="text-sm font-semibold">Población vulnerable o desequilibrio de poder</AccordionTrigger>
                         <AccordionContent className="space-y-4">
-                          {partAOperations.slice(13, 15).map((op) => (
-                            <div
-                              key={op.id}
-                              className="flex items-start space-x-3 rounded-xl border border-muted/50 bg-white/80 p-4 shadow-sm dark:bg-muted/10"
-                            >
-                              <Checkbox
-                                id={op.id}
-                                checked={selectedPartA.includes(op.id)}
-                                onCheckedChange={() => togglePartASelection(op.id)}
-                              />
-                              <div className="space-y-1">
-                                <label htmlFor={op.id} className="font-medium leading-none text-foreground">
-                                  {op.title}
-                                </label>
-                                {op.details && <p className="text-sm text-muted-foreground">{op.details}</p>}
-                                <button
-                                  type="button"
-                                  className="flex items-center gap-1 text-xs text-muted-foreground"
-                                  onClick={() => setGlossaryKey("criterio-obligatoriedad")}
-                                >
-                                  <Info className="h-3 w-3" /> Glosario
-                                </button>
-                              </div>
-                            </div>
-                          ))}
+                          {partAOperations.slice(13, 15).map((op) =>
+                            renderCriterionOption(op, {
+                              checked: selectedPartA.includes(op.id),
+                              onToggle: () => togglePartASelection(op.id),
+                            }),
+                          )}
                         </AccordionContent>
                       </AccordionItem>
                       <AccordionItem value="subtema-1-7">
                         <AccordionTrigger className="text-sm font-semibold">Innovación tecnológica y nuevas soluciones</AccordionTrigger>
                         <AccordionContent className="space-y-4">
-                          {partAOperations.slice(15).map((op) => (
-                            <div
-                              key={op.id}
-                              className="flex items-start space-x-3 rounded-xl border border-muted/50 bg-white/80 p-4 shadow-sm dark:bg-muted/10"
-                            >
-                              <Checkbox
-                                id={op.id}
-                                checked={selectedPartA.includes(op.id)}
-                                onCheckedChange={() => togglePartASelection(op.id)}
-                              />
-                              <div className="space-y-1">
-                                <label htmlFor={op.id} className="font-medium leading-none text-foreground">
-                                  {op.title}
-                                </label>
-                                {op.details && <p className="text-sm text-muted-foreground">{op.details}</p>}
-                                <button
-                                  type="button"
-                                  className="flex items-center gap-1 text-xs text-muted-foreground"
-                                  onClick={() => setGlossaryKey("criterio-obligatoriedad")}
-                                >
-                                  <Info className="h-3 w-3" /> Glosario
-                                </button>
-                              </div>
-                            </div>
-                          ))}
+                          {partAOperations.slice(15).map((op) =>
+                            renderCriterionOption(op, {
+                              checked: selectedPartA.includes(op.id),
+                              onToggle: () => togglePartASelection(op.id),
+                            }),
+                          )}
                         </AccordionContent>
                       </AccordionItem>
                     </Accordion>
@@ -2122,31 +1705,13 @@ export default function EipdPage() {
                           Supuestos de no sujeción
                         </AccordionTrigger>
                         <AccordionContent className="space-y-4">
-                          {partBOperations.map((op) => (
-                            <div
-                              key={op.id}
-                              className="flex items-start space-x-3 rounded-xl border border-muted/50 bg-white/80 p-4 shadow-sm dark:bg-muted/10"
-                            >
-                              <Checkbox
-                                id={op.id}
-                                checked={selectedPartB.includes(op.id)}
-                                disabled={selectedPartA.length > 0}
-                                onCheckedChange={() => togglePartBSelection(op.id)}
-                              />
-                              <div className="space-y-1">
-                                <label htmlFor={op.id} className="font-medium leading-none text-foreground">
-                                  {op.title}
-                                </label>
-                                <button
-                                  type="button"
-                                  className="flex items-center gap-1 text-xs text-muted-foreground"
-                                  onClick={() => setGlossaryKey("criterio-obligatoriedad")}
-                                >
-                                  <Info className="h-3 w-3" /> Glosario
-                                </button>
-                              </div>
-                            </div>
-                          ))}
+                          {partBOperations.map((op) =>
+                            renderCriterionOption(op, {
+                              checked: selectedPartB.includes(op.id),
+                              disabled: selectedPartA.length > 0,
+                              onToggle: () => togglePartBSelection(op.id),
+                            }),
+                          )}
                         </AccordionContent>
                       </AccordionItem>
                     </Accordion>
@@ -2283,10 +1848,10 @@ export default function EipdPage() {
                         <QuestionItem
                           key={question.id}
                           id={question.id}
-                          question={question.question}
+                          question={question.prompt}
+                          helpText={question.helpText}
                           value={answers[question.id]}
                           variant="simple"
-                          onInfo={() => setGlossaryKey(getGlossaryKeyForSection(1))}
                           onChange={(value) =>
                             setAnswers((prev) => ({
                               ...prev,
@@ -2337,10 +1902,10 @@ export default function EipdPage() {
                         <QuestionItem
                           key={question.id}
                           id={question.id}
-                          question={question.question}
+                          question={question.prompt}
+                          helpText={question.helpText}
                           value={answers[question.id]}
                           variant="simple"
-                          onInfo={() => setGlossaryKey(getGlossaryKeyForSection(2))}
                           onChange={(value) =>
                             setAnswers((prev) => ({
                               ...prev,
@@ -2644,10 +2209,10 @@ export default function EipdPage() {
                         <QuestionItem
                           key={question.id}
                           id={question.id}
-                          question={question.question}
+                          question={question.prompt}
+                          helpText={question.helpText}
                           value={answers[question.id]}
                           variant="simple"
-                          onInfo={() => setGlossaryKey(getGlossaryKeyForSection(3))}
                           onChange={(value) =>
                             setAnswers((prev) => ({
                               ...prev,
@@ -2715,10 +2280,10 @@ export default function EipdPage() {
                         <QuestionItem
                           key={question.id}
                           id={question.id}
-                          question={question.question}
+                          question={question.prompt}
+                          helpText={question.helpText}
                           value={answers[question.id]}
                           variant="simple"
-                          onInfo={() => setGlossaryKey(getGlossaryKeyForSection(3))}
                           onChange={(value) =>
                             setAnswers((prev) => ({
                               ...prev,
@@ -2816,10 +2381,10 @@ export default function EipdPage() {
                         <QuestionItem
                           key={question.id}
                           id={question.id}
-                          question={question.question}
+                          question={question.prompt}
+                          helpText={question.helpText}
                           value={answers[question.id]}
                           variant="simple"
-                          onInfo={() => setGlossaryKey(getGlossaryKeyForSection(4))}
                           onChange={(value) =>
                             setAnswers((prev) => ({
                               ...prev,
@@ -2942,10 +2507,10 @@ export default function EipdPage() {
                         <QuestionItem
                           key={question.id}
                           id={question.id}
-                          question={question.question}
+                          question={question.prompt}
+                          helpText={question.helpText}
                           value={answers[question.id]}
                           variant="simple"
-                          onInfo={() => setGlossaryKey(getGlossaryKeyForSection(4))}
                           onChange={(value) =>
                             setAnswers((prev) => ({
                               ...prev,
@@ -3086,22 +2651,6 @@ export default function EipdPage() {
                 Cerrar
               </Button>
             </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={Boolean(glossaryKey)} onOpenChange={(open) => !open && setGlossaryKey(null)}>
-        <DialogContent className="w-[95vw] max-w-md">
-          <DialogHeader>
-            <DialogTitle>Glosario Dinámico</DialogTitle>
-          </DialogHeader>
-          <p className="text-sm text-muted-foreground">
-            {glossaryKey ? glossary[glossaryKey] : "Selecciona un término para ver su definición."}
-          </p>
-          <div className="mt-4 flex justify-end">
-            <Button variant="outline" onClick={() => setGlossaryKey(null)}>
-              Cerrar
-            </Button>
           </div>
         </DialogContent>
       </Dialog>
