@@ -371,7 +371,6 @@ export function ModuleWorkspaceShell({
   const pathname = usePathname()
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const shellSurfaceRef = useRef<HTMLDivElement | null>(null)
-  const desktopSidebarTopRef = useRef<number | null>(null)
   const [desktopSidebarFrame, setDesktopSidebarFrame] = useState<DesktopSidebarFrame | null>(null)
 
   const resolvedItems = useMemo<ResolvedNavItem[]>(() => {
@@ -403,10 +402,7 @@ export function ModuleWorkspaceShell({
     const updateFrame = () => {
       frame = 0
       const rect = node.getBoundingClientRect()
-      const top = desktopSidebarTopRef.current ?? rect.top
-      if (desktopSidebarTopRef.current === null) {
-        desktopSidebarTopRef.current = rect.top
-      }
+      const top = rect.top + window.scrollY
       const width = Math.round(Math.min(228, Math.max(212, rect.width * 0.18)))
       const shellWidth = rect.width
       const height = Math.min(rect.height, Math.max(320, window.innerHeight - top))
@@ -439,17 +435,22 @@ export function ModuleWorkspaceShell({
     }
 
     scheduleFrameUpdate()
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(scheduleFrameUpdate)
+    })
 
     const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(scheduleFrameUpdate)
     observer?.observe(node)
     window.addEventListener("resize", scheduleFrameUpdate)
+    window.addEventListener("scroll", scheduleFrameUpdate, { passive: true })
 
     return () => {
       if (frame) window.cancelAnimationFrame(frame)
       observer?.disconnect()
       window.removeEventListener("resize", scheduleFrameUpdate)
+      window.removeEventListener("scroll", scheduleFrameUpdate)
     }
-  }, [])
+  }, [pathname])
 
   const desktopSidebarStyle = useMemo<CSSProperties | undefined>(() => {
     if (!desktopSidebarFrame) return undefined
@@ -485,7 +486,7 @@ export function ModuleWorkspaceShell({
           <aside className="hidden lg:block">
             <div
               className={cn(
-                "fixed z-30 hidden overflow-hidden rounded-l-[34px] border border-stone-200 border-r-[#d6e1f6] bg-[#edf4ff] shadow-[0_24px_80px_rgba(15,23,42,0.08)] lg:flex lg:flex-col",
+                "fixed z-30 hidden overflow-hidden rounded-l-[34px] border border-stone-200 border-r-[#d6e1f6] bg-[#edf4ff] shadow-[0_24px_80px_rgba(15,23,42,0.08)] transition-[top,left,width,height,opacity] duration-200 ease-out motion-reduce:transition-none lg:flex lg:flex-col",
                 desktopSidebarFrame ? "opacity-100" : "pointer-events-none opacity-0",
               )}
               style={desktopSidebarStyle}
@@ -528,7 +529,7 @@ export function ModuleWorkspaceShell({
           <div className="min-h-[calc(100vh-6rem)] w-full overflow-x-hidden">
             <div
               className={cn(
-                "min-w-0 overflow-hidden rounded-[34px] border border-stone-200 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.08)] lg:fixed lg:z-20 lg:flex lg:min-h-0 lg:flex-col lg:rounded-l-none lg:border-l-0",
+                "min-w-0 overflow-hidden rounded-[34px] border border-stone-200 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.08)] transition-[top,left,width,height] duration-200 ease-out motion-reduce:transition-none lg:fixed lg:z-20 lg:flex lg:min-h-0 lg:flex-col lg:rounded-l-none lg:border-l-0",
                 surfaceClassName,
               )}
               style={desktopContentFrameStyle}
