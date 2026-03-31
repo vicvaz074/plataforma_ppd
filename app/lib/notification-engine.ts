@@ -15,6 +15,7 @@ import {
   normalizePolicyRecord,
   policyHasMinimumEvidence,
 } from "@/lib/policy-governance"
+import { getArcoRequests } from "@/app/arco-rights/utils/arco-storage"
 
 export type NotificationPriority = "alta" | "media" | "baja"
 export type NotificationResolutionType = "manual" | "automatic"
@@ -927,7 +928,7 @@ function scanCapacitacion(): NotificationSeed[] {
 
 function scanARCO(): NotificationSeed[] {
   const alerts: NotificationSeed[] = []
-  const requests = safeParseJSON<any[]>("arcoRequests", [])
+  const requests = getArcoRequests()
   if (requests.length === 0) return alerts
 
   const activeStatuses = new Set(["En proceso", "En riesgo"])
@@ -954,13 +955,16 @@ function scanARCO(): NotificationSeed[] {
     )
   }
 
-  const sinPlazoCritico = requests.filter(
-    (request) =>
-      activeStatuses.has(request?.status) &&
+  const sinPlazoCritico = requests.filter((request) => {
+    const status = request?.status
+    return (
+      typeof status === "string" &&
+      activeStatuses.has(status) &&
       !request?.criticalDeadline &&
       request?.stage !== "Cierre y archivado" &&
-      request?.stage !== "No presentada",
-  )
+      request?.stage !== "No presentada"
+    )
+  })
   if (sinPlazoCritico.length > 0) {
     alerts.push(
       createCollectionNotification({

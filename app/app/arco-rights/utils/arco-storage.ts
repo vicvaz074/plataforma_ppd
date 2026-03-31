@@ -41,6 +41,7 @@ export type {
 }
 
 const STORAGE_KEY = "arcoRequests"
+const STORAGE_BACKUP_KEY = "arcoRequests_backup"
 const ARCO_REMINDER_PREFIX = "arco-request:"
 const ARCO_REMINDER_MODULE_ID = "derechos-arco"
 
@@ -58,30 +59,120 @@ function normalizeActor(actorName?: string) {
   )
 }
 
+function isStoredRequestEntry(value: unknown): value is Partial<ArcoRequest> {
+  return typeof value === "object" && value !== null && !Array.isArray(value)
+}
+
+function hydrateStoredRequests(entries: unknown[], source: "principal" | "respaldo"): ArcoRequest[] {
+  const validEntries = entries.filter(isStoredRequestEntry)
+  const skippedEntries = entries.length - validEntries.length
+
+  if (skippedEntries > 0) {
+    console.warn(
+      `Se omitieron ${skippedEntries} registro(s) ARCO inválidos al leer el almacenamiento ${source}.`,
+    )
+  }
+
+  const normalized: ArcoRequest[] = []
+  const reservedFolios = validEntries
+    .map((entry) => String(entry.folio || ""))
+    .filter((folio) => folio.trim().length > 0)
+
+  validEntries.forEach((entry, index) => {
+    try {
+      normalized.push(
+        prepareArcoRequest(entry, {
+          existingFolios: [...reservedFolios, ...normalized.map((request) => request.folio)],
+          previous: null,
+          actorName: normalizeActor(entry.createdBy),
+          skipAudit: true,
+        }),
+      )
+    } catch (error) {
+      console.error(
+        `No se pudo normalizar la solicitud ARCO almacenada en ${source} en el índice ${index}.`,
+        error,
+      )
+    }
+  })
+
+  return normalized
+}
+
+function persistArcoPayload(key: string, payload: string, label: "principal" | "respaldo") {
+  if (!isBrowser()) return false
+
+  try {
+    window.localStorage.setItem(key, payload)
+    return true
+  } catch (error) {
+    console.error(`No se pudo guardar el almacenamiento ${label} del módulo ARCO.`, error)
+    return false
+  }
+}
+
+function recoverRequestsFromBackup(reason: string): ArcoRequest[] {
+  if (!isBrowser()) return []
+
+  const backup = window.localStorage.getItem(STORAGE_BACKUP_KEY)
+  if (!backup) return []
+
+  try {
+    const parsed = JSON.parse(backup)
+    if (!Array.isArray(parsed)) {
+      console.error("El respaldo ARCO no contiene un arreglo válido de solicitudes.")
+      return []
+    }
+
+    const recovered = hydrateStoredRequests(parsed, "respaldo")
+    if (parsed.length > 0 && recovered.length === 0) {
+      console.error("El respaldo ARCO existe, pero no se pudo recuperar ninguna solicitud válida.")
+      return []
+    }
+
+    const serialized = JSON.stringify(recovered)
+    persistArcoPayload(STORAGE_KEY, serialized, "principal")
+    console.warn(`Se restauró el almacenamiento principal de ARCO desde el respaldo. Motivo: ${reason}.`)
+    return recovered
+  } catch (error) {
+    console.error("No se pudo restaurar el almacenamiento ARCO desde el respaldo.", error)
+    return []
+  }
+}
+
 function readStoredRequests(): ArcoRequest[] {
   if (!isBrowser()) return []
 
   try {
     const stored = window.localStorage.getItem(STORAGE_KEY)
-    if (!stored) return []
+    if (!stored) return recoverRequestsFromBackup("almacenamiento principal ausente")
     const parsed = JSON.parse(stored)
-    return Array.isArray(parsed) ? (parsed as Partial<ArcoRequest>[]).map((entry, index, all) =>
-      prepareArcoRequest(entry, {
-        existingFolios: all.map((row) => String((row as Partial<ArcoRequest>).folio || "")),
-        previous: null,
-        actorName: normalizeActor(entry.createdBy),
-        skipAudit: true,
-      }),
-    ) : []
+    if (!Array.isArray(parsed)) {
+      console.error("El almacenamiento principal de ARCO no contiene un arreglo válido.")
+      return recoverRequestsFromBackup("payload principal inválido")
+    }
+
+    const requests = hydrateStoredRequests(parsed, "principal")
+    if (parsed.length > 0 && requests.length === 0) {
+      return recoverRequestsFromBackup("payload principal sin registros recuperables")
+    }
+
+    return requests
   } catch (error) {
     console.error("Error al leer solicitudes de Derechos de los Titulares:", error)
-    return []
+    return recoverRequestsFromBackup("error al leer o parsear el almacenamiento principal")
   }
 }
 
 function writeStoredRequests(requests: ArcoRequest[]) {
   if (!isBrowser()) return
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(requests))
+
+  const serialized = JSON.stringify(requests)
+  const primaryWritten = persistArcoPayload(STORAGE_KEY, serialized, "principal")
+
+  if (primaryWritten) {
+    persistArcoPayload(STORAGE_BACKUP_KEY, serialized, "respaldo")
+  }
 }
 
 function reminderStatus(alert: ArcoManagedAlert) {
@@ -194,8 +285,12 @@ export function syncArcoReminders(requests: ArcoRequest[]) {
     return
   }
 
+  const desiredReferenceKeys = new Set(desiredPayloads.map(({ referenceKey }) => referenceKey))
+
   managedReminders.forEach((reminder) => {
-    deleteAuditReminder(reminder.id)
+    if (!reminder.referenceKey || !desiredReferenceKeys.has(reminder.referenceKey)) {
+      deleteAuditReminder(reminder.id)
+    }
   })
 
   desiredPayloads.forEach(({ referenceKey, payload }) => {
@@ -277,6 +372,7 @@ export const clearArcoRequests = (): boolean => {
   try {
     if (!isBrowser()) return false
     window.localStorage.removeItem(STORAGE_KEY)
+    window.localStorage.removeItem(STORAGE_BACKUP_KEY)
     syncArcoReminders([])
     return true
   } catch (error) {
