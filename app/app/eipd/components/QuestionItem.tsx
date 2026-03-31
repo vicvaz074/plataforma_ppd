@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import InlineHelp from "./InlineHelp"
+import type { HelpContent } from "../registro/catalog"
 
 export type QuestionAnswer = {
   response: "si" | "no" | "parcial" | ""
@@ -24,28 +26,19 @@ export type QuestionAnswer = {
 interface QuestionItemProps {
   id: string
   question: string
+  helpText?: HelpContent
   value: QuestionAnswer
   onChange: (value: QuestionAnswer) => void
-  onInfo?: () => void
   variant?: "full" | "simple"
 }
 
-export function QuestionItem({ id, question, value, onChange, onInfo, variant = "full" }: QuestionItemProps) {
+export function QuestionItem({ id, question, helpText, value, onChange, variant = "full" }: QuestionItemProps) {
   if (variant === "simple") {
     return (
       <div className="space-y-4 rounded-xl border border-muted/60 bg-white/80 p-4 shadow-sm dark:bg-muted/10">
-        <div className="flex items-start justify-between gap-2">
+        <div className="space-y-2">
           <p className="font-medium text-foreground">{question}</p>
-          {onInfo && (
-            <button
-              type="button"
-              onClick={onInfo}
-              className="text-xs text-muted-foreground"
-              aria-label="Ver glosario"
-            >
-              (i)
-            </button>
-          )}
+          <InlineHelp helpText={helpText} />
         </div>
         <div>
           <Label>Respuesta</Label>
@@ -62,18 +55,9 @@ export function QuestionItem({ id, question, value, onChange, onInfo, variant = 
 
   return (
     <div className="space-y-4 rounded-xl border border-muted/60 bg-white/80 p-4 shadow-sm dark:bg-muted/10">
-      <div className="flex items-start justify-between gap-2">
+      <div className="space-y-2">
         <p className="font-medium text-foreground">{question}</p>
-        {onInfo && (
-          <button
-            type="button"
-            onClick={onInfo}
-            className="text-xs text-muted-foreground"
-            aria-label="Ver glosario"
-          >
-            (i)
-          </button>
-        )}
+        <InlineHelp helpText={helpText} />
       </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div>
