@@ -19,13 +19,8 @@ function buildContentSecurityPolicy({ isDev = false } = {}) {
       ]
   const connectSrc = ["'self'"]
 
-  const allowUnsafeEval = isDev || process.env.CSP_ALLOW_UNSAFE_EVAL === "true"
-
-  if (allowUnsafeEval) {
-    scriptSrc.push("'unsafe-eval'")
-  }
-
   if (isDev) {
+    scriptSrc.push("'unsafe-eval'")
     connectSrc.push("ws:", "wss:")
   }
 
