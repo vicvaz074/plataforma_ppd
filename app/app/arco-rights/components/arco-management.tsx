@@ -164,6 +164,13 @@ export function ArcoManagement() {
   }
 
   const handleDeleteAll = () => {
+    if (typeof window !== "undefined") {
+      const confirmed = window.confirm(
+        "Esta acción borra todo el dataset local de ARCO almacenado en este navegador. ¿Deseas continuar?",
+      )
+      if (!confirmed) return
+    }
+
     clearArcoRequests()
     setSelectedIds([])
     loadRequests()
@@ -392,7 +399,7 @@ export function ArcoManagement() {
               onClick={handleDeleteAll}
               disabled={requests.length === 0}
             >
-              <Trash2 className="h-4 w-4 mr-2" /> Borrar todas
+              <Trash2 className="h-4 w-4 mr-2" /> Borrar dataset local
             </Button>
           </div>
         )}

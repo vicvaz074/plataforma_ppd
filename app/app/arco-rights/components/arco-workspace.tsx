@@ -505,7 +505,10 @@ export function ArcoWorkspace() {
     seedArcoDemoRequests(mode, { actorName: getActor() })
     toast({
       title: "Datos de ejemplo cargados",
-      description: "Se cargaron 10 expedientes con recordatorios y alertas sincronizados.",
+      description:
+        mode === "replace"
+          ? "Se reemplazó el dataset local del navegador por 10 expedientes demo con recordatorios sincronizados."
+          : "Se agregaron 10 expedientes demo al dataset local actual con recordatorios sincronizados.",
     })
     setSeedOpen(false)
     refresh()
@@ -1487,13 +1490,14 @@ export function ArcoWorkspace() {
           <AlertDialogHeader>
             <AlertDialogTitle>Cargar 10 personas de ejemplo</AlertDialogTitle>
             <AlertDialogDescription>
-              Puedes agregar expedientes demo a los existentes o reemplazar el dataset actual del módulo.
+              Puedes agregar expedientes demo a los existentes o reemplazar por completo el dataset local de este navegador.
+              La opción de reemplazo solo debe usarse de forma intencional.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction onClick={() => seedExamples("add")}>Agregar</AlertDialogAction>
-            <AlertDialogAction onClick={() => seedExamples("replace")}>Reemplazar</AlertDialogAction>
+            <AlertDialogAction onClick={() => seedExamples("replace")}>Reemplazar dataset local</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

@@ -11,6 +11,7 @@ import {
   normalizePolicyRecord,
   policyHasMinimumEvidence,
 } from "@/lib/policy-governance"
+import { getArcoRequests } from "@/app/arco-rights/utils/arco-storage"
 
 export type SupportedDataset =
   | "inventories"
@@ -301,7 +302,7 @@ export function loadItems(dataset: SupportedDataset) {
       case "contracts":
         return JSON.parse(localStorage.getItem("contractsHistory") || "[]")
       case "arco":
-        return JSON.parse(localStorage.getItem("arcoRequests") || "[]")
+        return getArcoRequests()
       case "eipd":
         return JSON.parse(localStorage.getItem("eipd_forms") || "[]")
       case "policies":

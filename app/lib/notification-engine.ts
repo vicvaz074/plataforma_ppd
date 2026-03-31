@@ -15,6 +15,7 @@ import {
   normalizePolicyRecord,
   policyHasMinimumEvidence,
 } from "@/lib/policy-governance"
+import { getArcoRequests } from "@/app/arco-rights/utils/arco-storage"
 
 export type NotificationPriority = "alta" | "media" | "baja"
 export type NotificationResolutionType = "manual" | "automatic"
@@ -927,7 +928,7 @@ function scanCapacitacion(): NotificationSeed[] {
 
 function scanARCO(): NotificationSeed[] {
   const alerts: NotificationSeed[] = []
-  const requests = safeParseJSON<any[]>("arcoRequests", [])
+  const requests = getArcoRequests()
   if (requests.length === 0) return alerts
 
   const activeStatuses = new Set(["En proceso", "En riesgo"])

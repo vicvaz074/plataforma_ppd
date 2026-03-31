@@ -103,6 +103,7 @@ describe("derechos de los titulares", () => {
   let storage
   let alarms
   let notifications
+  let moduleStatistics
 
   before(async () => {
     installBrowserEnv()
@@ -111,6 +112,7 @@ describe("derechos de los titulares", () => {
     storage = await importModule("app/arco-rights/utils/arco-storage.ts")
     alarms = await importModule("lib/audit-alarms.ts")
     notifications = await importModule("lib/notification-engine.ts")
+    moduleStatistics = await importModule("lib/module-statistics.ts")
   })
 
   beforeEach(() => {
@@ -119,6 +121,7 @@ describe("derechos de los titulares", () => {
     window.localStorage.setItem("userEmail", "qa@example.com")
     window.localStorage.setItem("auditReminders", "[]")
     window.localStorage.setItem("arcoRequests", "[]")
+    window.localStorage.setItem("arcoRequests_backup", "[]")
     window.localStorage.setItem("davara-notifications-v2", "[]")
     window.localStorage.setItem("davara-notifications-resolved-v2", "[]")
   })
@@ -238,6 +241,105 @@ describe("derechos de los titulares", () => {
       .filter((reminder) => reminder.moduleId === "derechos-arco" && reminder.referenceKey?.includes(created.id))
 
     assert.equal(remaining.length, 0)
+  })
+
+  it("mantiene el dataset ARCO al cerrar e iniciar sesión de nuevo en el mismo navegador", () => {
+    const created = storage.saveArcoRequest(buildActiveOverdueDraft(), { actorName: "QA Davara" })
+
+    assert.ok(window.localStorage.getItem("arcoRequests"))
+    assert.ok(window.localStorage.getItem("arcoRequests_backup"))
+
+    window.localStorage.removeItem("isAuthenticated")
+    window.localStorage.removeItem("userRole")
+    window.localStorage.removeItem("userName")
+    window.localStorage.removeItem("userEmail")
+
+    window.localStorage.setItem("isAuthenticated", "true")
+    window.localStorage.setItem("userRole", "editor")
+    window.localStorage.setItem("userName", "QA Davara")
+    window.localStorage.setItem("userEmail", "qa@example.com")
+
+    const requests = storage.getArcoRequests()
+
+    assert.equal(requests.length, 1)
+    assert.equal(requests[0].id, created.id)
+  })
+
+  it("restaura el dataset desde respaldo y expone el mismo snapshot a métricas y notificaciones", () => {
+    storage.saveArcoRequest(
+      {
+        name: "",
+        phone: "5500000000",
+        email: "",
+        rightType: "Acceso",
+        description: "",
+        receptionDate: "2026-03-20",
+        identityStatus: "Pendiente",
+      },
+      { actorName: "QA Davara" },
+    )
+
+    assert.ok(window.localStorage.getItem("arcoRequests_backup"))
+
+    window.localStorage.setItem("arcoRequests", "{corrupt-json")
+
+    const recovered = storage.getArcoRequests()
+    const statsItems = moduleStatistics.loadItems("arco")
+    const generated = notifications.generateAllNotifications()
+
+    assert.equal(recovered.length, 1)
+    assert.equal(statsItems.length, 1)
+    assert.doesNotThrow(() => JSON.parse(window.localStorage.getItem("arcoRequests") || "[]"))
+    assert.ok(
+      generated.some(
+        (notification) => notification.tipo === "arco" && notification.id.startsWith("arco:incompletas"),
+      ),
+    )
+  })
+
+  it("actualiza solo el recordatorio ARCO afectado y conserva los demás recordatorios activos", () => {
+    const first = storage.saveArcoRequest(buildActiveOverdueDraft(), { actorName: "QA Davara" })
+    const second = storage.saveArcoRequest(
+      {
+        ...buildActiveOverdueDraft(),
+        name: "Bruno Díaz",
+        phone: "5522222222",
+        email: "bruno@example.com",
+        description: "Solicita acceso a datos de soporte y transferencias realizadas.",
+        receptionDate: "1999-12-02",
+        deadlineDate: "2000-01-04",
+      },
+      { actorName: "QA Davara" },
+    )
+
+    const remindersBefore = alarms
+      .getAuditReminders()
+      .filter((reminder) => reminder.moduleId === "derechos-arco")
+
+    const firstReminderBefore = remindersBefore.find((reminder) => reminder.referenceKey?.includes(first.id))
+    const secondReminderBefore = remindersBefore.find((reminder) => reminder.referenceKey?.includes(second.id))
+
+    assert.ok(firstReminderBefore)
+    assert.ok(secondReminderBefore)
+
+    storage.saveArcoRequest(
+      {
+        ...first,
+        deadlineDate: "2000-01-10",
+      },
+      { actorName: "QA Davara" },
+    )
+
+    const remindersAfter = alarms
+      .getAuditReminders()
+      .filter((reminder) => reminder.moduleId === "derechos-arco")
+
+    const firstReminderAfter = remindersAfter.find((reminder) => reminder.referenceKey === firstReminderBefore.referenceKey)
+    const secondReminderAfter = remindersAfter.find((reminder) => reminder.referenceKey === secondReminderBefore.referenceKey)
+
+    assert.equal(remindersAfter.length, 2)
+    assert.equal(firstReminderAfter?.id, firstReminderBefore.id)
+    assert.equal(secondReminderAfter?.id, secondReminderBefore.id)
   })
 
   it("envía al header los vencimientos ARCO vía recordatorios y reserva ARCO para alertas de calidad", () => {
