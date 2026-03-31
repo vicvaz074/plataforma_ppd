@@ -398,15 +398,17 @@ export function ModuleWorkspaceShell({
     const node = shellSurfaceRef.current
     if (!node || typeof window === "undefined") return
 
+    desktopSidebarTopRef.current = null
     let frame = 0
 
     const updateFrame = () => {
       frame = 0
       const rect = node.getBoundingClientRect()
-      const top = desktopSidebarTopRef.current ?? rect.top
-      if (desktopSidebarTopRef.current === null) {
+      const shouldResetTop = window.scrollY === 0
+      if (desktopSidebarTopRef.current === null || shouldResetTop) {
         desktopSidebarTopRef.current = rect.top
       }
+      const top = desktopSidebarTopRef.current
       const width = Math.round(Math.min(228, Math.max(212, rect.width * 0.18)))
       const shellWidth = rect.width
       const height = Math.min(rect.height, Math.max(320, window.innerHeight - top))
@@ -439,17 +441,23 @@ export function ModuleWorkspaceShell({
     }
 
     scheduleFrameUpdate()
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(scheduleFrameUpdate)
+    })
+    window.setTimeout(scheduleFrameUpdate, 120)
 
     const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(scheduleFrameUpdate)
     observer?.observe(node)
     window.addEventListener("resize", scheduleFrameUpdate)
+    window.addEventListener("scroll", scheduleFrameUpdate, { passive: true })
 
     return () => {
       if (frame) window.cancelAnimationFrame(frame)
       observer?.disconnect()
       window.removeEventListener("resize", scheduleFrameUpdate)
+      window.removeEventListener("scroll", scheduleFrameUpdate)
     }
-  }, [])
+  }, [pathname])
 
   const desktopSidebarStyle = useMemo<CSSProperties | undefined>(() => {
     if (!desktopSidebarFrame) return undefined
