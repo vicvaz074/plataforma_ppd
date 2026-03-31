@@ -59,6 +59,32 @@ describe("production security headers", () => {
     assert.ok(!/(^|[ ;])wss:(?=$|[ ;])/.test(csp), "CSP should avoid broad wildcard-like wss: sources")
   })
 
+
+  it("allows opting into unsafe-eval in production via env var", () => {
+    const previous = process.env.CSP_ALLOW_UNSAFE_EVAL
+    process.env.CSP_ALLOW_UNSAFE_EVAL = "true"
+
+    try {
+      const csp = Object.fromEntries(
+        getSecurityHeaders({ isDev: false }).map(({ key, value }) => [
+          key.toLowerCase(),
+          value,
+        ])
+      )["content-security-policy"]
+
+      assert.ok(
+        csp.includes("script-src 'self' 'unsafe-inline' 'unsafe-eval'"),
+        "CSP should allow unsafe-eval when CSP_ALLOW_UNSAFE_EVAL=true"
+      )
+    } finally {
+      if (previous === undefined) {
+        delete process.env.CSP_ALLOW_UNSAFE_EVAL
+      } else {
+        process.env.CSP_ALLOW_UNSAFE_EVAL = previous
+      }
+    }
+  })
+
   it("relaxes CSP in development only for Next.js HMR runtime", () => {
     const devCsp = Object.fromEntries(
       getSecurityHeaders({ isDev: true }).map(({ key, value }) => [
