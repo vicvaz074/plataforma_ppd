@@ -64,6 +64,13 @@ const DEFAULT_USERS: StoredUser[] = [
     approved: true,
     role: "user",
   },
+  {
+    name: "Verónica García Ochoa",
+    email: "veronica.garciao@femsa.com",
+    password: "$2b$10$O0fCnjrfo7RPdcZAIO1I..DqVr.h6TjIMHv0OE7WaFJGl/6k6y8Hm",
+    approved: true,
+    role: "admin",
+  },
 ]
 
 function getStoredUsers(): StoredUser[] {
