@@ -235,7 +235,7 @@ export function setAuthCookie(res: any, token: string) {
     httpOnly: true,
     secure: process.env.NODE_ENV !== "development",
     sameSite: "strict",
-    maxAge: 3600,
+    maxAge: 5 * 60 * 60,
     path: "/",
   })
   res.setHeader("Set-Cookie", cookie)
