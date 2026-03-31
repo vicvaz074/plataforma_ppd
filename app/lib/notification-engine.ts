@@ -955,13 +955,16 @@ function scanARCO(): NotificationSeed[] {
     )
   }
 
-  const sinPlazoCritico = requests.filter(
-    (request) =>
-      activeStatuses.has(request?.status) &&
+  const sinPlazoCritico = requests.filter((request) => {
+    const status = request?.status
+    return (
+      typeof status === "string" &&
+      activeStatuses.has(status) &&
       !request?.criticalDeadline &&
       request?.stage !== "Cierre y archivado" &&
-      request?.stage !== "No presentada",
-  )
+      request?.stage !== "No presentada"
+    )
+  })
   if (sinPlazoCritico.length > 0) {
     alerts.push(
       createCollectionNotification({
