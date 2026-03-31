@@ -2,8 +2,8 @@
  * Gestión de sesiones seguras con timeout por inactividad.
  *
  * - Token de sesión generado con crypto.randomUUID()
- * - Expiración configurable (default: 1 hora)
- * - Auto-logout por inactividad (30 minutos)
+ * - Expiración configurable (default: 5 horas)
+ * - Auto-logout por inactividad (5 horas)
  * - Limpieza automática de datos sensibles al cerrar sesión
  */
 
@@ -11,8 +11,8 @@ const SESSION_TOKEN_KEY = "session_token"
 const SESSION_EXPIRY_KEY = "session_expiry"
 const SESSION_LAST_ACTIVITY_KEY = "session_last_activity"
 
-const SESSION_DURATION_MS = 60 * 60 * 1000 // 1 hora
-const INACTIVITY_TIMEOUT_MS = 30 * 60 * 1000 // 30 minutos
+const SESSION_DURATION_MS = 5 * 60 * 60 * 1000 // 5 horas
+const INACTIVITY_TIMEOUT_MS = 5 * 60 * 60 * 1000 // 5 horas
 
 let inactivityTimer: ReturnType<typeof setTimeout> | null = null
 let onSessionExpiredCallback: (() => void) | null = null
