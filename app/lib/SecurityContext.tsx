@@ -46,14 +46,50 @@ interface SecurityContextType {
 
 const SecurityContext = createContext<SecurityContextType | null>(null)
 
+function hasWebCryptoSupport(): boolean {
+  return Boolean(globalThis.crypto?.subtle)
+}
+
+function clearPersistedEncryptionMaterial() {
+  localStorage.removeItem(ENCRYPTION_SALT_KEY)
+  localStorage.removeItem(ENCRYPTED_DEK_KEY)
+  localStorage.removeItem(ENCRYPTION_INITIALIZED_KEY)
+}
+
 export function SecurityProvider({ children }: { children: React.ReactNode }) {
   const dekRef = useRef<CryptoKey | null>(null)
   const [isReady, setIsReady] = React.useState(false)
 
   const initializeEncryption = useCallback(async (password: string) => {
+    if (!hasWebCryptoSupport()) {
+      clearPersistedEncryptionMaterial()
+      dekRef.current = null
+      setIsReady(false)
+      return
+    }
+
+    const createAndPersistEncryptionMaterial = async () => {
+      const salt = generateSalt()
+      const kek = await deriveKey(password, salt)
+      const dek = await generateDEK()
+      const encryptedDEKStr = await encryptDEK(dek, kek)
+
+      localStorage.setItem(ENCRYPTION_SALT_KEY, saltToBase64(salt))
+      localStorage.setItem(ENCRYPTED_DEK_KEY, encryptedDEKStr)
+      localStorage.setItem(ENCRYPTION_INITIALIZED_KEY, "true")
+
+      dekRef.current = dek
+      setIsReady(true)
+    }
+
     const isInitialized = localStorage.getItem(ENCRYPTION_INITIALIZED_KEY) === "true"
 
-    if (isInitialized) {
+    if (!isInitialized) {
+      await createAndPersistEncryptionMaterial()
+      return
+    }
+
+    try {
       // Ya existe una DEK cifrada → descifrarla con el password
       const saltB64 = localStorage.getItem(ENCRYPTION_SALT_KEY)
       const encryptedDEKStr = localStorage.getItem(ENCRYPTED_DEK_KEY)
@@ -66,26 +102,17 @@ export function SecurityProvider({ children }: { children: React.ReactNode }) {
       const kek = await deriveKey(password, salt)
       const dek = await decryptDEK(encryptedDEKStr, kek)
       dekRef.current = dek
-    } else {
-      // Primera vez → generar DEK, cifrarla y guardarla
-      const salt = generateSalt()
-      const kek = await deriveKey(password, salt)
-      const dek = await generateDEK()
-      const encryptedDEKStr = await encryptDEK(dek, kek)
-
-      localStorage.setItem(ENCRYPTION_SALT_KEY, saltToBase64(salt))
-      localStorage.setItem(ENCRYPTED_DEK_KEY, encryptedDEKStr)
-      localStorage.setItem(ENCRYPTION_INITIALIZED_KEY, "true")
-
-      dekRef.current = dek
-
-      // No migrar datos existentes automáticamente para mantener
-      // compatibilidad con las funciones que leen JSON directo.
-      // La DEK queda disponible para cifrado explícito vía
-      // saveFileEncrypted(), setEncrypted(), etc.
+      setIsReady(true)
+    } catch {
+      // Recuperación automática ante material de cifrado corrupto o desincronizado.
+      clearPersistedEncryptionMaterial()
+      await createAndPersistEncryptionMaterial()
     }
 
-    setIsReady(true)
+    // No migrar datos existentes automáticamente para mantener
+    // compatibilidad con las funciones que leen JSON directo.
+    // La DEK queda disponible para cifrado explícito vía
+    // saveFileEncrypted(), setEncrypted(), etc.
   }, [])
 
   const encrypt = useCallback(async (plaintext: string): Promise<string> => {
