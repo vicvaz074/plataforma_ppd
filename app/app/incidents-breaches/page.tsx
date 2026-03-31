@@ -19,7 +19,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Progress } from "@/components/ui/progress"
 import {
   ShieldAlert, FileDown, Plus, ClipboardList, Scale, AlertTriangle,
-  Shield, Eye, Trash2, X, Bell, ChevronRight, Activity, BookOpen, Lock, RefreshCw, Search, Wrench, CheckCircle2, Users, FolderSearch, ShieldCheck, Zap
+  Shield, Eye, Trash2, Bell, ChevronRight, Activity, BookOpen, Lock, RefreshCw, Search, Wrench, CheckCircle2, Users, FolderSearch, ShieldCheck, Zap
 } from "lucide-react"
 
 import {
@@ -77,7 +77,6 @@ export default function IncidentsAndBreachesPage() {
   const [incidents, setIncidents] = useState<StoredIncident[]>([])
   const [activeIncidentId, setActiveIncidentId] = useState<string | null>(null)
   const [detailIncident, setDetailIncident] = useState<StoredIncident | null>(null)
-  const [alertDismissed, setAlertDismissed] = useState(false)
 
   const [activePipelineFilter, setActivePipelineFilter] = useState<string | null>(null)
   const [activePipelineStage, setActivePipelineStage] = useState<string | null>(null)
@@ -298,16 +297,14 @@ export default function IncidentsAndBreachesPage() {
 
       {/* ─── Header ──────────────────────────────────────────────────────────── */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#0a0147] to-[#1e40af] flex items-center justify-center shadow-lg shadow-[#0a0147]/20">
-            <ShieldAlert className="h-6 w-6 text-white" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-medium">Incidentes y Brechas de Seguridad</h1>
-            <p className="text-sm text-muted-foreground">Gestión integral del ciclo de vida de incidentes conforme a la LFPDPPP</p>
-          </div>
+        <div>
+          <h1 className="text-2xl font-medium">Incidentes y Brechas de Seguridad</h1>
+          <p className="text-sm text-muted-foreground">Gestión integral del ciclo de vida de incidentes conforme a la LFPDPPP</p>
         </div>
-        <div className="flex flex-wrap gap-2">
+      </div>
+
+      <div className="sticky top-2 z-30">
+        <div className="flex flex-wrap gap-2 rounded-xl border bg-background/95 backdrop-blur p-3 shadow-sm">
           <Button onClick={handleNewIncident} className="gap-2 bg-[#0a0147] hover:bg-[#06002e] shadow-lg shadow-[#0a0147]/20">
             <Plus className="h-4 w-4" /> Nuevo Incidente
           </Button>
@@ -322,22 +319,6 @@ export default function IncidentsAndBreachesPage() {
           </Button>
         </div>
       </div>
-
-      {/* ─── Alert Banner (Art. 19 LFPDPPP) ──────────────────────────────────── */}
-      {!alertDismissed && (
-        <div className="relative bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 flex items-start gap-3">
-          <Bell className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
-          <div className="flex-1">
-            <p className="text-sm text-amber-800 dark:text-amber-300 font-medium">Obligación de Notificación — Art. 19 LFPDPPP</p>
-            <p className="text-xs text-amber-700 dark:text-amber-400 mt-1">
-              En caso de vulneración significativa, se debe informar de forma inmediata a los titulares: la naturaleza del incidente, los datos comprometidos, las recomendaciones de protección y las acciones correctivas.
-            </p>
-          </div>
-          <button type="button" onClick={() => setAlertDismissed(true)} className="text-amber-500 hover:text-amber-700">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-      )}
 
       {/* ─── Conditional Views ───────────────────────────────────────────────── */}
       {view === "review" ? (
