@@ -438,7 +438,6 @@ export function ModuleWorkspaceShell({
     window.requestAnimationFrame(() => {
       window.requestAnimationFrame(scheduleFrameUpdate)
     })
-    window.setTimeout(scheduleFrameUpdate, 120)
 
     const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(scheduleFrameUpdate)
     observer?.observe(node)
@@ -487,7 +486,7 @@ export function ModuleWorkspaceShell({
           <aside className="hidden lg:block">
             <div
               className={cn(
-                "fixed z-30 hidden overflow-hidden rounded-l-[34px] border border-stone-200 border-r-[#d6e1f6] bg-[#edf4ff] shadow-[0_24px_80px_rgba(15,23,42,0.08)] lg:flex lg:flex-col",
+                "fixed z-30 hidden overflow-hidden rounded-l-[34px] border border-stone-200 border-r-[#d6e1f6] bg-[#edf4ff] shadow-[0_24px_80px_rgba(15,23,42,0.08)] transition-[top,left,width,height,opacity] duration-200 ease-out motion-reduce:transition-none lg:flex lg:flex-col",
                 desktopSidebarFrame ? "opacity-100" : "pointer-events-none opacity-0",
               )}
               style={desktopSidebarStyle}
@@ -530,7 +529,7 @@ export function ModuleWorkspaceShell({
           <div className="min-h-[calc(100vh-6rem)] w-full overflow-x-hidden">
             <div
               className={cn(
-                "min-w-0 overflow-hidden rounded-[34px] border border-stone-200 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.08)] lg:fixed lg:z-20 lg:flex lg:min-h-0 lg:flex-col lg:rounded-l-none lg:border-l-0",
+                "min-w-0 overflow-hidden rounded-[34px] border border-stone-200 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.08)] transition-[top,left,width,height] duration-200 ease-out motion-reduce:transition-none lg:fixed lg:z-20 lg:flex lg:min-h-0 lg:flex-col lg:rounded-l-none lg:border-l-0",
                 surfaceClassName,
               )}
               style={desktopContentFrameStyle}
