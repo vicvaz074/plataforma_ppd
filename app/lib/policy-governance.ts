@@ -535,6 +535,17 @@ function createPublicationEvidence(actor: string): PolicyEvidenceRecord {
   }
 }
 
+function getLegacyPolicyReferenceTimestamp(raw: RawPolicyRecord, approvalDate?: string, effectiveDate?: string) {
+  return (
+    normalizeText(raw.updatedAt) ||
+    normalizeText(raw.createdAt) ||
+    normalizeText(raw.publishedAt) ||
+    approvalDate ||
+    effectiveDate ||
+    new Date().toISOString()
+  )
+}
+
 function findStoredFileBySignature(signature: string) {
   return getAllFiles().find((file) => file.metadata?.migrationSignature === signature) || null
 }
@@ -588,16 +599,17 @@ function migrateLegacyPolicy(raw: RawPolicyRecord, index: number): PolicyRecord 
   const reviewCycleMonths = parseReviewCycle(raw.reviewCycleMonths || raw.reviewFrequency)
   const effectiveDate = normalizeText(raw.enforcementDate)
   const approvalDate = normalizeText(raw.approvalDate)
+  const migratedAt = getLegacyPolicyReferenceTimestamp(raw, approvalDate, effectiveDate)
   const status = effectiveDate && approvalDate ? "PUBLISHED" : "DRAFT"
   const workflow = status === "PUBLISHED"
-    ? createWorkflow().map((step) => ({
+    ? createWorkflow(migratedAt).map((step) => ({
         ...step,
         outcome: "approved" as const,
-        completedAt: approvalDate || new Date().toISOString(),
+        completedAt: approvalDate || migratedAt,
         actor: normalizeText(raw.approvalResponsibles) || "Migración",
         comment: "Migrado desde el esquema legado.",
       }))
-    : createWorkflow()
+    : createWorkflow(migratedAt)
 
   const content: PolicyContentSections = {
     document: {
@@ -689,9 +701,9 @@ function migrateLegacyPolicy(raw: RawPolicyRecord, index: number): PolicyRecord 
     referenceCode: content.document.referenceCode,
     versionLabel,
     status,
-    createdAt: normalizeText(raw.createdAt) || approvalDate || new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    publishedAt: status === "PUBLISHED" ? approvalDate || new Date().toISOString() : undefined,
+    createdAt: normalizeText(raw.createdAt) || approvalDate || migratedAt,
+    updatedAt: migratedAt,
+    publishedAt: status === "PUBLISHED" ? normalizeText(raw.publishedAt) || approvalDate || migratedAt : undefined,
     approvalDate: approvalDate || undefined,
     effectiveDate: effectiveDate || undefined,
     expiryDate: normalizeText(raw.expiryDate) || (effectiveDate ? addMonths(effectiveDate, reviewCycleMonths) : undefined),
@@ -713,9 +725,9 @@ function migrateLegacyPolicy(raw: RawPolicyRecord, index: number): PolicyRecord 
     coverage,
     versions: [
       {
-        id: secureRandomId("policy-version"),
+        id: normalizeText(raw.versions?.[0]?.id) || `${id}-version-1`,
         versionLabel,
-        createdAt: approvalDate || new Date().toISOString(),
+        createdAt: approvalDate || migratedAt,
         createdBy: normalizeText(raw.responsibleContact) || "Migración",
         changeLog: "Versión inicial migrada desde el esquema legado.",
         statusAtPublication: status,

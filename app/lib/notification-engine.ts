@@ -62,6 +62,7 @@ const RESOLVED_LOG_STORAGE_KEY = "davara-notifications-resolved-v2"
 export const NOTIFICATIONS_CHANGED_EVENT = "davara:notifications-updated"
 
 const isBrowser = typeof window !== "undefined"
+let notificationsChangeQueued = false
 
 const prioOrder: Record<NotificationPriority, number> = { alta: 0, media: 1, baja: 2 }
 
@@ -168,7 +169,13 @@ function getCurrentActor() {
 
 function emitNotificationsChanged() {
   if (!isBrowser) return
-  window.dispatchEvent(new Event(NOTIFICATIONS_CHANGED_EVENT))
+  if (notificationsChangeQueued) return
+
+  notificationsChangeQueued = true
+  queueMicrotask(() => {
+    notificationsChangeQueued = false
+    window.dispatchEvent(new Event(NOTIFICATIONS_CHANGED_EVENT))
+  })
 }
 
 function writeStorageIfChanged(key: string, value: unknown) {
