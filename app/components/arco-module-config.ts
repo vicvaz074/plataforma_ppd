@@ -41,6 +41,12 @@ export const DATA_POLICIES_META = {
   moduleDescription: "Builder PGDP, expediente, workflow y sincronización con ARCO.",
 }
 
+export const AUDIT_META = {
+  moduleLabel: "Módulo Auditoría en Protección de Datos",
+  moduleTitle: "Auditoría en protección de datos",
+  moduleDescription: "Checklist, evidencia PDF y seguimiento operativo del programa de auditoría.",
+}
+
 export const PRIVACY_NOTICES_NAV: ArcoModuleNavItem[] = [
   { href: "/privacy-notices", label: "Panorama", shortLabel: "Inicio", mobileLabel: "Panorama del módulo", icon: LayoutDashboard },
   { href: "/privacy-notices/registro", label: "Registrar aviso", shortLabel: "Registrar", mobileLabel: "Registrar aviso", icon: FilePlus2, activePaths: ["/privacy-notices/registro"] },
