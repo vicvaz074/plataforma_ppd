@@ -34,7 +34,6 @@ export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true)
   const [showPassword, setShowPassword] = useState(false)
   const [alert, setAlert] = useState<{ type: "success" | "error"; message: string } | null>(null)
-  const [showWelcome, setShowWelcome] = useState(true)
   const [passwordErrors, setPasswordErrors] = useState<string[]>([])
   const [passwordStrength, setPasswordStrength] = useState<string>("")
   const router = useRouter()
@@ -109,6 +108,7 @@ export default function LoginPage() {
 
         // Iniciar monitor de inactividad
         startInactivityMonitor()
+        localStorage.setItem("showPostLoginWelcome", "true")
 
         const isFile = window.location.protocol === "file:"
         if (isFile) {
@@ -152,72 +152,6 @@ export default function LoginPage() {
 
   return (
     <>
-      <AnimatePresence>
-        {showWelcome && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.8, ease: "easeInOut" }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-[#0a192f] text-white"
-          >
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 1, ease: "easeOut" }}
-              className="flex flex-col items-center max-w-3xl text-center px-6"
-            >
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.6, duration: 1.5 }}
-                className="mb-14"
-              >
-                <Image
-                  src="/images/logo_davaragovernance.png"
-                  alt="DavaraGovernance Logo"
-                  width={180}
-                  height={60}
-                  unoptimized
-                  priority
-                  className="opacity-90 brightness-0 invert"
-                />
-              </motion.div>
-              
-              <h1 className="text-2xl md:text-3xl font-light tracking-[0.05em] mb-2 text-white/90">
-                Bienvenido a la Plataforma de Protección de Datos Personales
-              </h1>
-              
-              <motion.div
-                initial={{ scaleX: 0, opacity: 0 }}
-                animate={{ scaleX: 1, opacity: 1 }}
-                transition={{ delay: 1.0, duration: 1, ease: "easeInOut" }}
-                className="w-16 h-[1px] bg-white/40 my-10 mx-auto transform origin-center"
-              />
-              
-              <p className="text-base md:text-lg text-white/70 mb-16 max-w-2xl font-light leading-loose tracking-wide">
-                Gestiona, protege y audita la información de manera segura, en estricto cumplimiento normativo.
-              </p>
-              
-              <motion.div 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.4, duration: 0.8 }}
-              >
-                <Button 
-                  variant="outline"
-                  size="lg" 
-                  onClick={() => setShowWelcome(false)}
-                  className="bg-transparent border border-white/30 text-white/90 hover:bg-white hover:text-[#0a192f] transition-all duration-500 rounded-sm px-14 py-6 text-xs tracking-[0.2em] font-light uppercase"
-                >
-                  Continuar
-                </Button>
-              </motion.div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

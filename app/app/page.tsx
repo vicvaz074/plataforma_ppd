@@ -3,9 +3,10 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import { useLanguage } from "@/lib/LanguageContext"
 import { Card } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { SafeLink } from "@/components/SafeLink"
 import { aliciaTranslations } from "@/lib/alicia-translations"
 import aliciaImg from "@/app/public/images/alicia_person.jpeg"
@@ -187,6 +188,7 @@ export default function Home() {
   const aliciaT = aliciaTranslations[language]
   const [userEmail, setUserEmail] = useState<string | null>(null)
   const [userRole, setUserRole] = useState<string | null>(null)
+  const [showWelcome, setShowWelcome] = useState(false)
 
   // Hover tipado para aceptar OptionKey y "alicia"
   const [hoveredCard, setHoveredCard] = useState<Option["name"] | null>(null)
@@ -194,6 +196,8 @@ export default function Home() {
   useEffect(() => {
     setUserEmail(localStorage.getItem("userEmail"))
     setUserRole(localStorage.getItem("userRole"))
+    const shouldShowWelcome = localStorage.getItem("showPostLoginWelcome") === "true"
+    setShowWelcome(shouldShowWelcome)
   }, [])
 
   const canAccessModule = (href: string): boolean => {
@@ -203,6 +207,75 @@ export default function Home() {
 
   return (
     <div className="relative min-h-screen bg-white dark:bg-[#18181b]">
+      <AnimatePresence>
+        {showWelcome && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8, ease: "easeInOut" }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-[#0a192f] text-white"
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 1, ease: "easeOut" }}
+              className="flex flex-col items-center max-w-3xl text-center px-6"
+            >
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.6, duration: 1.5 }}
+                className="mb-14"
+              >
+                <Image
+                  src="/images/logo_davaragovernance.png"
+                  alt="DavaraGovernance Logo"
+                  width={180}
+                  height={60}
+                  unoptimized
+                  priority
+                  className="opacity-90 brightness-0 invert"
+                />
+              </motion.div>
+
+              <h1 className="text-2xl md:text-3xl font-light tracking-[0.05em] mb-2 text-white/90">
+                Bienvenido a la Plataforma de Protección de Datos Personales
+              </h1>
+
+              <motion.div
+                initial={{ scaleX: 0, opacity: 0 }}
+                animate={{ scaleX: 1, opacity: 1 }}
+                transition={{ delay: 1.0, duration: 1, ease: "easeInOut" }}
+                className="w-16 h-[1px] bg-white/40 my-10 mx-auto transform origin-center"
+              />
+
+              <p className="text-base md:text-lg text-white/70 mb-16 max-w-2xl font-light leading-loose tracking-wide">
+                Gestiona, protege y audita la información de manera segura, en estricto cumplimiento normativo.
+              </p>
+
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.4, duration: 0.8 }}
+              >
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => {
+                    setShowWelcome(false)
+                    localStorage.removeItem("showPostLoginWelcome")
+                  }}
+                  className="bg-transparent border border-white/30 text-white/90 hover:bg-white hover:text-[#0a192f] transition-all duration-500 rounded-sm px-14 py-6 text-xs tracking-[0.2em] font-light uppercase"
+                >
+                  Continuar
+                </Button>
+              </motion.div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="container mx-auto py-8">
         {/* GRID con mezcla ícono/imagen + overlay + enlaces internos/externos */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
