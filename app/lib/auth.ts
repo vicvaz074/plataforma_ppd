@@ -71,6 +71,13 @@ const DEFAULT_USERS: StoredUser[] = [
     approved: true,
     role: "admin",
   },
+  {
+    name: "Jorge Valderrama",
+    email: "jorge.valderrama@externo.mx",
+    password: "$2b$10$wvAajXszm9A1VQtbpynjfuPfj8FpbyefYnWto0v9UsnrHumUSvbwG",
+    approved: true,
+    role: "admin",
+  },
 ]
 
 function getStoredUsers(): StoredUser[] {
