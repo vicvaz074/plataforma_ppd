@@ -78,6 +78,7 @@ import {
   ROLE_LABELS,
   initializeDefaultUsers,
   ensureDemoUser,
+  refreshUsersFromServer,
   type PlatformUser,
   type UserRole,
   type ModulePassword,
@@ -356,6 +357,11 @@ function AdminDashboard({ language, t }: { language: "es" | "en"; t: any }) {
 
   useEffect(() => {
     refreshData()
+    void refreshUsersFromServer().then((serverUsers) => {
+      if (serverUsers.length > 0) {
+        setUsers(serverUsers)
+      }
+    })
   }, [])
 
   const filteredUsers = useMemo(() => {

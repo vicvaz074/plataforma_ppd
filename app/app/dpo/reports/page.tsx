@@ -1003,9 +1003,8 @@ export default function DPOReportsPage() {
           <meta charset="UTF-8">
           <title>${actaInforme.title}</title>
           <style>
-            @import url("https://fonts.cdnfonts.com/css/futura-std-4");
             body { 
-              font-family: "Futura Std", Arial, sans-serif; 
+              font-family: "Helvetica Neue", Arial, sans-serif; 
               margin: 40px; 
               line-height: 1.6;
               color: #333;
@@ -1562,7 +1561,7 @@ export default function DPOReportsPage() {
                     ref={actaTemplateRef}
                     className="p-8 max-h-[800px] overflow-y-auto bg-card dark:bg-card print:bg-white"
                     style={{
-                      fontFamily: '"Futura Std", sans-serif',
+                      fontFamily: '"Helvetica Neue", Arial, sans-serif',
                       fontSize: "14px",
                       lineHeight: "1.6",
                     }}

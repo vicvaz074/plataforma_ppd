@@ -10,7 +10,9 @@ import { SecurityProvider } from "@/lib/SecurityContext"
 import "@/lib/zod-config"
 import { Sidebar } from "@/components/sidebar"
 import { Header } from "@/components/header"
+import { LocalFirstProvider } from "@/components/local-first-provider"
 import { isSessionValid, startInactivityMonitor, onSessionExpired, destroySession } from "@/lib/session"
+import { hasModuleAccessFromSnapshot, readSessionSnapshot, resolveCurrentModuleSlug } from "@/lib/platform-access"
 
 function AppShell({ authed, children }: { authed: boolean; children: React.ReactNode }) {
   const { collapsed, isMobile } = useSidebar()
@@ -89,6 +91,19 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
       const isLogin = pathname === "/login" || pathname === "/login/"
       if (!isValid && !isLogin) {
         window.location.href = "/login"
+        return
+      }
+    }
+
+    if (isValid) {
+      const moduleSlug = resolveCurrentModuleSlug(pathname)
+      if (moduleSlug) {
+        const snapshot = readSessionSnapshot()
+        const hasAccess = hasModuleAccessFromSnapshot(moduleSlug, snapshot)
+        if (!hasAccess) {
+          window.location.href = "/"
+          return
+        }
       }
     }
   }, [pathname])
@@ -103,19 +118,21 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
       <SecurityProvider>
-        <AppProvider>
-          <LanguageProvider>
-            <SidebarProvider>
-              {isLoginPage ? (
-                <>{children}</>
-              ) : (
-                <AppShell authed={authed}>
-                  {children}
-                </AppShell>
-              )}
-            </SidebarProvider>
-          </LanguageProvider>
-        </AppProvider>
+        <LocalFirstProvider>
+          <AppProvider>
+            <LanguageProvider>
+              <SidebarProvider>
+                {isLoginPage ? (
+                  <>{children}</>
+                ) : (
+                  <AppShell authed={authed}>
+                    {children}
+                  </AppShell>
+                )}
+              </SidebarProvider>
+            </LanguageProvider>
+          </AppProvider>
+        </LocalFirstProvider>
       </SecurityProvider>
     </ThemeProvider>
   )

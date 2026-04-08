@@ -101,6 +101,62 @@ const DEMO_USER_PERMISSIONS: Record<string, boolean> = (() => {
 const USERS_KEY = "platform_users"
 const MODULE_PASSWORDS_KEY = "module_passwords"
 const USER_PERMISSIONS_CACHE_KEY = "current_user_permissions"
+let usersSyncTimer: number | null = null
+
+function persistUsersLocally(users: PlatformUser[]): void {
+  if (typeof window === "undefined") return
+  localStorage.setItem(USERS_KEY, JSON.stringify(users))
+}
+
+function mergeUsersWithLocalPasswords(users: any[]): PlatformUser[] {
+  const localUsers = getUsers()
+  return users.map((user: any) => {
+    const localUser = localUsers.find((currentUser) => currentUser.email === user.email)
+    return {
+      name: user.name,
+      email: user.email,
+      password: localUser?.password || "",
+      role: user.role,
+      approved: user.approved,
+      modulePermissions: user.modulePermissions || {},
+      createdAt: localUser?.createdAt || user.createdAt || new Date().toISOString(),
+      lastLogin: user.lastLogin || localUser?.lastLogin,
+    }
+  })
+}
+
+function scheduleUsersSync(users: PlatformUser[]): void {
+  if (typeof window === "undefined") return
+  if (localStorage.getItem("userRole") !== "admin") return
+
+  if (usersSyncTimer) {
+    window.clearTimeout(usersSyncTimer)
+  }
+
+  usersSyncTimer = window.setTimeout(() => {
+    void fetch("/api/admin/users", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        users: users.map((user) => ({
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          approved: user.approved,
+          modulePermissions: user.modulePermissions,
+          passwordHash: user.password || null,
+        })),
+      }),
+    }).then(async (response) => {
+      if (!response.ok) return
+      const payload = await response.json().catch(() => null)
+      if (!payload?.users) return
+      persistUsersLocally(mergeUsersWithLocalPasswords(payload.users))
+    }).catch(() => {
+      // La edición local sigue siendo válida y se reintentará en la siguiente mutación.
+    })
+  }, 400)
+}
 
 // ─── User CRUD ───────────────────────────────────────────────────────────────
 
@@ -111,8 +167,8 @@ export function getUsers(): PlatformUser[] {
 }
 
 export function saveUsers(users: PlatformUser[]): void {
-  if (typeof window === "undefined") return
-  localStorage.setItem(USERS_KEY, JSON.stringify(users))
+  persistUsersLocally(users)
+  scheduleUsersSync(users)
 }
 
 export function initializeDefaultUsers(): void {
@@ -136,6 +192,24 @@ export function initializeDefaultUsers(): void {
       saveUsers(migrated)
       return
     } catch { /* ignore */ }
+  }
+}
+
+export async function refreshUsersFromServer(): Promise<PlatformUser[]> {
+  if (typeof window === "undefined" || localStorage.getItem("userRole") !== "admin") {
+    return getUsers()
+  }
+
+  try {
+    const response = await fetch("/api/admin/users")
+    if (!response.ok) return getUsers()
+    const payload = await response.json().catch(() => null)
+    if (!payload?.users) return getUsers()
+    const normalizedUsers = mergeUsersWithLocalPasswords(payload.users)
+    persistUsersLocally(normalizedUsers)
+    return normalizedUsers
+  } catch {
+    return getUsers()
   }
 }
 

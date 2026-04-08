@@ -13,12 +13,14 @@ import { Label } from "@/components/ui/label"
 import { Eye, EyeOff, Moon, Sun, Globe } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { hashPassword, saveUser, authenticateUser } from "@/lib/auth"
-import { cacheCurrentUserPermissions } from "@/lib/user-permissions"
+import { cacheCurrentUserPermissions, getUsers, saveUsers } from "@/lib/user-permissions"
 import { useSecurityContext } from "@/lib/SecurityContext"
 import { checkRateLimit, formatRetryAfter, getRemainingAttempts } from "@/lib/rate-limiter"
 import { validatePasswordStrength, getStrengthColor, getStrengthLabel } from "@/lib/password-validation"
 import { sanitizeEmail } from "@/lib/sanitize"
 import { startInactivityMonitor } from "@/lib/session"
+import { getOrCreateDeviceKey, writeSessionSnapshot } from "@/lib/platform-access"
+import { prepareLocalFirstWorkspaceAfterLogin } from "@/lib/local-first-platform"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import Image from "next/image"
@@ -38,6 +40,53 @@ export default function LoginPage() {
   const [passwordStrength, setPasswordStrength] = useState<string>("")
   const router = useRouter()
   const { initializeEncryption } = useSecurityContext()
+
+  const persistSession = async (user: {
+    name: string
+    email: string
+    role: string
+    modulePermissions: Record<string, boolean>
+  }, sessionMode: "server" | "offline-local", sessionExpiresAt?: string | null) => {
+    localStorage.setItem("isAuthenticated", "true")
+    localStorage.setItem("userRole", user.role || "user")
+    localStorage.setItem("userName", user.name)
+    localStorage.setItem("userEmail", user.email || sanitizeEmail(email))
+    localStorage.setItem("modulePermissions", JSON.stringify(user.modulePermissions || {}))
+    localStorage.setItem("showPostLoginWelcome", "true")
+    cacheCurrentUserPermissions(user.email || sanitizeEmail(email))
+
+    writeSessionSnapshot({
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      modulePermissions: user.modulePermissions || {},
+      sessionMode,
+      deviceKey: getOrCreateDeviceKey(),
+      sessionExpiresAt: sessionExpiresAt ?? null,
+      lastSyncAt: null,
+    })
+
+    const hashedPassword = await hashPassword(password)
+    const users = getUsers()
+    const existingIndex = users.findIndex((currentUser) => currentUser.email === user.email)
+    const nextUser = {
+      name: user.name,
+      email: user.email,
+      password: hashedPassword,
+      role: user.role as "admin" | "editor" | "viewer" | "custom",
+      approved: true,
+      modulePermissions: user.modulePermissions || {},
+      createdAt: existingIndex >= 0 ? users[existingIndex].createdAt : new Date().toISOString(),
+      lastLogin: new Date().toISOString(),
+    }
+
+    if (existingIndex >= 0) {
+      users[existingIndex] = nextUser
+    } else {
+      users.push(nextUser)
+    }
+    saveUsers(users)
+  }
 
   useEffect(() => {
     const isAuthenticated = localStorage.getItem("isAuthenticated") === "true"
@@ -78,6 +127,56 @@ export default function LoginPage() {
         return
       }
 
+      const deviceKey = getOrCreateDeviceKey()
+      let serverLoginError: string | null = null
+
+      try {
+        const serverResponse = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            email: cleanEmail,
+            password,
+            deviceKey,
+            deviceLabel: "Estación local-first",
+          }),
+        })
+
+        if (serverResponse.ok) {
+          const serverPayload = await serverResponse.json()
+          const serverUser = serverPayload.user as {
+            name: string
+            email: string
+            role: string
+            modulePermissions: Record<string, boolean>
+          }
+
+          await persistSession(serverUser, "server", serverPayload.sessionExpiresAt ?? null)
+
+          try {
+            await initializeEncryption(password)
+          } catch {
+            console.warn("No se pudo inicializar el cifrado en reposo")
+          }
+
+          await prepareLocalFirstWorkspaceAfterLogin()
+          startInactivityMonitor()
+
+          const isFile = window.location.protocol === "file:"
+          if (isFile) {
+            window.location.href = "./index.html"
+          } else {
+            router.push("/")
+          }
+          return
+        }
+
+        const failedPayload = await serverResponse.json().catch(() => ({}))
+        serverLoginError = failedPayload.error || null
+      } catch (error) {
+        serverLoginError = error instanceof Error ? error.message : "No fue posible conectar al backend on-premise"
+      }
+
       const result = await authenticateUser(cleanEmail, password)
 
       if (result.rateLimited) {
@@ -89,14 +188,16 @@ export default function LoginPage() {
       }
 
       if (result.authenticated && result.user) {
-        localStorage.setItem("isAuthenticated", "true")
-        localStorage.setItem("userRole", result.user.role || "user")
-        localStorage.setItem("userName", result.user.name)
-        localStorage.setItem("userEmail", result.user.email || cleanEmail)
-        if (result.user.modulePermissions) {
-          localStorage.setItem("modulePermissions", JSON.stringify(result.user.modulePermissions))
-        }
-        cacheCurrentUserPermissions(result.user.email || cleanEmail)
+        await persistSession(
+          {
+            name: result.user.name,
+            email: result.user.email || cleanEmail,
+            role: result.user.role || "user",
+            modulePermissions: result.user.modulePermissions || {},
+          },
+          "offline-local",
+          null,
+        )
 
         // Inicializar cifrado en reposo (derivar KEK del password, descifrar/crear DEK)
         try {
@@ -108,7 +209,7 @@ export default function LoginPage() {
 
         // Iniciar monitor de inactividad
         startInactivityMonitor()
-        localStorage.setItem("showPostLoginWelcome", "true")
+        await prepareLocalFirstWorkspaceAfterLogin()
 
         const isFile = window.location.protocol === "file:"
         if (isFile) {
@@ -118,10 +219,11 @@ export default function LoginPage() {
         }
       } else {
         const remaining = getRemainingAttempts(cleanEmail)
-        const msg = remaining > 0
+        const baseMessage = remaining > 0
           ? `${t.invalidCredentials} (${remaining} intentos restantes)`
           : t.invalidCredentials
-        setAlert({ type: "error", message: msg })
+        const serverSuffix = serverLoginError ? ` • ${serverLoginError}` : ""
+        setAlert({ type: "error", message: `${baseMessage}${serverSuffix}` })
       }
     } else {
       // Validar fortaleza de contraseña en registro

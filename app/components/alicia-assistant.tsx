@@ -12,9 +12,12 @@ interface AliciaAssistantProps {
   form: UseFormReturn<any>
 }
 
+const ALICIA_ASSISTANT_URL = "https://asistentelegal02.azurewebsites.net/"
+const isExternalAssistantEnabled = process.env.NEXT_PUBLIC_ENABLE_EXTERNAL_ASSISTANT === "true"
+
 export function AliciaAssistant({ form }: AliciaAssistantProps) {
   const handleOpenAlicia = () => {
-    const openedWindow = window.open("https://asistentelegal02.azurewebsites.net/", "_blank", "noopener,noreferrer")
+    const openedWindow = window.open(ALICIA_ASSISTANT_URL, "_blank", "noopener,noreferrer")
     if (openedWindow) {
       openedWindow.opener = null
     }
@@ -50,12 +53,17 @@ export function AliciaAssistant({ form }: AliciaAssistantProps) {
             <li className="flex items-center">• Proporcionar referencias relevantes</li>
           </ul>
         </div>
-        <Button className="w-full" asChild>
-          <a href="https://asistentelegal02.azurewebsites.net/" target="_blank" rel="noopener noreferrer">
+        {isExternalAssistantEnabled ? (
+          <Button className="w-full" onClick={handleOpenAlicia} type="button">
             Consultar con Alicia
             <ExternalLink className="ml-2 h-4 w-4" />
-          </a>
-        </Button>
+          </Button>
+        ) : (
+          <div className="rounded-lg border border-dashed bg-muted/30 p-4 text-sm text-muted-foreground">
+            El asistente externo Alicia permanece deshabilitado por defecto en despliegues on-premise estrictos.
+            Puede habilitarse de forma explícita con la variable `NEXT_PUBLIC_ENABLE_EXTERNAL_ASSISTANT=true`.
+          </div>
+        )}
         <FormField
           control={form.control}
           name="caseSummary"

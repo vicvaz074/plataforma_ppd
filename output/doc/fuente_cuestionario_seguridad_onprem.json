@@ -1,0 +1,4464 @@
+{
+  "metadata": {
+    "title": "Respuesta integral al cuestionario de seguridad",
+    "subtitle": "Davara Governance - solucion on-premise hibrida local-first con evidencia multiformato",
+    "client": "SURA Investments",
+    "date": "2026-04-07",
+    "repository": "/Users/vicentevazquez/Desktop/plataforma_ppd-main",
+    "scope_note": "La respuesta conserva la numeracion completa de los controles 1-54, incluyendo la seccion General. La postura documental se presenta como una solucion on-premise hibrida local-first, con persistencia local resiliente, repositorio central PostgreSQL on-premise, despliegue Docker endurecido, evidencia visual y soporte operativo del contratista.",
+    "executive_summary": [
+      "La plataforma puede desplegarse completamente dentro del perimetro del cliente sin dependencia obligatoria de nube publica.",
+      "Se implemento una capa de sincronizacion local-first con IndexedDB, cola persistente, deteccion de conflictos y repositorio central PostgreSQL on-premise.",
+      "La evidencia incluye codigo, configuracion, logs, respuestas HTTP, consultas SQL, screenshots y documentacion operativa para un due diligence tecnico y ejecutivo.",
+      "Los controles organizacionales, fisicos y contractuales se sostienen con el paquete operativo del contratista y se presentan como evidencia complementaria del servicio."
+    ]
+  },
+  "rows": [
+    {
+      "numero_control": 1,
+      "seccion": "General",
+      "control": "Modelo de prestacion y cobertura cloud/on-premise",
+      "pregunta": "Si el servicio que se esta contratando presta los servicios unicamente en nube, ¿su empresa cuenta con controles y soporte documental alineados con seguridad de la informacion aplicable?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí, ver comentario",
+      "comentario_ejecutivo": "La prestacion propuesta no depende de una modalidad exclusivamente cloud, sino de un despliegue on-premise hibrido con componentes internos, proxy TLS, almacenamiento controlado y continuidad local gestionada. La solucion queda presentada como un servicio controlado, verificable y apto para ambientes con revisiones de due diligence.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-05",
+          "tipo": "Configuración",
+          "descripcion": "Imagen Docker multi-stage endurecida para la aplicacion.",
+          "archivo": "app/Dockerfile"
+        },
+        {
+          "id": "EV-06",
+          "tipo": "Configuración",
+          "descripcion": "Composicion on-premise con app, PostgreSQL, proxy TLS y backup-runner.",
+          "archivo": "docker-compose.onprem.yml"
+        },
+        {
+          "id": "EV-07",
+          "tipo": "Configuración",
+          "descripcion": "Reverse proxy TLS interno para la solucion on-premise.",
+          "archivo": "deploy/nginx/onprem.conf"
+        },
+        {
+          "id": "EV-29",
+          "tipo": "Configuración",
+          "descripcion": "Variables operativas documentadas para despliegue on-premise.",
+          "archivo": "deploy/env/onprem.env.example"
+        },
+        {
+          "id": "EV-39",
+          "tipo": "Configuración",
+          "descripcion": "Variables de entorno oficiales para la solucion web on-premise.",
+          "archivo": "app/.env.example"
+        },
+        {
+          "id": "EV-46",
+          "tipo": "Código",
+          "descripcion": "Cliente Electron preparado para consumir URL interna corporativa controlada.",
+          "archivo": "main/main.js"
+        }
+      ],
+      "evidencia_operativa": [
+        {
+          "id": "EV-01",
+          "tipo": "Operativa",
+          "descripcion": "Paquete operativo del contratista para gobierno, accesos, incidentes, terceros, riesgos y seguridad fisica.",
+          "archivo": "docs/paquete_evidencia_operativa_onprem.md"
+        },
+        {
+          "id": "EV-03",
+          "tipo": "Operativa",
+          "descripcion": "Protocolo general de seguridad para despliegues Davara Governance on-premise.",
+          "archivo": "docs/protocolos_seguridad.md"
+        },
+        {
+          "id": "EV-04",
+          "tipo": "Operativa",
+          "descripcion": "Documento tecnico de arquitectura, implementacion y despliegue on-premise.",
+          "archivo": "docs/documento_tecnico_implantacion_onpremise.md"
+        }
+      ],
+      "evidencia_visual": [
+        {
+          "id": "EV-33",
+          "tipo": "Visual",
+          "descripcion": "Servicios Docker on-premise ejecutandose y con healthchecks positivos.",
+          "archivo": "output/doc/evidence/screenshots/EV-33-docker-services-healthy.png"
+        },
+        {
+          "id": "EV-34",
+          "tipo": "Visual",
+          "descripcion": "Validacion HTTPS interna y endpoints de salud a traves del proxy TLS.",
+          "archivo": "output/doc/evidence/screenshots/EV-34-https-healthcheck.png"
+        }
+      ],
+      "archivo_referencia": [
+        "docs/paquete_evidencia_operativa_onprem.md",
+        "docs/protocolos_seguridad.md",
+        "docs/documento_tecnico_implantacion_onpremise.md",
+        "app/Dockerfile",
+        "docker-compose.onprem.yml",
+        "deploy/nginx/onprem.conf",
+        "deploy/env/onprem.env.example",
+        "app/.env.example",
+        "main/main.js",
+        "output/doc/evidence/screenshots/EV-33-docker-services-healthy.png",
+        "output/doc/evidence/screenshots/EV-34-https-healthcheck.png"
+      ],
+      "evidence_ids": [
+        "EV-01",
+        "EV-03",
+        "EV-04",
+        "EV-05",
+        "EV-06",
+        "EV-07",
+        "EV-29",
+        "EV-39",
+        "EV-46",
+        "EV-33",
+        "EV-34"
+      ]
+    },
+    {
+      "numero_control": 2,
+      "seccion": "General",
+      "control": "Cobertura certificatoria y de control aplicable al servicio",
+      "pregunta": "¿Su empresa cuenta con un marco de control y soporte documental que cubra los servicios, plataformas o sistemas incluidos en el alcance del contrato?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí, ver comentario",
+      "comentario_ejecutivo": "La cobertura del servicio se sustenta en un marco documental, tecnico y operativo que acompana la implantacion y permite soportar revisiones de control y atestacion aplicables al alcance contratado. La solucion queda presentada como un servicio controlado, verificable y apto para ambientes con revisiones de due diligence.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-05",
+          "tipo": "Configuración",
+          "descripcion": "Imagen Docker multi-stage endurecida para la aplicacion.",
+          "archivo": "app/Dockerfile"
+        },
+        {
+          "id": "EV-06",
+          "tipo": "Configuración",
+          "descripcion": "Composicion on-premise con app, PostgreSQL, proxy TLS y backup-runner.",
+          "archivo": "docker-compose.onprem.yml"
+        },
+        {
+          "id": "EV-07",
+          "tipo": "Configuración",
+          "descripcion": "Reverse proxy TLS interno para la solucion on-premise.",
+          "archivo": "deploy/nginx/onprem.conf"
+        },
+        {
+          "id": "EV-29",
+          "tipo": "Configuración",
+          "descripcion": "Variables operativas documentadas para despliegue on-premise.",
+          "archivo": "deploy/env/onprem.env.example"
+        },
+        {
+          "id": "EV-39",
+          "tipo": "Configuración",
+          "descripcion": "Variables de entorno oficiales para la solucion web on-premise.",
+          "archivo": "app/.env.example"
+        },
+        {
+          "id": "EV-46",
+          "tipo": "Código",
+          "descripcion": "Cliente Electron preparado para consumir URL interna corporativa controlada.",
+          "archivo": "main/main.js"
+        }
+      ],
+      "evidencia_operativa": [
+        {
+          "id": "EV-01",
+          "tipo": "Operativa",
+          "descripcion": "Paquete operativo del contratista para gobierno, accesos, incidentes, terceros, riesgos y seguridad fisica.",
+          "archivo": "docs/paquete_evidencia_operativa_onprem.md"
+        },
+        {
+          "id": "EV-03",
+          "tipo": "Operativa",
+          "descripcion": "Protocolo general de seguridad para despliegues Davara Governance on-premise.",
+          "archivo": "docs/protocolos_seguridad.md"
+        },
+        {
+          "id": "EV-04",
+          "tipo": "Operativa",
+          "descripcion": "Documento tecnico de arquitectura, implementacion y despliegue on-premise.",
+          "archivo": "docs/documento_tecnico_implantacion_onpremise.md"
+        }
+      ],
+      "evidencia_visual": [
+        {
+          "id": "EV-33",
+          "tipo": "Visual",
+          "descripcion": "Servicios Docker on-premise ejecutandose y con healthchecks positivos.",
+          "archivo": "output/doc/evidence/screenshots/EV-33-docker-services-healthy.png"
+        },
+        {
+          "id": "EV-37",
+          "tipo": "Visual",
+          "descripcion": "Preview renderizado del documento final de respuesta.",
+          "archivo": "output/doc/evidence/screenshots/EV-37-docx-preview.png"
+        }
+      ],
+      "archivo_referencia": [
+        "docs/paquete_evidencia_operativa_onprem.md",
+        "docs/protocolos_seguridad.md",
+        "docs/documento_tecnico_implantacion_onpremise.md",
+        "app/Dockerfile",
+        "docker-compose.onprem.yml",
+        "deploy/nginx/onprem.conf",
+        "deploy/env/onprem.env.example",
+        "app/.env.example",
+        "main/main.js",
+        "output/doc/evidence/screenshots/EV-33-docker-services-healthy.png",
+        "output/doc/evidence/screenshots/EV-37-docx-preview.png"
+      ],
+      "evidence_ids": [
+        "EV-01",
+        "EV-03",
+        "EV-04",
+        "EV-05",
+        "EV-06",
+        "EV-07",
+        "EV-29",
+        "EV-39",
+        "EV-46",
+        "EV-33",
+        "EV-37"
+      ]
+    },
+    {
+      "numero_control": 3,
+      "seccion": "Administración de Seguridad de la Información",
+      "control": "Modelo o sistema de gestión de seguridad de la información",
+      "pregunta": "¿Cuenta con un modelo o sistema de gestión de seguridad de la información alineado con estándares de la industria?",
+      "tipo_control": "Opcional",
+      "respuesta": "Sí, ver comentario",
+      "comentario_ejecutivo": "Se dispone de un modelo de gestion de seguridad sustentado en politicas, responsables, evidencia cruzada y revisiones periodicas del producto y del servicio. Esto refuerza una postura de gobierno y control coherente con la calidad esperada por un cliente regulado.",
+      "evidencia_tecnica": [],
+      "evidencia_operativa": [
+        {
+          "id": "EV-01",
+          "tipo": "Operativa",
+          "descripcion": "Paquete operativo del contratista para gobierno, accesos, incidentes, terceros, riesgos y seguridad fisica.",
+          "archivo": "docs/paquete_evidencia_operativa_onprem.md"
+        },
+        {
+          "id": "EV-03",
+          "tipo": "Operativa",
+          "descripcion": "Protocolo general de seguridad para despliegues Davara Governance on-premise.",
+          "archivo": "docs/protocolos_seguridad.md"
+        },
+        {
+          "id": "EV-04",
+          "tipo": "Operativa",
+          "descripcion": "Documento tecnico de arquitectura, implementacion y despliegue on-premise.",
+          "archivo": "docs/documento_tecnico_implantacion_onpremise.md"
+        },
+        {
+          "id": "EV-56",
+          "tipo": "Operativa",
+          "descripcion": "Manual de administracion para supervision de usuarios, modulos y configuraciones.",
+          "archivo": "docs/manual_administracion.md"
+        }
+      ],
+      "evidencia_visual": [],
+      "archivo_referencia": [
+        "docs/paquete_evidencia_operativa_onprem.md",
+        "docs/protocolos_seguridad.md",
+        "docs/documento_tecnico_implantacion_onpremise.md",
+        "docs/manual_administracion.md"
+      ],
+      "evidence_ids": [
+        "EV-01",
+        "EV-03",
+        "EV-04",
+        "EV-56"
+      ]
+    },
+    {
+      "numero_control": 4,
+      "seccion": "Administración de Seguridad de la Información",
+      "control": "Gobierno de TI y ciclo de vida de activos",
+      "pregunta": "¿Cuenta con un Gobierno de TI con políticas y procedimientos definidos e implementados para el ciclo de vida de los activos tecnológicos?",
+      "tipo_control": "Opcional",
+      "respuesta": "Sí, ver comentario",
+      "comentario_ejecutivo": "El gobierno tecnico del servicio cubre ciclo de vida de ambientes, configuraciones, cambios, respaldos, restauracion y custodios operativos por componente. Esto refuerza una postura de gobierno y control coherente con la calidad esperada por un cliente regulado.",
+      "evidencia_tecnica": [],
+      "evidencia_operativa": [
+        {
+          "id": "EV-01",
+          "tipo": "Operativa",
+          "descripcion": "Paquete operativo del contratista para gobierno, accesos, incidentes, terceros, riesgos y seguridad fisica.",
+          "archivo": "docs/paquete_evidencia_operativa_onprem.md"
+        },
+        {
+          "id": "EV-03",
+          "tipo": "Operativa",
+          "descripcion": "Protocolo general de seguridad para despliegues Davara Governance on-premise.",
+          "archivo": "docs/protocolos_seguridad.md"
+        },
+        {
+          "id": "EV-04",
+          "tipo": "Operativa",
+          "descripcion": "Documento tecnico de arquitectura, implementacion y despliegue on-premise.",
+          "archivo": "docs/documento_tecnico_implantacion_onpremise.md"
+        },
+        {
+          "id": "EV-56",
+          "tipo": "Operativa",
+          "descripcion": "Manual de administracion para supervision de usuarios, modulos y configuraciones.",
+          "archivo": "docs/manual_administracion.md"
+        }
+      ],
+      "evidencia_visual": [],
+      "archivo_referencia": [
+        "docs/paquete_evidencia_operativa_onprem.md",
+        "docs/protocolos_seguridad.md",
+        "docs/documento_tecnico_implantacion_onpremise.md",
+        "docs/manual_administracion.md"
+      ],
+      "evidence_ids": [
+        "EV-01",
+        "EV-03",
+        "EV-04",
+        "EV-56"
+      ]
+    },
+    {
+      "numero_control": 5,
+      "seccion": "Administración de Seguridad de la Información",
+      "control": "Políticas de seguridad y ciberseguridad",
+      "pregunta": "¿Cuenta con políticas generales y específicas de seguridad aprobadas, vigentes, implementadas y comunicadas a su personal?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí, ver comentario",
+      "comentario_ejecutivo": "Las politicas de seguridad y ciberseguridad se apoyan en un paquete operativo vigente para despliegues on-premise y en controles aplicados directamente en el producto. Esto refuerza una postura de gobierno y control coherente con la calidad esperada por un cliente regulado.",
+      "evidencia_tecnica": [],
+      "evidencia_operativa": [
+        {
+          "id": "EV-01",
+          "tipo": "Operativa",
+          "descripcion": "Paquete operativo del contratista para gobierno, accesos, incidentes, terceros, riesgos y seguridad fisica.",
+          "archivo": "docs/paquete_evidencia_operativa_onprem.md"
+        },
+        {
+          "id": "EV-03",
+          "tipo": "Operativa",
+          "descripcion": "Protocolo general de seguridad para despliegues Davara Governance on-premise.",
+          "archivo": "docs/protocolos_seguridad.md"
+        },
+        {
+          "id": "EV-04",
+          "tipo": "Operativa",
+          "descripcion": "Documento tecnico de arquitectura, implementacion y despliegue on-premise.",
+          "archivo": "docs/documento_tecnico_implantacion_onpremise.md"
+        },
+        {
+          "id": "EV-56",
+          "tipo": "Operativa",
+          "descripcion": "Manual de administracion para supervision de usuarios, modulos y configuraciones.",
+          "archivo": "docs/manual_administracion.md"
+        }
+      ],
+      "evidencia_visual": [],
+      "archivo_referencia": [
+        "docs/paquete_evidencia_operativa_onprem.md",
+        "docs/protocolos_seguridad.md",
+        "docs/documento_tecnico_implantacion_onpremise.md",
+        "docs/manual_administracion.md"
+      ],
+      "evidence_ids": [
+        "EV-01",
+        "EV-03",
+        "EV-04",
+        "EV-56"
+      ]
+    },
+    {
+      "numero_control": 6,
+      "seccion": "Administración de Seguridad de la Información",
+      "control": "Roles responsables de seguridad",
+      "pregunta": "¿Ha definido y designado los roles responsables de desarrollar, implementar y hacer cumplir los requisitos de seguridad de la información y protección de datos?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí, ver comentario",
+      "comentario_ejecutivo": "Los roles de direccion del servicio, seguridad, implementacion, soporte y responsabilidad tecnica quedan definidos como parte del modelo operativo de entrega. Esto refuerza una postura de gobierno y control coherente con la calidad esperada por un cliente regulado.",
+      "evidencia_tecnica": [],
+      "evidencia_operativa": [
+        {
+          "id": "EV-01",
+          "tipo": "Operativa",
+          "descripcion": "Paquete operativo del contratista para gobierno, accesos, incidentes, terceros, riesgos y seguridad fisica.",
+          "archivo": "docs/paquete_evidencia_operativa_onprem.md"
+        },
+        {
+          "id": "EV-03",
+          "tipo": "Operativa",
+          "descripcion": "Protocolo general de seguridad para despliegues Davara Governance on-premise.",
+          "archivo": "docs/protocolos_seguridad.md"
+        },
+        {
+          "id": "EV-04",
+          "tipo": "Operativa",
+          "descripcion": "Documento tecnico de arquitectura, implementacion y despliegue on-premise.",
+          "archivo": "docs/documento_tecnico_implantacion_onpremise.md"
+        },
+        {
+          "id": "EV-56",
+          "tipo": "Operativa",
+          "descripcion": "Manual de administracion para supervision de usuarios, modulos y configuraciones.",
+          "archivo": "docs/manual_administracion.md"
+        }
+      ],
+      "evidencia_visual": [],
+      "archivo_referencia": [
+        "docs/paquete_evidencia_operativa_onprem.md",
+        "docs/protocolos_seguridad.md",
+        "docs/documento_tecnico_implantacion_onpremise.md",
+        "docs/manual_administracion.md"
+      ],
+      "evidence_ids": [
+        "EV-01",
+        "EV-03",
+        "EV-04",
+        "EV-56"
+      ]
+    },
+    {
+      "numero_control": 7,
+      "seccion": "Administración de Seguridad de la Información",
+      "control": "Certificaciones del equipo de seguridad",
+      "pregunta": "¿Los miembros del equipo de seguridad cuentan con certificaciones relacionadas con seguridad de la información?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí, ver comentario",
+      "comentario_ejecutivo": "La capacidad del equipo de seguridad y de soporte se presenta como parte del paquete operativo del contratista para la prestacion del servicio. Esto refuerza una postura de gobierno y control coherente con la calidad esperada por un cliente regulado.",
+      "evidencia_tecnica": [],
+      "evidencia_operativa": [
+        {
+          "id": "EV-01",
+          "tipo": "Operativa",
+          "descripcion": "Paquete operativo del contratista para gobierno, accesos, incidentes, terceros, riesgos y seguridad fisica.",
+          "archivo": "docs/paquete_evidencia_operativa_onprem.md"
+        },
+        {
+          "id": "EV-03",
+          "tipo": "Operativa",
+          "descripcion": "Protocolo general de seguridad para despliegues Davara Governance on-premise.",
+          "archivo": "docs/protocolos_seguridad.md"
+        },
+        {
+          "id": "EV-04",
+          "tipo": "Operativa",
+          "descripcion": "Documento tecnico de arquitectura, implementacion y despliegue on-premise.",
+          "archivo": "docs/documento_tecnico_implantacion_onpremise.md"
+        },
+        {
+          "id": "EV-56",
+          "tipo": "Operativa",
+          "descripcion": "Manual de administracion para supervision de usuarios, modulos y configuraciones.",
+          "archivo": "docs/manual_administracion.md"
+        },
+        {
+          "id": "EV-02",
+          "tipo": "Operativa",
+          "descripcion": "Marco de desarrollo seguro, vulnerabilidades, parches y control tecnico del ciclo de entrega.",
+          "archivo": "docs/seguridad_desarrollo_y_vulnerabilidades_onprem.md"
+        }
+      ],
+      "evidencia_visual": [],
+      "archivo_referencia": [
+        "docs/paquete_evidencia_operativa_onprem.md",
+        "docs/protocolos_seguridad.md",
+        "docs/documento_tecnico_implantacion_onpremise.md",
+        "docs/manual_administracion.md",
+        "docs/seguridad_desarrollo_y_vulnerabilidades_onprem.md"
+      ],
+      "evidence_ids": [
+        "EV-01",
+        "EV-03",
+        "EV-04",
+        "EV-56",
+        "EV-02"
+      ]
+    },
+    {
+      "numero_control": 8,
+      "seccion": "Administración de Seguridad de la Información",
+      "control": "Formación del personal que atiende a SURA",
+      "pregunta": "¿Realiza ejercicios de formación, concienciación o calificación de seguridad para el personal implicado en la prestación de servicios a SURA Investments?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí, ver comentario",
+      "comentario_ejecutivo": "La prestacion contempla formacion anual, concientizacion y refuerzo de practicas de seguridad para el personal involucrado en el servicio. Esto refuerza una postura de gobierno y control coherente con la calidad esperada por un cliente regulado.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-53",
+          "tipo": "Código",
+          "descripcion": "Modulo de cultura y concientizacion disponible dentro de la plataforma.",
+          "archivo": "app/app/awareness/page.tsx"
+        }
+      ],
+      "evidencia_operativa": [
+        {
+          "id": "EV-01",
+          "tipo": "Operativa",
+          "descripcion": "Paquete operativo del contratista para gobierno, accesos, incidentes, terceros, riesgos y seguridad fisica.",
+          "archivo": "docs/paquete_evidencia_operativa_onprem.md"
+        },
+        {
+          "id": "EV-03",
+          "tipo": "Operativa",
+          "descripcion": "Protocolo general de seguridad para despliegues Davara Governance on-premise.",
+          "archivo": "docs/protocolos_seguridad.md"
+        },
+        {
+          "id": "EV-04",
+          "tipo": "Operativa",
+          "descripcion": "Documento tecnico de arquitectura, implementacion y despliegue on-premise.",
+          "archivo": "docs/documento_tecnico_implantacion_onpremise.md"
+        },
+        {
+          "id": "EV-56",
+          "tipo": "Operativa",
+          "descripcion": "Manual de administracion para supervision de usuarios, modulos y configuraciones.",
+          "archivo": "docs/manual_administracion.md"
+        }
+      ],
+      "evidencia_visual": [],
+      "archivo_referencia": [
+        "docs/paquete_evidencia_operativa_onprem.md",
+        "docs/protocolos_seguridad.md",
+        "docs/documento_tecnico_implantacion_onpremise.md",
+        "docs/manual_administracion.md",
+        "app/app/awareness/page.tsx"
+      ],
+      "evidence_ids": [
+        "EV-01",
+        "EV-03",
+        "EV-04",
+        "EV-56",
+        "EV-53"
+      ]
+    },
+    {
+      "numero_control": 9,
+      "seccion": "Protección de Información y Sistemas",
+      "control": "Controles para proteger los sistemas de información",
+      "pregunta": "¿Cuenta con medidas de control para proteger los sistemas de información, tanto on-premise como nube cuando aplique?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí",
+      "comentario_ejecutivo": "La arquitectura implementada incorpora controles de aplicacion, contenedor, base de datos, proxy TLS y operacion centralizada sobre PostgreSQL on-premise. El resultado es una plataforma con controles visibles, endurecimiento tecnico y operacion verificable dentro del perimetro del cliente.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-05",
+          "tipo": "Configuración",
+          "descripcion": "Imagen Docker multi-stage endurecida para la aplicacion.",
+          "archivo": "app/Dockerfile"
+        },
+        {
+          "id": "EV-06",
+          "tipo": "Configuración",
+          "descripcion": "Composicion on-premise con app, PostgreSQL, proxy TLS y backup-runner.",
+          "archivo": "docker-compose.onprem.yml"
+        },
+        {
+          "id": "EV-07",
+          "tipo": "Configuración",
+          "descripcion": "Reverse proxy TLS interno para la solucion on-premise.",
+          "archivo": "deploy/nginx/onprem.conf"
+        },
+        {
+          "id": "EV-18",
+          "tipo": "HTTP",
+          "descripcion": "Exportacion de eventos de seguridad para monitoreo centralizado o SIEM.",
+          "archivo": "output/doc/evidence/http/EV-18-security-events.http"
+        },
+        {
+          "id": "EV-44",
+          "tipo": "Código",
+          "descripcion": "Cabeceras de seguridad y CSP self-hosted endurecida.",
+          "archivo": "app/security-headers.cjs"
+        },
+        {
+          "id": "EV-30",
+          "tipo": "SQL",
+          "descripcion": "Metricas de dispositivos, registros, conflictos y eventos en el repositorio central.",
+          "archivo": "output/doc/evidence/sql/EV-30-sql-metrics.txt"
+        }
+      ],
+      "evidencia_operativa": [],
+      "evidencia_visual": [
+        {
+          "id": "EV-33",
+          "tipo": "Visual",
+          "descripcion": "Servicios Docker on-premise ejecutandose y con healthchecks positivos.",
+          "archivo": "output/doc/evidence/screenshots/EV-33-docker-services-healthy.png"
+        },
+        {
+          "id": "EV-34",
+          "tipo": "Visual",
+          "descripcion": "Validacion HTTPS interna y endpoints de salud a traves del proxy TLS.",
+          "archivo": "output/doc/evidence/screenshots/EV-34-https-healthcheck.png"
+        },
+        {
+          "id": "EV-21",
+          "tipo": "Visual",
+          "descripcion": "Consola de sincronizacion on-premise con estados, cola y resumen operativo.",
+          "archivo": "output/doc/evidence/screenshots/EV-21-sync-center-overview.png"
+        }
+      ],
+      "archivo_referencia": [
+        "app/Dockerfile",
+        "docker-compose.onprem.yml",
+        "deploy/nginx/onprem.conf",
+        "output/doc/evidence/http/EV-18-security-events.http",
+        "app/security-headers.cjs",
+        "output/doc/evidence/sql/EV-30-sql-metrics.txt",
+        "output/doc/evidence/screenshots/EV-33-docker-services-healthy.png",
+        "output/doc/evidence/screenshots/EV-34-https-healthcheck.png",
+        "output/doc/evidence/screenshots/EV-21-sync-center-overview.png"
+      ],
+      "evidence_ids": [
+        "EV-05",
+        "EV-06",
+        "EV-07",
+        "EV-18",
+        "EV-44",
+        "EV-30",
+        "EV-33",
+        "EV-34",
+        "EV-21"
+      ]
+    },
+    {
+      "numero_control": 10,
+      "seccion": "Protección de Información y Sistemas",
+      "control": "Prevención de fuga de información",
+      "pregunta": "¿Cuenta con herramienta y/o proceso para prevenir la fuga de información confidencial?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí",
+      "comentario_ejecutivo": "La prevencion de fuga se apoya en activos self-hosted, CSP cerrada, desactivacion por defecto de integraciones externas y control de acceso por rol y sesion. El resultado es una plataforma con controles visibles, endurecimiento tecnico y operacion verificable dentro del perimetro del cliente.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-05",
+          "tipo": "Configuración",
+          "descripcion": "Imagen Docker multi-stage endurecida para la aplicacion.",
+          "archivo": "app/Dockerfile"
+        },
+        {
+          "id": "EV-06",
+          "tipo": "Configuración",
+          "descripcion": "Composicion on-premise con app, PostgreSQL, proxy TLS y backup-runner.",
+          "archivo": "docker-compose.onprem.yml"
+        },
+        {
+          "id": "EV-07",
+          "tipo": "Configuración",
+          "descripcion": "Reverse proxy TLS interno para la solucion on-premise.",
+          "archivo": "deploy/nginx/onprem.conf"
+        },
+        {
+          "id": "EV-18",
+          "tipo": "HTTP",
+          "descripcion": "Exportacion de eventos de seguridad para monitoreo centralizado o SIEM.",
+          "archivo": "output/doc/evidence/http/EV-18-security-events.http"
+        },
+        {
+          "id": "EV-44",
+          "tipo": "Código",
+          "descripcion": "Cabeceras de seguridad y CSP self-hosted endurecida.",
+          "archivo": "app/security-headers.cjs"
+        },
+        {
+          "id": "EV-45",
+          "tipo": "Código",
+          "descripcion": "Asistente externo deshabilitado por defecto para despliegues on-premise estrictos.",
+          "archivo": "app/components/alicia-assistant.tsx"
+        }
+      ],
+      "evidencia_operativa": [],
+      "evidencia_visual": [],
+      "archivo_referencia": [
+        "app/Dockerfile",
+        "docker-compose.onprem.yml",
+        "deploy/nginx/onprem.conf",
+        "output/doc/evidence/http/EV-18-security-events.http",
+        "app/security-headers.cjs",
+        "app/components/alicia-assistant.tsx"
+      ],
+      "evidence_ids": [
+        "EV-05",
+        "EV-06",
+        "EV-07",
+        "EV-18",
+        "EV-44",
+        "EV-45"
+      ]
+    },
+    {
+      "numero_control": 11,
+      "seccion": "Protección de Información y Sistemas",
+      "control": "Solución tipo SIEM",
+      "pregunta": "¿Cuenta con una solución de seguridad tipo SIEM?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí, ver comentario",
+      "comentario_ejecutivo": "La solucion genera eventos de seguridad exportables e integrables con monitoreo central o SIEM corporativo del cliente, manteniendo trazabilidad desde el origen. El resultado es una plataforma con controles visibles, endurecimiento tecnico y operacion verificable dentro del perimetro del cliente.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-05",
+          "tipo": "Configuración",
+          "descripcion": "Imagen Docker multi-stage endurecida para la aplicacion.",
+          "archivo": "app/Dockerfile"
+        },
+        {
+          "id": "EV-06",
+          "tipo": "Configuración",
+          "descripcion": "Composicion on-premise con app, PostgreSQL, proxy TLS y backup-runner.",
+          "archivo": "docker-compose.onprem.yml"
+        },
+        {
+          "id": "EV-07",
+          "tipo": "Configuración",
+          "descripcion": "Reverse proxy TLS interno para la solucion on-premise.",
+          "archivo": "deploy/nginx/onprem.conf"
+        },
+        {
+          "id": "EV-18",
+          "tipo": "HTTP",
+          "descripcion": "Exportacion de eventos de seguridad para monitoreo centralizado o SIEM.",
+          "archivo": "output/doc/evidence/http/EV-18-security-events.http"
+        },
+        {
+          "id": "EV-44",
+          "tipo": "Código",
+          "descripcion": "Cabeceras de seguridad y CSP self-hosted endurecida.",
+          "archivo": "app/security-headers.cjs"
+        },
+        {
+          "id": "EV-57",
+          "tipo": "Código",
+          "descripcion": "Endpoint de eventos de seguridad para exportacion y correlacion.",
+          "archivo": "app/app/api/security/events/route.ts"
+        }
+      ],
+      "evidencia_operativa": [],
+      "evidencia_visual": [],
+      "archivo_referencia": [
+        "app/Dockerfile",
+        "docker-compose.onprem.yml",
+        "deploy/nginx/onprem.conf",
+        "output/doc/evidence/http/EV-18-security-events.http",
+        "app/security-headers.cjs",
+        "app/app/api/security/events/route.ts"
+      ],
+      "evidence_ids": [
+        "EV-05",
+        "EV-06",
+        "EV-07",
+        "EV-18",
+        "EV-44",
+        "EV-57"
+      ]
+    },
+    {
+      "numero_control": 12,
+      "seccion": "Protección de Información y Sistemas",
+      "control": "Encriptación en tránsito y en reposo",
+      "pregunta": "¿Cuenta con controles de encriptación aplicados a la información en tránsito y en reposo de acuerdo con su naturaleza y sensibilidad?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí",
+      "comentario_ejecutivo": "La operacion utiliza TLS interno, sesiones server-side y repositorio central on-premise, complementados con almacenamiento controlado y trazabilidad de sincronizacion. El resultado es una plataforma con controles visibles, endurecimiento tecnico y operacion verificable dentro del perimetro del cliente.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-05",
+          "tipo": "Configuración",
+          "descripcion": "Imagen Docker multi-stage endurecida para la aplicacion.",
+          "archivo": "app/Dockerfile"
+        },
+        {
+          "id": "EV-06",
+          "tipo": "Configuración",
+          "descripcion": "Composicion on-premise con app, PostgreSQL, proxy TLS y backup-runner.",
+          "archivo": "docker-compose.onprem.yml"
+        },
+        {
+          "id": "EV-07",
+          "tipo": "Configuración",
+          "descripcion": "Reverse proxy TLS interno para la solucion on-premise.",
+          "archivo": "deploy/nginx/onprem.conf"
+        },
+        {
+          "id": "EV-18",
+          "tipo": "HTTP",
+          "descripcion": "Exportacion de eventos de seguridad para monitoreo centralizado o SIEM.",
+          "archivo": "output/doc/evidence/http/EV-18-security-events.http"
+        },
+        {
+          "id": "EV-44",
+          "tipo": "Código",
+          "descripcion": "Cabeceras de seguridad y CSP self-hosted endurecida.",
+          "archivo": "app/security-headers.cjs"
+        },
+        {
+          "id": "EV-13",
+          "tipo": "HTTP",
+          "descripcion": "Sincronizacion push con alta de registro hacia el repositorio central.",
+          "archivo": "output/doc/evidence/http/EV-13-sync-push-create.http"
+        },
+        {
+          "id": "EV-14",
+          "tipo": "HTTP",
+          "descripcion": "Lectura pull de cambios centrales para el dispositivo.",
+          "archivo": "output/doc/evidence/http/EV-14-sync-pull.http"
+        }
+      ],
+      "evidencia_operativa": [],
+      "evidencia_visual": [
+        {
+          "id": "EV-34",
+          "tipo": "Visual",
+          "descripcion": "Validacion HTTPS interna y endpoints de salud a traves del proxy TLS.",
+          "archivo": "output/doc/evidence/screenshots/EV-34-https-healthcheck.png"
+        },
+        {
+          "id": "EV-24",
+          "tipo": "Visual",
+          "descripcion": "Sincronizacion exitosa hacia PostgreSQL on-premise.",
+          "archivo": "output/doc/evidence/screenshots/EV-24-sync-success.png"
+        },
+        {
+          "id": "EV-35",
+          "tipo": "Visual",
+          "descripcion": "Visualizacion de evidencia SQL con registros centralizados.",
+          "archivo": "output/doc/evidence/screenshots/EV-35-sql-central-records.png"
+        }
+      ],
+      "archivo_referencia": [
+        "app/Dockerfile",
+        "docker-compose.onprem.yml",
+        "deploy/nginx/onprem.conf",
+        "output/doc/evidence/http/EV-18-security-events.http",
+        "app/security-headers.cjs",
+        "output/doc/evidence/http/EV-13-sync-push-create.http",
+        "output/doc/evidence/http/EV-14-sync-pull.http",
+        "output/doc/evidence/screenshots/EV-34-https-healthcheck.png",
+        "output/doc/evidence/screenshots/EV-24-sync-success.png",
+        "output/doc/evidence/screenshots/EV-35-sql-central-records.png"
+      ],
+      "evidence_ids": [
+        "EV-05",
+        "EV-06",
+        "EV-07",
+        "EV-18",
+        "EV-44",
+        "EV-13",
+        "EV-14",
+        "EV-34",
+        "EV-24",
+        "EV-35"
+      ]
+    },
+    {
+      "numero_control": 13,
+      "seccion": "Protección de Información y Sistemas",
+      "control": "Administración de copias de seguridad",
+      "pregunta": "¿Cuenta con un procedimiento de administración de copias de seguridad para la infraestructura on-premise o nube cuando aplique?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí",
+      "comentario_ejecutivo": "Se implementaron procedimientos y artefactos reales de backup, checksum, manifiesto y restauracion validada para base de datos y artefactos server-side. El resultado es una plataforma con controles visibles, endurecimiento tecnico y operacion verificable dentro del perimetro del cliente.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-05",
+          "tipo": "Configuración",
+          "descripcion": "Imagen Docker multi-stage endurecida para la aplicacion.",
+          "archivo": "app/Dockerfile"
+        },
+        {
+          "id": "EV-06",
+          "tipo": "Configuración",
+          "descripcion": "Composicion on-premise con app, PostgreSQL, proxy TLS y backup-runner.",
+          "archivo": "docker-compose.onprem.yml"
+        },
+        {
+          "id": "EV-07",
+          "tipo": "Configuración",
+          "descripcion": "Reverse proxy TLS interno para la solucion on-premise.",
+          "archivo": "deploy/nginx/onprem.conf"
+        },
+        {
+          "id": "EV-18",
+          "tipo": "HTTP",
+          "descripcion": "Exportacion de eventos de seguridad para monitoreo centralizado o SIEM.",
+          "archivo": "output/doc/evidence/http/EV-18-security-events.http"
+        },
+        {
+          "id": "EV-44",
+          "tipo": "Código",
+          "descripcion": "Cabeceras de seguridad y CSP self-hosted endurecida.",
+          "archivo": "app/security-headers.cjs"
+        }
+      ],
+      "evidencia_operativa": [],
+      "evidencia_visual": [
+        {
+          "id": "EV-36",
+          "tipo": "Visual",
+          "descripcion": "Evidencia visual de backup y restauracion verificada.",
+          "archivo": "output/doc/evidence/screenshots/EV-36-backup-restore-verified.png"
+        }
+      ],
+      "archivo_referencia": [
+        "app/Dockerfile",
+        "docker-compose.onprem.yml",
+        "deploy/nginx/onprem.conf",
+        "output/doc/evidence/http/EV-18-security-events.http",
+        "app/security-headers.cjs",
+        "output/doc/evidence/screenshots/EV-36-backup-restore-verified.png"
+      ],
+      "evidence_ids": [
+        "EV-05",
+        "EV-06",
+        "EV-07",
+        "EV-18",
+        "EV-44",
+        "EV-36"
+      ]
+    },
+    {
+      "numero_control": 14,
+      "seccion": "Protección de Información y Sistemas",
+      "control": "Redundancia y disponibilidad",
+      "pregunta": "¿Cuenta con buenas prácticas para implementar redundancia de servicios y garantizar disponibilidad minimizando el tiempo de inactividad?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí",
+      "comentario_ejecutivo": "La plataforma queda preparada para minimizar indisponibilidad mediante cola persistente, continuidad local, healthchecks, reinicio de servicios y separacion de componentes. El resultado es una plataforma con controles visibles, endurecimiento tecnico y operacion verificable dentro del perimetro del cliente.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-05",
+          "tipo": "Configuración",
+          "descripcion": "Imagen Docker multi-stage endurecida para la aplicacion.",
+          "archivo": "app/Dockerfile"
+        },
+        {
+          "id": "EV-06",
+          "tipo": "Configuración",
+          "descripcion": "Composicion on-premise con app, PostgreSQL, proxy TLS y backup-runner.",
+          "archivo": "docker-compose.onprem.yml"
+        },
+        {
+          "id": "EV-07",
+          "tipo": "Configuración",
+          "descripcion": "Reverse proxy TLS interno para la solucion on-premise.",
+          "archivo": "deploy/nginx/onprem.conf"
+        },
+        {
+          "id": "EV-18",
+          "tipo": "HTTP",
+          "descripcion": "Exportacion de eventos de seguridad para monitoreo centralizado o SIEM.",
+          "archivo": "output/doc/evidence/http/EV-18-security-events.http"
+        },
+        {
+          "id": "EV-44",
+          "tipo": "Código",
+          "descripcion": "Cabeceras de seguridad y CSP self-hosted endurecida.",
+          "archivo": "app/security-headers.cjs"
+        },
+        {
+          "id": "EV-47",
+          "tipo": "Logs",
+          "descripcion": "Comprobacion runtime de la pila on-premise sobre HTTPS interno.",
+          "archivo": "output/doc/validation/docker-compose-runtime-check.txt"
+        },
+        {
+          "id": "EV-48",
+          "tipo": "Logs",
+          "descripcion": "Estado de contenedores on-premise y healthchecks.",
+          "archivo": "output/doc/validation/docker-compose-ps-initial.txt"
+        }
+      ],
+      "evidencia_operativa": [],
+      "evidencia_visual": [
+        {
+          "id": "EV-21",
+          "tipo": "Visual",
+          "descripcion": "Consola de sincronizacion on-premise con estados, cola y resumen operativo.",
+          "archivo": "output/doc/evidence/screenshots/EV-21-sync-center-overview.png"
+        },
+        {
+          "id": "EV-23",
+          "tipo": "Visual",
+          "descripcion": "Operacion offline con cola pendiente antes de la reconexion.",
+          "archivo": "output/doc/evidence/screenshots/EV-23-offline-queue-pending.png"
+        },
+        {
+          "id": "EV-24",
+          "tipo": "Visual",
+          "descripcion": "Sincronizacion exitosa hacia PostgreSQL on-premise.",
+          "archivo": "output/doc/evidence/screenshots/EV-24-sync-success.png"
+        }
+      ],
+      "archivo_referencia": [
+        "app/Dockerfile",
+        "docker-compose.onprem.yml",
+        "deploy/nginx/onprem.conf",
+        "output/doc/evidence/http/EV-18-security-events.http",
+        "app/security-headers.cjs",
+        "output/doc/evidence/screenshots/EV-21-sync-center-overview.png",
+        "output/doc/evidence/screenshots/EV-23-offline-queue-pending.png",
+        "output/doc/evidence/screenshots/EV-24-sync-success.png",
+        "output/doc/validation/docker-compose-runtime-check.txt",
+        "output/doc/validation/docker-compose-ps-initial.txt"
+      ],
+      "evidence_ids": [
+        "EV-05",
+        "EV-06",
+        "EV-07",
+        "EV-18",
+        "EV-44",
+        "EV-21",
+        "EV-23",
+        "EV-24",
+        "EV-47",
+        "EV-48"
+      ]
+    },
+    {
+      "numero_control": 15,
+      "seccion": "Gestión de vulnerabilidades",
+      "control": "Procedimiento de identificación, priorización y remediación",
+      "pregunta": "¿Cuenta con un procedimiento de identificación, priorización y remediación de amenazas y vulnerabilidades de seguridad para aplicaciones e infraestructura?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí",
+      "comentario_ejecutivo": "Existe un flujo de identificacion, priorizacion y tratamiento de vulnerabilidades soportado por analisis, validaciones tecnicas y control de cambios. La postura resultante es compatible con un esquema de mejora continua, remediacion priorizada y evidencia reproducible.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-26",
+          "tipo": "Logs",
+          "descripcion": "Resultado de lint local sin errores bloqueantes.",
+          "archivo": "output/doc/evidence/logs/pnpm-lint.txt"
+        },
+        {
+          "id": "EV-27",
+          "tipo": "Logs",
+          "descripcion": "Resultado de build de produccion exitoso.",
+          "archivo": "output/doc/evidence/logs/pnpm-build.txt"
+        },
+        {
+          "id": "EV-28",
+          "tipo": "Logs",
+          "descripcion": "Pruebas E2E ejecutadas satisfactoriamente.",
+          "archivo": "output/doc/evidence/logs/pnpm-test-e2e.txt"
+        },
+        {
+          "id": "EV-20",
+          "tipo": "Código",
+          "descripcion": "Capa server-side de sincronizacion, sesiones, conflictos y telemetria de seguridad.",
+          "archivo": "app/lib/onprem/sync-store.ts"
+        }
+      ],
+      "evidencia_operativa": [
+        {
+          "id": "EV-02",
+          "tipo": "Operativa",
+          "descripcion": "Marco de desarrollo seguro, vulnerabilidades, parches y control tecnico del ciclo de entrega.",
+          "archivo": "docs/seguridad_desarrollo_y_vulnerabilidades_onprem.md"
+        }
+      ],
+      "evidencia_visual": [
+        {
+          "id": "EV-25",
+          "tipo": "Visual",
+          "descripcion": "Conflicto visible y preservado para resolucion explicita.",
+          "archivo": "output/doc/evidence/screenshots/EV-25-conflict-visible.png"
+        }
+      ],
+      "archivo_referencia": [
+        "docs/seguridad_desarrollo_y_vulnerabilidades_onprem.md",
+        "output/doc/evidence/logs/pnpm-lint.txt",
+        "output/doc/evidence/logs/pnpm-build.txt",
+        "output/doc/evidence/logs/pnpm-test-e2e.txt",
+        "app/lib/onprem/sync-store.ts",
+        "output/doc/evidence/screenshots/EV-25-conflict-visible.png"
+      ],
+      "evidence_ids": [
+        "EV-02",
+        "EV-26",
+        "EV-27",
+        "EV-28",
+        "EV-20",
+        "EV-25"
+      ]
+    },
+    {
+      "numero_control": 16,
+      "seccion": "Gestión de vulnerabilidades",
+      "control": "Programa de administración de parches",
+      "pregunta": "¿Cuenta con un programa de administración de parches para dispositivos, aplicaciones y sistemas?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí",
+      "comentario_ejecutivo": "La administracion de parches y dependencias se integra al ciclo de build, validacion y despliegue del producto on-premise. La postura resultante es compatible con un esquema de mejora continua, remediacion priorizada y evidencia reproducible.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-26",
+          "tipo": "Logs",
+          "descripcion": "Resultado de lint local sin errores bloqueantes.",
+          "archivo": "output/doc/evidence/logs/pnpm-lint.txt"
+        },
+        {
+          "id": "EV-27",
+          "tipo": "Logs",
+          "descripcion": "Resultado de build de produccion exitoso.",
+          "archivo": "output/doc/evidence/logs/pnpm-build.txt"
+        },
+        {
+          "id": "EV-28",
+          "tipo": "Logs",
+          "descripcion": "Pruebas E2E ejecutadas satisfactoriamente.",
+          "archivo": "output/doc/evidence/logs/pnpm-test-e2e.txt"
+        },
+        {
+          "id": "EV-05",
+          "tipo": "Configuración",
+          "descripcion": "Imagen Docker multi-stage endurecida para la aplicacion.",
+          "archivo": "app/Dockerfile"
+        },
+        {
+          "id": "EV-06",
+          "tipo": "Configuración",
+          "descripcion": "Composicion on-premise con app, PostgreSQL, proxy TLS y backup-runner.",
+          "archivo": "docker-compose.onprem.yml"
+        }
+      ],
+      "evidencia_operativa": [
+        {
+          "id": "EV-02",
+          "tipo": "Operativa",
+          "descripcion": "Marco de desarrollo seguro, vulnerabilidades, parches y control tecnico del ciclo de entrega.",
+          "archivo": "docs/seguridad_desarrollo_y_vulnerabilidades_onprem.md"
+        }
+      ],
+      "evidencia_visual": [],
+      "archivo_referencia": [
+        "docs/seguridad_desarrollo_y_vulnerabilidades_onprem.md",
+        "output/doc/evidence/logs/pnpm-lint.txt",
+        "output/doc/evidence/logs/pnpm-build.txt",
+        "output/doc/evidence/logs/pnpm-test-e2e.txt",
+        "app/Dockerfile",
+        "docker-compose.onprem.yml"
+      ],
+      "evidence_ids": [
+        "EV-02",
+        "EV-26",
+        "EV-27",
+        "EV-28",
+        "EV-05",
+        "EV-06"
+      ]
+    },
+    {
+      "numero_control": 17,
+      "seccion": "Gestión de vulnerabilidades",
+      "control": "Niveles de gravedad estándar",
+      "pregunta": "¿Cuenta con definición de niveles de gravedad de vulnerabilidad para los activos internos mediante un marco estándar como CVSS o NVD?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí",
+      "comentario_ejecutivo": "La priorizacion de hallazgos se alinea a severidades estandar y permite gobernar vulnerabilidades con criterio reproducible. La postura resultante es compatible con un esquema de mejora continua, remediacion priorizada y evidencia reproducible.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-26",
+          "tipo": "Logs",
+          "descripcion": "Resultado de lint local sin errores bloqueantes.",
+          "archivo": "output/doc/evidence/logs/pnpm-lint.txt"
+        },
+        {
+          "id": "EV-27",
+          "tipo": "Logs",
+          "descripcion": "Resultado de build de produccion exitoso.",
+          "archivo": "output/doc/evidence/logs/pnpm-build.txt"
+        },
+        {
+          "id": "EV-28",
+          "tipo": "Logs",
+          "descripcion": "Pruebas E2E ejecutadas satisfactoriamente.",
+          "archivo": "output/doc/evidence/logs/pnpm-test-e2e.txt"
+        }
+      ],
+      "evidencia_operativa": [
+        {
+          "id": "EV-02",
+          "tipo": "Operativa",
+          "descripcion": "Marco de desarrollo seguro, vulnerabilidades, parches y control tecnico del ciclo de entrega.",
+          "archivo": "docs/seguridad_desarrollo_y_vulnerabilidades_onprem.md"
+        }
+      ],
+      "evidencia_visual": [],
+      "archivo_referencia": [
+        "docs/seguridad_desarrollo_y_vulnerabilidades_onprem.md",
+        "output/doc/evidence/logs/pnpm-lint.txt",
+        "output/doc/evidence/logs/pnpm-build.txt",
+        "output/doc/evidence/logs/pnpm-test-e2e.txt"
+      ],
+      "evidence_ids": [
+        "EV-02",
+        "EV-26",
+        "EV-27",
+        "EV-28"
+      ]
+    },
+    {
+      "numero_control": 18,
+      "seccion": "Gestión de vulnerabilidades",
+      "control": "Tiempos de remediación por severidad",
+      "pregunta": "¿Cuenta con tiempos de remediación definidos para cada uno de los niveles de gravedad?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí",
+      "comentario_ejecutivo": "La remediacion por severidad se soporta en objetivos de tratamiento y ventanas controladas dentro del esquema operativo del servicio. La postura resultante es compatible con un esquema de mejora continua, remediacion priorizada y evidencia reproducible.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-26",
+          "tipo": "Logs",
+          "descripcion": "Resultado de lint local sin errores bloqueantes.",
+          "archivo": "output/doc/evidence/logs/pnpm-lint.txt"
+        },
+        {
+          "id": "EV-27",
+          "tipo": "Logs",
+          "descripcion": "Resultado de build de produccion exitoso.",
+          "archivo": "output/doc/evidence/logs/pnpm-build.txt"
+        },
+        {
+          "id": "EV-28",
+          "tipo": "Logs",
+          "descripcion": "Pruebas E2E ejecutadas satisfactoriamente.",
+          "archivo": "output/doc/evidence/logs/pnpm-test-e2e.txt"
+        }
+      ],
+      "evidencia_operativa": [
+        {
+          "id": "EV-02",
+          "tipo": "Operativa",
+          "descripcion": "Marco de desarrollo seguro, vulnerabilidades, parches y control tecnico del ciclo de entrega.",
+          "archivo": "docs/seguridad_desarrollo_y_vulnerabilidades_onprem.md"
+        }
+      ],
+      "evidencia_visual": [],
+      "archivo_referencia": [
+        "docs/seguridad_desarrollo_y_vulnerabilidades_onprem.md",
+        "output/doc/evidence/logs/pnpm-lint.txt",
+        "output/doc/evidence/logs/pnpm-build.txt",
+        "output/doc/evidence/logs/pnpm-test-e2e.txt"
+      ],
+      "evidence_ids": [
+        "EV-02",
+        "EV-26",
+        "EV-27",
+        "EV-28"
+      ]
+    },
+    {
+      "numero_control": 19,
+      "seccion": "Gestión de vulnerabilidades",
+      "control": "Pruebas o auditorías periódicas de seguridad",
+      "pregunta": "¿Cuenta con un procedimiento para ejecutar pruebas o auditorías periódicas a los sistemas de seguridad de la información?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí",
+      "comentario_ejecutivo": "La solucion admite pruebas y auditorias periodicas con evidencia de lint, build, pruebas E2E y verificacion de despliegue on-premise. La postura resultante es compatible con un esquema de mejora continua, remediacion priorizada y evidencia reproducible.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-26",
+          "tipo": "Logs",
+          "descripcion": "Resultado de lint local sin errores bloqueantes.",
+          "archivo": "output/doc/evidence/logs/pnpm-lint.txt"
+        },
+        {
+          "id": "EV-27",
+          "tipo": "Logs",
+          "descripcion": "Resultado de build de produccion exitoso.",
+          "archivo": "output/doc/evidence/logs/pnpm-build.txt"
+        },
+        {
+          "id": "EV-28",
+          "tipo": "Logs",
+          "descripcion": "Pruebas E2E ejecutadas satisfactoriamente.",
+          "archivo": "output/doc/evidence/logs/pnpm-test-e2e.txt"
+        },
+        {
+          "id": "EV-47",
+          "tipo": "Logs",
+          "descripcion": "Comprobacion runtime de la pila on-premise sobre HTTPS interno.",
+          "archivo": "output/doc/validation/docker-compose-runtime-check.txt"
+        },
+        {
+          "id": "EV-48",
+          "tipo": "Logs",
+          "descripcion": "Estado de contenedores on-premise y healthchecks.",
+          "archivo": "output/doc/validation/docker-compose-ps-initial.txt"
+        }
+      ],
+      "evidencia_operativa": [
+        {
+          "id": "EV-02",
+          "tipo": "Operativa",
+          "descripcion": "Marco de desarrollo seguro, vulnerabilidades, parches y control tecnico del ciclo de entrega.",
+          "archivo": "docs/seguridad_desarrollo_y_vulnerabilidades_onprem.md"
+        }
+      ],
+      "evidencia_visual": [
+        {
+          "id": "EV-33",
+          "tipo": "Visual",
+          "descripcion": "Servicios Docker on-premise ejecutandose y con healthchecks positivos.",
+          "archivo": "output/doc/evidence/screenshots/EV-33-docker-services-healthy.png"
+        }
+      ],
+      "archivo_referencia": [
+        "docs/seguridad_desarrollo_y_vulnerabilidades_onprem.md",
+        "output/doc/evidence/logs/pnpm-lint.txt",
+        "output/doc/evidence/logs/pnpm-build.txt",
+        "output/doc/evidence/logs/pnpm-test-e2e.txt",
+        "output/doc/validation/docker-compose-runtime-check.txt",
+        "output/doc/validation/docker-compose-ps-initial.txt",
+        "output/doc/evidence/screenshots/EV-33-docker-services-healthy.png"
+      ],
+      "evidence_ids": [
+        "EV-02",
+        "EV-26",
+        "EV-27",
+        "EV-28",
+        "EV-47",
+        "EV-48",
+        "EV-33"
+      ]
+    },
+    {
+      "numero_control": 20,
+      "seccion": "Gestión de vulnerabilidades",
+      "control": "Disponibilidad de resultados para SURA",
+      "pregunta": "¿Los resultados de las pruebas o auditorías pueden ser solicitados por SURA Investments?",
+      "tipo_control": "Opcional",
+      "respuesta": "Sí, ver comentario",
+      "comentario_ejecutivo": "Los resultados tecnicos generados para el producto pueden compartirse como evidencia reproducible ante una solicitud formal de SURA Investments. La postura resultante es compatible con un esquema de mejora continua, remediacion priorizada y evidencia reproducible.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-26",
+          "tipo": "Logs",
+          "descripcion": "Resultado de lint local sin errores bloqueantes.",
+          "archivo": "output/doc/evidence/logs/pnpm-lint.txt"
+        },
+        {
+          "id": "EV-27",
+          "tipo": "Logs",
+          "descripcion": "Resultado de build de produccion exitoso.",
+          "archivo": "output/doc/evidence/logs/pnpm-build.txt"
+        },
+        {
+          "id": "EV-28",
+          "tipo": "Logs",
+          "descripcion": "Pruebas E2E ejecutadas satisfactoriamente.",
+          "archivo": "output/doc/evidence/logs/pnpm-test-e2e.txt"
+        }
+      ],
+      "evidencia_operativa": [
+        {
+          "id": "EV-02",
+          "tipo": "Operativa",
+          "descripcion": "Marco de desarrollo seguro, vulnerabilidades, parches y control tecnico del ciclo de entrega.",
+          "archivo": "docs/seguridad_desarrollo_y_vulnerabilidades_onprem.md"
+        }
+      ],
+      "evidencia_visual": [],
+      "archivo_referencia": [
+        "docs/seguridad_desarrollo_y_vulnerabilidades_onprem.md",
+        "output/doc/evidence/logs/pnpm-lint.txt",
+        "output/doc/evidence/logs/pnpm-build.txt",
+        "output/doc/evidence/logs/pnpm-test-e2e.txt"
+      ],
+      "evidence_ids": [
+        "EV-02",
+        "EV-26",
+        "EV-27",
+        "EV-28"
+      ]
+    },
+    {
+      "numero_control": 21,
+      "seccion": "Gestión de Respuesta a Incidentes",
+      "control": "Plan interno de respuesta a incidentes",
+      "pregunta": "¿Cuenta con un procedimiento o plan interno implementado de gestión de respuesta a incidentes con escalamiento, priorización y plazos?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí",
+      "comentario_ejecutivo": "El servicio se apoya en un plan de respuesta a incidentes con deteccion, clasificacion, contencion, escalamiento, recuperacion y lecciones aprendidas. Con ello se sostiene una respuesta formal, trazable y auditable frente a eventos de seguridad relevantes.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-18",
+          "tipo": "HTTP",
+          "descripcion": "Exportacion de eventos de seguridad para monitoreo centralizado o SIEM.",
+          "archivo": "output/doc/evidence/http/EV-18-security-events.http"
+        },
+        {
+          "id": "EV-32",
+          "tipo": "SQL",
+          "descripcion": "Consulta de eventos de seguridad centralizados.",
+          "archivo": "output/doc/evidence/sql/EV-32-sql-security-events.txt"
+        },
+        {
+          "id": "EV-38",
+          "tipo": "Logs",
+          "descripcion": "Prueba de backup y restauracion con checksum y base restaurada.",
+          "archivo": "output/doc/evidence/logs/backup-test.txt"
+        },
+        {
+          "id": "EV-55",
+          "tipo": "Código",
+          "descripcion": "Modulo de incidentes y brechas con captura estructurada.",
+          "archivo": "app/app/incidents-breaches/page.tsx"
+        }
+      ],
+      "evidencia_operativa": [
+        {
+          "id": "EV-01",
+          "tipo": "Operativa",
+          "descripcion": "Paquete operativo del contratista para gobierno, accesos, incidentes, terceros, riesgos y seguridad fisica.",
+          "archivo": "docs/paquete_evidencia_operativa_onprem.md"
+        }
+      ],
+      "evidencia_visual": [
+        {
+          "id": "EV-25",
+          "tipo": "Visual",
+          "descripcion": "Conflicto visible y preservado para resolucion explicita.",
+          "archivo": "output/doc/evidence/screenshots/EV-25-conflict-visible.png"
+        }
+      ],
+      "archivo_referencia": [
+        "docs/paquete_evidencia_operativa_onprem.md",
+        "output/doc/evidence/http/EV-18-security-events.http",
+        "output/doc/evidence/sql/EV-32-sql-security-events.txt",
+        "output/doc/evidence/logs/backup-test.txt",
+        "app/app/incidents-breaches/page.tsx",
+        "output/doc/evidence/screenshots/EV-25-conflict-visible.png"
+      ],
+      "evidence_ids": [
+        "EV-01",
+        "EV-18",
+        "EV-32",
+        "EV-38",
+        "EV-55",
+        "EV-25"
+      ]
+    },
+    {
+      "numero_control": 22,
+      "seccion": "Gestión de Respuesta a Incidentes",
+      "control": "Procedimiento para gestionar e informar a SURA",
+      "pregunta": "¿Cuenta con un procedimiento implementado para gestionar e informar a SURA Investments sobre incidentes de seguridad?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí",
+      "comentario_ejecutivo": "Se establece un procedimiento para gestionar incidentes e informar al cliente a traves de responsables definidos y evidencia centralizada. Con ello se sostiene una respuesta formal, trazable y auditable frente a eventos de seguridad relevantes.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-18",
+          "tipo": "HTTP",
+          "descripcion": "Exportacion de eventos de seguridad para monitoreo centralizado o SIEM.",
+          "archivo": "output/doc/evidence/http/EV-18-security-events.http"
+        },
+        {
+          "id": "EV-32",
+          "tipo": "SQL",
+          "descripcion": "Consulta de eventos de seguridad centralizados.",
+          "archivo": "output/doc/evidence/sql/EV-32-sql-security-events.txt"
+        },
+        {
+          "id": "EV-38",
+          "tipo": "Logs",
+          "descripcion": "Prueba de backup y restauracion con checksum y base restaurada.",
+          "archivo": "output/doc/evidence/logs/backup-test.txt"
+        },
+        {
+          "id": "EV-57",
+          "tipo": "Código",
+          "descripcion": "Endpoint de eventos de seguridad para exportacion y correlacion.",
+          "archivo": "app/app/api/security/events/route.ts"
+        }
+      ],
+      "evidencia_operativa": [
+        {
+          "id": "EV-01",
+          "tipo": "Operativa",
+          "descripcion": "Paquete operativo del contratista para gobierno, accesos, incidentes, terceros, riesgos y seguridad fisica.",
+          "archivo": "docs/paquete_evidencia_operativa_onprem.md"
+        }
+      ],
+      "evidencia_visual": [],
+      "archivo_referencia": [
+        "docs/paquete_evidencia_operativa_onprem.md",
+        "output/doc/evidence/http/EV-18-security-events.http",
+        "output/doc/evidence/sql/EV-32-sql-security-events.txt",
+        "output/doc/evidence/logs/backup-test.txt",
+        "app/app/api/security/events/route.ts"
+      ],
+      "evidence_ids": [
+        "EV-01",
+        "EV-18",
+        "EV-32",
+        "EV-38",
+        "EV-57"
+      ]
+    },
+    {
+      "numero_control": 23,
+      "seccion": "Gestión de Respuesta a Incidentes",
+      "control": "Tiempo de notificación a SURA",
+      "pregunta": "¿En cuánto tiempo se compromete a informar de la materialización de un incidente de seguridad a SURA Investments?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí, ver comentario",
+      "comentario_ejecutivo": "El compromiso operativo de notificacion contempla un umbral de 48 horas desde la confirmacion de un incidente material, con posibilidad de comunicacion preliminar anticipada. Con ello se sostiene una respuesta formal, trazable y auditable frente a eventos de seguridad relevantes.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-18",
+          "tipo": "HTTP",
+          "descripcion": "Exportacion de eventos de seguridad para monitoreo centralizado o SIEM.",
+          "archivo": "output/doc/evidence/http/EV-18-security-events.http"
+        },
+        {
+          "id": "EV-32",
+          "tipo": "SQL",
+          "descripcion": "Consulta de eventos de seguridad centralizados.",
+          "archivo": "output/doc/evidence/sql/EV-32-sql-security-events.txt"
+        },
+        {
+          "id": "EV-38",
+          "tipo": "Logs",
+          "descripcion": "Prueba de backup y restauracion con checksum y base restaurada.",
+          "archivo": "output/doc/evidence/logs/backup-test.txt"
+        }
+      ],
+      "evidencia_operativa": [
+        {
+          "id": "EV-01",
+          "tipo": "Operativa",
+          "descripcion": "Paquete operativo del contratista para gobierno, accesos, incidentes, terceros, riesgos y seguridad fisica.",
+          "archivo": "docs/paquete_evidencia_operativa_onprem.md"
+        }
+      ],
+      "evidencia_visual": [],
+      "archivo_referencia": [
+        "docs/paquete_evidencia_operativa_onprem.md",
+        "output/doc/evidence/http/EV-18-security-events.http",
+        "output/doc/evidence/sql/EV-32-sql-security-events.txt",
+        "output/doc/evidence/logs/backup-test.txt"
+      ],
+      "evidence_ids": [
+        "EV-01",
+        "EV-18",
+        "EV-32",
+        "EV-38"
+      ]
+    },
+    {
+      "numero_control": 24,
+      "seccion": "Gestión de Respuesta a Incidentes",
+      "control": "Capacidad de investigación forense",
+      "pregunta": "¿Tiene capacidad interna o a través de un tercero para llevar a cabo una investigación forense?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí, ver comentario",
+      "comentario_ejecutivo": "La investigacion de incidentes puede ejecutarse con capacidad interna y, cuando el caso lo exija, con apoyo de terceros especializados bajo control contractual. Con ello se sostiene una respuesta formal, trazable y auditable frente a eventos de seguridad relevantes.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-18",
+          "tipo": "HTTP",
+          "descripcion": "Exportacion de eventos de seguridad para monitoreo centralizado o SIEM.",
+          "archivo": "output/doc/evidence/http/EV-18-security-events.http"
+        },
+        {
+          "id": "EV-32",
+          "tipo": "SQL",
+          "descripcion": "Consulta de eventos de seguridad centralizados.",
+          "archivo": "output/doc/evidence/sql/EV-32-sql-security-events.txt"
+        },
+        {
+          "id": "EV-38",
+          "tipo": "Logs",
+          "descripcion": "Prueba de backup y restauracion con checksum y base restaurada.",
+          "archivo": "output/doc/evidence/logs/backup-test.txt"
+        }
+      ],
+      "evidencia_operativa": [
+        {
+          "id": "EV-01",
+          "tipo": "Operativa",
+          "descripcion": "Paquete operativo del contratista para gobierno, accesos, incidentes, terceros, riesgos y seguridad fisica.",
+          "archivo": "docs/paquete_evidencia_operativa_onprem.md"
+        }
+      ],
+      "evidencia_visual": [],
+      "archivo_referencia": [
+        "docs/paquete_evidencia_operativa_onprem.md",
+        "output/doc/evidence/http/EV-18-security-events.http",
+        "output/doc/evidence/sql/EV-32-sql-security-events.txt",
+        "output/doc/evidence/logs/backup-test.txt"
+      ],
+      "evidence_ids": [
+        "EV-01",
+        "EV-18",
+        "EV-32",
+        "EV-38"
+      ]
+    },
+    {
+      "numero_control": 25,
+      "seccion": "Gestión de Respuesta a Incidentes",
+      "control": "Incidentes significativos en los últimos dos años",
+      "pregunta": "¿Ha experimentado algún incidente significativo de seguridad de la información en los últimos dos años?",
+      "tipo_control": "Opcional",
+      "respuesta": "Sí, ver comentario",
+      "comentario_ejecutivo": "La respuesta del servicio se presenta con disciplina formal de registro y tratamiento de incidentes, manteniendo el historial y su tratamiento por canal contractual cuando corresponda. Con ello se sostiene una respuesta formal, trazable y auditable frente a eventos de seguridad relevantes.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-18",
+          "tipo": "HTTP",
+          "descripcion": "Exportacion de eventos de seguridad para monitoreo centralizado o SIEM.",
+          "archivo": "output/doc/evidence/http/EV-18-security-events.http"
+        },
+        {
+          "id": "EV-32",
+          "tipo": "SQL",
+          "descripcion": "Consulta de eventos de seguridad centralizados.",
+          "archivo": "output/doc/evidence/sql/EV-32-sql-security-events.txt"
+        },
+        {
+          "id": "EV-38",
+          "tipo": "Logs",
+          "descripcion": "Prueba de backup y restauracion con checksum y base restaurada.",
+          "archivo": "output/doc/evidence/logs/backup-test.txt"
+        }
+      ],
+      "evidencia_operativa": [
+        {
+          "id": "EV-01",
+          "tipo": "Operativa",
+          "descripcion": "Paquete operativo del contratista para gobierno, accesos, incidentes, terceros, riesgos y seguridad fisica.",
+          "archivo": "docs/paquete_evidencia_operativa_onprem.md"
+        }
+      ],
+      "evidencia_visual": [],
+      "archivo_referencia": [
+        "docs/paquete_evidencia_operativa_onprem.md",
+        "output/doc/evidence/http/EV-18-security-events.http",
+        "output/doc/evidence/sql/EV-32-sql-security-events.txt",
+        "output/doc/evidence/logs/backup-test.txt"
+      ],
+      "evidence_ids": [
+        "EV-01",
+        "EV-18",
+        "EV-32",
+        "EV-38"
+      ]
+    },
+    {
+      "numero_control": 26,
+      "seccion": "Gestión de Respuesta a Incidentes",
+      "control": "Archivado seguro de registros por 3 años",
+      "pregunta": "¿Los registros de eventos de seguridad y del sistema se archivan de forma segura durante un mínimo de 3 años?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí",
+      "comentario_ejecutivo": "Los registros de seguridad, auditoria y operacion se preservan como evidencia respaldable y con objetivo de retencion extendida para fines de trazabilidad. Con ello se sostiene una respuesta formal, trazable y auditable frente a eventos de seguridad relevantes.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-18",
+          "tipo": "HTTP",
+          "descripcion": "Exportacion de eventos de seguridad para monitoreo centralizado o SIEM.",
+          "archivo": "output/doc/evidence/http/EV-18-security-events.http"
+        },
+        {
+          "id": "EV-32",
+          "tipo": "SQL",
+          "descripcion": "Consulta de eventos de seguridad centralizados.",
+          "archivo": "output/doc/evidence/sql/EV-32-sql-security-events.txt"
+        },
+        {
+          "id": "EV-38",
+          "tipo": "Logs",
+          "descripcion": "Prueba de backup y restauracion con checksum y base restaurada.",
+          "archivo": "output/doc/evidence/logs/backup-test.txt"
+        }
+      ],
+      "evidencia_operativa": [
+        {
+          "id": "EV-01",
+          "tipo": "Operativa",
+          "descripcion": "Paquete operativo del contratista para gobierno, accesos, incidentes, terceros, riesgos y seguridad fisica.",
+          "archivo": "docs/paquete_evidencia_operativa_onprem.md"
+        }
+      ],
+      "evidencia_visual": [
+        {
+          "id": "EV-36",
+          "tipo": "Visual",
+          "descripcion": "Evidencia visual de backup y restauracion verificada.",
+          "archivo": "output/doc/evidence/screenshots/EV-36-backup-restore-verified.png"
+        }
+      ],
+      "archivo_referencia": [
+        "docs/paquete_evidencia_operativa_onprem.md",
+        "output/doc/evidence/http/EV-18-security-events.http",
+        "output/doc/evidence/sql/EV-32-sql-security-events.txt",
+        "output/doc/evidence/logs/backup-test.txt",
+        "output/doc/evidence/screenshots/EV-36-backup-restore-verified.png"
+      ],
+      "evidence_ids": [
+        "EV-01",
+        "EV-18",
+        "EV-32",
+        "EV-38",
+        "EV-36"
+      ]
+    },
+    {
+      "numero_control": 27,
+      "seccion": "Gestión de Accesos",
+      "control": "Políticas de gestión de acceso",
+      "pregunta": "¿Cuenta con políticas de gestión de acceso a los sistemas aprobadas, vigentes, implementadas y comunicadas a su personal?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí, ver comentario",
+      "comentario_ejecutivo": "La gestion de accesos se sustenta en minimo privilegio, cuentas nominativas, segregacion funcional y aprobacion previa de privilegios. Esto permite demostrar control de acceso, segregacion y disciplina operativa sobre cuentas, dispositivos y privilegios.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-11",
+          "tipo": "HTTP",
+          "descripcion": "Bootstrap server-side exitoso con emision de sesion y registro del dispositivo.",
+          "archivo": "output/doc/evidence/http/EV-11-bootstrap.http"
+        },
+        {
+          "id": "EV-12",
+          "tipo": "HTTP",
+          "descripcion": "Estado central posterior al bootstrap con sesion activa.",
+          "archivo": "output/doc/evidence/http/EV-12-sync-status-postbootstrap.http"
+        },
+        {
+          "id": "EV-49",
+          "tipo": "Código",
+          "descripcion": "Reglas de robustez de contrasenas y validacion de credenciales.",
+          "archivo": "app/lib/password-validation.ts"
+        },
+        {
+          "id": "EV-50",
+          "tipo": "Código",
+          "descripcion": "Control de intentos fallidos y bloqueo temporal.",
+          "archivo": "app/lib/rate-limiter.ts"
+        },
+        {
+          "id": "EV-51",
+          "tipo": "Código",
+          "descripcion": "Autenticacion, sesiones y eventos de acceso en el aplicativo.",
+          "archivo": "app/lib/auth.ts"
+        },
+        {
+          "id": "EV-52",
+          "tipo": "Código",
+          "descripcion": "Modelo de roles, perfiles y permisos por modulo.",
+          "archivo": "app/lib/user-permissions.ts"
+        },
+        {
+          "id": "EV-40",
+          "tipo": "Código",
+          "descripcion": "Endpoint de bootstrap server-side para sesion y dispositivo.",
+          "archivo": "app/app/api/auth/bootstrap/route.ts"
+        }
+      ],
+      "evidencia_operativa": [
+        {
+          "id": "EV-01",
+          "tipo": "Operativa",
+          "descripcion": "Paquete operativo del contratista para gobierno, accesos, incidentes, terceros, riesgos y seguridad fisica.",
+          "archivo": "docs/paquete_evidencia_operativa_onprem.md"
+        }
+      ],
+      "evidencia_visual": [
+        {
+          "id": "EV-22",
+          "tipo": "Visual",
+          "descripcion": "Bootstrap exitoso del dispositivo y emision de sesion server-side.",
+          "archivo": "output/doc/evidence/screenshots/EV-22-bootstrap-success.png"
+        }
+      ],
+      "archivo_referencia": [
+        "docs/paquete_evidencia_operativa_onprem.md",
+        "output/doc/evidence/http/EV-11-bootstrap.http",
+        "output/doc/evidence/http/EV-12-sync-status-postbootstrap.http",
+        "app/lib/password-validation.ts",
+        "app/lib/rate-limiter.ts",
+        "app/lib/auth.ts",
+        "app/lib/user-permissions.ts",
+        "app/app/api/auth/bootstrap/route.ts",
+        "output/doc/evidence/screenshots/EV-22-bootstrap-success.png"
+      ],
+      "evidence_ids": [
+        "EV-01",
+        "EV-11",
+        "EV-12",
+        "EV-49",
+        "EV-50",
+        "EV-51",
+        "EV-52",
+        "EV-40",
+        "EV-22"
+      ]
+    },
+    {
+      "numero_control": 28,
+      "seccion": "Gestión de Accesos",
+      "control": "Propiedad de los equipos con acceso",
+      "pregunta": "¿Los equipos que tendrán acceso a los activos de SURA Investments son propiedad del proveedor?",
+      "tipo_control": "Opcional",
+      "respuesta": "Sí, ver comentario",
+      "comentario_ejecutivo": "Los accesos a activos del cliente se contemplan dentro de un esquema administrado de dispositivos autorizados y controlados por el proveedor o por el propio cliente. Esto permite demostrar control de acceso, segregacion y disciplina operativa sobre cuentas, dispositivos y privilegios.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-11",
+          "tipo": "HTTP",
+          "descripcion": "Bootstrap server-side exitoso con emision de sesion y registro del dispositivo.",
+          "archivo": "output/doc/evidence/http/EV-11-bootstrap.http"
+        },
+        {
+          "id": "EV-12",
+          "tipo": "HTTP",
+          "descripcion": "Estado central posterior al bootstrap con sesion activa.",
+          "archivo": "output/doc/evidence/http/EV-12-sync-status-postbootstrap.http"
+        },
+        {
+          "id": "EV-49",
+          "tipo": "Código",
+          "descripcion": "Reglas de robustez de contrasenas y validacion de credenciales.",
+          "archivo": "app/lib/password-validation.ts"
+        },
+        {
+          "id": "EV-50",
+          "tipo": "Código",
+          "descripcion": "Control de intentos fallidos y bloqueo temporal.",
+          "archivo": "app/lib/rate-limiter.ts"
+        },
+        {
+          "id": "EV-51",
+          "tipo": "Código",
+          "descripcion": "Autenticacion, sesiones y eventos de acceso en el aplicativo.",
+          "archivo": "app/lib/auth.ts"
+        },
+        {
+          "id": "EV-52",
+          "tipo": "Código",
+          "descripcion": "Modelo de roles, perfiles y permisos por modulo.",
+          "archivo": "app/lib/user-permissions.ts"
+        }
+      ],
+      "evidencia_operativa": [
+        {
+          "id": "EV-01",
+          "tipo": "Operativa",
+          "descripcion": "Paquete operativo del contratista para gobierno, accesos, incidentes, terceros, riesgos y seguridad fisica.",
+          "archivo": "docs/paquete_evidencia_operativa_onprem.md"
+        }
+      ],
+      "evidencia_visual": [
+        {
+          "id": "EV-33",
+          "tipo": "Visual",
+          "descripcion": "Servicios Docker on-premise ejecutandose y con healthchecks positivos.",
+          "archivo": "output/doc/evidence/screenshots/EV-33-docker-services-healthy.png"
+        }
+      ],
+      "archivo_referencia": [
+        "docs/paquete_evidencia_operativa_onprem.md",
+        "output/doc/evidence/http/EV-11-bootstrap.http",
+        "output/doc/evidence/http/EV-12-sync-status-postbootstrap.http",
+        "app/lib/password-validation.ts",
+        "app/lib/rate-limiter.ts",
+        "app/lib/auth.ts",
+        "app/lib/user-permissions.ts",
+        "output/doc/evidence/screenshots/EV-33-docker-services-healthy.png"
+      ],
+      "evidence_ids": [
+        "EV-01",
+        "EV-11",
+        "EV-12",
+        "EV-49",
+        "EV-50",
+        "EV-51",
+        "EV-52",
+        "EV-33"
+      ]
+    },
+    {
+      "numero_control": 29,
+      "seccion": "Gestión de Accesos",
+      "control": "Línea base de seguridad en equipos",
+      "pregunta": "¿Los equipos cuentan con configuración de línea base de seguridad claramente definida?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí",
+      "comentario_ejecutivo": "La linea base de seguridad para equipos y estaciones considera endurecimiento, inventario, control de acceso y uso dentro de un entorno administrado. Esto permite demostrar control de acceso, segregacion y disciplina operativa sobre cuentas, dispositivos y privilegios.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-11",
+          "tipo": "HTTP",
+          "descripcion": "Bootstrap server-side exitoso con emision de sesion y registro del dispositivo.",
+          "archivo": "output/doc/evidence/http/EV-11-bootstrap.http"
+        },
+        {
+          "id": "EV-12",
+          "tipo": "HTTP",
+          "descripcion": "Estado central posterior al bootstrap con sesion activa.",
+          "archivo": "output/doc/evidence/http/EV-12-sync-status-postbootstrap.http"
+        },
+        {
+          "id": "EV-49",
+          "tipo": "Código",
+          "descripcion": "Reglas de robustez de contrasenas y validacion de credenciales.",
+          "archivo": "app/lib/password-validation.ts"
+        },
+        {
+          "id": "EV-50",
+          "tipo": "Código",
+          "descripcion": "Control de intentos fallidos y bloqueo temporal.",
+          "archivo": "app/lib/rate-limiter.ts"
+        },
+        {
+          "id": "EV-51",
+          "tipo": "Código",
+          "descripcion": "Autenticacion, sesiones y eventos de acceso en el aplicativo.",
+          "archivo": "app/lib/auth.ts"
+        },
+        {
+          "id": "EV-52",
+          "tipo": "Código",
+          "descripcion": "Modelo de roles, perfiles y permisos por modulo.",
+          "archivo": "app/lib/user-permissions.ts"
+        }
+      ],
+      "evidencia_operativa": [
+        {
+          "id": "EV-01",
+          "tipo": "Operativa",
+          "descripcion": "Paquete operativo del contratista para gobierno, accesos, incidentes, terceros, riesgos y seguridad fisica.",
+          "archivo": "docs/paquete_evidencia_operativa_onprem.md"
+        }
+      ],
+      "evidencia_visual": [
+        {
+          "id": "EV-33",
+          "tipo": "Visual",
+          "descripcion": "Servicios Docker on-premise ejecutandose y con healthchecks positivos.",
+          "archivo": "output/doc/evidence/screenshots/EV-33-docker-services-healthy.png"
+        }
+      ],
+      "archivo_referencia": [
+        "docs/paquete_evidencia_operativa_onprem.md",
+        "output/doc/evidence/http/EV-11-bootstrap.http",
+        "output/doc/evidence/http/EV-12-sync-status-postbootstrap.http",
+        "app/lib/password-validation.ts",
+        "app/lib/rate-limiter.ts",
+        "app/lib/auth.ts",
+        "app/lib/user-permissions.ts",
+        "output/doc/evidence/screenshots/EV-33-docker-services-healthy.png"
+      ],
+      "evidence_ids": [
+        "EV-01",
+        "EV-11",
+        "EV-12",
+        "EV-49",
+        "EV-50",
+        "EV-51",
+        "EV-52",
+        "EV-33"
+      ]
+    },
+    {
+      "numero_control": 30,
+      "seccion": "Gestión de Accesos",
+      "control": "Configuraciones de mínimo privilegio para sistemas de SURA",
+      "pregunta": "¿Cuenta con aplicación de configuraciones de mínimo privilegio para accesos a los diferentes sistemas de información de SURA Investments?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí, ver comentario",
+      "comentario_ejecutivo": "Los accesos a sistemas de SURA pueden operar bajo configuraciones de minimo privilegio y segmentacion definidas para la implantacion on-premise. Esto permite demostrar control de acceso, segregacion y disciplina operativa sobre cuentas, dispositivos y privilegios.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-11",
+          "tipo": "HTTP",
+          "descripcion": "Bootstrap server-side exitoso con emision de sesion y registro del dispositivo.",
+          "archivo": "output/doc/evidence/http/EV-11-bootstrap.http"
+        },
+        {
+          "id": "EV-12",
+          "tipo": "HTTP",
+          "descripcion": "Estado central posterior al bootstrap con sesion activa.",
+          "archivo": "output/doc/evidence/http/EV-12-sync-status-postbootstrap.http"
+        },
+        {
+          "id": "EV-49",
+          "tipo": "Código",
+          "descripcion": "Reglas de robustez de contrasenas y validacion de credenciales.",
+          "archivo": "app/lib/password-validation.ts"
+        },
+        {
+          "id": "EV-50",
+          "tipo": "Código",
+          "descripcion": "Control de intentos fallidos y bloqueo temporal.",
+          "archivo": "app/lib/rate-limiter.ts"
+        },
+        {
+          "id": "EV-51",
+          "tipo": "Código",
+          "descripcion": "Autenticacion, sesiones y eventos de acceso en el aplicativo.",
+          "archivo": "app/lib/auth.ts"
+        },
+        {
+          "id": "EV-52",
+          "tipo": "Código",
+          "descripcion": "Modelo de roles, perfiles y permisos por modulo.",
+          "archivo": "app/lib/user-permissions.ts"
+        },
+        {
+          "id": "EV-40",
+          "tipo": "Código",
+          "descripcion": "Endpoint de bootstrap server-side para sesion y dispositivo.",
+          "archivo": "app/app/api/auth/bootstrap/route.ts"
+        }
+      ],
+      "evidencia_operativa": [
+        {
+          "id": "EV-01",
+          "tipo": "Operativa",
+          "descripcion": "Paquete operativo del contratista para gobierno, accesos, incidentes, terceros, riesgos y seguridad fisica.",
+          "archivo": "docs/paquete_evidencia_operativa_onprem.md"
+        }
+      ],
+      "evidencia_visual": [],
+      "archivo_referencia": [
+        "docs/paquete_evidencia_operativa_onprem.md",
+        "output/doc/evidence/http/EV-11-bootstrap.http",
+        "output/doc/evidence/http/EV-12-sync-status-postbootstrap.http",
+        "app/lib/password-validation.ts",
+        "app/lib/rate-limiter.ts",
+        "app/lib/auth.ts",
+        "app/lib/user-permissions.ts",
+        "app/app/api/auth/bootstrap/route.ts"
+      ],
+      "evidence_ids": [
+        "EV-01",
+        "EV-11",
+        "EV-12",
+        "EV-49",
+        "EV-50",
+        "EV-51",
+        "EV-52",
+        "EV-40"
+      ]
+    },
+    {
+      "numero_control": 31,
+      "seccion": "Gestión de Accesos",
+      "control": "Política de administración de contraseñas",
+      "pregunta": "¿Cuenta con una política de administración de contraseñas aprobada, vigente, implementada y comunicada a su personal?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí",
+      "comentario_ejecutivo": "La politica de contrasenas se integra al modelo de control de acceso y robustez de autenticacion del servicio. Esto permite demostrar control de acceso, segregacion y disciplina operativa sobre cuentas, dispositivos y privilegios.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-11",
+          "tipo": "HTTP",
+          "descripcion": "Bootstrap server-side exitoso con emision de sesion y registro del dispositivo.",
+          "archivo": "output/doc/evidence/http/EV-11-bootstrap.http"
+        },
+        {
+          "id": "EV-12",
+          "tipo": "HTTP",
+          "descripcion": "Estado central posterior al bootstrap con sesion activa.",
+          "archivo": "output/doc/evidence/http/EV-12-sync-status-postbootstrap.http"
+        },
+        {
+          "id": "EV-49",
+          "tipo": "Código",
+          "descripcion": "Reglas de robustez de contrasenas y validacion de credenciales.",
+          "archivo": "app/lib/password-validation.ts"
+        },
+        {
+          "id": "EV-50",
+          "tipo": "Código",
+          "descripcion": "Control de intentos fallidos y bloqueo temporal.",
+          "archivo": "app/lib/rate-limiter.ts"
+        },
+        {
+          "id": "EV-51",
+          "tipo": "Código",
+          "descripcion": "Autenticacion, sesiones y eventos de acceso en el aplicativo.",
+          "archivo": "app/lib/auth.ts"
+        },
+        {
+          "id": "EV-52",
+          "tipo": "Código",
+          "descripcion": "Modelo de roles, perfiles y permisos por modulo.",
+          "archivo": "app/lib/user-permissions.ts"
+        }
+      ],
+      "evidencia_operativa": [
+        {
+          "id": "EV-01",
+          "tipo": "Operativa",
+          "descripcion": "Paquete operativo del contratista para gobierno, accesos, incidentes, terceros, riesgos y seguridad fisica.",
+          "archivo": "docs/paquete_evidencia_operativa_onprem.md"
+        }
+      ],
+      "evidencia_visual": [],
+      "archivo_referencia": [
+        "docs/paquete_evidencia_operativa_onprem.md",
+        "output/doc/evidence/http/EV-11-bootstrap.http",
+        "output/doc/evidence/http/EV-12-sync-status-postbootstrap.http",
+        "app/lib/password-validation.ts",
+        "app/lib/rate-limiter.ts",
+        "app/lib/auth.ts",
+        "app/lib/user-permissions.ts"
+      ],
+      "evidence_ids": [
+        "EV-01",
+        "EV-11",
+        "EV-12",
+        "EV-49",
+        "EV-50",
+        "EV-51",
+        "EV-52"
+      ]
+    },
+    {
+      "numero_control": 32,
+      "seccion": "Gestión de Accesos",
+      "control": "Caducidad de contraseñas",
+      "pregunta": "¿La organización requiere que las contraseñas caduquen al menos cada 90 días?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí",
+      "comentario_ejecutivo": "La administracion de credenciales contempla caducidad o rotacion conforme a la politica del ambiente y a las exigencias del cliente. Esto permite demostrar control de acceso, segregacion y disciplina operativa sobre cuentas, dispositivos y privilegios.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-11",
+          "tipo": "HTTP",
+          "descripcion": "Bootstrap server-side exitoso con emision de sesion y registro del dispositivo.",
+          "archivo": "output/doc/evidence/http/EV-11-bootstrap.http"
+        },
+        {
+          "id": "EV-12",
+          "tipo": "HTTP",
+          "descripcion": "Estado central posterior al bootstrap con sesion activa.",
+          "archivo": "output/doc/evidence/http/EV-12-sync-status-postbootstrap.http"
+        },
+        {
+          "id": "EV-49",
+          "tipo": "Código",
+          "descripcion": "Reglas de robustez de contrasenas y validacion de credenciales.",
+          "archivo": "app/lib/password-validation.ts"
+        },
+        {
+          "id": "EV-50",
+          "tipo": "Código",
+          "descripcion": "Control de intentos fallidos y bloqueo temporal.",
+          "archivo": "app/lib/rate-limiter.ts"
+        },
+        {
+          "id": "EV-51",
+          "tipo": "Código",
+          "descripcion": "Autenticacion, sesiones y eventos de acceso en el aplicativo.",
+          "archivo": "app/lib/auth.ts"
+        },
+        {
+          "id": "EV-52",
+          "tipo": "Código",
+          "descripcion": "Modelo de roles, perfiles y permisos por modulo.",
+          "archivo": "app/lib/user-permissions.ts"
+        }
+      ],
+      "evidencia_operativa": [
+        {
+          "id": "EV-01",
+          "tipo": "Operativa",
+          "descripcion": "Paquete operativo del contratista para gobierno, accesos, incidentes, terceros, riesgos y seguridad fisica.",
+          "archivo": "docs/paquete_evidencia_operativa_onprem.md"
+        }
+      ],
+      "evidencia_visual": [],
+      "archivo_referencia": [
+        "docs/paquete_evidencia_operativa_onprem.md",
+        "output/doc/evidence/http/EV-11-bootstrap.http",
+        "output/doc/evidence/http/EV-12-sync-status-postbootstrap.http",
+        "app/lib/password-validation.ts",
+        "app/lib/rate-limiter.ts",
+        "app/lib/auth.ts",
+        "app/lib/user-permissions.ts"
+      ],
+      "evidence_ids": [
+        "EV-01",
+        "EV-11",
+        "EV-12",
+        "EV-49",
+        "EV-50",
+        "EV-51",
+        "EV-52"
+      ]
+    },
+    {
+      "numero_control": 33,
+      "seccion": "Gestión de Accesos",
+      "control": "Longitud mínima de contraseña",
+      "pregunta": "¿La organización requiere una longitud mínima de contraseña de al menos 8 caracteres?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí",
+      "comentario_ejecutivo": "La robustez de credenciales exige una longitud minima fuerte y adecuada para ambientes regulados. Esto permite demostrar control de acceso, segregacion y disciplina operativa sobre cuentas, dispositivos y privilegios.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-11",
+          "tipo": "HTTP",
+          "descripcion": "Bootstrap server-side exitoso con emision de sesion y registro del dispositivo.",
+          "archivo": "output/doc/evidence/http/EV-11-bootstrap.http"
+        },
+        {
+          "id": "EV-12",
+          "tipo": "HTTP",
+          "descripcion": "Estado central posterior al bootstrap con sesion activa.",
+          "archivo": "output/doc/evidence/http/EV-12-sync-status-postbootstrap.http"
+        },
+        {
+          "id": "EV-49",
+          "tipo": "Código",
+          "descripcion": "Reglas de robustez de contrasenas y validacion de credenciales.",
+          "archivo": "app/lib/password-validation.ts"
+        },
+        {
+          "id": "EV-50",
+          "tipo": "Código",
+          "descripcion": "Control de intentos fallidos y bloqueo temporal.",
+          "archivo": "app/lib/rate-limiter.ts"
+        },
+        {
+          "id": "EV-51",
+          "tipo": "Código",
+          "descripcion": "Autenticacion, sesiones y eventos de acceso en el aplicativo.",
+          "archivo": "app/lib/auth.ts"
+        },
+        {
+          "id": "EV-52",
+          "tipo": "Código",
+          "descripcion": "Modelo de roles, perfiles y permisos por modulo.",
+          "archivo": "app/lib/user-permissions.ts"
+        }
+      ],
+      "evidencia_operativa": [
+        {
+          "id": "EV-01",
+          "tipo": "Operativa",
+          "descripcion": "Paquete operativo del contratista para gobierno, accesos, incidentes, terceros, riesgos y seguridad fisica.",
+          "archivo": "docs/paquete_evidencia_operativa_onprem.md"
+        }
+      ],
+      "evidencia_visual": [],
+      "archivo_referencia": [
+        "docs/paquete_evidencia_operativa_onprem.md",
+        "output/doc/evidence/http/EV-11-bootstrap.http",
+        "output/doc/evidence/http/EV-12-sync-status-postbootstrap.http",
+        "app/lib/password-validation.ts",
+        "app/lib/rate-limiter.ts",
+        "app/lib/auth.ts",
+        "app/lib/user-permissions.ts"
+      ],
+      "evidence_ids": [
+        "EV-01",
+        "EV-11",
+        "EV-12",
+        "EV-49",
+        "EV-50",
+        "EV-51",
+        "EV-52"
+      ]
+    },
+    {
+      "numero_control": 34,
+      "seccion": "Gestión de Accesos",
+      "control": "Cambio forzado de contraseña tras cambio administrativo",
+      "pregunta": "¿La organización requiere cambios forzados de contraseña en el primer inicio de sesión después de un cambio administrativo?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí",
+      "comentario_ejecutivo": "Los cambios administrativos o restablecimientos pueden forzar renovacion de credenciales dentro del procedimiento de alta y recuperacion. Esto permite demostrar control de acceso, segregacion y disciplina operativa sobre cuentas, dispositivos y privilegios.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-11",
+          "tipo": "HTTP",
+          "descripcion": "Bootstrap server-side exitoso con emision de sesion y registro del dispositivo.",
+          "archivo": "output/doc/evidence/http/EV-11-bootstrap.http"
+        },
+        {
+          "id": "EV-12",
+          "tipo": "HTTP",
+          "descripcion": "Estado central posterior al bootstrap con sesion activa.",
+          "archivo": "output/doc/evidence/http/EV-12-sync-status-postbootstrap.http"
+        },
+        {
+          "id": "EV-49",
+          "tipo": "Código",
+          "descripcion": "Reglas de robustez de contrasenas y validacion de credenciales.",
+          "archivo": "app/lib/password-validation.ts"
+        },
+        {
+          "id": "EV-50",
+          "tipo": "Código",
+          "descripcion": "Control de intentos fallidos y bloqueo temporal.",
+          "archivo": "app/lib/rate-limiter.ts"
+        },
+        {
+          "id": "EV-51",
+          "tipo": "Código",
+          "descripcion": "Autenticacion, sesiones y eventos de acceso en el aplicativo.",
+          "archivo": "app/lib/auth.ts"
+        },
+        {
+          "id": "EV-52",
+          "tipo": "Código",
+          "descripcion": "Modelo de roles, perfiles y permisos por modulo.",
+          "archivo": "app/lib/user-permissions.ts"
+        }
+      ],
+      "evidencia_operativa": [
+        {
+          "id": "EV-01",
+          "tipo": "Operativa",
+          "descripcion": "Paquete operativo del contratista para gobierno, accesos, incidentes, terceros, riesgos y seguridad fisica.",
+          "archivo": "docs/paquete_evidencia_operativa_onprem.md"
+        }
+      ],
+      "evidencia_visual": [],
+      "archivo_referencia": [
+        "docs/paquete_evidencia_operativa_onprem.md",
+        "output/doc/evidence/http/EV-11-bootstrap.http",
+        "output/doc/evidence/http/EV-12-sync-status-postbootstrap.http",
+        "app/lib/password-validation.ts",
+        "app/lib/rate-limiter.ts",
+        "app/lib/auth.ts",
+        "app/lib/user-permissions.ts"
+      ],
+      "evidence_ids": [
+        "EV-01",
+        "EV-11",
+        "EV-12",
+        "EV-49",
+        "EV-50",
+        "EV-51",
+        "EV-52"
+      ]
+    },
+    {
+      "numero_control": 35,
+      "seccion": "Gestión de Accesos",
+      "control": "Complejidad de contraseñas",
+      "pregunta": "¿La organización admite o exige complejidad de contraseñas?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí",
+      "comentario_ejecutivo": "La complejidad de contrasenas forma parte del esquema de autenticacion robusta aplicado al servicio. Esto permite demostrar control de acceso, segregacion y disciplina operativa sobre cuentas, dispositivos y privilegios.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-11",
+          "tipo": "HTTP",
+          "descripcion": "Bootstrap server-side exitoso con emision de sesion y registro del dispositivo.",
+          "archivo": "output/doc/evidence/http/EV-11-bootstrap.http"
+        },
+        {
+          "id": "EV-12",
+          "tipo": "HTTP",
+          "descripcion": "Estado central posterior al bootstrap con sesion activa.",
+          "archivo": "output/doc/evidence/http/EV-12-sync-status-postbootstrap.http"
+        },
+        {
+          "id": "EV-49",
+          "tipo": "Código",
+          "descripcion": "Reglas de robustez de contrasenas y validacion de credenciales.",
+          "archivo": "app/lib/password-validation.ts"
+        },
+        {
+          "id": "EV-50",
+          "tipo": "Código",
+          "descripcion": "Control de intentos fallidos y bloqueo temporal.",
+          "archivo": "app/lib/rate-limiter.ts"
+        },
+        {
+          "id": "EV-51",
+          "tipo": "Código",
+          "descripcion": "Autenticacion, sesiones y eventos de acceso en el aplicativo.",
+          "archivo": "app/lib/auth.ts"
+        },
+        {
+          "id": "EV-52",
+          "tipo": "Código",
+          "descripcion": "Modelo de roles, perfiles y permisos por modulo.",
+          "archivo": "app/lib/user-permissions.ts"
+        }
+      ],
+      "evidencia_operativa": [
+        {
+          "id": "EV-01",
+          "tipo": "Operativa",
+          "descripcion": "Paquete operativo del contratista para gobierno, accesos, incidentes, terceros, riesgos y seguridad fisica.",
+          "archivo": "docs/paquete_evidencia_operativa_onprem.md"
+        }
+      ],
+      "evidencia_visual": [],
+      "archivo_referencia": [
+        "docs/paquete_evidencia_operativa_onprem.md",
+        "output/doc/evidence/http/EV-11-bootstrap.http",
+        "output/doc/evidence/http/EV-12-sync-status-postbootstrap.http",
+        "app/lib/password-validation.ts",
+        "app/lib/rate-limiter.ts",
+        "app/lib/auth.ts",
+        "app/lib/user-permissions.ts"
+      ],
+      "evidence_ids": [
+        "EV-01",
+        "EV-11",
+        "EV-12",
+        "EV-49",
+        "EV-50",
+        "EV-51",
+        "EV-52"
+      ]
+    },
+    {
+      "numero_control": 36,
+      "seccion": "Gestión de Accesos",
+      "control": "Historial de contraseñas",
+      "pregunta": "¿Se mantiene un historial para evitar la reutilización de al menos las últimas 5 contraseñas?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí",
+      "comentario_ejecutivo": "La administracion de credenciales contempla historial y restricciones de reutilizacion dentro del marco operativo del servicio. Esto permite demostrar control de acceso, segregacion y disciplina operativa sobre cuentas, dispositivos y privilegios.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-11",
+          "tipo": "HTTP",
+          "descripcion": "Bootstrap server-side exitoso con emision de sesion y registro del dispositivo.",
+          "archivo": "output/doc/evidence/http/EV-11-bootstrap.http"
+        },
+        {
+          "id": "EV-12",
+          "tipo": "HTTP",
+          "descripcion": "Estado central posterior al bootstrap con sesion activa.",
+          "archivo": "output/doc/evidence/http/EV-12-sync-status-postbootstrap.http"
+        },
+        {
+          "id": "EV-49",
+          "tipo": "Código",
+          "descripcion": "Reglas de robustez de contrasenas y validacion de credenciales.",
+          "archivo": "app/lib/password-validation.ts"
+        },
+        {
+          "id": "EV-50",
+          "tipo": "Código",
+          "descripcion": "Control de intentos fallidos y bloqueo temporal.",
+          "archivo": "app/lib/rate-limiter.ts"
+        },
+        {
+          "id": "EV-51",
+          "tipo": "Código",
+          "descripcion": "Autenticacion, sesiones y eventos de acceso en el aplicativo.",
+          "archivo": "app/lib/auth.ts"
+        },
+        {
+          "id": "EV-52",
+          "tipo": "Código",
+          "descripcion": "Modelo de roles, perfiles y permisos por modulo.",
+          "archivo": "app/lib/user-permissions.ts"
+        }
+      ],
+      "evidencia_operativa": [
+        {
+          "id": "EV-01",
+          "tipo": "Operativa",
+          "descripcion": "Paquete operativo del contratista para gobierno, accesos, incidentes, terceros, riesgos y seguridad fisica.",
+          "archivo": "docs/paquete_evidencia_operativa_onprem.md"
+        }
+      ],
+      "evidencia_visual": [],
+      "archivo_referencia": [
+        "docs/paquete_evidencia_operativa_onprem.md",
+        "output/doc/evidence/http/EV-11-bootstrap.http",
+        "output/doc/evidence/http/EV-12-sync-status-postbootstrap.http",
+        "app/lib/password-validation.ts",
+        "app/lib/rate-limiter.ts",
+        "app/lib/auth.ts",
+        "app/lib/user-permissions.ts"
+      ],
+      "evidence_ids": [
+        "EV-01",
+        "EV-11",
+        "EV-12",
+        "EV-49",
+        "EV-50",
+        "EV-51",
+        "EV-52"
+      ]
+    },
+    {
+      "numero_control": 37,
+      "seccion": "Gestión de Accesos",
+      "control": "Bloqueo de cuenta tras intentos fallidos",
+      "pregunta": "¿La organización requiere el bloqueo de la cuenta después de 5 o menos intentos fallidos?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí",
+      "comentario_ejecutivo": "El control de intentos fallidos y bloqueo automatico se incorpora como medida de defensa frente a accesos no autorizados. Esto permite demostrar control de acceso, segregacion y disciplina operativa sobre cuentas, dispositivos y privilegios.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-11",
+          "tipo": "HTTP",
+          "descripcion": "Bootstrap server-side exitoso con emision de sesion y registro del dispositivo.",
+          "archivo": "output/doc/evidence/http/EV-11-bootstrap.http"
+        },
+        {
+          "id": "EV-12",
+          "tipo": "HTTP",
+          "descripcion": "Estado central posterior al bootstrap con sesion activa.",
+          "archivo": "output/doc/evidence/http/EV-12-sync-status-postbootstrap.http"
+        },
+        {
+          "id": "EV-49",
+          "tipo": "Código",
+          "descripcion": "Reglas de robustez de contrasenas y validacion de credenciales.",
+          "archivo": "app/lib/password-validation.ts"
+        },
+        {
+          "id": "EV-50",
+          "tipo": "Código",
+          "descripcion": "Control de intentos fallidos y bloqueo temporal.",
+          "archivo": "app/lib/rate-limiter.ts"
+        },
+        {
+          "id": "EV-51",
+          "tipo": "Código",
+          "descripcion": "Autenticacion, sesiones y eventos de acceso en el aplicativo.",
+          "archivo": "app/lib/auth.ts"
+        },
+        {
+          "id": "EV-52",
+          "tipo": "Código",
+          "descripcion": "Modelo de roles, perfiles y permisos por modulo.",
+          "archivo": "app/lib/user-permissions.ts"
+        }
+      ],
+      "evidencia_operativa": [
+        {
+          "id": "EV-01",
+          "tipo": "Operativa",
+          "descripcion": "Paquete operativo del contratista para gobierno, accesos, incidentes, terceros, riesgos y seguridad fisica.",
+          "archivo": "docs/paquete_evidencia_operativa_onprem.md"
+        }
+      ],
+      "evidencia_visual": [],
+      "archivo_referencia": [
+        "docs/paquete_evidencia_operativa_onprem.md",
+        "output/doc/evidence/http/EV-11-bootstrap.http",
+        "output/doc/evidence/http/EV-12-sync-status-postbootstrap.http",
+        "app/lib/password-validation.ts",
+        "app/lib/rate-limiter.ts",
+        "app/lib/auth.ts",
+        "app/lib/user-permissions.ts"
+      ],
+      "evidence_ids": [
+        "EV-01",
+        "EV-11",
+        "EV-12",
+        "EV-49",
+        "EV-50",
+        "EV-51",
+        "EV-52"
+      ]
+    },
+    {
+      "numero_control": 38,
+      "seccion": "Capacitación y Concientización",
+      "control": "Programa anual de cultura de seguridad",
+      "pregunta": "¿Cuenta con un programa de cultura de seguridad de la información y ciberseguridad que se ejecute al menos una vez al año?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí, ver comentario",
+      "comentario_ejecutivo": "El servicio contempla un programa anual de cultura de seguridad aplicable al personal asignado. Asi se acredita una cultura de seguridad y refuerzo continuo para el personal involucrado en la prestacion.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-53",
+          "tipo": "Código",
+          "descripcion": "Modulo de cultura y concientizacion disponible dentro de la plataforma.",
+          "archivo": "app/app/awareness/page.tsx"
+        }
+      ],
+      "evidencia_operativa": [
+        {
+          "id": "EV-01",
+          "tipo": "Operativa",
+          "descripcion": "Paquete operativo del contratista para gobierno, accesos, incidentes, terceros, riesgos y seguridad fisica.",
+          "archivo": "docs/paquete_evidencia_operativa_onprem.md"
+        },
+        {
+          "id": "EV-02",
+          "tipo": "Operativa",
+          "descripcion": "Marco de desarrollo seguro, vulnerabilidades, parches y control tecnico del ciclo de entrega.",
+          "archivo": "docs/seguridad_desarrollo_y_vulnerabilidades_onprem.md"
+        },
+        {
+          "id": "EV-56",
+          "tipo": "Operativa",
+          "descripcion": "Manual de administracion para supervision de usuarios, modulos y configuraciones.",
+          "archivo": "docs/manual_administracion.md"
+        }
+      ],
+      "evidencia_visual": [],
+      "archivo_referencia": [
+        "docs/paquete_evidencia_operativa_onprem.md",
+        "docs/seguridad_desarrollo_y_vulnerabilidades_onprem.md",
+        "app/app/awareness/page.tsx",
+        "docs/manual_administracion.md"
+      ],
+      "evidence_ids": [
+        "EV-01",
+        "EV-02",
+        "EV-53",
+        "EV-56"
+      ]
+    },
+    {
+      "numero_control": 39,
+      "seccion": "Capacitación y Concientización",
+      "control": "Concienciación anual sobre phishing",
+      "pregunta": "¿Realiza ejercicios de concienciación sobre phishing como mínimo una vez al año?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí, ver comentario",
+      "comentario_ejecutivo": "La concientizacion sobre phishing e ingenieria social forma parte del paquete de seguridad y del esquema de capacitacion anual. Asi se acredita una cultura de seguridad y refuerzo continuo para el personal involucrado en la prestacion.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-53",
+          "tipo": "Código",
+          "descripcion": "Modulo de cultura y concientizacion disponible dentro de la plataforma.",
+          "archivo": "app/app/awareness/page.tsx"
+        }
+      ],
+      "evidencia_operativa": [
+        {
+          "id": "EV-01",
+          "tipo": "Operativa",
+          "descripcion": "Paquete operativo del contratista para gobierno, accesos, incidentes, terceros, riesgos y seguridad fisica.",
+          "archivo": "docs/paquete_evidencia_operativa_onprem.md"
+        },
+        {
+          "id": "EV-02",
+          "tipo": "Operativa",
+          "descripcion": "Marco de desarrollo seguro, vulnerabilidades, parches y control tecnico del ciclo de entrega.",
+          "archivo": "docs/seguridad_desarrollo_y_vulnerabilidades_onprem.md"
+        },
+        {
+          "id": "EV-56",
+          "tipo": "Operativa",
+          "descripcion": "Manual de administracion para supervision de usuarios, modulos y configuraciones.",
+          "archivo": "docs/manual_administracion.md"
+        }
+      ],
+      "evidencia_visual": [],
+      "archivo_referencia": [
+        "docs/paquete_evidencia_operativa_onprem.md",
+        "docs/seguridad_desarrollo_y_vulnerabilidades_onprem.md",
+        "app/app/awareness/page.tsx",
+        "docs/manual_administracion.md"
+      ],
+      "evidence_ids": [
+        "EV-01",
+        "EV-02",
+        "EV-53",
+        "EV-56"
+      ]
+    },
+    {
+      "numero_control": 40,
+      "seccion": "Capacitación y Concientización",
+      "control": "Definición de faltas de seguridad",
+      "pregunta": "¿Cuenta con una definición clara de faltas de seguridad cubierta por contratos, acuerdos y capacitación inicial/continua?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí, ver comentario",
+      "comentario_ejecutivo": "Las faltas de seguridad y obligaciones de uso se cubren mediante reglas operativas, acuerdos y capacitacion de incorporacion y refuerzo. Asi se acredita una cultura de seguridad y refuerzo continuo para el personal involucrado en la prestacion.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-53",
+          "tipo": "Código",
+          "descripcion": "Modulo de cultura y concientizacion disponible dentro de la plataforma.",
+          "archivo": "app/app/awareness/page.tsx"
+        }
+      ],
+      "evidencia_operativa": [
+        {
+          "id": "EV-01",
+          "tipo": "Operativa",
+          "descripcion": "Paquete operativo del contratista para gobierno, accesos, incidentes, terceros, riesgos y seguridad fisica.",
+          "archivo": "docs/paquete_evidencia_operativa_onprem.md"
+        },
+        {
+          "id": "EV-02",
+          "tipo": "Operativa",
+          "descripcion": "Marco de desarrollo seguro, vulnerabilidades, parches y control tecnico del ciclo de entrega.",
+          "archivo": "docs/seguridad_desarrollo_y_vulnerabilidades_onprem.md"
+        },
+        {
+          "id": "EV-56",
+          "tipo": "Operativa",
+          "descripcion": "Manual de administracion para supervision de usuarios, modulos y configuraciones.",
+          "archivo": "docs/manual_administracion.md"
+        }
+      ],
+      "evidencia_visual": [],
+      "archivo_referencia": [
+        "docs/paquete_evidencia_operativa_onprem.md",
+        "docs/seguridad_desarrollo_y_vulnerabilidades_onprem.md",
+        "app/app/awareness/page.tsx",
+        "docs/manual_administracion.md"
+      ],
+      "evidence_ids": [
+        "EV-01",
+        "EV-02",
+        "EV-53",
+        "EV-56"
+      ]
+    },
+    {
+      "numero_control": 41,
+      "seccion": "Gestión de Activos",
+      "control": "Manejo y clasificación de la información",
+      "pregunta": "¿Cuenta con un procedimiento para el manejo y clasificación de información que defina diferentes clasificaciones y controles asociados?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí",
+      "comentario_ejecutivo": "La informacion y los artefactos del servicio se gestionan con criterios de clasificacion, tratamiento y control conforme a su sensibilidad. La solucion se presenta con trazabilidad de activos, propietarios y criterios de tratamiento de la informacion.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-08",
+          "tipo": "SQL",
+          "descripcion": "Esquema base PostgreSQL 16 con registros, auditoria, eventos y sincronizacion.",
+          "archivo": "deploy/sql/init/001_onprem_core.sql"
+        },
+        {
+          "id": "EV-31",
+          "tipo": "SQL",
+          "descripcion": "Consulta de registros sincronizados en PostgreSQL.",
+          "archivo": "output/doc/evidence/sql/EV-31-sql-records.txt"
+        },
+        {
+          "id": "EV-54",
+          "tipo": "Código",
+          "descripcion": "Modelo documental de politicas, propietarios y clasificacion.",
+          "archivo": "app/lib/policy-governance.ts"
+        }
+      ],
+      "evidencia_operativa": [
+        {
+          "id": "EV-01",
+          "tipo": "Operativa",
+          "descripcion": "Paquete operativo del contratista para gobierno, accesos, incidentes, terceros, riesgos y seguridad fisica.",
+          "archivo": "docs/paquete_evidencia_operativa_onprem.md"
+        },
+        {
+          "id": "EV-04",
+          "tipo": "Operativa",
+          "descripcion": "Documento tecnico de arquitectura, implementacion y despliegue on-premise.",
+          "archivo": "docs/documento_tecnico_implantacion_onpremise.md"
+        }
+      ],
+      "evidencia_visual": [
+        {
+          "id": "EV-35",
+          "tipo": "Visual",
+          "descripcion": "Visualizacion de evidencia SQL con registros centralizados.",
+          "archivo": "output/doc/evidence/screenshots/EV-35-sql-central-records.png"
+        }
+      ],
+      "archivo_referencia": [
+        "docs/paquete_evidencia_operativa_onprem.md",
+        "docs/documento_tecnico_implantacion_onpremise.md",
+        "deploy/sql/init/001_onprem_core.sql",
+        "output/doc/evidence/sql/EV-31-sql-records.txt",
+        "app/lib/policy-governance.ts",
+        "output/doc/evidence/screenshots/EV-35-sql-central-records.png"
+      ],
+      "evidence_ids": [
+        "EV-01",
+        "EV-04",
+        "EV-08",
+        "EV-31",
+        "EV-54",
+        "EV-35"
+      ]
+    },
+    {
+      "numero_control": 42,
+      "seccion": "Gestión de Activos",
+      "control": "Inventario de activos con propietarios",
+      "pregunta": "¿Cuenta con un inventario de activos de información que incluya la definición de propietarios y responsabilidades?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí",
+      "comentario_ejecutivo": "La operacion se soporta en un inventario de activos y componentes con propietarios y responsabilidades definidos por capa. La solucion se presenta con trazabilidad de activos, propietarios y criterios de tratamiento de la informacion.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-08",
+          "tipo": "SQL",
+          "descripcion": "Esquema base PostgreSQL 16 con registros, auditoria, eventos y sincronizacion.",
+          "archivo": "deploy/sql/init/001_onprem_core.sql"
+        },
+        {
+          "id": "EV-31",
+          "tipo": "SQL",
+          "descripcion": "Consulta de registros sincronizados en PostgreSQL.",
+          "archivo": "output/doc/evidence/sql/EV-31-sql-records.txt"
+        },
+        {
+          "id": "EV-54",
+          "tipo": "Código",
+          "descripcion": "Modelo documental de politicas, propietarios y clasificacion.",
+          "archivo": "app/lib/policy-governance.ts"
+        }
+      ],
+      "evidencia_operativa": [
+        {
+          "id": "EV-01",
+          "tipo": "Operativa",
+          "descripcion": "Paquete operativo del contratista para gobierno, accesos, incidentes, terceros, riesgos y seguridad fisica.",
+          "archivo": "docs/paquete_evidencia_operativa_onprem.md"
+        },
+        {
+          "id": "EV-04",
+          "tipo": "Operativa",
+          "descripcion": "Documento tecnico de arquitectura, implementacion y despliegue on-premise.",
+          "archivo": "docs/documento_tecnico_implantacion_onpremise.md"
+        }
+      ],
+      "evidencia_visual": [],
+      "archivo_referencia": [
+        "docs/paquete_evidencia_operativa_onprem.md",
+        "docs/documento_tecnico_implantacion_onpremise.md",
+        "deploy/sql/init/001_onprem_core.sql",
+        "output/doc/evidence/sql/EV-31-sql-records.txt",
+        "app/lib/policy-governance.ts"
+      ],
+      "evidence_ids": [
+        "EV-01",
+        "EV-04",
+        "EV-08",
+        "EV-31",
+        "EV-54"
+      ]
+    },
+    {
+      "numero_control": 43,
+      "seccion": "Gestión de Activos",
+      "control": "Inventario con criticidad y tratamiento",
+      "pregunta": "¿Cuenta con un inventario de activos de información que incluya criticidad en términos de confidencialidad, integridad y disponibilidad y su tratamiento?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí",
+      "comentario_ejecutivo": "Los activos relevantes se valoran considerando confidencialidad, integridad, disponibilidad y tratamiento operativo correspondiente. La solucion se presenta con trazabilidad de activos, propietarios y criterios de tratamiento de la informacion.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-08",
+          "tipo": "SQL",
+          "descripcion": "Esquema base PostgreSQL 16 con registros, auditoria, eventos y sincronizacion.",
+          "archivo": "deploy/sql/init/001_onprem_core.sql"
+        },
+        {
+          "id": "EV-31",
+          "tipo": "SQL",
+          "descripcion": "Consulta de registros sincronizados en PostgreSQL.",
+          "archivo": "output/doc/evidence/sql/EV-31-sql-records.txt"
+        },
+        {
+          "id": "EV-54",
+          "tipo": "Código",
+          "descripcion": "Modelo documental de politicas, propietarios y clasificacion.",
+          "archivo": "app/lib/policy-governance.ts"
+        },
+        {
+          "id": "EV-30",
+          "tipo": "SQL",
+          "descripcion": "Metricas de dispositivos, registros, conflictos y eventos en el repositorio central.",
+          "archivo": "output/doc/evidence/sql/EV-30-sql-metrics.txt"
+        }
+      ],
+      "evidencia_operativa": [
+        {
+          "id": "EV-01",
+          "tipo": "Operativa",
+          "descripcion": "Paquete operativo del contratista para gobierno, accesos, incidentes, terceros, riesgos y seguridad fisica.",
+          "archivo": "docs/paquete_evidencia_operativa_onprem.md"
+        },
+        {
+          "id": "EV-04",
+          "tipo": "Operativa",
+          "descripcion": "Documento tecnico de arquitectura, implementacion y despliegue on-premise.",
+          "archivo": "docs/documento_tecnico_implantacion_onpremise.md"
+        }
+      ],
+      "evidencia_visual": [],
+      "archivo_referencia": [
+        "docs/paquete_evidencia_operativa_onprem.md",
+        "docs/documento_tecnico_implantacion_onpremise.md",
+        "deploy/sql/init/001_onprem_core.sql",
+        "output/doc/evidence/sql/EV-31-sql-records.txt",
+        "app/lib/policy-governance.ts",
+        "output/doc/evidence/sql/EV-30-sql-metrics.txt"
+      ],
+      "evidence_ids": [
+        "EV-01",
+        "EV-04",
+        "EV-08",
+        "EV-31",
+        "EV-54",
+        "EV-30"
+      ]
+    },
+    {
+      "numero_control": 44,
+      "seccion": "Gestión de Activos",
+      "control": "Mantenimiento de activos tecnológicos",
+      "pregunta": "¿Cuenta con un procedimiento implementado para el mantenimiento de los activos tecnológicos que soportan los servicios contratados?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí",
+      "comentario_ejecutivo": "La plataforma y sus componentes de soporte quedan sujetos a mantenimiento tecnico, actualizacion y control operacional planificado. La solucion se presenta con trazabilidad de activos, propietarios y criterios de tratamiento de la informacion.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-08",
+          "tipo": "SQL",
+          "descripcion": "Esquema base PostgreSQL 16 con registros, auditoria, eventos y sincronizacion.",
+          "archivo": "deploy/sql/init/001_onprem_core.sql"
+        },
+        {
+          "id": "EV-31",
+          "tipo": "SQL",
+          "descripcion": "Consulta de registros sincronizados en PostgreSQL.",
+          "archivo": "output/doc/evidence/sql/EV-31-sql-records.txt"
+        },
+        {
+          "id": "EV-54",
+          "tipo": "Código",
+          "descripcion": "Modelo documental de politicas, propietarios y clasificacion.",
+          "archivo": "app/lib/policy-governance.ts"
+        },
+        {
+          "id": "EV-05",
+          "tipo": "Configuración",
+          "descripcion": "Imagen Docker multi-stage endurecida para la aplicacion.",
+          "archivo": "app/Dockerfile"
+        },
+        {
+          "id": "EV-06",
+          "tipo": "Configuración",
+          "descripcion": "Composicion on-premise con app, PostgreSQL, proxy TLS y backup-runner.",
+          "archivo": "docker-compose.onprem.yml"
+        }
+      ],
+      "evidencia_operativa": [
+        {
+          "id": "EV-01",
+          "tipo": "Operativa",
+          "descripcion": "Paquete operativo del contratista para gobierno, accesos, incidentes, terceros, riesgos y seguridad fisica.",
+          "archivo": "docs/paquete_evidencia_operativa_onprem.md"
+        },
+        {
+          "id": "EV-04",
+          "tipo": "Operativa",
+          "descripcion": "Documento tecnico de arquitectura, implementacion y despliegue on-premise.",
+          "archivo": "docs/documento_tecnico_implantacion_onpremise.md"
+        }
+      ],
+      "evidencia_visual": [],
+      "archivo_referencia": [
+        "docs/paquete_evidencia_operativa_onprem.md",
+        "docs/documento_tecnico_implantacion_onpremise.md",
+        "deploy/sql/init/001_onprem_core.sql",
+        "output/doc/evidence/sql/EV-31-sql-records.txt",
+        "app/lib/policy-governance.ts",
+        "app/Dockerfile",
+        "docker-compose.onprem.yml"
+      ],
+      "evidence_ids": [
+        "EV-01",
+        "EV-04",
+        "EV-08",
+        "EV-31",
+        "EV-54",
+        "EV-05",
+        "EV-06"
+      ]
+    },
+    {
+      "numero_control": 45,
+      "seccion": "Desarrollo Seguro",
+      "control": "Detección de actividades maliciosas o accesos no autorizados",
+      "pregunta": "¿Cuenta con capacidades para detectar actividades maliciosas externas o intentos no autorizados de acceder a los activos de información?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí",
+      "comentario_ejecutivo": "La solucion incorpora capacidad para detectar actividad anomala, conflictos, errores de autorizacion y eventos de seguridad relevantes. El desarrollo y la liberacion quedan respaldados por practicas tecnicas y operativas propias de un producto maduro.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-26",
+          "tipo": "Logs",
+          "descripcion": "Resultado de lint local sin errores bloqueantes.",
+          "archivo": "output/doc/evidence/logs/pnpm-lint.txt"
+        },
+        {
+          "id": "EV-27",
+          "tipo": "Logs",
+          "descripcion": "Resultado de build de produccion exitoso.",
+          "archivo": "output/doc/evidence/logs/pnpm-build.txt"
+        },
+        {
+          "id": "EV-28",
+          "tipo": "Logs",
+          "descripcion": "Pruebas E2E ejecutadas satisfactoriamente.",
+          "archivo": "output/doc/evidence/logs/pnpm-test-e2e.txt"
+        },
+        {
+          "id": "EV-44",
+          "tipo": "Código",
+          "descripcion": "Cabeceras de seguridad y CSP self-hosted endurecida.",
+          "archivo": "app/security-headers.cjs"
+        },
+        {
+          "id": "EV-18",
+          "tipo": "HTTP",
+          "descripcion": "Exportacion de eventos de seguridad para monitoreo centralizado o SIEM.",
+          "archivo": "output/doc/evidence/http/EV-18-security-events.http"
+        },
+        {
+          "id": "EV-57",
+          "tipo": "Código",
+          "descripcion": "Endpoint de eventos de seguridad para exportacion y correlacion.",
+          "archivo": "app/app/api/security/events/route.ts"
+        }
+      ],
+      "evidencia_operativa": [
+        {
+          "id": "EV-02",
+          "tipo": "Operativa",
+          "descripcion": "Marco de desarrollo seguro, vulnerabilidades, parches y control tecnico del ciclo de entrega.",
+          "archivo": "docs/seguridad_desarrollo_y_vulnerabilidades_onprem.md"
+        }
+      ],
+      "evidencia_visual": [
+        {
+          "id": "EV-25",
+          "tipo": "Visual",
+          "descripcion": "Conflicto visible y preservado para resolucion explicita.",
+          "archivo": "output/doc/evidence/screenshots/EV-25-conflict-visible.png"
+        }
+      ],
+      "archivo_referencia": [
+        "docs/seguridad_desarrollo_y_vulnerabilidades_onprem.md",
+        "output/doc/evidence/logs/pnpm-lint.txt",
+        "output/doc/evidence/logs/pnpm-build.txt",
+        "output/doc/evidence/logs/pnpm-test-e2e.txt",
+        "app/security-headers.cjs",
+        "output/doc/evidence/http/EV-18-security-events.http",
+        "output/doc/evidence/screenshots/EV-25-conflict-visible.png",
+        "app/app/api/security/events/route.ts"
+      ],
+      "evidence_ids": [
+        "EV-02",
+        "EV-26",
+        "EV-27",
+        "EV-28",
+        "EV-44",
+        "EV-18",
+        "EV-25",
+        "EV-57"
+      ]
+    },
+    {
+      "numero_control": 46,
+      "seccion": "Desarrollo Seguro",
+      "control": "Políticas de desarrollo seguro",
+      "pregunta": "¿Cuenta con políticas de desarrollo seguro aprobadas, vigentes, implementadas y comunicadas a su personal?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí",
+      "comentario_ejecutivo": "Las practicas de desarrollo seguro se reflejan en politicas, configuraciones, validaciones y controles incorporados al repositorio y al despliegue. El desarrollo y la liberacion quedan respaldados por practicas tecnicas y operativas propias de un producto maduro.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-26",
+          "tipo": "Logs",
+          "descripcion": "Resultado de lint local sin errores bloqueantes.",
+          "archivo": "output/doc/evidence/logs/pnpm-lint.txt"
+        },
+        {
+          "id": "EV-27",
+          "tipo": "Logs",
+          "descripcion": "Resultado de build de produccion exitoso.",
+          "archivo": "output/doc/evidence/logs/pnpm-build.txt"
+        },
+        {
+          "id": "EV-28",
+          "tipo": "Logs",
+          "descripcion": "Pruebas E2E ejecutadas satisfactoriamente.",
+          "archivo": "output/doc/evidence/logs/pnpm-test-e2e.txt"
+        },
+        {
+          "id": "EV-44",
+          "tipo": "Código",
+          "descripcion": "Cabeceras de seguridad y CSP self-hosted endurecida.",
+          "archivo": "app/security-headers.cjs"
+        }
+      ],
+      "evidencia_operativa": [
+        {
+          "id": "EV-02",
+          "tipo": "Operativa",
+          "descripcion": "Marco de desarrollo seguro, vulnerabilidades, parches y control tecnico del ciclo de entrega.",
+          "archivo": "docs/seguridad_desarrollo_y_vulnerabilidades_onprem.md"
+        }
+      ],
+      "evidencia_visual": [],
+      "archivo_referencia": [
+        "docs/seguridad_desarrollo_y_vulnerabilidades_onprem.md",
+        "output/doc/evidence/logs/pnpm-lint.txt",
+        "output/doc/evidence/logs/pnpm-build.txt",
+        "output/doc/evidence/logs/pnpm-test-e2e.txt",
+        "app/security-headers.cjs"
+      ],
+      "evidence_ids": [
+        "EV-02",
+        "EV-26",
+        "EV-27",
+        "EV-28",
+        "EV-44"
+      ]
+    },
+    {
+      "numero_control": 47,
+      "seccion": "Desarrollo Seguro",
+      "control": "Metodologías DevSecOps o SDL",
+      "pregunta": "¿Cuenta con metodologías de desarrollo seguro como DevSecOps o SDL?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí",
+      "comentario_ejecutivo": "El ciclo aplicado es compatible con un enfoque DevSecOps, integrando controles de seguridad dentro del flujo de construccion y liberacion. El desarrollo y la liberacion quedan respaldados por practicas tecnicas y operativas propias de un producto maduro.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-26",
+          "tipo": "Logs",
+          "descripcion": "Resultado de lint local sin errores bloqueantes.",
+          "archivo": "output/doc/evidence/logs/pnpm-lint.txt"
+        },
+        {
+          "id": "EV-27",
+          "tipo": "Logs",
+          "descripcion": "Resultado de build de produccion exitoso.",
+          "archivo": "output/doc/evidence/logs/pnpm-build.txt"
+        },
+        {
+          "id": "EV-28",
+          "tipo": "Logs",
+          "descripcion": "Pruebas E2E ejecutadas satisfactoriamente.",
+          "archivo": "output/doc/evidence/logs/pnpm-test-e2e.txt"
+        },
+        {
+          "id": "EV-44",
+          "tipo": "Código",
+          "descripcion": "Cabeceras de seguridad y CSP self-hosted endurecida.",
+          "archivo": "app/security-headers.cjs"
+        },
+        {
+          "id": "EV-05",
+          "tipo": "Configuración",
+          "descripcion": "Imagen Docker multi-stage endurecida para la aplicacion.",
+          "archivo": "app/Dockerfile"
+        },
+        {
+          "id": "EV-06",
+          "tipo": "Configuración",
+          "descripcion": "Composicion on-premise con app, PostgreSQL, proxy TLS y backup-runner.",
+          "archivo": "docker-compose.onprem.yml"
+        },
+        {
+          "id": "EV-47",
+          "tipo": "Logs",
+          "descripcion": "Comprobacion runtime de la pila on-premise sobre HTTPS interno.",
+          "archivo": "output/doc/validation/docker-compose-runtime-check.txt"
+        }
+      ],
+      "evidencia_operativa": [
+        {
+          "id": "EV-02",
+          "tipo": "Operativa",
+          "descripcion": "Marco de desarrollo seguro, vulnerabilidades, parches y control tecnico del ciclo de entrega.",
+          "archivo": "docs/seguridad_desarrollo_y_vulnerabilidades_onprem.md"
+        }
+      ],
+      "evidencia_visual": [],
+      "archivo_referencia": [
+        "docs/seguridad_desarrollo_y_vulnerabilidades_onprem.md",
+        "output/doc/evidence/logs/pnpm-lint.txt",
+        "output/doc/evidence/logs/pnpm-build.txt",
+        "output/doc/evidence/logs/pnpm-test-e2e.txt",
+        "app/security-headers.cjs",
+        "app/Dockerfile",
+        "docker-compose.onprem.yml",
+        "output/doc/validation/docker-compose-runtime-check.txt"
+      ],
+      "evidence_ids": [
+        "EV-02",
+        "EV-26",
+        "EV-27",
+        "EV-28",
+        "EV-44",
+        "EV-05",
+        "EV-06",
+        "EV-47"
+      ]
+    },
+    {
+      "numero_control": 48,
+      "seccion": "Desarrollo Seguro",
+      "control": "Herramientas y tecnologías para asegurar el código",
+      "pregunta": "¿Qué herramientas y tecnologías utilizan para asegurar el código y las aplicaciones?",
+      "tipo_control": "Opcional",
+      "respuesta": "Sí, ver comentario",
+      "comentario_ejecutivo": "El aseguramiento del codigo utiliza una combinacion de controles de aplicacion, herramientas de validacion, pruebas, contenedores endurecidos y evidencia reproducible. El desarrollo y la liberacion quedan respaldados por practicas tecnicas y operativas propias de un producto maduro.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-26",
+          "tipo": "Logs",
+          "descripcion": "Resultado de lint local sin errores bloqueantes.",
+          "archivo": "output/doc/evidence/logs/pnpm-lint.txt"
+        },
+        {
+          "id": "EV-27",
+          "tipo": "Logs",
+          "descripcion": "Resultado de build de produccion exitoso.",
+          "archivo": "output/doc/evidence/logs/pnpm-build.txt"
+        },
+        {
+          "id": "EV-28",
+          "tipo": "Logs",
+          "descripcion": "Pruebas E2E ejecutadas satisfactoriamente.",
+          "archivo": "output/doc/evidence/logs/pnpm-test-e2e.txt"
+        },
+        {
+          "id": "EV-44",
+          "tipo": "Código",
+          "descripcion": "Cabeceras de seguridad y CSP self-hosted endurecida.",
+          "archivo": "app/security-headers.cjs"
+        },
+        {
+          "id": "EV-19",
+          "tipo": "Código",
+          "descripcion": "Cliente de persistencia local-first con IndexedDB, cola de sincronizacion y manejo de conflictos.",
+          "archivo": "app/lib/onprem/client-sync.ts"
+        },
+        {
+          "id": "EV-20",
+          "tipo": "Código",
+          "descripcion": "Capa server-side de sincronizacion, sesiones, conflictos y telemetria de seguridad.",
+          "archivo": "app/lib/onprem/sync-store.ts"
+        },
+        {
+          "id": "EV-40",
+          "tipo": "Código",
+          "descripcion": "Endpoint de bootstrap server-side para sesion y dispositivo.",
+          "archivo": "app/app/api/auth/bootstrap/route.ts"
+        },
+        {
+          "id": "EV-41",
+          "tipo": "Código",
+          "descripcion": "Endpoint de sincronizacion push hacia el repositorio central.",
+          "archivo": "app/app/api/sync/push/route.ts"
+        },
+        {
+          "id": "EV-42",
+          "tipo": "Código",
+          "descripcion": "Endpoint de sincronizacion pull y estado central.",
+          "archivo": "app/app/api/sync/pull/route.ts"
+        },
+        {
+          "id": "EV-43",
+          "tipo": "Código",
+          "descripcion": "Centro de sincronizacion visible para demostracion funcional y evidencia.",
+          "archivo": "app/app/sync-center/page.tsx"
+        }
+      ],
+      "evidencia_operativa": [
+        {
+          "id": "EV-02",
+          "tipo": "Operativa",
+          "descripcion": "Marco de desarrollo seguro, vulnerabilidades, parches y control tecnico del ciclo de entrega.",
+          "archivo": "docs/seguridad_desarrollo_y_vulnerabilidades_onprem.md"
+        }
+      ],
+      "evidencia_visual": [
+        {
+          "id": "EV-21",
+          "tipo": "Visual",
+          "descripcion": "Consola de sincronizacion on-premise con estados, cola y resumen operativo.",
+          "archivo": "output/doc/evidence/screenshots/EV-21-sync-center-overview.png"
+        }
+      ],
+      "archivo_referencia": [
+        "docs/seguridad_desarrollo_y_vulnerabilidades_onprem.md",
+        "output/doc/evidence/logs/pnpm-lint.txt",
+        "output/doc/evidence/logs/pnpm-build.txt",
+        "output/doc/evidence/logs/pnpm-test-e2e.txt",
+        "app/security-headers.cjs",
+        "app/lib/onprem/client-sync.ts",
+        "app/lib/onprem/sync-store.ts",
+        "app/app/api/auth/bootstrap/route.ts",
+        "app/app/api/sync/push/route.ts",
+        "app/app/api/sync/pull/route.ts",
+        "app/app/sync-center/page.tsx",
+        "output/doc/evidence/screenshots/EV-21-sync-center-overview.png"
+      ],
+      "evidence_ids": [
+        "EV-02",
+        "EV-26",
+        "EV-27",
+        "EV-28",
+        "EV-44",
+        "EV-19",
+        "EV-20",
+        "EV-40",
+        "EV-41",
+        "EV-42",
+        "EV-43",
+        "EV-21"
+      ]
+    },
+    {
+      "numero_control": 49,
+      "seccion": "Desarrollo Seguro",
+      "control": "Capacitación de desarrollo seguro",
+      "pregunta": "¿Realiza capacitaciones de desarrollo seguro a su personal?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí",
+      "comentario_ejecutivo": "La preparacion del personal tecnico incluye actualizacion periodica en desarrollo seguro y gestion de vulnerabilidades. El desarrollo y la liberacion quedan respaldados por practicas tecnicas y operativas propias de un producto maduro.",
+      "evidencia_tecnica": [
+        {
+          "id": "EV-26",
+          "tipo": "Logs",
+          "descripcion": "Resultado de lint local sin errores bloqueantes.",
+          "archivo": "output/doc/evidence/logs/pnpm-lint.txt"
+        },
+        {
+          "id": "EV-27",
+          "tipo": "Logs",
+          "descripcion": "Resultado de build de produccion exitoso.",
+          "archivo": "output/doc/evidence/logs/pnpm-build.txt"
+        },
+        {
+          "id": "EV-28",
+          "tipo": "Logs",
+          "descripcion": "Pruebas E2E ejecutadas satisfactoriamente.",
+          "archivo": "output/doc/evidence/logs/pnpm-test-e2e.txt"
+        },
+        {
+          "id": "EV-44",
+          "tipo": "Código",
+          "descripcion": "Cabeceras de seguridad y CSP self-hosted endurecida.",
+          "archivo": "app/security-headers.cjs"
+        }
+      ],
+      "evidencia_operativa": [
+        {
+          "id": "EV-02",
+          "tipo": "Operativa",
+          "descripcion": "Marco de desarrollo seguro, vulnerabilidades, parches y control tecnico del ciclo de entrega.",
+          "archivo": "docs/seguridad_desarrollo_y_vulnerabilidades_onprem.md"
+        }
+      ],
+      "evidencia_visual": [],
+      "archivo_referencia": [
+        "docs/seguridad_desarrollo_y_vulnerabilidades_onprem.md",
+        "output/doc/evidence/logs/pnpm-lint.txt",
+        "output/doc/evidence/logs/pnpm-build.txt",
+        "output/doc/evidence/logs/pnpm-test-e2e.txt",
+        "app/security-headers.cjs"
+      ],
+      "evidence_ids": [
+        "EV-02",
+        "EV-26",
+        "EV-27",
+        "EV-28",
+        "EV-44"
+      ]
+    },
+    {
+      "numero_control": 50,
+      "seccion": "Gestión de terceros",
+      "control": "Evaluación de seguridad de proveedores",
+      "pregunta": "¿Cuenta con una evaluación de seguridad antes de contratar proveedores y periódicamente después?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí, ver comentario",
+      "comentario_ejecutivo": "La incorporacion y seguimiento de terceros se plantea bajo evaluacion de seguridad, delimitacion contractual y control de acceso. Esto sostiene una relacion con terceros bajo evaluacion, control y delimitacion contractual de responsabilidades.",
+      "evidencia_tecnica": [],
+      "evidencia_operativa": [
+        {
+          "id": "EV-01",
+          "tipo": "Operativa",
+          "descripcion": "Paquete operativo del contratista para gobierno, accesos, incidentes, terceros, riesgos y seguridad fisica.",
+          "archivo": "docs/paquete_evidencia_operativa_onprem.md"
+        },
+        {
+          "id": "EV-04",
+          "tipo": "Operativa",
+          "descripcion": "Documento tecnico de arquitectura, implementacion y despliegue on-premise.",
+          "archivo": "docs/documento_tecnico_implantacion_onpremise.md"
+        },
+        {
+          "id": "EV-56",
+          "tipo": "Operativa",
+          "descripcion": "Manual de administracion para supervision de usuarios, modulos y configuraciones.",
+          "archivo": "docs/manual_administracion.md"
+        }
+      ],
+      "evidencia_visual": [],
+      "archivo_referencia": [
+        "docs/paquete_evidencia_operativa_onprem.md",
+        "docs/documento_tecnico_implantacion_onpremise.md",
+        "docs/manual_administracion.md"
+      ],
+      "evidence_ids": [
+        "EV-01",
+        "EV-04",
+        "EV-56"
+      ]
+    },
+    {
+      "numero_control": 51,
+      "seccion": "Gestión de Riesgos",
+      "control": "Matriz de riesgos de seguridad",
+      "pregunta": "¿Cuenta con una matriz de riesgos de seguridad de la información y con una periodicidad de actualización definida?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí, ver comentario",
+      "comentario_ejecutivo": "La gestion de riesgos del servicio se sostiene con una matriz operativa revisable ante cambios, incidentes y nuevas implantaciones. Se muestra una administracion del riesgo alineada a cambios de arquitectura, operacion y servicio.",
+      "evidencia_tecnica": [],
+      "evidencia_operativa": [
+        {
+          "id": "EV-01",
+          "tipo": "Operativa",
+          "descripcion": "Paquete operativo del contratista para gobierno, accesos, incidentes, terceros, riesgos y seguridad fisica.",
+          "archivo": "docs/paquete_evidencia_operativa_onprem.md"
+        },
+        {
+          "id": "EV-04",
+          "tipo": "Operativa",
+          "descripcion": "Documento tecnico de arquitectura, implementacion y despliegue on-premise.",
+          "archivo": "docs/documento_tecnico_implantacion_onpremise.md"
+        },
+        {
+          "id": "EV-56",
+          "tipo": "Operativa",
+          "descripcion": "Manual de administracion para supervision de usuarios, modulos y configuraciones.",
+          "archivo": "docs/manual_administracion.md"
+        }
+      ],
+      "evidencia_visual": [],
+      "archivo_referencia": [
+        "docs/paquete_evidencia_operativa_onprem.md",
+        "docs/documento_tecnico_implantacion_onpremise.md",
+        "docs/manual_administracion.md"
+      ],
+      "evidence_ids": [
+        "EV-01",
+        "EV-04",
+        "EV-56"
+      ]
+    },
+    {
+      "numero_control": 52,
+      "seccion": "Seguridad Física",
+      "control": "Política de protección física y ambiental",
+      "pregunta": "¿Cuenta con una política de protección física y ambiental aprobada, vigente, implementada y comunicada a su personal?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí, ver comentario",
+      "comentario_ejecutivo": "La proteccion fisica y ambiental del servicio se soporta en reglas operativas, restriccion de acceso y controles de custodia de activos. La operacion queda soportada por medidas fisicas y ambientales compatibles con una prestacion empresarial controlada.",
+      "evidencia_tecnica": [],
+      "evidencia_operativa": [
+        {
+          "id": "EV-01",
+          "tipo": "Operativa",
+          "descripcion": "Paquete operativo del contratista para gobierno, accesos, incidentes, terceros, riesgos y seguridad fisica.",
+          "archivo": "docs/paquete_evidencia_operativa_onprem.md"
+        },
+        {
+          "id": "EV-04",
+          "tipo": "Operativa",
+          "descripcion": "Documento tecnico de arquitectura, implementacion y despliegue on-premise.",
+          "archivo": "docs/documento_tecnico_implantacion_onpremise.md"
+        },
+        {
+          "id": "EV-56",
+          "tipo": "Operativa",
+          "descripcion": "Manual de administracion para supervision de usuarios, modulos y configuraciones.",
+          "archivo": "docs/manual_administracion.md"
+        }
+      ],
+      "evidencia_visual": [],
+      "archivo_referencia": [
+        "docs/paquete_evidencia_operativa_onprem.md",
+        "docs/documento_tecnico_implantacion_onpremise.md",
+        "docs/manual_administracion.md"
+      ],
+      "evidence_ids": [
+        "EV-01",
+        "EV-04",
+        "EV-56"
+      ]
+    },
+    {
+      "numero_control": 53,
+      "seccion": "Seguridad Física",
+      "control": "Controles físicos en instalaciones",
+      "pregunta": "¿Cuenta con controles de seguridad físicos en sus instalaciones y monitorea su correcto funcionamiento?",
+      "tipo_control": "Obligatorio",
+      "respuesta": "Sí, ver comentario",
+      "comentario_ejecutivo": "La operacion contempla controles fisicos en instalaciones y monitoreo de su correcto funcionamiento dentro del entorno donde se presta el servicio. La operacion queda soportada por medidas fisicas y ambientales compatibles con una prestacion empresarial controlada.",
+      "evidencia_tecnica": [],
+      "evidencia_operativa": [
+        {
+          "id": "EV-01",
+          "tipo": "Operativa",
+          "descripcion": "Paquete operativo del contratista para gobierno, accesos, incidentes, terceros, riesgos y seguridad fisica.",
+          "archivo": "docs/paquete_evidencia_operativa_onprem.md"
+        },
+        {
+          "id": "EV-04",
+          "tipo": "Operativa",
+          "descripcion": "Documento tecnico de arquitectura, implementacion y despliegue on-premise.",
+          "archivo": "docs/documento_tecnico_implantacion_onpremise.md"
+        },
+        {
+          "id": "EV-56",
+          "tipo": "Operativa",
+          "descripcion": "Manual de administracion para supervision de usuarios, modulos y configuraciones.",
+          "archivo": "docs/manual_administracion.md"
+        }
+      ],
+      "evidencia_visual": [],
+      "archivo_referencia": [
+        "docs/paquete_evidencia_operativa_onprem.md",
+        "docs/documento_tecnico_implantacion_onpremise.md",
+        "docs/manual_administracion.md"
+      ],
+      "evidence_ids": [
+        "EV-01",
+        "EV-04",
+        "EV-56"
+      ]
+    },
+    {
+      "numero_control": 54,
+      "seccion": "Seguridad Física",
+      "control": "Desembarque y revocación de accesos físicos",
+      "pregunta": "Como parte de los procedimientos de desembarque, ¿cómo se asegura la recolección y/o deshabilitación de los derechos de acceso físico pertinentes?",
+      "tipo_control": "Opcional",
+      "respuesta": "Sí, ver comentario",
+      "comentario_ejecutivo": "El desembarque incluye recuperacion de activos, revocacion de accesos fisicos y logicos y cierre de privilegios asociados al servicio. La operacion queda soportada por medidas fisicas y ambientales compatibles con una prestacion empresarial controlada.",
+      "evidencia_tecnica": [],
+      "evidencia_operativa": [
+        {
+          "id": "EV-01",
+          "tipo": "Operativa",
+          "descripcion": "Paquete operativo del contratista para gobierno, accesos, incidentes, terceros, riesgos y seguridad fisica.",
+          "archivo": "docs/paquete_evidencia_operativa_onprem.md"
+        },
+        {
+          "id": "EV-04",
+          "tipo": "Operativa",
+          "descripcion": "Documento tecnico de arquitectura, implementacion y despliegue on-premise.",
+          "archivo": "docs/documento_tecnico_implantacion_onpremise.md"
+        },
+        {
+          "id": "EV-56",
+          "tipo": "Operativa",
+          "descripcion": "Manual de administracion para supervision de usuarios, modulos y configuraciones.",
+          "archivo": "docs/manual_administracion.md"
+        }
+      ],
+      "evidencia_visual": [],
+      "archivo_referencia": [
+        "docs/paquete_evidencia_operativa_onprem.md",
+        "docs/documento_tecnico_implantacion_onpremise.md",
+        "docs/manual_administracion.md"
+      ],
+      "evidence_ids": [
+        "EV-01",
+        "EV-04",
+        "EV-56"
+      ]
+    }
+  ],
+  "evidence_index": [
+    {
+      "id": "EV-01",
+      "tipo": "Operativa",
+      "descripcion": "Paquete operativo del contratista para gobierno, accesos, incidentes, terceros, riesgos y seguridad fisica.",
+      "archivo": "docs/paquete_evidencia_operativa_onprem.md",
+      "controles_relacionados": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        50,
+        51,
+        52,
+        53,
+        54
+      ]
+    },
+    {
+      "id": "EV-02",
+      "tipo": "Operativa",
+      "descripcion": "Marco de desarrollo seguro, vulnerabilidades, parches y control tecnico del ciclo de entrega.",
+      "archivo": "docs/seguridad_desarrollo_y_vulnerabilidades_onprem.md",
+      "controles_relacionados": [
+        7,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        38,
+        39,
+        40,
+        45,
+        46,
+        47,
+        48,
+        49
+      ]
+    },
+    {
+      "id": "EV-03",
+      "tipo": "Operativa",
+      "descripcion": "Protocolo general de seguridad para despliegues Davara Governance on-premise.",
+      "archivo": "docs/protocolos_seguridad.md",
+      "controles_relacionados": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    },
+    {
+      "id": "EV-04",
+      "tipo": "Operativa",
+      "descripcion": "Documento tecnico de arquitectura, implementacion y despliegue on-premise.",
+      "archivo": "docs/documento_tecnico_implantacion_onpremise.md",
+      "controles_relacionados": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        41,
+        42,
+        43,
+        44,
+        50,
+        51,
+        52,
+        53,
+        54
+      ]
+    },
+    {
+      "id": "EV-05",
+      "tipo": "Configuración",
+      "descripcion": "Imagen Docker multi-stage endurecida para la aplicacion.",
+      "archivo": "app/Dockerfile",
+      "controles_relacionados": [
+        1,
+        2,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        16,
+        44,
+        47
+      ]
+    },
+    {
+      "id": "EV-06",
+      "tipo": "Configuración",
+      "descripcion": "Composicion on-premise con app, PostgreSQL, proxy TLS y backup-runner.",
+      "archivo": "docker-compose.onprem.yml",
+      "controles_relacionados": [
+        1,
+        2,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        16,
+        44,
+        47
+      ]
+    },
+    {
+      "id": "EV-07",
+      "tipo": "Configuración",
+      "descripcion": "Reverse proxy TLS interno para la solucion on-premise.",
+      "archivo": "deploy/nginx/onprem.conf",
+      "controles_relacionados": [
+        1,
+        2,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ]
+    },
+    {
+      "id": "EV-08",
+      "tipo": "SQL",
+      "descripcion": "Esquema base PostgreSQL 16 con registros, auditoria, eventos y sincronizacion.",
+      "archivo": "deploy/sql/init/001_onprem_core.sql",
+      "controles_relacionados": [
+        41,
+        42,
+        43,
+        44
+      ]
+    },
+    {
+      "id": "EV-09",
+      "tipo": "SQL",
+      "descripcion": "Consultas de verificacion para evidencia centralizada en PostgreSQL.",
+      "archivo": "deploy/sql/verify/001_evidence_queries.sql",
+      "controles_relacionados": []
+    },
+    {
+      "id": "EV-10",
+      "tipo": "HTTP",
+      "descripcion": "Estado previo al bootstrap del dispositivo y de la sesion server-side.",
+      "archivo": "output/doc/evidence/http/EV-10-sync-status-prebootstrap.http",
+      "controles_relacionados": []
+    },
+    {
+      "id": "EV-11",
+      "tipo": "HTTP",
+      "descripcion": "Bootstrap server-side exitoso con emision de sesion y registro del dispositivo.",
+      "archivo": "output/doc/evidence/http/EV-11-bootstrap.http",
+      "controles_relacionados": [
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37
+      ]
+    },
+    {
+      "id": "EV-12",
+      "tipo": "HTTP",
+      "descripcion": "Estado central posterior al bootstrap con sesion activa.",
+      "archivo": "output/doc/evidence/http/EV-12-sync-status-postbootstrap.http",
+      "controles_relacionados": [
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37
+      ]
+    },
+    {
+      "id": "EV-13",
+      "tipo": "HTTP",
+      "descripcion": "Sincronizacion push con alta de registro hacia el repositorio central.",
+      "archivo": "output/doc/evidence/http/EV-13-sync-push-create.http",
+      "controles_relacionados": [
+        12
+      ]
+    },
+    {
+      "id": "EV-14",
+      "tipo": "HTTP",
+      "descripcion": "Lectura pull de cambios centrales para el dispositivo.",
+      "archivo": "output/doc/evidence/http/EV-14-sync-pull.http",
+      "controles_relacionados": [
+        12
+      ]
+    },
+    {
+      "id": "EV-15",
+      "tipo": "HTTP",
+      "descripcion": "Actualizacion remota simulada para validar deteccion de cambios centrales.",
+      "archivo": "output/doc/evidence/http/EV-15-simulate-remote-update.http",
+      "controles_relacionados": []
+    },
+    {
+      "id": "EV-16",
+      "tipo": "HTTP",
+      "descripcion": "Conflicto detectado y preservado durante la sincronizacion.",
+      "archivo": "output/doc/evidence/http/EV-16-sync-push-conflict.http",
+      "controles_relacionados": []
+    },
+    {
+      "id": "EV-17",
+      "tipo": "HTTP",
+      "descripcion": "Resolucion controlada de conflicto y cierre de la incidencia tecnica.",
+      "archivo": "output/doc/evidence/http/EV-17-resolve-conflict.http",
+      "controles_relacionados": []
+    },
+    {
+      "id": "EV-18",
+      "tipo": "HTTP",
+      "descripcion": "Exportacion de eventos de seguridad para monitoreo centralizado o SIEM.",
+      "archivo": "output/doc/evidence/http/EV-18-security-events.http",
+      "controles_relacionados": [
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        45
+      ]
+    },
+    {
+      "id": "EV-19",
+      "tipo": "Código",
+      "descripcion": "Cliente de persistencia local-first con IndexedDB, cola de sincronizacion y manejo de conflictos.",
+      "archivo": "app/lib/onprem/client-sync.ts",
+      "controles_relacionados": [
+        48
+      ]
+    },
+    {
+      "id": "EV-20",
+      "tipo": "Código",
+      "descripcion": "Capa server-side de sincronizacion, sesiones, conflictos y telemetria de seguridad.",
+      "archivo": "app/lib/onprem/sync-store.ts",
+      "controles_relacionados": [
+        15,
+        48
+      ]
+    },
+    {
+      "id": "EV-21",
+      "tipo": "Visual",
+      "descripcion": "Consola de sincronizacion on-premise con estados, cola y resumen operativo.",
+      "archivo": "output/doc/evidence/screenshots/EV-21-sync-center-overview.png",
+      "controles_relacionados": [
+        9,
+        14,
+        48
+      ]
+    },
+    {
+      "id": "EV-22",
+      "tipo": "Visual",
+      "descripcion": "Bootstrap exitoso del dispositivo y emision de sesion server-side.",
+      "archivo": "output/doc/evidence/screenshots/EV-22-bootstrap-success.png",
+      "controles_relacionados": [
+        27
+      ]
+    },
+    {
+      "id": "EV-23",
+      "tipo": "Visual",
+      "descripcion": "Operacion offline con cola pendiente antes de la reconexion.",
+      "archivo": "output/doc/evidence/screenshots/EV-23-offline-queue-pending.png",
+      "controles_relacionados": [
+        14
+      ]
+    },
+    {
+      "id": "EV-24",
+      "tipo": "Visual",
+      "descripcion": "Sincronizacion exitosa hacia PostgreSQL on-premise.",
+      "archivo": "output/doc/evidence/screenshots/EV-24-sync-success.png",
+      "controles_relacionados": [
+        12,
+        14
+      ]
+    },
+    {
+      "id": "EV-25",
+      "tipo": "Visual",
+      "descripcion": "Conflicto visible y preservado para resolucion explicita.",
+      "archivo": "output/doc/evidence/screenshots/EV-25-conflict-visible.png",
+      "controles_relacionados": [
+        15,
+        21,
+        45
+      ]
+    },
+    {
+      "id": "EV-26",
+      "tipo": "Logs",
+      "descripcion": "Resultado de lint local sin errores bloqueantes.",
+      "archivo": "output/doc/evidence/logs/pnpm-lint.txt",
+      "controles_relacionados": [
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        45,
+        46,
+        47,
+        48,
+        49
+      ]
+    },
+    {
+      "id": "EV-27",
+      "tipo": "Logs",
+      "descripcion": "Resultado de build de produccion exitoso.",
+      "archivo": "output/doc/evidence/logs/pnpm-build.txt",
+      "controles_relacionados": [
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        45,
+        46,
+        47,
+        48,
+        49
+      ]
+    },
+    {
+      "id": "EV-28",
+      "tipo": "Logs",
+      "descripcion": "Pruebas E2E ejecutadas satisfactoriamente.",
+      "archivo": "output/doc/evidence/logs/pnpm-test-e2e.txt",
+      "controles_relacionados": [
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        45,
+        46,
+        47,
+        48,
+        49
+      ]
+    },
+    {
+      "id": "EV-29",
+      "tipo": "Configuración",
+      "descripcion": "Variables operativas documentadas para despliegue on-premise.",
+      "archivo": "deploy/env/onprem.env.example",
+      "controles_relacionados": [
+        1,
+        2
+      ]
+    },
+    {
+      "id": "EV-30",
+      "tipo": "SQL",
+      "descripcion": "Metricas de dispositivos, registros, conflictos y eventos en el repositorio central.",
+      "archivo": "output/doc/evidence/sql/EV-30-sql-metrics.txt",
+      "controles_relacionados": [
+        9,
+        43
+      ]
+    },
+    {
+      "id": "EV-31",
+      "tipo": "SQL",
+      "descripcion": "Consulta de registros sincronizados en PostgreSQL.",
+      "archivo": "output/doc/evidence/sql/EV-31-sql-records.txt",
+      "controles_relacionados": [
+        41,
+        42,
+        43,
+        44
+      ]
+    },
+    {
+      "id": "EV-32",
+      "tipo": "SQL",
+      "descripcion": "Consulta de eventos de seguridad centralizados.",
+      "archivo": "output/doc/evidence/sql/EV-32-sql-security-events.txt",
+      "controles_relacionados": [
+        21,
+        22,
+        23,
+        24,
+        25,
+        26
+      ]
+    },
+    {
+      "id": "EV-33",
+      "tipo": "Visual",
+      "descripcion": "Servicios Docker on-premise ejecutandose y con healthchecks positivos.",
+      "archivo": "output/doc/evidence/screenshots/EV-33-docker-services-healthy.png",
+      "controles_relacionados": [
+        1,
+        2,
+        9,
+        19,
+        28,
+        29
+      ]
+    },
+    {
+      "id": "EV-34",
+      "tipo": "Visual",
+      "descripcion": "Validacion HTTPS interna y endpoints de salud a traves del proxy TLS.",
+      "archivo": "output/doc/evidence/screenshots/EV-34-https-healthcheck.png",
+      "controles_relacionados": [
+        1,
+        9,
+        12
+      ]
+    },
+    {
+      "id": "EV-35",
+      "tipo": "Visual",
+      "descripcion": "Visualizacion de evidencia SQL con registros centralizados.",
+      "archivo": "output/doc/evidence/screenshots/EV-35-sql-central-records.png",
+      "controles_relacionados": [
+        12,
+        41
+      ]
+    },
+    {
+      "id": "EV-36",
+      "tipo": "Visual",
+      "descripcion": "Evidencia visual de backup y restauracion verificada.",
+      "archivo": "output/doc/evidence/screenshots/EV-36-backup-restore-verified.png",
+      "controles_relacionados": [
+        13,
+        26
+      ]
+    },
+    {
+      "id": "EV-37",
+      "tipo": "Visual",
+      "descripcion": "Preview renderizado del documento final de respuesta.",
+      "archivo": "output/doc/evidence/screenshots/EV-37-docx-preview.png",
+      "controles_relacionados": [
+        2
+      ]
+    },
+    {
+      "id": "EV-38",
+      "tipo": "Logs",
+      "descripcion": "Prueba de backup y restauracion con checksum y base restaurada.",
+      "archivo": "output/doc/evidence/logs/backup-test.txt",
+      "controles_relacionados": [
+        21,
+        22,
+        23,
+        24,
+        25,
+        26
+      ]
+    },
+    {
+      "id": "EV-39",
+      "tipo": "Configuración",
+      "descripcion": "Variables de entorno oficiales para la solucion web on-premise.",
+      "archivo": "app/.env.example",
+      "controles_relacionados": [
+        1,
+        2
+      ]
+    },
+    {
+      "id": "EV-40",
+      "tipo": "Código",
+      "descripcion": "Endpoint de bootstrap server-side para sesion y dispositivo.",
+      "archivo": "app/app/api/auth/bootstrap/route.ts",
+      "controles_relacionados": [
+        27,
+        30,
+        48
+      ]
+    },
+    {
+      "id": "EV-41",
+      "tipo": "Código",
+      "descripcion": "Endpoint de sincronizacion push hacia el repositorio central.",
+      "archivo": "app/app/api/sync/push/route.ts",
+      "controles_relacionados": [
+        48
+      ]
+    },
+    {
+      "id": "EV-42",
+      "tipo": "Código",
+      "descripcion": "Endpoint de sincronizacion pull y estado central.",
+      "archivo": "app/app/api/sync/pull/route.ts",
+      "controles_relacionados": [
+        48
+      ]
+    },
+    {
+      "id": "EV-43",
+      "tipo": "Código",
+      "descripcion": "Centro de sincronizacion visible para demostracion funcional y evidencia.",
+      "archivo": "app/app/sync-center/page.tsx",
+      "controles_relacionados": [
+        48
+      ]
+    },
+    {
+      "id": "EV-44",
+      "tipo": "Código",
+      "descripcion": "Cabeceras de seguridad y CSP self-hosted endurecida.",
+      "archivo": "app/security-headers.cjs",
+      "controles_relacionados": [
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        45,
+        46,
+        47,
+        48,
+        49
+      ]
+    },
+    {
+      "id": "EV-45",
+      "tipo": "Código",
+      "descripcion": "Asistente externo deshabilitado por defecto para despliegues on-premise estrictos.",
+      "archivo": "app/components/alicia-assistant.tsx",
+      "controles_relacionados": [
+        10
+      ]
+    },
+    {
+      "id": "EV-46",
+      "tipo": "Código",
+      "descripcion": "Cliente Electron preparado para consumir URL interna corporativa controlada.",
+      "archivo": "main/main.js",
+      "controles_relacionados": [
+        1,
+        2
+      ]
+    },
+    {
+      "id": "EV-47",
+      "tipo": "Logs",
+      "descripcion": "Comprobacion runtime de la pila on-premise sobre HTTPS interno.",
+      "archivo": "output/doc/validation/docker-compose-runtime-check.txt",
+      "controles_relacionados": [
+        14,
+        19,
+        47
+      ]
+    },
+    {
+      "id": "EV-48",
+      "tipo": "Logs",
+      "descripcion": "Estado de contenedores on-premise y healthchecks.",
+      "archivo": "output/doc/validation/docker-compose-ps-initial.txt",
+      "controles_relacionados": [
+        14,
+        19
+      ]
+    },
+    {
+      "id": "EV-49",
+      "tipo": "Código",
+      "descripcion": "Reglas de robustez de contrasenas y validacion de credenciales.",
+      "archivo": "app/lib/password-validation.ts",
+      "controles_relacionados": [
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37
+      ]
+    },
+    {
+      "id": "EV-50",
+      "tipo": "Código",
+      "descripcion": "Control de intentos fallidos y bloqueo temporal.",
+      "archivo": "app/lib/rate-limiter.ts",
+      "controles_relacionados": [
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37
+      ]
+    },
+    {
+      "id": "EV-51",
+      "tipo": "Código",
+      "descripcion": "Autenticacion, sesiones y eventos de acceso en el aplicativo.",
+      "archivo": "app/lib/auth.ts",
+      "controles_relacionados": [
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37
+      ]
+    },
+    {
+      "id": "EV-52",
+      "tipo": "Código",
+      "descripcion": "Modelo de roles, perfiles y permisos por modulo.",
+      "archivo": "app/lib/user-permissions.ts",
+      "controles_relacionados": [
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37
+      ]
+    },
+    {
+      "id": "EV-53",
+      "tipo": "Código",
+      "descripcion": "Modulo de cultura y concientizacion disponible dentro de la plataforma.",
+      "archivo": "app/app/awareness/page.tsx",
+      "controles_relacionados": [
+        8,
+        38,
+        39,
+        40
+      ]
+    },
+    {
+      "id": "EV-54",
+      "tipo": "Código",
+      "descripcion": "Modelo documental de politicas, propietarios y clasificacion.",
+      "archivo": "app/lib/policy-governance.ts",
+      "controles_relacionados": [
+        41,
+        42,
+        43,
+        44
+      ]
+    },
+    {
+      "id": "EV-55",
+      "tipo": "Código",
+      "descripcion": "Modulo de incidentes y brechas con captura estructurada.",
+      "archivo": "app/app/incidents-breaches/page.tsx",
+      "controles_relacionados": [
+        21
+      ]
+    },
+    {
+      "id": "EV-56",
+      "tipo": "Operativa",
+      "descripcion": "Manual de administracion para supervision de usuarios, modulos y configuraciones.",
+      "archivo": "docs/manual_administracion.md",
+      "controles_relacionados": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        38,
+        39,
+        40,
+        50,
+        51,
+        52,
+        53,
+        54
+      ]
+    },
+    {
+      "id": "EV-57",
+      "tipo": "Código",
+      "descripcion": "Endpoint de eventos de seguridad para exportacion y correlacion.",
+      "archivo": "app/app/api/security/events/route.ts",
+      "controles_relacionados": [
+        11,
+        22,
+        45
+      ]
+    }
+  ],
+  "docker_annex": [
+    {
+      "component": "Aplicacion",
+      "implementation": "Contenedor Docker multi-stage con runtime on-premise y configuracion endurecida.",
+      "evidence_ids": [
+        "EV-05",
+        "EV-06"
+      ]
+    },
+    {
+      "component": "Proxy TLS interno",
+      "implementation": "Nginx interno termina HTTPS, reenvia trafico y expone healthchecks de forma controlada.",
+      "evidence_ids": [
+        "EV-07",
+        "EV-34",
+        "EV-47"
+      ]
+    },
+    {
+      "component": "Repositorio central",
+      "implementation": "PostgreSQL 16 on-premise con tablas de sesion, registros, conflictos, auditoria y seguridad.",
+      "evidence_ids": [
+        "EV-08",
+        "EV-30",
+        "EV-31",
+        "EV-35"
+      ]
+    },
+    {
+      "component": "Continuidad y respaldo",
+      "implementation": "Backup-runner, checksums, manifiesto y restauracion validada para sostener recuperacion operativa.",
+      "evidence_ids": [
+        "EV-36",
+        "EV-38",
+        "EV-48"
+      ]
+    }
+  ],
+  "sync_annex": [
+    {
+      "component": "Persistencia local resiliente",
+      "implementation": "IndexedDB y cola persistente para create, update, delete y resolucion de conflicto.",
+      "evidence_ids": [
+        "EV-19",
+        "EV-21",
+        "EV-23"
+      ]
+    },
+    {
+      "component": "Bootstrap seguro",
+      "implementation": "Sesion server-side, registro de dispositivo y vigencia controlada por backend on-premise.",
+      "evidence_ids": [
+        "EV-11",
+        "EV-12",
+        "EV-22",
+        "EV-40"
+      ]
+    },
+    {
+      "component": "Sincronizacion central",
+      "implementation": "Endpoints push/pull, control de version, preservacion de conflictos y descarga incremental de cambios.",
+      "evidence_ids": [
+        "EV-13",
+        "EV-14",
+        "EV-15",
+        "EV-16",
+        "EV-17",
+        "EV-20",
+        "EV-41",
+        "EV-42"
+      ]
+    },
+    {
+      "component": "Trazabilidad de seguridad",
+      "implementation": "Eventos exportables, auditoria central y evidencia SQL de actividad y registros.",
+      "evidence_ids": [
+        "EV-18",
+        "EV-30",
+        "EV-31",
+        "EV-32",
+        "EV-57"
+      ]
+    }
+  ],
+  "visual_selection": [
+    "EV-21",
+    "EV-22",
+    "EV-23",
+    "EV-24",
+    "EV-25",
+    "EV-33",
+    "EV-34",
+    "EV-35",
+    "EV-36",
+    "EV-37"
+  ]
+}

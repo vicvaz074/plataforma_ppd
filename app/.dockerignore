@@ -1,0 +1,10 @@
+node_modules
+.next
+out
+output
+tests
+coverage
+*.log
+tsconfig.tsbuildinfo
+npm-debug.log*
+pnpm-debug.log*

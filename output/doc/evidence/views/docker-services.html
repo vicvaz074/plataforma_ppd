@@ -1,0 +1,35 @@
+<!doctype html><html><head><meta charset='utf-8'><title>Docker Services</title><style>
+body {
+  font-family: Menlo, Consolas, monospace;
+  background: #0f172a;
+  color: #e2e8f0;
+  margin: 0;
+  padding: 24px;
+}
+h1 {
+  font-family: Arial, sans-serif;
+  font-size: 24px;
+  margin: 0 0 16px;
+  color: #93c5fd;
+}
+.meta {
+  font-family: Arial, sans-serif;
+  color: #94a3b8;
+  margin: 0 0 20px;
+}
+pre {
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: #111827;
+  border: 1px solid #334155;
+  border-radius: 14px;
+  padding: 18px;
+  line-height: 1.45;
+  font-size: 15px;
+}
+</style></head><body><h1>Docker Services</h1><p class='meta'>Fuente: output/doc/validation/docker-compose-ps-initial.txt</p><pre>NAME                            IMAGE                         COMMAND                  SERVICE         CREATED          STATUS                    PORTS
+davara-onprem-backup-runner-1   davara-onprem-backup-runner   &quot;/bin/sh /workspace/…&quot;   backup-runner   1 second ago     Up Less than a second     
+davara-onprem-davara-app-1      davara-governance:onprem      &quot;docker-entrypoint.s…&quot;   davara-app      58 seconds ago   Up 51 seconds (healthy)   3000/tcp
+davara-onprem-postgres-1        postgres:16-alpine            &quot;docker-entrypoint.s…&quot;   postgres        58 seconds ago   Up 57 seconds (healthy)   0.0.0.0:55432-&gt;5432/tcp, [::]:55432-&gt;5432/tcp
+davara-onprem-reverse-proxy-1   nginx:1.27-alpine             &quot;/docker-entrypoint.…&quot;   reverse-proxy   58 seconds ago   Up 45 seconds (healthy)   0.0.0.0:8443-&gt;443/tcp, [::]:8443-&gt;443/tcp
+</pre></body></html>

@@ -1,0 +1,778 @@
+[
+  {
+    "id": "EV-01",
+    "tipo": "Operativa",
+    "descripcion": "Paquete operativo del contratista para gobierno, accesos, incidentes, terceros, riesgos y seguridad fisica.",
+    "archivo": "docs/paquete_evidencia_operativa_onprem.md",
+    "controles_relacionados": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      50,
+      51,
+      52,
+      53,
+      54
+    ]
+  },
+  {
+    "id": "EV-02",
+    "tipo": "Operativa",
+    "descripcion": "Marco de desarrollo seguro, vulnerabilidades, parches y control tecnico del ciclo de entrega.",
+    "archivo": "docs/seguridad_desarrollo_y_vulnerabilidades_onprem.md",
+    "controles_relacionados": [
+      7,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      38,
+      39,
+      40,
+      45,
+      46,
+      47,
+      48,
+      49
+    ]
+  },
+  {
+    "id": "EV-03",
+    "tipo": "Operativa",
+    "descripcion": "Protocolo general de seguridad para despliegues Davara Governance on-premise.",
+    "archivo": "docs/protocolos_seguridad.md",
+    "controles_relacionados": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ]
+  },
+  {
+    "id": "EV-04",
+    "tipo": "Operativa",
+    "descripcion": "Documento tecnico de arquitectura, implementacion y despliegue on-premise.",
+    "archivo": "docs/documento_tecnico_implantacion_onpremise.md",
+    "controles_relacionados": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      41,
+      42,
+      43,
+      44,
+      50,
+      51,
+      52,
+      53,
+      54
+    ]
+  },
+  {
+    "id": "EV-05",
+    "tipo": "Configuración",
+    "descripcion": "Imagen Docker multi-stage endurecida para la aplicacion.",
+    "archivo": "app/Dockerfile",
+    "controles_relacionados": [
+      1,
+      2,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      16,
+      44,
+      47
+    ]
+  },
+  {
+    "id": "EV-06",
+    "tipo": "Configuración",
+    "descripcion": "Composicion on-premise con app, PostgreSQL, proxy TLS y backup-runner.",
+    "archivo": "docker-compose.onprem.yml",
+    "controles_relacionados": [
+      1,
+      2,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      16,
+      44,
+      47
+    ]
+  },
+  {
+    "id": "EV-07",
+    "tipo": "Configuración",
+    "descripcion": "Reverse proxy TLS interno para la solucion on-premise.",
+    "archivo": "deploy/nginx/onprem.conf",
+    "controles_relacionados": [
+      1,
+      2,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14
+    ]
+  },
+  {
+    "id": "EV-08",
+    "tipo": "SQL",
+    "descripcion": "Esquema base PostgreSQL 16 con registros, auditoria, eventos y sincronizacion.",
+    "archivo": "deploy/sql/init/001_onprem_core.sql",
+    "controles_relacionados": [
+      41,
+      42,
+      43,
+      44
+    ]
+  },
+  {
+    "id": "EV-09",
+    "tipo": "SQL",
+    "descripcion": "Consultas de verificacion para evidencia centralizada en PostgreSQL.",
+    "archivo": "deploy/sql/verify/001_evidence_queries.sql",
+    "controles_relacionados": []
+  },
+  {
+    "id": "EV-10",
+    "tipo": "HTTP",
+    "descripcion": "Estado previo al bootstrap del dispositivo y de la sesion server-side.",
+    "archivo": "output/doc/evidence/http/EV-10-sync-status-prebootstrap.http",
+    "controles_relacionados": []
+  },
+  {
+    "id": "EV-11",
+    "tipo": "HTTP",
+    "descripcion": "Bootstrap server-side exitoso con emision de sesion y registro del dispositivo.",
+    "archivo": "output/doc/evidence/http/EV-11-bootstrap.http",
+    "controles_relacionados": [
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37
+    ]
+  },
+  {
+    "id": "EV-12",
+    "tipo": "HTTP",
+    "descripcion": "Estado central posterior al bootstrap con sesion activa.",
+    "archivo": "output/doc/evidence/http/EV-12-sync-status-postbootstrap.http",
+    "controles_relacionados": [
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37
+    ]
+  },
+  {
+    "id": "EV-13",
+    "tipo": "HTTP",
+    "descripcion": "Sincronizacion push con alta de registro hacia el repositorio central.",
+    "archivo": "output/doc/evidence/http/EV-13-sync-push-create.http",
+    "controles_relacionados": [
+      12
+    ]
+  },
+  {
+    "id": "EV-14",
+    "tipo": "HTTP",
+    "descripcion": "Lectura pull de cambios centrales para el dispositivo.",
+    "archivo": "output/doc/evidence/http/EV-14-sync-pull.http",
+    "controles_relacionados": [
+      12
+    ]
+  },
+  {
+    "id": "EV-15",
+    "tipo": "HTTP",
+    "descripcion": "Actualizacion remota simulada para validar deteccion de cambios centrales.",
+    "archivo": "output/doc/evidence/http/EV-15-simulate-remote-update.http",
+    "controles_relacionados": []
+  },
+  {
+    "id": "EV-16",
+    "tipo": "HTTP",
+    "descripcion": "Conflicto detectado y preservado durante la sincronizacion.",
+    "archivo": "output/doc/evidence/http/EV-16-sync-push-conflict.http",
+    "controles_relacionados": []
+  },
+  {
+    "id": "EV-17",
+    "tipo": "HTTP",
+    "descripcion": "Resolucion controlada de conflicto y cierre de la incidencia tecnica.",
+    "archivo": "output/doc/evidence/http/EV-17-resolve-conflict.http",
+    "controles_relacionados": []
+  },
+  {
+    "id": "EV-18",
+    "tipo": "HTTP",
+    "descripcion": "Exportacion de eventos de seguridad para monitoreo centralizado o SIEM.",
+    "archivo": "output/doc/evidence/http/EV-18-security-events.http",
+    "controles_relacionados": [
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      45
+    ]
+  },
+  {
+    "id": "EV-19",
+    "tipo": "Código",
+    "descripcion": "Cliente de persistencia local-first con IndexedDB, cola de sincronizacion y manejo de conflictos.",
+    "archivo": "app/lib/onprem/client-sync.ts",
+    "controles_relacionados": [
+      48
+    ]
+  },
+  {
+    "id": "EV-20",
+    "tipo": "Código",
+    "descripcion": "Capa server-side de sincronizacion, sesiones, conflictos y telemetria de seguridad.",
+    "archivo": "app/lib/onprem/sync-store.ts",
+    "controles_relacionados": [
+      15,
+      48
+    ]
+  },
+  {
+    "id": "EV-21",
+    "tipo": "Visual",
+    "descripcion": "Consola de sincronizacion on-premise con estados, cola y resumen operativo.",
+    "archivo": "output/doc/evidence/screenshots/EV-21-sync-center-overview.png",
+    "controles_relacionados": [
+      9,
+      14,
+      48
+    ]
+  },
+  {
+    "id": "EV-22",
+    "tipo": "Visual",
+    "descripcion": "Bootstrap exitoso del dispositivo y emision de sesion server-side.",
+    "archivo": "output/doc/evidence/screenshots/EV-22-bootstrap-success.png",
+    "controles_relacionados": [
+      27
+    ]
+  },
+  {
+    "id": "EV-23",
+    "tipo": "Visual",
+    "descripcion": "Operacion offline con cola pendiente antes de la reconexion.",
+    "archivo": "output/doc/evidence/screenshots/EV-23-offline-queue-pending.png",
+    "controles_relacionados": [
+      14
+    ]
+  },
+  {
+    "id": "EV-24",
+    "tipo": "Visual",
+    "descripcion": "Sincronizacion exitosa hacia PostgreSQL on-premise.",
+    "archivo": "output/doc/evidence/screenshots/EV-24-sync-success.png",
+    "controles_relacionados": [
+      12,
+      14
+    ]
+  },
+  {
+    "id": "EV-25",
+    "tipo": "Visual",
+    "descripcion": "Conflicto visible y preservado para resolucion explicita.",
+    "archivo": "output/doc/evidence/screenshots/EV-25-conflict-visible.png",
+    "controles_relacionados": [
+      15,
+      21,
+      45
+    ]
+  },
+  {
+    "id": "EV-26",
+    "tipo": "Logs",
+    "descripcion": "Resultado de lint local sin errores bloqueantes.",
+    "archivo": "output/doc/evidence/logs/pnpm-lint.txt",
+    "controles_relacionados": [
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      45,
+      46,
+      47,
+      48,
+      49
+    ]
+  },
+  {
+    "id": "EV-27",
+    "tipo": "Logs",
+    "descripcion": "Resultado de build de produccion exitoso.",
+    "archivo": "output/doc/evidence/logs/pnpm-build.txt",
+    "controles_relacionados": [
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      45,
+      46,
+      47,
+      48,
+      49
+    ]
+  },
+  {
+    "id": "EV-28",
+    "tipo": "Logs",
+    "descripcion": "Pruebas E2E ejecutadas satisfactoriamente.",
+    "archivo": "output/doc/evidence/logs/pnpm-test-e2e.txt",
+    "controles_relacionados": [
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      45,
+      46,
+      47,
+      48,
+      49
+    ]
+  },
+  {
+    "id": "EV-29",
+    "tipo": "Configuración",
+    "descripcion": "Variables operativas documentadas para despliegue on-premise.",
+    "archivo": "deploy/env/onprem.env.example",
+    "controles_relacionados": [
+      1,
+      2
+    ]
+  },
+  {
+    "id": "EV-30",
+    "tipo": "SQL",
+    "descripcion": "Metricas de dispositivos, registros, conflictos y eventos en el repositorio central.",
+    "archivo": "output/doc/evidence/sql/EV-30-sql-metrics.txt",
+    "controles_relacionados": [
+      9,
+      43
+    ]
+  },
+  {
+    "id": "EV-31",
+    "tipo": "SQL",
+    "descripcion": "Consulta de registros sincronizados en PostgreSQL.",
+    "archivo": "output/doc/evidence/sql/EV-31-sql-records.txt",
+    "controles_relacionados": [
+      41,
+      42,
+      43,
+      44
+    ]
+  },
+  {
+    "id": "EV-32",
+    "tipo": "SQL",
+    "descripcion": "Consulta de eventos de seguridad centralizados.",
+    "archivo": "output/doc/evidence/sql/EV-32-sql-security-events.txt",
+    "controles_relacionados": [
+      21,
+      22,
+      23,
+      24,
+      25,
+      26
+    ]
+  },
+  {
+    "id": "EV-33",
+    "tipo": "Visual",
+    "descripcion": "Servicios Docker on-premise ejecutandose y con healthchecks positivos.",
+    "archivo": "output/doc/evidence/screenshots/EV-33-docker-services-healthy.png",
+    "controles_relacionados": [
+      1,
+      2,
+      9,
+      19,
+      28,
+      29
+    ]
+  },
+  {
+    "id": "EV-34",
+    "tipo": "Visual",
+    "descripcion": "Validacion HTTPS interna y endpoints de salud a traves del proxy TLS.",
+    "archivo": "output/doc/evidence/screenshots/EV-34-https-healthcheck.png",
+    "controles_relacionados": [
+      1,
+      9,
+      12
+    ]
+  },
+  {
+    "id": "EV-35",
+    "tipo": "Visual",
+    "descripcion": "Visualizacion de evidencia SQL con registros centralizados.",
+    "archivo": "output/doc/evidence/screenshots/EV-35-sql-central-records.png",
+    "controles_relacionados": [
+      12,
+      41
+    ]
+  },
+  {
+    "id": "EV-36",
+    "tipo": "Visual",
+    "descripcion": "Evidencia visual de backup y restauracion verificada.",
+    "archivo": "output/doc/evidence/screenshots/EV-36-backup-restore-verified.png",
+    "controles_relacionados": [
+      13,
+      26
+    ]
+  },
+  {
+    "id": "EV-37",
+    "tipo": "Visual",
+    "descripcion": "Preview renderizado del documento final de respuesta.",
+    "archivo": "output/doc/evidence/screenshots/EV-37-docx-preview.png",
+    "controles_relacionados": [
+      2
+    ]
+  },
+  {
+    "id": "EV-38",
+    "tipo": "Logs",
+    "descripcion": "Prueba de backup y restauracion con checksum y base restaurada.",
+    "archivo": "output/doc/evidence/logs/backup-test.txt",
+    "controles_relacionados": [
+      21,
+      22,
+      23,
+      24,
+      25,
+      26
+    ]
+  },
+  {
+    "id": "EV-39",
+    "tipo": "Configuración",
+    "descripcion": "Variables de entorno oficiales para la solucion web on-premise.",
+    "archivo": "app/.env.example",
+    "controles_relacionados": [
+      1,
+      2
+    ]
+  },
+  {
+    "id": "EV-40",
+    "tipo": "Código",
+    "descripcion": "Endpoint de bootstrap server-side para sesion y dispositivo.",
+    "archivo": "app/app/api/auth/bootstrap/route.ts",
+    "controles_relacionados": [
+      27,
+      30,
+      48
+    ]
+  },
+  {
+    "id": "EV-41",
+    "tipo": "Código",
+    "descripcion": "Endpoint de sincronizacion push hacia el repositorio central.",
+    "archivo": "app/app/api/sync/push/route.ts",
+    "controles_relacionados": [
+      48
+    ]
+  },
+  {
+    "id": "EV-42",
+    "tipo": "Código",
+    "descripcion": "Endpoint de sincronizacion pull y estado central.",
+    "archivo": "app/app/api/sync/pull/route.ts",
+    "controles_relacionados": [
+      48
+    ]
+  },
+  {
+    "id": "EV-43",
+    "tipo": "Código",
+    "descripcion": "Centro de sincronizacion visible para demostracion funcional y evidencia.",
+    "archivo": "app/app/sync-center/page.tsx",
+    "controles_relacionados": [
+      48
+    ]
+  },
+  {
+    "id": "EV-44",
+    "tipo": "Código",
+    "descripcion": "Cabeceras de seguridad y CSP self-hosted endurecida.",
+    "archivo": "app/security-headers.cjs",
+    "controles_relacionados": [
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      45,
+      46,
+      47,
+      48,
+      49
+    ]
+  },
+  {
+    "id": "EV-45",
+    "tipo": "Código",
+    "descripcion": "Asistente externo deshabilitado por defecto para despliegues on-premise estrictos.",
+    "archivo": "app/components/alicia-assistant.tsx",
+    "controles_relacionados": [
+      10
+    ]
+  },
+  {
+    "id": "EV-46",
+    "tipo": "Código",
+    "descripcion": "Cliente Electron preparado para consumir URL interna corporativa controlada.",
+    "archivo": "main/main.js",
+    "controles_relacionados": [
+      1,
+      2
+    ]
+  },
+  {
+    "id": "EV-47",
+    "tipo": "Logs",
+    "descripcion": "Comprobacion runtime de la pila on-premise sobre HTTPS interno.",
+    "archivo": "output/doc/validation/docker-compose-runtime-check.txt",
+    "controles_relacionados": [
+      14,
+      19,
+      47
+    ]
+  },
+  {
+    "id": "EV-48",
+    "tipo": "Logs",
+    "descripcion": "Estado de contenedores on-premise y healthchecks.",
+    "archivo": "output/doc/validation/docker-compose-ps-initial.txt",
+    "controles_relacionados": [
+      14,
+      19
+    ]
+  },
+  {
+    "id": "EV-49",
+    "tipo": "Código",
+    "descripcion": "Reglas de robustez de contrasenas y validacion de credenciales.",
+    "archivo": "app/lib/password-validation.ts",
+    "controles_relacionados": [
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37
+    ]
+  },
+  {
+    "id": "EV-50",
+    "tipo": "Código",
+    "descripcion": "Control de intentos fallidos y bloqueo temporal.",
+    "archivo": "app/lib/rate-limiter.ts",
+    "controles_relacionados": [
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37
+    ]
+  },
+  {
+    "id": "EV-51",
+    "tipo": "Código",
+    "descripcion": "Autenticacion, sesiones y eventos de acceso en el aplicativo.",
+    "archivo": "app/lib/auth.ts",
+    "controles_relacionados": [
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37
+    ]
+  },
+  {
+    "id": "EV-52",
+    "tipo": "Código",
+    "descripcion": "Modelo de roles, perfiles y permisos por modulo.",
+    "archivo": "app/lib/user-permissions.ts",
+    "controles_relacionados": [
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37
+    ]
+  },
+  {
+    "id": "EV-53",
+    "tipo": "Código",
+    "descripcion": "Modulo de cultura y concientizacion disponible dentro de la plataforma.",
+    "archivo": "app/app/awareness/page.tsx",
+    "controles_relacionados": [
+      8,
+      38,
+      39,
+      40
+    ]
+  },
+  {
+    "id": "EV-54",
+    "tipo": "Código",
+    "descripcion": "Modelo documental de politicas, propietarios y clasificacion.",
+    "archivo": "app/lib/policy-governance.ts",
+    "controles_relacionados": [
+      41,
+      42,
+      43,
+      44
+    ]
+  },
+  {
+    "id": "EV-55",
+    "tipo": "Código",
+    "descripcion": "Modulo de incidentes y brechas con captura estructurada.",
+    "archivo": "app/app/incidents-breaches/page.tsx",
+    "controles_relacionados": [
+      21
+    ]
+  },
+  {
+    "id": "EV-56",
+    "tipo": "Operativa",
+    "descripcion": "Manual de administracion para supervision de usuarios, modulos y configuraciones.",
+    "archivo": "docs/manual_administracion.md",
+    "controles_relacionados": [
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      38,
+      39,
+      40,
+      50,
+      51,
+      52,
+      53,
+      54
+    ]
+  },
+  {
+    "id": "EV-57",
+    "tipo": "Código",
+    "descripcion": "Endpoint de eventos de seguridad para exportacion y correlacion.",
+    "archivo": "app/app/api/security/events/route.ts",
+    "controles_relacionados": [
+      11,
+      22,
+      45
+    ]
+  }
+]

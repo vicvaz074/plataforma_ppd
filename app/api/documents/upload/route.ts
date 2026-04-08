@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { mkdir, open } from "fs/promises"
-import { basename, join } from "path"
+import { basename, join, resolve } from "path"
 import crypto from "crypto"
 
 // Generate a secure filename
@@ -10,6 +10,11 @@ function generateSecureFilename(originalFilename: string): string {
   const safeFilename = basename(originalFilename)
   const extension = safeFilename.includes(".") ? safeFilename.split(".").pop() : "bin"
   return `${timestamp}-${random}.${extension}`
+}
+
+function getUploadsDir(): string {
+  const configuredDir = process.env.UPLOADS_DIR?.trim()
+  return configuredDir ? resolve(configuredDir) : join(process.cwd(), "uploads")
 }
 
 export async function POST(request: NextRequest) {
@@ -45,8 +50,7 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(bytes)
 
     // Save file to secure location
-    // Note: In production, you should use a proper storage service like AWS S3
-    const uploadsDir = join(process.cwd(), "uploads")
+    const uploadsDir = getUploadsDir()
     await mkdir(uploadsDir, { recursive: true })
 
     const path = join(uploadsDir, secureFilename)
@@ -80,4 +84,3 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Failed to upload file" }, { status: 500 })
   }
 }
-

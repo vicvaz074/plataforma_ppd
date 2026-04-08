@@ -83,6 +83,7 @@ export function destroySession(): void {
   localStorage.removeItem("userEmail")
   localStorage.removeItem("modulePermissions")
   localStorage.removeItem("current_user_permissions")
+  localStorage.removeItem("davara_session_snapshot_v1")
 
   if (inactivityTimer) {
     clearTimeout(inactivityTimer)
