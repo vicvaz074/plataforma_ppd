@@ -13,7 +13,10 @@ export function LocalFirstProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let cleanup: (() => void) | undefined
 
-    void fetch("/api/auth/session")
+    void fetch("/api/auth/session", {
+      cache: "no-store",
+      credentials: "same-origin",
+    })
       .then(async (response) => {
         if (!response.ok) return null
         return response.json()

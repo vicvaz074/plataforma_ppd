@@ -18,7 +18,7 @@ import { useSecurityContext } from "@/lib/SecurityContext"
 import { checkRateLimit, formatRetryAfter, getRemainingAttempts } from "@/lib/rate-limiter"
 import { validatePasswordStrength, getStrengthColor, getStrengthLabel } from "@/lib/password-validation"
 import { sanitizeEmail } from "@/lib/sanitize"
-import { startInactivityMonitor } from "@/lib/session"
+import { createSession, isSessionValid, startInactivityMonitor } from "@/lib/session"
 import { getOrCreateDeviceKey, writeSessionSnapshot } from "@/lib/platform-access"
 import { prepareLocalFirstWorkspaceAfterLogin } from "@/lib/local-first-platform"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -47,6 +47,7 @@ export default function LoginPage() {
     role: string
     modulePermissions: Record<string, boolean>
   }, sessionMode: "server" | "offline-local", sessionExpiresAt?: string | null) => {
+    createSession(sessionExpiresAt ?? undefined)
     localStorage.setItem("isAuthenticated", "true")
     localStorage.setItem("userRole", user.role || "user")
     localStorage.setItem("userName", user.name)
@@ -90,14 +91,54 @@ export default function LoginPage() {
 
   useEffect(() => {
     const isAuthenticated = localStorage.getItem("isAuthenticated") === "true"
-    if (!isAuthenticated) return
+    if (isAuthenticated && isSessionValid()) {
+      const isFile = window.location.protocol === "file:"
+      if (isFile) {
+        const targetUrl = new URL("../index.html", window.location.href)
+        window.location.replace(targetUrl.toString())
+      } else {
+        router.replace("/")
+      }
+      return
+    }
 
-    const isFile = window.location.protocol === "file:"
-    if (isFile) {
-      const targetUrl = new URL("../index.html", window.location.href)
-      window.location.replace(targetUrl.toString())
-    } else {
-      router.replace("/")
+    if (window.location.protocol === "file:") return
+
+    let cancelled = false
+    void fetch("/api/auth/session", { cache: "no-store", credentials: "same-origin" })
+      .then(async (response) => {
+        if (!response.ok) return null
+        return response.json()
+      })
+      .then(async (payload) => {
+        if (cancelled || !payload?.authenticated || !payload?.session) return
+
+        createSession(payload.session.expiresAt ?? null)
+        localStorage.setItem("isAuthenticated", "true")
+        localStorage.setItem("userRole", payload.session.role || "user")
+        localStorage.setItem("userName", payload.session.name || payload.session.email)
+        localStorage.setItem("userEmail", payload.session.email)
+        localStorage.setItem("modulePermissions", JSON.stringify(payload.session.modulePermissions || {}))
+
+        writeSessionSnapshot({
+          email: payload.session.email,
+          name: payload.session.name,
+          role: payload.session.role,
+          modulePermissions: payload.session.modulePermissions || {},
+          sessionMode: "server",
+          deviceKey: payload.session.deviceKey,
+          sessionExpiresAt: payload.session.expiresAt ?? null,
+          lastSyncAt: null,
+        })
+
+        router.replace("/")
+      })
+      .catch(() => {
+        // Si no hay sesión central activa, el usuario permanece en login.
+      })
+
+    return () => {
+      cancelled = true
     }
   }, [router])
 
@@ -133,6 +174,7 @@ export default function LoginPage() {
       try {
         const serverResponse = await fetch("/api/auth/login", {
           method: "POST",
+          credentials: "same-origin",
           headers: { "content-type": "application/json" },
           body: JSON.stringify({
             email: cleanEmail,

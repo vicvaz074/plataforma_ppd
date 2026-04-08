@@ -17,12 +17,36 @@ const INACTIVITY_TIMEOUT_MS = 5 * 60 * 60 * 1000 // 5 horas
 let inactivityTimer: ReturnType<typeof setTimeout> | null = null
 let onSessionExpiredCallback: (() => void) | null = null
 
+function resolveSessionExpiry(explicitExpiry?: string | number | Date | null): number {
+  const now = Date.now()
+
+  if (typeof explicitExpiry === "number" && Number.isFinite(explicitExpiry) && explicitExpiry > now) {
+    return explicitExpiry
+  }
+
+  if (typeof explicitExpiry === "string" && explicitExpiry.trim().length > 0) {
+    const parsed = new Date(explicitExpiry).getTime()
+    if (Number.isFinite(parsed) && parsed > now) {
+      return parsed
+    }
+  }
+
+  if (explicitExpiry instanceof Date) {
+    const parsed = explicitExpiry.getTime()
+    if (Number.isFinite(parsed) && parsed > now) {
+      return parsed
+    }
+  }
+
+  return now + SESSION_DURATION_MS
+}
+
 /**
  * Crea una nueva sesión con token criptográfico.
  */
-export function createSession(): string {
+export function createSession(explicitExpiry?: string | number | Date | null): string {
   const token = globalThis.crypto?.randomUUID?.() || `session-${Date.now()}-${Math.random().toString(36).slice(2)}`
-  const expiry = Date.now() + SESSION_DURATION_MS
+  const expiry = resolveSessionExpiry(explicitExpiry)
 
   sessionStorage.setItem(SESSION_TOKEN_KEY, token)
   sessionStorage.setItem(SESSION_EXPIRY_KEY, String(expiry))

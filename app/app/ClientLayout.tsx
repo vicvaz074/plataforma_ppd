@@ -11,8 +11,8 @@ import "@/lib/zod-config"
 import { Sidebar } from "@/components/sidebar"
 import { Header } from "@/components/header"
 import { LocalFirstProvider } from "@/components/local-first-provider"
-import { isSessionValid, startInactivityMonitor, onSessionExpired, destroySession } from "@/lib/session"
-import { hasModuleAccessFromSnapshot, readSessionSnapshot, resolveCurrentModuleSlug } from "@/lib/platform-access"
+import { createSession, isSessionValid, startInactivityMonitor, onSessionExpired, destroySession } from "@/lib/session"
+import { hasModuleAccessFromSnapshot, readSessionSnapshot, resolveCurrentModuleSlug, writeSessionSnapshot } from "@/lib/platform-access"
 
 function AppShell({ authed, children }: { authed: boolean; children: React.ReactNode }) {
   const { collapsed, isMobile } = useSidebar()
@@ -47,21 +47,13 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
   const [authed, setAuthed] = useState(false)
 
   useEffect(() => {
-    setHydrated(true)
-    const authenticated = localStorage.getItem("isAuthenticated") === "true"
-    // Verificar también la sesión (timeout por inactividad y expiración)
-    const sessionOk = isSessionValid()
-    const isValid = authenticated && sessionOk
+    let cancelled = false
 
-    // Si había sesión pero expiró, limpiar
-    if (authenticated && !sessionOk) {
-      destroySession()
-    }
+    const handleAuthenticatedState = (isValid: boolean) => {
+      setAuthed(isValid)
 
-    setAuthed(isValid)
+      if (!isValid) return
 
-    // Configurar auto-logout por inactividad
-    if (isValid) {
       onSessionExpired(() => {
         destroySession()
         setAuthed(false)
@@ -69,42 +61,89 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
         window.location.href = fileProto ? "./login/index.html" : "/login"
       })
       startInactivityMonitor()
-    }
 
-    const fileProto = window.location.protocol === "file:"
-
-    if (fileProto) {
-      const depth = pathname.split("/").filter(Boolean).length
-      const baseHref = depth > 0 ? "../".repeat(depth) : "./"
-      let baseEl = document.querySelector("base")
-      if (!baseEl) {
-        baseEl = document.createElement("base")
-        document.head.prepend(baseEl)
-      }
-      baseEl.setAttribute("href", baseHref)
-
-      const isLogin = pathname.includes("/login")
-      if (!isValid && !isLogin) {
-        window.location.href = "./login/index.html"
-      }
-    } else {
-      const isLogin = pathname === "/login" || pathname === "/login/"
-      if (!isValid && !isLogin) {
-        window.location.href = "/login"
-        return
-      }
-    }
-
-    if (isValid) {
       const moduleSlug = resolveCurrentModuleSlug(pathname)
       if (moduleSlug) {
         const snapshot = readSessionSnapshot()
         const hasAccess = hasModuleAccessFromSnapshot(moduleSlug, snapshot)
         if (!hasAccess) {
           window.location.href = "/"
-          return
         }
       }
+    }
+
+    const hydrateAuthState = async () => {
+      const fileProto = window.location.protocol === "file:"
+      const isLogin = fileProto ? pathname.includes("/login") : pathname === "/login" || pathname === "/login/"
+
+      if (fileProto) {
+        const depth = pathname.split("/").filter(Boolean).length
+        const baseHref = depth > 0 ? "../".repeat(depth) : "./"
+        let baseEl = document.querySelector("base")
+        if (!baseEl) {
+          baseEl = document.createElement("base")
+          document.head.prepend(baseEl)
+        }
+        baseEl.setAttribute("href", baseHref)
+      }
+
+      const authenticated = localStorage.getItem("isAuthenticated") === "true"
+      const sessionOk = isSessionValid()
+      if (authenticated && sessionOk) {
+        handleAuthenticatedState(true)
+        return
+      }
+
+      if (!fileProto) {
+        try {
+          const response = await fetch("/api/auth/session", {
+            cache: "no-store",
+            credentials: "same-origin",
+          })
+          const payload = response.ok ? await response.json() : null
+          if (!cancelled && payload?.authenticated && payload?.session) {
+            createSession(payload.session.expiresAt ?? null)
+            localStorage.setItem("isAuthenticated", "true")
+            localStorage.setItem("userRole", payload.session.role || "user")
+            localStorage.setItem("userName", payload.session.name || payload.session.email)
+            localStorage.setItem("userEmail", payload.session.email)
+            localStorage.setItem("modulePermissions", JSON.stringify(payload.session.modulePermissions || {}))
+
+            writeSessionSnapshot({
+              email: payload.session.email,
+              name: payload.session.name,
+              role: payload.session.role,
+              modulePermissions: payload.session.modulePermissions || {},
+              sessionMode: "server",
+              deviceKey: payload.session.deviceKey,
+              sessionExpiresAt: payload.session.expiresAt ?? null,
+              lastSyncAt: null,
+            })
+
+            handleAuthenticatedState(true)
+            return
+          }
+        } catch {
+          // Si no puede rehidratarse desde backend, se aplica el flujo local normal.
+        }
+      }
+
+      if (authenticated && !sessionOk) {
+        destroySession()
+      }
+
+      handleAuthenticatedState(false)
+
+      if (!isLogin) {
+        window.location.href = fileProto ? "./login/index.html" : "/login"
+      }
+    }
+
+    setHydrated(true)
+    void hydrateAuthState()
+
+    return () => {
+      cancelled = true
     }
   }, [pathname])
 
