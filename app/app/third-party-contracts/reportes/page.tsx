@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { useEffect, useMemo, useState } from "react"
 import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
+import { readScopedStorageJson } from "@/lib/local-first-platform"
 
 import { ArcoModuleShell, MODULE_COLOR_PALETTES } from "@/components/arco-module-shell"
 import { THIRD_PARTY_CONTRACTS_META, THIRD_PARTY_CONTRACTS_NAV } from "@/components/arco-module-config"
@@ -18,11 +19,7 @@ export default function ThirdPartyContractsReportsPage() {
 
   useEffect(() => {
     const load = () => {
-      try {
-        setContracts(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"))
-      } catch {
-        setContracts([])
-      }
+      setContracts(readScopedStorageJson<ContractMeta[]>(STORAGE_KEY, []))
     }
     load()
     window.addEventListener("storage", load)

@@ -11,6 +11,7 @@ import { SafeLink } from "@/components/SafeLink"
 import { aliciaTranslations } from "@/lib/alicia-translations"
 import aliciaImg from "@/app/public/images/alicia_person.jpeg"
 import { hasModuleAccess } from "@/lib/user-permissions"
+import { hasModuleAccessFromSnapshot, readSessionSnapshot, type SessionSnapshot } from "@/lib/platform-access"
 import {
   Database,
   FileText,
@@ -188,19 +189,34 @@ export default function Home() {
   const aliciaT = aliciaTranslations[language]
   const [userEmail, setUserEmail] = useState<string | null>(null)
   const [userRole, setUserRole] = useState<string | null>(null)
+  const [sessionSnapshot, setSessionSnapshot] = useState<SessionSnapshot | null>(null)
   const [showWelcome, setShowWelcome] = useState(false)
 
   // Hover tipado para aceptar OptionKey y "alicia"
   const [hoveredCard, setHoveredCard] = useState<Option["name"] | null>(null)
 
   useEffect(() => {
-    setUserEmail(localStorage.getItem("userEmail"))
-    setUserRole(localStorage.getItem("userRole"))
-    const shouldShowWelcome = localStorage.getItem("showPostLoginWelcome") === "true"
-    setShowWelcome(shouldShowWelcome)
+    const refreshIdentity = () => {
+      const snapshot = readSessionSnapshot()
+      setSessionSnapshot(snapshot)
+      setUserEmail(localStorage.getItem("userEmail"))
+      setUserRole(snapshot?.role || localStorage.getItem("userRole"))
+      const shouldShowWelcome = localStorage.getItem("showPostLoginWelcome") === "true"
+      setShowWelcome(shouldShowWelcome)
+    }
+
+    refreshIdentity()
+    window.addEventListener("storage", refreshIdentity)
+    window.addEventListener("focus", refreshIdentity)
+
+    return () => {
+      window.removeEventListener("storage", refreshIdentity)
+      window.removeEventListener("focus", refreshIdentity)
+    }
   }, [])
 
   const canAccessModule = (href: string): boolean => {
+    if (sessionSnapshot) return hasModuleAccessFromSnapshot(href, sessionSnapshot)
     if (userRole === "admin") return true
     return hasModuleAccess(userEmail, href)
   }

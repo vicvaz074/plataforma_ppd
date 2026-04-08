@@ -67,6 +67,7 @@ import {
   updateAuditReminder,
 } from "@/lib/audit-alarms"
 import { ensureBrowserStorageEvents } from "@/lib/browser-storage-events"
+import { readScopedStorageJson, writeScopedStorageJson } from "@/lib/local-first-platform"
 import { loadItems } from "@/lib/module-statistics"
 import { loadPolicyRecords } from "@/lib/policy-governance"
 import { secureRandomId } from "@/lib/secure-random"
@@ -547,13 +548,7 @@ const EMPTY_RECORD: BaseModuleRecord = {
 
 function safeParseJson<T>(key: string, fallback: T): T {
   if (!isBrowser) return fallback
-  try {
-    const raw = window.localStorage.getItem(key)
-    if (!raw) return fallback
-    return JSON.parse(raw) as T
-  } catch {
-    return fallback
-  }
+  return readScopedStorageJson<T>(key, fallback)
 }
 
 function readPersistedStore<T>(key: string): T | null {
@@ -576,7 +571,7 @@ function useLocalStorageState<T>(key: string, initialValue: T, migrate?: () => T
 
   useEffect(() => {
     if (!isBrowser) return
-    window.localStorage.setItem(key, JSON.stringify(state))
+    writeScopedStorageJson(key, state)
   }, [key, state])
 
   return [state, setState]

@@ -62,6 +62,7 @@ import {
   HeadingLevel,
   UnderlineType,
 } from "docx"
+import { readScopedStorageJson, writeScopedStorageJson } from "@/lib/local-first-platform"
 
 // Tipos para los informes
 interface Report {
@@ -271,15 +272,8 @@ export default function DPOReportsPage() {
 
   // Cargar informes y actas guardadas
   useEffect(() => {
-    const savedReports = localStorage.getItem("dpo-reports")
-    if (savedReports) {
-      setReports(JSON.parse(savedReports))
-    }
-
-    const savedActas = localStorage.getItem("dpo-actas")
-    if (savedActas) {
-      setActas(JSON.parse(savedActas))
-    }
+    setReports(readScopedStorageJson<Report[]>("dpo-reports", []))
+    setActas(readScopedStorageJson<ActaInforme[]>("dpo-actas", []))
   }, [])
 
   // Manejar cambios en las recomendaciones
@@ -327,9 +321,8 @@ export default function DPOReportsPage() {
         recommendations: newReport.recommendations.filter((r) => r.trim() !== ""),
       }
 
-      // Guardar en localStorage
       const updatedReports = [...reports, reportToSave]
-      localStorage.setItem("dpo-reports", JSON.stringify(updatedReports))
+      writeScopedStorageJson("dpo-reports", updatedReports)
       setReports(updatedReports)
 
       // Si es informe final, generar PDF
@@ -566,7 +559,7 @@ export default function DPOReportsPage() {
 
         const updatedActas = actas.map((acta) => (acta.id === selectedActa.id ? updatedActa : acta))
 
-        localStorage.setItem("dpo-actas", JSON.stringify(updatedActas))
+        writeScopedStorageJson("dpo-actas", updatedActas)
         setActas(updatedActas)
 
         toast({
@@ -586,7 +579,7 @@ export default function DPOReportsPage() {
         }
 
         const updatedActas = [...actas, newActa]
-        localStorage.setItem("dpo-actas", JSON.stringify(updatedActas))
+        writeScopedStorageJson("dpo-actas", updatedActas)
         setActas(updatedActas)
 
         toast({
@@ -698,7 +691,7 @@ export default function DPOReportsPage() {
   // Eliminar acta
   const deleteActa = (id: string) => {
     const updatedActas = actas.filter((acta) => acta.id !== id)
-    localStorage.setItem("dpo-actas", JSON.stringify(updatedActas))
+    writeScopedStorageJson("dpo-actas", updatedActas)
     setActas(updatedActas)
 
     // Si estamos viendo o editando el acta que se elimina, resetear el formulario
@@ -1003,9 +996,8 @@ export default function DPOReportsPage() {
           <meta charset="UTF-8">
           <title>${actaInforme.title}</title>
           <style>
-            @import url("https://fonts.cdnfonts.com/css/futura-std-4");
             body { 
-              font-family: "Futura Std", Arial, sans-serif; 
+              font-family: "Helvetica Neue", Arial, sans-serif; 
               margin: 40px; 
               line-height: 1.6;
               color: #333;
@@ -1562,7 +1554,7 @@ export default function DPOReportsPage() {
                     ref={actaTemplateRef}
                     className="p-8 max-h-[800px] overflow-y-auto bg-card dark:bg-card print:bg-white"
                     style={{
-                      fontFamily: '"Futura Std", sans-serif',
+                      fontFamily: '"Helvetica Neue", Arial, sans-serif',
                       fontSize: "14px",
                       lineHeight: "1.6",
                     }}

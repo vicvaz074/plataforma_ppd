@@ -20,6 +20,11 @@ import type {
 import StepRenderer from "./step-renderer"
 import { StepperNav } from "./stepper-nav"
 import { saveFile } from "@/lib/fileStorage"
+import {
+  readScopedStorageJson,
+  removeScopedStorageValue,
+  writeScopedStorageJson,
+} from "@/lib/local-first-platform"
 import { parseRatExcel } from "../utils/parseRatExcel"
 import { parseExcelOrCsvManual } from "../utils/fileParserManual"
 
@@ -427,7 +432,7 @@ export function InventoryForm({
     }))
   }
 
-  // Guardar progreso en localStorage
+  // Guardar progreso en el runtime local-first
   const handleSaveProgress = () => {
     if (typeof window !== "undefined") {
       // Arregla categorías vacías antes de guardar
@@ -439,7 +444,7 @@ export function InventoryForm({
         }))
       })
       dataToSave.status = "en proceso"
-      localStorage.setItem("inventories_progress", JSON.stringify(dataToSave))
+      writeScopedStorageJson("inventories_progress", dataToSave)
       setProgressSaved(true)
       onProgressSaved?.()
       window.dispatchEvent(new Event("inventory-progress-saved"))
@@ -450,10 +455,10 @@ export function InventoryForm({
   // Cargar progreso guardado
   const handleContinueProgress = () => {
     if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("inventories_progress")
+      const saved = readScopedStorageJson<any>("inventories_progress", null)
       if (saved) {
         try {
-          const parsed = JSON.parse(saved)
+          const parsed = saved
           // Recorre y arregla las categorías si están vacías:
           parsed.subInventories.forEach((sub: any) => {
             sub.personalData = (sub.personalData || []).map((d: any) => ({
@@ -469,7 +474,7 @@ export function InventoryForm({
   }
 
   const hasProgress =
-    typeof window !== "undefined" && Boolean(localStorage.getItem("inventories_progress"))
+    typeof window !== "undefined" && Boolean(readScopedStorageJson("inventories_progress", null))
 
   // Importar todo el inventario desde un archivo
   const handleFullImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -734,7 +739,16 @@ export function InventoryForm({
     if (!inputFiles || inputFiles.length === 0) return
 
     const currentSub = formData.subInventories[activeSub]
-    const metadata = { title: currentSub?.databaseName || "" }
+    const inventoryRecordKey = formData.id || currentSub?.id || `rat-${Date.now()}`
+    const metadata = {
+      title: currentSub?.databaseName || "",
+      moduleKey: "/rat",
+      recordKey: inventoryRecordKey,
+      inventoryId: formData.id || inventoryRecordKey,
+      subInventoryId: currentSub?.id || null,
+      inventoryName: formData.identificador || formData.name || "",
+      databaseName: currentSub?.databaseName || "",
+    }
 
     if (field === "privacyNoticeFiles") {
       if (!currentSub) return
@@ -1144,6 +1158,11 @@ export function InventoryForm({
 
     const metadata = {
       title: formData.subInventories[activeSub]?.databaseName || "",
+      moduleKey: "/rat",
+      recordKey: formData.id || formData.subInventories[activeSub]?.id || `rat-transfer-${idx}`,
+      inventoryId: formData.id || formData.subInventories[activeSub]?.id || null,
+      subInventoryId: formData.subInventories[activeSub]?.id || null,
+      transferIndex: idx,
     }
     const category = field === "consentFile" ? "transfer-consent" : "transfer-contract"
 
@@ -1257,6 +1276,11 @@ export function InventoryForm({
 
     const metadata = {
       title: formData.subInventories[activeSub]?.databaseName || "",
+      moduleKey: "/rat",
+      recordKey: formData.id || formData.subInventories[activeSub]?.id || `rat-remission-${idx}`,
+      inventoryId: formData.id || formData.subInventories[activeSub]?.id || null,
+      subInventoryId: formData.subInventories[activeSub]?.id || null,
+      remissionIndex: idx,
     }
 
     try {
@@ -1359,9 +1383,9 @@ export function InventoryForm({
       updated = [...inventories, invCopy]
     }
     setInventories(updated)
-    localStorage.setItem("inventories", JSON.stringify(updated))
+    writeScopedStorageJson("inventories", updated)
     if (typeof window !== "undefined") {
-      localStorage.removeItem("inventories_progress")
+      removeScopedStorageValue("inventories_progress")
       window.dispatchEvent(new Event("inventory-progress-saved"))
     }
     resetForm()
@@ -1714,4 +1738,3 @@ export function InventoryForm({
     </>
   )
 }
-

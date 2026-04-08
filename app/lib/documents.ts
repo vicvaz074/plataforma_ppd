@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from "uuid"
+import { readScopedStorageJson, writeScopedStorageJson } from "@/lib/local-first-platform"
 
 export interface Document {
   id: string
@@ -16,17 +17,17 @@ export function addDocument(document: Omit<Document, "id">): Document | null {
       ...document,
       id: uuidv4(),
     }
-    const documents = JSON.parse(localStorage.getItem("documents") || "[]")
+    const documents = readScopedStorageJson<Document[]>("documents", [])
     documents.push(newDocument)
-    localStorage.setItem("documents", JSON.stringify(documents))
+    writeScopedStorageJson("documents", documents)
 
     // Add the document to the under review list
-    const underReviewItems = JSON.parse(localStorage.getItem("underReviewItems") || "[]")
+    const underReviewItems = readScopedStorageJson<Array<Document & { type?: string }>>("underReviewItems", [])
     underReviewItems.push({
       ...newDocument,
       type: "document",
     })
-    localStorage.setItem("underReviewItems", JSON.stringify(underReviewItems))
+    writeScopedStorageJson("underReviewItems", underReviewItems)
 
     return newDocument
   } catch (error) {
@@ -36,20 +37,20 @@ export function addDocument(document: Omit<Document, "id">): Document | null {
 }
 
 export function getDocumentsByUser(userEmail: string): Document[] {
-  const documents = JSON.parse(localStorage.getItem("documents") || "[]")
+  const documents = readScopedStorageJson<Document[]>("documents", [])
   return documents.filter((doc: Document) => doc.userEmail === userEmail)
 }
 
 export function deleteDocument(id: string): boolean {
   try {
-    const documents = JSON.parse(localStorage.getItem("documents") || "[]")
+    const documents = readScopedStorageJson<Document[]>("documents", [])
     const updatedDocuments = documents.filter((doc: Document) => doc.id !== id)
-    localStorage.setItem("documents", JSON.stringify(updatedDocuments))
+    writeScopedStorageJson("documents", updatedDocuments)
 
     // Remove the document from the under review list
-    const underReviewItems = JSON.parse(localStorage.getItem("underReviewItems") || "[]")
+    const underReviewItems = readScopedStorageJson<Array<Document & { type?: string }>>("underReviewItems", [])
     const updatedUnderReviewItems = underReviewItems.filter((item: any) => item.id !== id)
-    localStorage.setItem("underReviewItems", JSON.stringify(updatedUnderReviewItems))
+    writeScopedStorageJson("underReviewItems", updatedUnderReviewItems)
 
     return true
   } catch (error) {
@@ -57,4 +58,3 @@ export function deleteDocument(id: string): boolean {
     return false
   }
 }
-

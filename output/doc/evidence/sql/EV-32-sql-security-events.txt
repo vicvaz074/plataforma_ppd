@@ -1,0 +1,12 @@
++------------+----------+------------------------------------------------------------------------------------+---------------------------------+-------------------------------+
+|  category  | severity |                                      message                                       |           actor_email           |          created_at           |
++------------+----------+------------------------------------------------------------------------------------+---------------------------------+-------------------------------+
+| sync       | info     | Conflicto de sincronización resuelto de forma explícita                            | admin@example.com               | 2026-04-07 23:29:58.015628+00 |
+| sync       | warning  | Se detectó un conflicto de sincronización y se preservaron ambas versiones         | admin@example.com               | 2026-04-07 23:29:57.935087+00 |
+| sync       | warning  | Se ejecutó una actualización remota simulada para validar resolución de conflictos | simulacion-remota@interno.local | 2026-04-07 23:29:57.915925+00 |
+| sync       | info     | Operación create aplicada en repositorio central                                   | admin@example.com               | 2026-04-07 23:29:57.882498+00 |
+| auth       | info     | Bootstrap on-premise exitoso y sesión emitida                                      | admin@example.com               | 2026-04-07 23:29:57.836362+00 |
+| deployment | info     | Esquema on-premise inicializado para sincronización híbrida y evidencia central    | system@bootstrap.local          | 2026-04-07 23:25:37.434195+00 |
++------------+----------+------------------------------------------------------------------------------------+---------------------------------+-------------------------------+
+(6 rows)
+

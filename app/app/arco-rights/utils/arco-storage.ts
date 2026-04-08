@@ -23,6 +23,7 @@ import {
   getReminderCandidates,
   prepareArcoRequest,
 } from "./arco-engine"
+import { readScopedStorageJson, removeScopedStorageValue, writeScopedStorageJson } from "@/lib/local-first-platform"
 
 export type {
   ArcoAuditEntry,
@@ -103,7 +104,11 @@ function persistArcoPayload(key: string, payload: string, label: "principal" | "
   if (!isBrowser()) return false
 
   try {
-    window.localStorage.setItem(key, payload)
+    if (key === STORAGE_KEY) {
+      writeScopedStorageJson(key, JSON.parse(payload))
+    } else {
+      window.localStorage.setItem(key, payload)
+    }
     return true
   } catch (error) {
     console.error(`No se pudo guardar el almacenamiento ${label} del módulo ARCO.`, error)
@@ -144,9 +149,8 @@ function readStoredRequests(): ArcoRequest[] {
   if (!isBrowser()) return []
 
   try {
-    const stored = window.localStorage.getItem(STORAGE_KEY)
-    if (!stored) return recoverRequestsFromBackup("almacenamiento principal ausente")
-    const parsed = JSON.parse(stored)
+    const parsed = readScopedStorageJson<unknown[] | null>(STORAGE_KEY, null)
+    if (!parsed) return recoverRequestsFromBackup("almacenamiento principal ausente")
     if (!Array.isArray(parsed)) {
       console.error("El almacenamiento principal de ARCO no contiene un arreglo válido.")
       return recoverRequestsFromBackup("payload principal inválido")
@@ -371,7 +375,7 @@ export const deleteArcoRequests = (ids: string[]): boolean => {
 export const clearArcoRequests = (): boolean => {
   try {
     if (!isBrowser()) return false
-    window.localStorage.removeItem(STORAGE_KEY)
+    removeScopedStorageValue(STORAGE_KEY)
     window.localStorage.removeItem(STORAGE_BACKUP_KEY)
     syncArcoReminders([])
     return true

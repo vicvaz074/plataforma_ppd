@@ -21,6 +21,7 @@ import { Label } from "@/components/ui/label"
 import { Progress } from "@/components/ui/progress"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Textarea } from "@/components/ui/textarea"
+import { readScopedStorageJson, writeScopedStorageJson } from "@/lib/local-first-platform"
 import { secureRandomId } from "@/lib/secure-random"
 import { cn } from "@/lib/utils"
 import {
@@ -653,21 +654,14 @@ function formatSize(bytes: number) {
 function usePersistentState<T>(key: string, initialValue: T): [T, (value: T | ((prev: T) => T)) => void] {
   const [state, setState] = useState<T>(() => {
     if (!isBrowser()) return initialValue
-    const stored = window.localStorage.getItem(key)
-    if (!stored) return initialValue
-    try {
-      return JSON.parse(stored) as T
-    } catch (error) {
-      console.error(`No se pudo leer la clave ${key} de localStorage`, error)
-      return initialValue
-    }
+    return readScopedStorageJson<T>(key, initialValue)
   })
 
   const updateState = (value: T | ((prev: T) => T)) => {
     setState((prev) => {
       const nextValue = typeof value === "function" ? (value as (prev: T) => T)(prev) : value
       if (isBrowser()) {
-        window.localStorage.setItem(key, JSON.stringify(nextValue))
+        writeScopedStorageJson(key, nextValue)
       }
       return nextValue
     })

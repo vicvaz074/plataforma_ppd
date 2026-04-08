@@ -38,6 +38,7 @@ import { SectionA, SectionB, SectionC, SectionD, SectionE, SectionF } from "./co
 import { LifecyclePipeline } from "./components/lifecycle-pipeline"
 import { LegalReferences } from "./components/legal-references"
 import { dataTypeRisks, getRiskLevelColor } from "../rat/constants"
+import { readScopedStorageJson, writeScopedStorageJson } from "@/lib/local-first-platform"
 
 // ─── Severity helpers ─────────────────────────────────────────────────────────
 
@@ -94,11 +95,10 @@ export default function IncidentsAndBreachesPage() {
   // ─── Load incidents from localStorage ───────────────────────────────────────
 
   useEffect(() => {
-    const stored = window.localStorage.getItem(INCIDENT_STORAGE_KEY)
+    const stored = readScopedStorageJson<StoredIncident[] | null>(INCIDENT_STORAGE_KEY, null)
     if (!stored) return
     try {
-      const parsed = JSON.parse(stored) as StoredIncident[]
-      const normalized = parsed.map((incident) => ({
+      const normalized = stored.map((incident) => ({
         ...incident,
         data: {
           ...incident.data,
@@ -156,7 +156,7 @@ export default function IncidentsAndBreachesPage() {
 
     setIncidents(nextIncidents)
     setActiveIncidentId(activeIncidentId ?? newIncidentId)
-    window.localStorage.setItem(INCIDENT_STORAGE_KEY, JSON.stringify(nextIncidents))
+    writeScopedStorageJson(INCIDENT_STORAGE_KEY, nextIncidents)
     toast({
       title: mode === "draft" ? "Borrador guardado" : activeIncidentId ? "Incidente actualizado" : "Incidente registrado",
       description: mode === "draft" ? "Se guardó un borrador del incidente." : "La información se ha guardado exitosamente.",
@@ -181,7 +181,7 @@ export default function IncidentsAndBreachesPage() {
   const handleDeleteIncident = (incidentId: string) => {
     const nextIncidents = incidents.filter((incident) => incident.id !== incidentId)
     setIncidents(nextIncidents)
-    window.localStorage.setItem(INCIDENT_STORAGE_KEY, JSON.stringify(nextIncidents))
+    writeScopedStorageJson(INCIDENT_STORAGE_KEY, nextIncidents)
     toast({ title: "Incidente eliminado", description: "El registro fue eliminado correctamente." })
   }
 

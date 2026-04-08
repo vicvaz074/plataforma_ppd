@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useMemo } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { useLanguage } from "@/lib/LanguageContext"
 import { translations } from "@/lib/translations"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -32,14 +32,12 @@ import {
   ClipboardCheck,
   Shield,
   Lock,
-  Unlock,
   UserPlus,
   Search,
   Trash2,
   Edit3,
   Eye,
   EyeOff,
-  ChevronRight,
   X,
   Check,
   KeyRound,
@@ -60,29 +58,68 @@ import {
 import { loadItems } from "@/lib/module-statistics"
 import { getPolicyProgramSnapshot, getPrimaryPolicy } from "@/lib/policy-governance"
 import {
-  getUsers,
-  saveUsers,
-  addUser,
-  updateUser,
-  deleteUser,
-  approveUser,
-  rejectUser,
-  setUserRole,
-  updateUserPermissions,
-  getModulePasswords,
   setModulePassword,
   removeModulePassword,
-  toggleModulePassword,
   ALL_MODULES,
   ROLE_PRESETS,
   ROLE_LABELS,
-  initializeDefaultUsers,
-  ensureDemoUser,
+  refreshModulePasswordsFromServer,
+  refreshUsersFromServer,
   type PlatformUser,
   type UserRole,
   type ModulePassword,
 } from "@/lib/user-permissions"
-import { hashPassword } from "@/lib/auth"
+import { readSessionSnapshot, type SessionSnapshot } from "@/lib/platform-access"
+import { toast } from "@/components/ui/use-toast"
+
+async function parseAdminUsersResponse(response: Response) {
+  const payload = await response.json().catch(() => null)
+  if (!response.ok) {
+    throw new Error(payload?.error || "No fue posible completar la operación administrativa")
+  }
+  return Array.isArray(payload?.users) ? (payload.users as PlatformUser[]) : []
+}
+
+async function upsertAdminUserRecord(input: {
+  email: string
+  name: string
+  role: UserRole
+  approved: boolean
+  modulePermissions: Record<string, boolean>
+  password?: string
+}) {
+  const response = await fetch("/api/admin/users", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    credentials: "same-origin",
+    body: JSON.stringify(input),
+  })
+  return parseAdminUsersResponse(response)
+}
+
+async function updateAdminModuleAccess(input: {
+  email: string
+  name: string
+  role: UserRole
+  approved: boolean
+  modulePermissions: Record<string, boolean>
+}) {
+  const response = await fetch("/api/admin/module-access", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    credentials: "same-origin",
+    body: JSON.stringify(input),
+  })
+  return parseAdminUsersResponse(response)
+}
+
+async function deleteAdminUserRecord(email: string) {
+  const response = await fetch(`/api/admin/users?email=${encodeURIComponent(email)}`, {
+    method: "DELETE",
+    credentials: "same-origin",
+  })
+  return parseAdminUsersResponse(response)
+}
 
 // ─── Icon map for modules ────────────────────────────────────────────────────
 
@@ -311,17 +348,28 @@ export default function DashboardPage() {
   const { language } = useLanguage()
   const t = translations[language]
   const [userRole, setUserRoleState] = useState<string | null>(null)
+  const [sessionSnapshot, setSessionSnapshot] = useState<SessionSnapshot | null>(null)
 
   useEffect(() => {
-    setUserRoleState(localStorage.getItem("userRole"))
-    initializeDefaultUsers()
-    ensureDemoUser() // async, fire-and-forget is fine here (idempotent)
+    const refreshSessionRole = () => {
+      const snapshot = readSessionSnapshot()
+      setSessionSnapshot(snapshot)
+      setUserRoleState(snapshot?.role || localStorage.getItem("userRole"))
+    }
+
+    refreshSessionRole()
+    window.addEventListener("storage", refreshSessionRole)
+    window.addEventListener("focus", refreshSessionRole)
+    return () => {
+      window.removeEventListener("storage", refreshSessionRole)
+      window.removeEventListener("focus", refreshSessionRole)
+    }
   }, [])
 
-  if (userRole === "admin") {
+  if ((sessionSnapshot?.role || userRole) === "admin") {
     return (
       <div className="container mx-auto py-6 px-4 max-w-[1400px]">
-        <AdminDashboard language={language} t={t} />
+        <AdminDashboard language={language} />
       </div>
     )
   }
@@ -333,7 +381,7 @@ export default function DashboardPage() {
 // ADMIN DASHBOARD
 // ═══════════════════════════════════════════════════════════════════════════════
 
-function AdminDashboard({ language, t }: { language: "es" | "en"; t: any }) {
+function AdminDashboard({ language }: { language: "es" | "en" }) {
   const [users, setUsers] = useState<PlatformUser[]>([])
   const [modulePasswords, setModulePasswordsState] = useState<ModulePassword[]>([])
   const [selectedUser, setSelectedUser] = useState<PlatformUser | null>(null)
@@ -343,20 +391,29 @@ function AdminDashboard({ language, t }: { language: "es" | "en"; t: any }) {
   const [moduleReports, setModuleReports] = useState(fallbackReports)
   const [selectedModule, setSelectedModule] = useState(fallbackReports[0].module)
   const [activeTab, setActiveTab] = useState("overview")
+  const refreshData = useCallback(async () => {
+    try {
+      const realReports = getRealModuleReports()
+      setModuleReports(realReports)
 
-  const refreshData = () => {
-    setUsers(getUsers())
-    setModulePasswordsState(getModulePasswords())
-    
-    // Replace the fallback mock reports with actual real data from localStorage sources
-    const realReports = getRealModuleReports()
-    setModuleReports(realReports)
-    
-  }
+      const [serverUsers, serverModulePasswords] = await Promise.all([
+        refreshUsersFromServer(),
+        refreshModulePasswordsFromServer(),
+      ])
+      setUsers(serverUsers)
+      setModulePasswordsState(serverModulePasswords)
+    } catch (error) {
+      toast({
+        title: "No fue posible refrescar el panel",
+        description: error instanceof Error ? error.message : "Se mantuvo el último estado disponible.",
+        variant: "destructive",
+      })
+    }
+  }, [])
 
   useEffect(() => {
-    refreshData()
-  }, [])
+    void refreshData()
+  }, [refreshData])
 
   const filteredUsers = useMemo(() => {
     return users.filter((u) => {
@@ -651,10 +708,22 @@ function AdminDashboard({ language, t }: { language: "es" | "en"; t: any }) {
                                   variant="ghost"
                                   size="icon"
                                   className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30"
-                                  onClick={() => {
+                                  onClick={async () => {
                                     if (confirm(`¿Eliminar a ${user.name}?`)) {
-                                      deleteUser(user.email)
-                                      refreshData()
+                                      try {
+                                        const nextUsers = await deleteAdminUserRecord(user.email)
+                                        setUsers(nextUsers)
+                                        toast({
+                                          title: "Usuario eliminado",
+                                          description: `${user.name} fue removido del backend on-premise.`,
+                                        })
+                                      } catch (error) {
+                                        toast({
+                                          title: "No fue posible eliminar al usuario",
+                                          description: error instanceof Error ? error.message : "Inténtalo nuevamente.",
+                                          variant: "destructive",
+                                        })
+                                      }
                                     }
                                   }}
                                   title="Eliminar usuario"
@@ -679,7 +748,10 @@ function AdminDashboard({ language, t }: { language: "es" | "en"; t: any }) {
               <UserPermissionsPanel
                 user={selectedUser}
                 language={language}
-                onClose={() => { setSelectedUser(null); refreshData() }}
+                onClose={() => {
+                  setSelectedUser(null)
+                  void refreshData()
+                }}
               />
             )}
           </AnimatePresence>
@@ -687,7 +759,10 @@ function AdminDashboard({ language, t }: { language: "es" | "en"; t: any }) {
           {/* Add User Dialog */}
           <AddUserDialog
             open={showAddUser}
-            onClose={() => { setShowAddUser(false); refreshData() }}
+            onClose={() => {
+              setShowAddUser(false)
+              void refreshData()
+            }}
           />
         </TabsContent>
 
@@ -747,9 +822,27 @@ function AdminDashboard({ language, t }: { language: "es" | "en"; t: any }) {
                     </div>
                     <div className="flex gap-2">
                       <Button
-                        onClick={() => {
-                          approveUser(user.email)
-                          refreshData()
+                        onClick={async () => {
+                          try {
+                            const nextUsers = await upsertAdminUserRecord({
+                              email: user.email,
+                              name: user.name,
+                              role: user.role,
+                              approved: true,
+                              modulePermissions: user.modulePermissions || {},
+                            })
+                            setUsers(nextUsers)
+                            toast({
+                              title: "Usuario aprobado",
+                              description: `${user.name} ya cuenta con acceso vigente.`,
+                            })
+                          } catch (error) {
+                            toast({
+                              title: "No fue posible aprobar al usuario",
+                              description: error instanceof Error ? error.message : "Inténtalo nuevamente.",
+                              variant: "destructive",
+                            })
+                          }
                         }}
                         variant="outline"
                         className="gap-2 border-emerald-500 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
@@ -758,9 +851,21 @@ function AdminDashboard({ language, t }: { language: "es" | "en"; t: any }) {
                         Aprobar
                       </Button>
                       <Button
-                        onClick={() => {
-                          rejectUser(user.email)
-                          refreshData()
+                        onClick={async () => {
+                          try {
+                            const nextUsers = await deleteAdminUserRecord(user.email)
+                            setUsers(nextUsers)
+                            toast({
+                              title: "Solicitud rechazada",
+                              description: `${user.name} fue removido del directorio on-premise.`,
+                            })
+                          } catch (error) {
+                            toast({
+                              title: "No fue posible rechazar la solicitud",
+                              description: error instanceof Error ? error.message : "Inténtalo nuevamente.",
+                              variant: "destructive",
+                            })
+                          }
                         }}
                         variant="destructive"
                         className="gap-2"
@@ -798,6 +903,7 @@ function UserPermissionsPanel({
     user.modulePermissions || {}
   )
   const [saving, setSaving] = useState(false)
+  const [errorMessage, setErrorMessage] = useState("")
 
   const handleRoleChange = (newRole: string) => {
     const r = newRole as UserRole
@@ -812,17 +918,30 @@ function UserPermissionsPanel({
     setPermissions((prev) => ({ ...prev, [slug]: !prev[slug] }))
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setSaving(true)
-    if (role === "custom") {
-      updateUserPermissions(user.email, permissions)
-    } else {
-      setUserRole(user.email, role)
-    }
-    setTimeout(() => {
-      setSaving(false)
+    setErrorMessage("")
+    try {
+      await updateAdminModuleAccess({
+        email: user.email,
+        name: user.name,
+        role,
+        approved: user.approved,
+        modulePermissions:
+          role === "custom"
+            ? permissions
+            : ROLE_PRESETS[role as Exclude<UserRole, "custom">] || permissions,
+      })
+      toast({
+        title: "Permisos actualizados",
+        description: `La política de acceso de ${user.name} ya quedó persistida en el backend.`,
+      })
       onClose()
-    }, 300)
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "No fue posible guardar los cambios")
+    } finally {
+      setSaving(false)
+    }
   }
 
   const enabledCount = Object.values(permissions).filter(Boolean).length
@@ -900,6 +1019,9 @@ function UserPermissionsPanel({
 
         {/* Save */}
         <div className="sticky bottom-0 bg-white dark:bg-gray-900 pt-4 pb-2 border-t">
+          {errorMessage ? (
+            <p className="mb-3 text-sm text-red-500">{errorMessage}</p>
+          ) : null}
           <Button
             onClick={handleSave}
             disabled={saving}
@@ -938,26 +1060,29 @@ function AddUserDialog({ open, onClose }: { open: boolean; onClose: () => void }
     }
     setSaving(true)
     setError("")
-    const hashed = await hashPassword(password)
-    const success = addUser({
-      name,
-      email,
-      password: hashed,
-      role,
-      approved: true,
-      modulePermissions: role === "custom" ? {} : ROLE_PRESETS[role as Exclude<UserRole, "custom">] || {},
-    })
-    if (!success) {
-      setError("Ya existe un usuario con ese email")
+    try {
+      await upsertAdminUserRecord({
+        name,
+        email,
+        password,
+        role,
+        approved: true,
+        modulePermissions: role === "custom" ? {} : ROLE_PRESETS[role as Exclude<UserRole, "custom">] || {},
+      })
+      toast({
+        title: "Usuario creado",
+        description: `${name} quedó registrado en el directorio on-premise.`,
+      })
+      setName("")
+      setEmail("")
+      setPassword("")
+      setRole("editor")
+      onClose()
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "No fue posible crear el usuario")
+    } finally {
       setSaving(false)
-      return
     }
-    setSaving(false)
-    setName("")
-    setEmail("")
-    setPassword("")
-    setRole("editor")
-    onClose()
   }
 
   return (
@@ -1006,6 +1131,7 @@ function AddUserDialog({ open, onClose }: { open: boolean; onClose: () => void }
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="admin">Administrador</SelectItem>
                 <SelectItem value="editor">Editor</SelectItem>
                 <SelectItem value="viewer">Visor</SelectItem>
                 <SelectItem value="custom">Personalizado</SelectItem>
@@ -1044,7 +1170,7 @@ function ModulePasswordCard({
   language: "es" | "en"
   onUpdate: () => void
 }) {
-  const [passwordValue, setPasswordValue] = useState(existing?.password || "")
+  const [passwordValue, setPasswordValue] = useState("")
   const [enabled, setEnabled] = useState(existing?.enabled || false)
   const [showPass, setShowPass] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -1053,7 +1179,7 @@ function ModulePasswordCard({
     if (enabled && passwordValue) {
       await setModulePassword(mod.slug, passwordValue)
     } else if (!enabled) {
-      removeModulePassword(mod.slug)
+      await removeModulePassword(mod.slug)
     }
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
@@ -1063,7 +1189,7 @@ function ModulePasswordCard({
   const handleToggle = (checked: boolean) => {
     setEnabled(checked)
     if (!checked) {
-      removeModulePassword(mod.slug)
+      void removeModulePassword(mod.slug)
       onUpdate()
     }
   }

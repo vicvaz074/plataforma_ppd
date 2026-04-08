@@ -7,6 +7,7 @@ import { useSgsdpStore } from "../../lib/store/sgsdp.store"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
+import { readScopedStorageJson } from "@/lib/local-first-platform"
 import type { DNCAsignacion, SgsdpRol } from "../../lib/models/sgsdp.types"
 
 // Temas estándar INAI recomendados
@@ -51,15 +52,10 @@ export function Paso9DNC() {
     });
 
     // Mock count del modulo externo
-    try {
-      const r = localStorage.getItem("davara-trainings-v3");
-      if (r) {
-        const a = JSON.parse(r);
-        if (Array.isArray(a)) {
-          setExtTrainingsCount(a.length);
-        }
-      }
-    } catch {}
+    const trainings = readScopedStorageJson<unknown[]>("davara-trainings-v3", [])
+    if (Array.isArray(trainings)) {
+      setExtTrainingsCount(trainings.length)
+    }
   }, [roles, dncAsignaciones, addDnc]);
 
   const filteredRoles = roles.filter(r => 

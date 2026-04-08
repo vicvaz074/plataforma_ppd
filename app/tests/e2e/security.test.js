@@ -50,11 +50,13 @@ describe("production security headers", () => {
     assert.ok(!csp.includes("'unsafe-eval'"), "Production CSP should not allow unsafe-eval")
     assert.ok(
       csp.includes(
-        "style-src 'self' 'sha256-skqujXORqzxt1aE0NNXxujEanPTX6raoqSscTV/Ww/Y=' 'sha256-nzTgYzXYDNe6BAHiiI7NNlfK8n/auuOAhh2t92YvuXo=' 'sha256-vGQdhYJbTuF+M8iCn1IZCHpdkiICocWHDq4qnQF4Rjw=' 'sha256-441zG27rExd4/il+NvIqyL8zFx5XmyNQtE381kSkUJk=' 'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=' https://cdn.jsdelivr.net https://fonts.cdnfonts.com",
+        "style-src 'self' 'sha256-skqujXORqzxt1aE0NNXxujEanPTX6raoqSscTV/Ww/Y=' 'sha256-nzTgYzXYDNe6BAHiiI7NNlfK8n/auuOAhh2t92YvuXo=' 'sha256-vGQdhYJbTuF+M8iCn1IZCHpdkiICocWHDq4qnQF4Rjw=' 'sha256-441zG27rExd4/il+NvIqyL8zFx5XmyNQtE381kSkUJk=' 'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='",
       ),
       "CSP should include the required inline style hashes instead of unsafe-inline",
     )
     assert.ok(!csp.includes("style-src 'self' 'unsafe-inline'"), "CSP should not allow unsafe-inline styles")
+    assert.ok(!csp.includes("cdn.jsdelivr.net"), "Production CSP should not allow external CSS CDNs")
+    assert.ok(!csp.includes("fonts.cdnfonts.com"), "Production CSP should not allow external font CDNs")
     assert.ok(!/(^|[ ;])https:(?=$|[ ;])/.test(csp), "CSP should avoid broad wildcard-like https: sources")
     assert.ok(!/(^|[ ;])wss:(?=$|[ ;])/.test(csp), "CSP should avoid broad wildcard-like wss: sources")
   })
@@ -68,7 +70,7 @@ describe("production security headers", () => {
     )["content-security-policy"]
 
     assert.ok(devCsp.includes("script-src 'self' 'unsafe-inline' 'unsafe-eval'"))
-    assert.ok(devCsp.includes("style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.cdnfonts.com"))
+    assert.ok(devCsp.includes("style-src 'self' 'unsafe-inline'"))
     assert.ok(!devCsp.includes("style-src 'self' 'unsafe-inline' 'sha256-"), "Development CSP should not mix unsafe-inline styles with hashes")
     assert.ok(devCsp.includes("connect-src 'self' ws: wss:"))
   })

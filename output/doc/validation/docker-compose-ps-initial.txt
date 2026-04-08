@@ -1,0 +1,5 @@
+NAME                            IMAGE                         COMMAND                  SERVICE         CREATED              STATUS                        PORTS
+davara-onprem-backup-runner-1   davara-onprem-backup-runner   "/bin/sh /workspace/…"   backup-runner   17 hours ago         Up 17 hours                   
+davara-onprem-davara-app-1      davara-governance:onprem      "docker-entrypoint.s…"   davara-app      About a minute ago   Up About a minute (healthy)   3000/tcp
+davara-onprem-postgres-1        postgres:16-alpine            "docker-entrypoint.s…"   postgres        16 hours ago         Up 16 hours (healthy)         0.0.0.0:5432->5432/tcp, [::]:5432->5432/tcp
+davara-onprem-reverse-proxy-1   nginx:1.27-alpine             "/docker-entrypoint.…"   reverse-proxy   About a minute ago   Up 49 seconds (healthy)       0.0.0.0:443->443/tcp, [::]:443->443/tcp
