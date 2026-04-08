@@ -249,3 +249,10 @@ export async function getOnPremUserByEmail(email: string): Promise<OnPremUserRec
     modulePermissions: normalizePermissions(user.module_permissions, user.role_name),
   }
 }
+
+export async function deleteOnPremUser(email: string) {
+  const normalizedEmail = normalizeEmail(email)
+  await query(`delete from onprem_users where email = $1`, [normalizedEmail])
+  await query(`update onprem_sessions set revoked_at = now() where actor_email = $1 and revoked_at is null`, [normalizedEmail])
+  return normalizedEmail
+}

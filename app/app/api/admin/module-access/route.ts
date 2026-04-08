@@ -5,6 +5,16 @@ import { listOnPremUsers, upsertOnPremUser } from "@/lib/onprem/user-directory"
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
+function sanitizeUsers(users: Awaited<ReturnType<typeof listOnPremUsers>>) {
+  return users.map((user) => ({
+    email: user.email,
+    name: user.name,
+    role: user.role,
+    approved: user.approved,
+    modulePermissions: user.modulePermissions,
+  }))
+}
+
 export async function POST(request: NextRequest) {
   const session = await getOnPremSession().catch(() => null)
   if (!session || session.role !== "admin") {
@@ -24,6 +34,6 @@ export async function POST(request: NextRequest) {
     modulePermissions: body.modulePermissions || {},
   })
 
-  const users = await listOnPremUsers()
+  const users = sanitizeUsers(await listOnPremUsers())
   return NextResponse.json({ users, timestamp: new Date().toISOString() }, { status: 200 })
 }

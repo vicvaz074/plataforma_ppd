@@ -1,41 +1,6 @@
-HTTP/1.1 200 OK
-Server: nginx/1.27.5
-Date: Tue, 07 Apr 2026 23:26:34 GMT
-Content-Type: text/plain
-Content-Length: 3
-Connection: keep-alive
-Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
-X-Content-Type-Options: nosniff
-X-Frame-Options: DENY
-Referrer-Policy: strict-origin-when-cross-origin
-
+https://127.0.0.1/healthz
 ok
 
 
-=====
-
-HTTP/1.1 200 OK
-Server: nginx/1.27.5
-Date: Tue, 07 Apr 2026 23:26:34 GMT
-Content-Type: application/json
-Transfer-Encoding: chunked
-Connection: keep-alive
-Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'sha256-skqujXORqzxt1aE0NNXxujEanPTX6raoqSscTV/Ww/Y=' 'sha256-nzTgYzXYDNe6BAHiiI7NNlfK8n/auuOAhh2t92YvuXo=' 'sha256-vGQdhYJbTuF+M8iCn1IZCHpdkiICocWHDq4qnQF4Rjw=' 'sha256-441zG27rExd4/il+NvIqyL8zFx5XmyNQtE381kSkUJk=' 'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; media-src 'self' blob: data:; frame-src 'none'; frame-ancestors 'none'; form-action 'self'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests
-Cross-Origin-Embedder-Policy: credentialless
-Cross-Origin-Opener-Policy: same-origin
-Cross-Origin-Resource-Policy: same-site
-Permissions-Policy: accelerometer=(), autoplay=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=(), interest-cohort=()
-Origin-Agent-Cluster: ?1
-Referrer-Policy: strict-origin-when-cross-origin
-Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
-X-Content-Type-Options: nosniff
-X-Frame-Options: DENY
-X-Permitted-Cross-Domain-Policies: none
-X-XSS-Protection: 1; mode=block
-vary: rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch
-Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
-X-Content-Type-Options: nosniff
-X-Frame-Options: DENY
-Referrer-Policy: strict-origin-when-cross-origin
-
-{"status":"ok","service":"davara-governance","timestamp":"2026-04-07T23:26:34.907Z"}
+https://127.0.0.1/api/health
+{"status":"ok","service":"davara-governance","database":{"configured":true,"connected":true},"storage":{"uploadsDir":"/app/uploads"},"timestamp":"2026-04-08T16:34:14.683Z"}

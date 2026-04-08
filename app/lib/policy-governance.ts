@@ -6,6 +6,7 @@ import {
   type AuditReminder,
 } from "@/lib/audit-alarms"
 import { deleteFile, getAllFiles, saveFile, saveStoredFileRecord, type StoredFile } from "@/lib/fileStorage"
+import { readScopedStorageJson, writeScopedStorageJson } from "@/lib/local-first-platform"
 import { secureRandomId } from "@/lib/secure-random"
 
 export const POLICY_STORAGE_KEY = "security_policies"
@@ -1271,17 +1272,14 @@ export function syncPolicyReminders(records: PolicyRecord[]) {
 export function loadPolicyRecords() {
   if (!isBrowser()) return [] as PolicyRecord[]
 
-  const raw = safeParseJSON<unknown[]>(window.localStorage.getItem(POLICY_STORAGE_KEY), [])
+  const raw = readScopedStorageJson<unknown[]>(POLICY_STORAGE_KEY, [])
   return Array.isArray(raw) ? raw.map((entry, index) => hydratePolicyRecord(entry as RawPolicyRecord, index)) : []
 }
 
 export function persistPolicyRecords(records: PolicyRecord[]) {
   if (!isBrowser()) return
   const normalized = records.map((record, index) => hydratePolicyRecord(record, index))
-  window.localStorage.setItem(
-    POLICY_STORAGE_KEY,
-    JSON.stringify(normalized.map(serializePolicyRecord)),
-  )
+  writeScopedStorageJson(POLICY_STORAGE_KEY, normalized.map(serializePolicyRecord))
   syncPolicyReminders(normalized)
 }
 

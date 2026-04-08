@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
+import { readScopedStorageJson, writeScopedStorageJson } from "@/lib/local-first-platform"
 import { useTrainingStore } from "../lib/training.store"
 
 /* ────────────────────────────────────────────────────────
@@ -46,11 +47,10 @@ const TIPO_RECURSO_META: Record<TipoRecurso, { label: string; icon: React.Elemen
 const STORAGE_KEY = "davara-training-recursos-v1"
 
 function loadRecursos(): RecursoCapacitacion[] {
-  if (typeof window === "undefined") return []
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]") } catch { return [] }
+  return readScopedStorageJson<RecursoCapacitacion[]>(STORAGE_KEY, [])
 }
 function saveRecursos(r: RecursoCapacitacion[]) {
-  if (typeof window !== "undefined") localStorage.setItem(STORAGE_KEY, JSON.stringify(r))
+  writeScopedStorageJson(STORAGE_KEY, r)
 }
 
 /* ────────────────────────────────────────────────────────

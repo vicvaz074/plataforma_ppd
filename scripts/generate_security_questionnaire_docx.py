@@ -192,6 +192,10 @@ def make_table(doc: Document, headers: list[str], widths: list[float]):
 
 
 def build_questionnaire_evidence_text(row: dict[str, object]) -> str:
+    summary = row.get("evidencia_resumen")
+    if isinstance(summary, str) and summary.strip():
+        return summary
+
     evidence_ids = row["evidence_ids"][:5]
     visuals = [item["id"] for item in row["evidencia_visual"][:2]]
     merged = []
@@ -200,7 +204,7 @@ def build_questionnaire_evidence_text(row: dict[str, object]) -> str:
     for evidence_id in visuals:
         if evidence_id not in merged:
             merged.append(evidence_id)
-    return "\n".join(merged)
+    return "\n".join(merged) if merged else "Pendiente de anexo del contratista"
 
 
 def append_cover(doc: Document) -> None:
@@ -218,10 +222,10 @@ def append_cover(doc: Document) -> None:
         add_bullet(doc, bullet)
 
     add_paragraph(doc, "Resumen de respuestas", bold=True, size=12, color="1E3A8A")
-    table = make_table(doc, ["Sí", "Sí, ver comentario", "Total"], [1.8, 2.2, 1.6])
+    table = make_table(doc, ["Sí", "Se adjuntará posteriormente", "Total"], [1.8, 2.8, 1.6])
     cells = table.add_row().cells
     fill_cell(cells[0], str(counts.get("Sí", 0)), size=11, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER)
-    fill_cell(cells[1], str(counts.get("Sí, ver comentario", 0)), size=11, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER)
+    fill_cell(cells[1], str(counts.get("Se adjuntará posteriormente", 0)), size=11, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER)
     fill_cell(cells[2], str(len(QUESTIONNAIRE_ROWS)), size=11, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER)
 
 
@@ -230,13 +234,13 @@ def append_questionnaire_table(doc: Document) -> None:
     add_paragraph(doc, "Tabla Integral del Cuestionario", bold=True, size=12, color="1E3A8A")
     add_paragraph(
         doc,
-        "La matriz conserva la numeracion original 1-54 y presenta una respuesta afirmativa sustentada mediante evidencia tecnica, operativa y visual.",
+        "La matriz conserva la numeración original 1-54. Los controles técnicos se responden con evidencia implementada y los controles organizacionales o certificatorios quedan marcados para anexo posterior del contratista.",
         size=9,
         color="334155",
     )
     table = make_table(
         doc,
-        ["No.", "Seccion", "Tipo", "Control y pregunta", "Respuesta", "Comentario ejecutivo", "Evidencia"],
+        ["N°", "Sección", "Tipo", "Pregunta/Control", "Respuesta", "Comentarios", "Evidencia"],
         [0.42, 1.15, 0.72, 3.05, 0.95, 3.15, 1.25],
     )
 
@@ -339,29 +343,26 @@ def append_validation_annex(doc: Document, validation_rows: list[dict[str, str]]
 
 def append_operational_annex(doc: Document) -> None:
     doc.add_page_break()
-    add_paragraph(doc, "Anexo E. Evidencia Operativa y Contractual", bold=True, size=12, color="1E3A8A")
+    add_paragraph(doc, "Anexo E. Controles con Llenado Posterior", bold=True, size=12, color="1E3A8A")
     add_paragraph(
         doc,
-        "Los controles organizacionales, humanos, de terceros y de seguridad fisica se soportan mediante la siguiente documentacion operativa asociada al servicio.",
+        "Los siguientes controles dependen de evidencia organizacional, certificatoria, física o contractual que no forma parte de este paquete técnico y deberá adjuntarse posteriormente.",
         size=9,
         color="334155",
     )
-    table = make_table(doc, ["ID", "Documento", "Uso en la respuesta"], [0.55, 4.00, 5.95])
-    for evidence_id in ("EV-01", "EV-02", "EV-03", "EV-04", "EV-56"):
-        item = next(entry for entry in EVIDENCE_INDEX if entry["id"] == evidence_id)
+    pending_rows = [row for row in QUESTIONNAIRE_ROWS if row["respuesta"] == "Se adjuntará posteriormente"]
+    table = make_table(doc, ["N°", "Sección", "Pregunta/Control", "Estado"], [0.55, 1.55, 6.45, 2.00])
+    for row in pending_rows:
         cells = table.add_row().cells
-        fill_cell(cells[0], item["id"], size=8.0, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER)
-        fill_cell(cells[1], f"{item['descripcion']}\n{item['archivo']}", size=7.6)
-        fill_cell(
-            cells[2],
-            "Sirve como respaldo de gobierno, accesos, incidentes, riesgos, desarrollo seguro y operacion controlada del servicio frente al cliente.",
-            size=7.6,
-        )
+        fill_cell(cells[0], str(row["numero_control"]), size=8.0, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER)
+        fill_cell(cells[1], row["seccion"], size=7.6)
+        fill_cell(cells[2], f"{row['control']}\n{row['pregunta']}", size=7.4)
+        fill_cell(cells[3], "Se adjuntará posteriormente", size=7.6, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER)
 
     notes = [
-        "Las filas del cuestionario que dependen de esquema organizacional se responden con 'Sí, ver comentario' y se respaldan con este paquete operativo.",
-        "La modalidad on-premise hibrida mantiene el control del entorno dentro del cliente y reduce dependencia de terceros no gestionados.",
-        "La evidencia corporativa nominativa o contractual del contratista se incorpora como soporte complementario del proyecto cuando aplique.",
+        "Este anexo evita afirmar documentación no adjunta y permite completar la respuesta final del contratista con precisión.",
+        "La modalidad on-premise híbrida mantiene el control del entorno dentro del cliente y reduce dependencia de terceros no gestionados.",
+        "Las pruebas y anexos corporativos podrán agregarse posteriormente sin alterar la matriz técnica ya validada.",
     ]
     for note in notes:
         add_bullet(doc, note)

@@ -1,0 +1,5 @@
+    owner_email    |      target_email       | module_key |         record_key         | active |          created_at           
+-------------------+-------------------------+------------+----------------------------+--------+-------------------------------
+ admin@example.com | qa-evidence@example.com | /rat       | evidence-rat-1775671302398 | f      | 2026-04-08 18:01:44.257911+00
+(1 row)
+

@@ -1,18 +1,22 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { Share2, Users, Database, RefreshCcw, Link2, FolderKanban } from "lucide-react"
+import { AlertCircle, CheckCircle2, Database, FolderKanban, Link2, Mail, RefreshCcw, Share2, Users } from "lucide-react"
 import { listCurrentUserDatasets, getShareableRecords, type DatasetSnapshot } from "@/lib/local-first-platform"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import { toast } from "@/components/ui/use-toast"
 
 type SharedResponse = {
   sharedWithMe: {
     modules: Array<{
       owner_email: string
+      owner_name: string | null
       module_key: string
       record_key: string
       payload: Record<string, unknown>
@@ -20,6 +24,7 @@ type SharedResponse = {
     }>
     records: Array<{
       owner_email: string
+      owner_name: string | null
       module_key: string
       record_key: string
       label: string | null
@@ -30,12 +35,14 @@ type SharedResponse = {
   sharedByMe: {
     modules: Array<{
       target_email: string
+      target_name: string | null
       module_key: string
       active: boolean
       created_at: string
     }>
     records: Array<{
       target_email: string
+      target_name: string | null
       module_key: string
       record_key: string
       label: string | null
@@ -44,6 +51,33 @@ type SharedResponse = {
     }>
   }
 }
+
+type ShareDialogState =
+  | {
+      open: false
+      shareType: null
+    }
+  | {
+      open: true
+      shareType: "module"
+      moduleKey: string
+      moduleLabel: string
+    }
+  | {
+      open: true
+      shareType: "record"
+      dataset: DatasetSnapshot
+      moduleLabel: string
+      recordKey: string
+      label: string
+      payload: unknown
+    }
+
+type ShareLookupState =
+  | { status: "idle" }
+  | { status: "checking" }
+  | { status: "found"; name: string; email: string }
+  | { status: "error"; message: string }
 
 function formatJsonPreview(value: unknown) {
   try {
@@ -56,8 +90,10 @@ function formatJsonPreview(value: unknown) {
 export default function SharedWorkspacePage() {
   const [ownedDatasets, setOwnedDatasets] = useState<DatasetSnapshot[]>([])
   const [sharedData, setSharedData] = useState<SharedResponse | null>(null)
-  const [targetEmails, setTargetEmails] = useState<Record<string, string>>({})
   const [busyKey, setBusyKey] = useState<string | null>(null)
+  const [shareDialog, setShareDialog] = useState<ShareDialogState>({ open: false, shareType: null })
+  const [targetEmail, setTargetEmail] = useState("")
+  const [lookupState, setLookupState] = useState<ShareLookupState>({ status: "idle" })
 
   const refresh = async () => {
     const owned = await listCurrentUserDatasets()
@@ -80,55 +116,181 @@ export default function SharedWorkspacePage() {
     }, {})
   }, [ownedDatasets])
 
-  const shareModule = async (moduleKey: string) => {
-    const rawEmails = targetEmails[moduleKey] || ""
-    const nextTargetEmails = rawEmails
-      .split(",")
-      .map((value) => value.trim().toLowerCase())
-      .filter(Boolean)
+  const resetShareDialog = () => {
+    setShareDialog({ open: false, shareType: null })
+    setTargetEmail("")
+    setLookupState({ status: "idle" })
+  }
 
-    if (nextTargetEmails.length === 0) return
+  const openModuleShareDialog = (moduleKey: string, moduleLabel: string) => {
+    setShareDialog({
+      open: true,
+      shareType: "module",
+      moduleKey,
+      moduleLabel,
+    })
+    setTargetEmail("")
+    setLookupState({ status: "idle" })
+  }
 
-    setBusyKey(`module:${moduleKey}`)
+  const openRecordShareDialog = (dataset: DatasetSnapshot, recordKey: string, label: string, payload: unknown) => {
+    setShareDialog({
+      open: true,
+      shareType: "record",
+      dataset,
+      moduleLabel: dataset.moduleLabel,
+      recordKey,
+      label,
+      payload,
+    })
+    setTargetEmail("")
+    setLookupState({ status: "idle" })
+  }
+
+  const lookupUser = async (emailOverride?: string) => {
+    const email = (emailOverride ?? targetEmail).trim().toLowerCase()
+    if (!email) {
+      setLookupState({ status: "error", message: "Debes capturar un correo electrónico." })
+      return null
+    }
+
+    setLookupState({ status: "checking" })
     try {
-      const response = await fetch("/api/share/module", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ moduleKey, targetEmails: nextTargetEmails }),
+      const response = await fetch(`/api/share/lookup?email=${encodeURIComponent(email)}`, {
+        cache: "no-store",
       })
       if (response.ok) {
-        await refresh()
+        const payload = await response.json()
+        const name = String(payload?.user?.name || payload?.user?.email || email)
+        setLookupState({ status: "found", name, email: String(payload?.user?.email || email) })
+        return payload?.user || null
       }
+      const payload = await response.json().catch(() => null)
+      setLookupState({ status: "error", message: payload?.error || "Usuario no encontrado" })
+      return null
+    } catch {
+      setLookupState({ status: "error", message: "No fue posible validar el correo en este momento." })
+      return null
+    }
+  }
+
+  const submitShare = async () => {
+    if (!shareDialog.open) return
+    const resolvedTarget = await lookupUser()
+    if (!resolvedTarget) return
+
+    const busyToken =
+      shareDialog.shareType === "module"
+        ? `module:${shareDialog.moduleKey}`
+        : `record:${shareDialog.dataset.datasetId}:${shareDialog.recordKey}`
+
+    setBusyKey(busyToken)
+    try {
+      const response =
+        shareDialog.shareType === "module"
+          ? await fetch("/api/share/module", {
+              method: "POST",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify({
+                moduleKey: shareDialog.moduleKey,
+                targetEmails: [resolvedTarget.email],
+              }),
+            })
+          : await fetch("/api/share/record", {
+              method: "POST",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify({
+                moduleKey: shareDialog.dataset.moduleKey,
+                recordKey: shareDialog.recordKey,
+                label: shareDialog.label,
+                payload: shareDialog.payload,
+                targetEmails: [resolvedTarget.email],
+              }),
+            })
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null)
+        throw new Error(payload?.error || "No fue posible completar la compartición")
+      }
+
+      await refresh()
+      toast({
+        title: shareDialog.shareType === "module" ? "Módulo compartido" : "Registro compartido",
+        description: `Se registró la compartición con ${resolvedTarget.email}.`,
+      })
+      resetShareDialog()
+    } catch (error) {
+      toast({
+        title: "No fue posible compartir",
+        description: error instanceof Error ? error.message : "Inténtalo nuevamente.",
+        variant: "destructive",
+      })
     } finally {
       setBusyKey(null)
     }
   }
 
-  const shareRecord = async (dataset: DatasetSnapshot, recordKey: string, label: string, payload: unknown) => {
-    const rawEmails = targetEmails[dataset.datasetId] || ""
-    const nextTargetEmails = rawEmails
-      .split(",")
-      .map((value) => value.trim().toLowerCase())
-      .filter(Boolean)
+  const revokeModuleShare = async (moduleKey: string, targetEmailToRevoke: string) => {
+    setBusyKey(`revoke:module:${moduleKey}:${targetEmailToRevoke}`)
+    try {
+      const response = await fetch("/api/share/module", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          moduleKey,
+          targetEmails: [targetEmailToRevoke],
+          active: false,
+        }),
+      })
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null)
+        throw new Error(payload?.error || "No fue posible revocar la compartición del módulo")
+      }
+      await refresh()
+      toast({
+        title: "Compartición revocada",
+        description: `El módulo dejó de compartirse con ${targetEmailToRevoke}.`,
+      })
+    } catch (error) {
+      toast({
+        title: "No fue posible revocar",
+        description: error instanceof Error ? error.message : "Inténtalo nuevamente.",
+        variant: "destructive",
+      })
+    } finally {
+      setBusyKey(null)
+    }
+  }
 
-    if (nextTargetEmails.length === 0) return
-
-    setBusyKey(`record:${dataset.datasetId}:${recordKey}`)
+  const revokeRecordShare = async (moduleKey: string, recordKey: string, label: string, targetEmailToRevoke: string) => {
+    setBusyKey(`revoke:record:${moduleKey}:${recordKey}:${targetEmailToRevoke}`)
     try {
       const response = await fetch("/api/share/record", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
-          moduleKey: dataset.moduleKey,
+          moduleKey,
           recordKey,
           label,
-          payload,
-          targetEmails: nextTargetEmails,
+          targetEmails: [targetEmailToRevoke],
+          active: false,
         }),
       })
-      if (response.ok) {
-        await refresh()
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null)
+        throw new Error(payload?.error || "No fue posible revocar la compartición del registro")
       }
+      await refresh()
+      toast({
+        title: "Compartición revocada",
+        description: `El registro dejó de compartirse con ${targetEmailToRevoke}.`,
+      })
+    } catch (error) {
+      toast({
+        title: "No fue posible revocar",
+        description: error instanceof Error ? error.message : "Inténtalo nuevamente.",
+        variant: "destructive",
+      })
     } finally {
       setBusyKey(null)
     }
@@ -186,16 +348,11 @@ export default function SharedWorkspacePage() {
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="flex flex-col gap-3 lg:flex-row">
-                      <Input
-                        placeholder="Correos separados por coma para compartir el módulo"
-                        value={targetEmails[moduleKey] || ""}
-                        onChange={(event) => setTargetEmails((current) => ({ ...current, [moduleKey]: event.target.value }))}
-                      />
+                    <div className="flex justify-end">
                       <Button
                         className="bg-[#0a0147] hover:bg-[#06002e]"
                         disabled={busyKey === `module:${moduleKey}`}
-                        onClick={() => void shareModule(moduleKey)}
+                        onClick={() => openModuleShareDialog(moduleKey, datasets[0]?.moduleLabel || moduleKey)}
                       >
                         <Users className="mr-2 h-4 w-4" />
                         Compartir módulo
@@ -216,11 +373,6 @@ export default function SharedWorkspacePage() {
                           </p>
                           {shareableRecords.length > 0 && (
                             <div className="mt-4 space-y-3">
-                              <Input
-                                placeholder="Correos separados por coma para compartir registros específicos"
-                                value={targetEmails[dataset.datasetId] || ""}
-                                onChange={(event) => setTargetEmails((current) => ({ ...current, [dataset.datasetId]: event.target.value }))}
-                              />
                               <div className="grid gap-3 xl:grid-cols-2">
                                 {shareableRecords.slice(0, 10).map((record) => (
                                   <div key={record.recordKey} className="rounded-xl border border-slate-200 bg-white p-3">
@@ -233,7 +385,7 @@ export default function SharedWorkspacePage() {
                                         size="sm"
                                         variant="outline"
                                         disabled={busyKey === `record:${dataset.datasetId}:${record.recordKey}`}
-                                        onClick={() => void shareRecord(dataset, record.recordKey, record.label, record.payload)}
+                                        onClick={() => openRecordShareDialog(dataset, record.recordKey, record.label, record.payload)}
                                       >
                                         <Link2 className="mr-2 h-4 w-4" />
                                         Compartir
@@ -271,7 +423,7 @@ export default function SharedWorkspacePage() {
                         <div>
                           <p className="text-sm font-semibold">{String(item.payload?.moduleLabel || item.module_key)}</p>
                           <p className="text-xs text-slate-500">
-                            {item.owner_email} · {item.module_key}
+                            {item.owner_name || item.owner_email} · {item.owner_email} · {item.module_key}
                           </p>
                         </div>
                         <Badge variant="secondary">{new Date(item.updated_at).toLocaleDateString("es-MX")}</Badge>
@@ -296,7 +448,7 @@ export default function SharedWorkspacePage() {
                         <div>
                           <p className="text-sm font-semibold">{item.label || item.record_key}</p>
                           <p className="text-xs text-slate-500">
-                            {item.owner_email} · {item.module_key}
+                            {item.owner_name || item.owner_email} · {item.owner_email} · {item.module_key}
                           </p>
                         </div>
                         <Badge variant="secondary">{new Date(item.created_at).toLocaleDateString("es-MX")}</Badge>
@@ -325,8 +477,21 @@ export default function SharedWorkspacePage() {
                   </h3>
                   {(sharedData?.sharedByMe.modules ?? []).map((item) => (
                     <div key={`${item.target_email}:${item.module_key}:${item.created_at}`} className="rounded-xl border p-3 text-sm">
-                      <p className="font-medium">{item.module_key}</p>
-                      <p className="text-xs text-slate-500">{item.target_email}</p>
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="font-medium">{item.module_key}</p>
+                          <p className="text-xs text-slate-500">{item.target_name || item.target_email}</p>
+                          <p className="text-xs text-slate-400">{item.target_email}</p>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={busyKey === `revoke:module:${item.module_key}:${item.target_email}`}
+                          onClick={() => void revokeModuleShare(item.module_key, item.target_email)}
+                        >
+                          Revocar
+                        </Button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -337,10 +502,23 @@ export default function SharedWorkspacePage() {
                   </h3>
                   {(sharedData?.sharedByMe.records ?? []).map((item) => (
                     <div key={`${item.target_email}:${item.module_key}:${item.record_key}`} className="rounded-xl border p-3 text-sm">
-                      <p className="font-medium">{item.label || item.record_key}</p>
-                      <p className="text-xs text-slate-500">
-                        {item.module_key} · {item.target_email}
-                      </p>
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="font-medium">{item.label || item.record_key}</p>
+                          <p className="text-xs text-slate-500">
+                            {item.module_key} · {item.target_name || item.target_email}
+                          </p>
+                          <p className="text-xs text-slate-400">{item.target_email}</p>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={busyKey === `revoke:record:${item.module_key}:${item.record_key}:${item.target_email}`}
+                          onClick={() => void revokeRecordShare(item.module_key, item.record_key, item.label || item.record_key, item.target_email)}
+                        >
+                          Revocar
+                        </Button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -349,6 +527,92 @@ export default function SharedWorkspacePage() {
           </TabsContent>
         </Tabs>
       </div>
+
+      <Dialog open={shareDialog.open} onOpenChange={(open) => { if (!open) resetShareDialog() }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{shareDialog.shareType === "module" ? "Compartir módulo" : "Compartir registro"}</DialogTitle>
+            <DialogDescription>
+              {shareDialog.shareType === "module"
+                ? `Captura el correo del usuario con el que deseas compartir ${shareDialog.open && shareDialog.shareType === "module" ? shareDialog.moduleLabel : "el módulo"}.`
+                : `Captura el correo del usuario con el que deseas compartir ${shareDialog.open && shareDialog.shareType === "record" ? shareDialog.label : "el registro"}.`}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="share-target-email">Correo del destinatario</Label>
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <Input
+                    id="share-target-email"
+                    type="email"
+                    value={targetEmail}
+                    onChange={(event) => {
+                      setTargetEmail(event.target.value)
+                      setLookupState({ status: "idle" })
+                    }}
+                    onBlur={() => {
+                      if (targetEmail.trim()) {
+                        void lookupUser()
+                      }
+                    }}
+                    placeholder="usuario@empresa.com"
+                    className="pl-10"
+                  />
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={lookupState.status === "checking"}
+                  onClick={() => void lookupUser()}
+                >
+                  Validar
+                </Button>
+              </div>
+            </div>
+
+            {lookupState.status === "found" ? (
+              <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">
+                <div className="flex items-center gap-2 font-medium">
+                  <CheckCircle2 className="h-4 w-4" />
+                  Usuario encontrado
+                </div>
+                <p className="mt-1 text-xs">{lookupState.name} · {lookupState.email}</p>
+              </div>
+            ) : null}
+
+            {lookupState.status === "error" ? (
+              <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                <div className="flex items-center gap-2 font-medium">
+                  <AlertCircle className="h-4 w-4" />
+                  Usuario no encontrado
+                </div>
+                <p className="mt-1 text-xs">{lookupState.message}</p>
+              </div>
+            ) : null}
+          </div>
+
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={resetShareDialog}>
+              Cancelar
+            </Button>
+            <Button
+              type="button"
+              className="bg-[#0a0147] hover:bg-[#06002e]"
+              disabled={lookupState.status === "checking" || busyKey === (shareDialog.open && shareDialog.shareType === "module"
+                ? `module:${shareDialog.moduleKey}`
+                : shareDialog.open && shareDialog.shareType === "record"
+                  ? `record:${shareDialog.dataset.datasetId}:${shareDialog.recordKey}`
+                  : null)}
+              onClick={() => void submitShare()}
+            >
+              Compartir
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

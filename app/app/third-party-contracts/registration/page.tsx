@@ -30,13 +30,14 @@ import {
   THIRD_PARTY_CONTRACTS_META,
   THIRD_PARTY_CONTRACTS_NAV,
 } from "@/components/arco-module-config";
+import { readScopedStorageJson, writeScopedStorageJson } from "@/lib/local-first-platform";
 import { secureRandomId } from "@/lib/secure-random";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 // @ts-ignore
 import jsPDF from "jspdf";
-import { createFileURL, getFileById, saveFile } from "@/lib/fileStorage";
+import { getFileById, resolveStoredFileAccessUrl, saveFile } from "@/lib/fileStorage";
 import type { AttachmentDefinition, AttachmentMeta, ContractMeta } from "../types";
 
 const INTERNAL_AREAS_BASE = [
@@ -406,6 +407,8 @@ const determineStatus = (expirationDate: string): ContractMeta["contractStatus"]
 
 const buildFileMetadata = (values: FormValues, contractId: string, extra: Record<string, unknown> = {}) => {
   const baseMetadata: Record<string, unknown> = {
+    moduleKey: "/third-party-contracts",
+    recordKey: contractId,
     contractId,
     contractTitle: values.contractTitle,
     internalCode: values.internalCode,
@@ -451,7 +454,7 @@ export default function ContractRegistrationPage() {
   const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false);
 
   const persistContractsHistory = (history: ContractMeta[]) => {
-    localStorage.setItem("contractsHistory", JSON.stringify(history));
+    writeScopedStorageJson("contractsHistory", history);
     window.dispatchEvent(new Event("contractsHistoryUpdated"));
   };
 
@@ -488,15 +491,7 @@ export default function ContractRegistrationPage() {
   };
 
   useEffect(() => {
-    const arrRaw = localStorage.getItem("contractsHistory");
-    if (arrRaw) {
-      try {
-        const parsed = JSON.parse(arrRaw) as ContractMeta[];
-        setContractsHistory(parsed);
-      } catch {
-        setContractsHistory([]);
-      }
-    }
+    setContractsHistory(readScopedStorageJson<ContractMeta[]>("contractsHistory", []));
   }, []);
 
   useEffect(() => {
@@ -582,7 +577,7 @@ export default function ContractRegistrationPage() {
       });
       return;
     }
-    const url = createFileURL(stored.content);
+    const url = resolveStoredFileAccessUrl(stored);
     const link = document.createElement("a");
     link.href = url;
     link.download = stored.name;

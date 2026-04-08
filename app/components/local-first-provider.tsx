@@ -4,6 +4,7 @@ import type { ReactNode } from "react"
 import { useEffect, useLayoutEffect } from "react"
 import { startPlatformLocalFirstRuntime, installScopedLocalStorage } from "@/lib/local-first-platform"
 import { writeSessionSnapshot } from "@/lib/platform-access"
+import { syncPendingStoredFiles } from "@/lib/fileStorage"
 
 export function LocalFirstProvider({ children }: { children: ReactNode }) {
   useLayoutEffect(() => {
@@ -12,6 +13,14 @@ export function LocalFirstProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let cleanup: (() => void) | undefined
+    let cancelled = false
+
+    const syncStoredFiles = () => {
+      if (cancelled) return
+      void syncPendingStoredFiles().catch(() => {
+        // El caché local sigue siendo la fuente de continuidad hasta el siguiente intento.
+      })
+    }
 
     void fetch("/api/auth/session", {
       cache: "no-store",
@@ -37,13 +46,22 @@ export function LocalFirstProvider({ children }: { children: ReactNode }) {
       .catch(() => {
         // El modo offline sigue operando con el snapshot local existente.
       })
+      .finally(() => {
+        syncStoredFiles()
+      })
 
     void startPlatformLocalFirstRuntime().then((nextCleanup) => {
       cleanup = nextCleanup
     })
 
+    window.addEventListener("online", syncStoredFiles)
+    window.addEventListener("focus", syncStoredFiles)
+
     return () => {
+      cancelled = true
       cleanup?.()
+      window.removeEventListener("online", syncStoredFiles)
+      window.removeEventListener("focus", syncStoredFiles)
     }
   }, [])
 

@@ -29,6 +29,46 @@ export type DatasetSnapshot = {
   deletedAt: string | null
 }
 
+export type ModuleRecordEnvelope = {
+  datasetId: string
+  storageKey: string
+  moduleKey: string
+  moduleLabel: string
+  recordId: string
+  label: string
+  ownerEmail: string
+  visibility: DatasetVisibility
+  sharedScope: "private" | "module_shared" | "record_shared"
+  sharedWith: string[]
+  version: number
+  serverVersion: number
+  syncStatus: DatasetSyncStatus
+  createdAt: string | null
+  updatedAt: string
+  deletedAt: string | null
+  attachmentIds: string[]
+  payload: unknown
+}
+
+export type ModuleRecordMutation = {
+  recordId?: string
+  label?: string
+  payload: unknown
+  attachmentIds?: string[]
+}
+
+export type ModuleRecordAdapter = {
+  storageKey: string
+  moduleKey: string
+  moduleLabel: string
+  loadModuleRecords: () => Promise<ModuleRecordEnvelope[]>
+  saveModuleRecord: (input: ModuleRecordMutation) => Promise<ModuleRecordEnvelope>
+  deleteModuleRecord: (recordId: string) => Promise<void>
+  listModuleRecords: () => Promise<ModuleRecordEnvelope[]>
+  restoreModuleState: () => Promise<boolean>
+  getShareableModuleRecords: () => Promise<Array<{ recordKey: string; label: string; payload: unknown }>>
+}
+
 export type DatasetOperation = {
   operationId: string
   datasetId: string
@@ -61,6 +101,7 @@ type DatasetConfig = {
   moduleKey: string
   moduleLabel: string
   pattern?: RegExp
+  shape?: "collection" | "singleton"
   syncable?: boolean
 }
 
@@ -119,20 +160,26 @@ const SYSTEM_STORAGE_KEYS = new Set([
 
 const DATASET_CONFIGS: DatasetConfig[] = [
   { storageKey: "inventories", moduleKey: "/rat", moduleLabel: "Inventarios de datos personales" },
-  { storageKey: "inventories_progress", moduleKey: "/rat", moduleLabel: "Borradores de inventarios" },
+  { storageKey: "inventories_progress", moduleKey: "/rat", moduleLabel: "Borradores de inventarios", shape: "singleton" },
   { storageKey: "storedFiles", moduleKey: "/shared", moduleLabel: "Evidencias documentales" },
   { storageKey: "contractsHistory", moduleKey: "/third-party-contracts", moduleLabel: "Contratos con terceros" },
-  { storageKey: "thirdPartyCustomClauses", moduleKey: "/third-party-contracts", moduleLabel: "Cláusulas contractuales" },
+  { storageKey: "thirdPartyCustomClauses", moduleKey: "/third-party-contracts", moduleLabel: "Cláusulas contractuales", shape: "singleton" },
+  { storageKey: "dpo-compliance", moduleKey: "/dpo", moduleLabel: "Snapshot de cumplimiento DPO", shape: "singleton" },
+  { storageKey: "dpo-accreditation-history", moduleKey: "/dpo", moduleLabel: "Historial de acreditación DPO" },
+  { storageKey: "dpo-functional-history", moduleKey: "/dpo", moduleLabel: "Historial funcional DPO" },
+  { storageKey: "dpo-project-reviews", moduleKey: "/dpo", moduleLabel: "Privacy reviews DPO" },
   { storageKey: "dpo-reports", moduleKey: "/dpo", moduleLabel: "Reportes DPO" },
   { storageKey: "dpo-actas", moduleKey: "/dpo", moduleLabel: "Actas DPO" },
   { storageKey: "eipd_forms", moduleKey: "/eipd", moduleLabel: "Evaluaciones de impacto" },
   { storageKey: "arcoRequests", moduleKey: "/arco-rights", moduleLabel: "Solicitudes ARCO" },
-  { storageKey: "arcoProcedurePolicyLinkV1", moduleKey: "/arco-rights", moduleLabel: "Política de procedimientos ARCO" },
+  { storageKey: "arcoProcedurePolicyLinkV1", moduleKey: "/arco-rights", moduleLabel: "Política de procedimientos ARCO", shape: "singleton" },
   { storageKey: "security_policies", moduleKey: "/data-policies", moduleLabel: "Políticas de protección de datos" },
   { storageKey: "davara-trainings-v3", moduleKey: "/davara-training", moduleLabel: "Capacitación" },
+  { storageKey: "davara-training-store-v1", moduleKey: "/davara-training", moduleLabel: "Store operativo de capacitación", shape: "singleton" },
   { storageKey: "davara-training-recursos-v1", moduleKey: "/davara-training", moduleLabel: "Recursos de capacitación" },
+  { storageKey: "davara-sgsdp-storage", moduleKey: "/security-system", moduleLabel: "Sistema de gestión de seguridad", shape: "singleton" },
   { storageKey: "security_incidents_v1", moduleKey: "/incidents-breaches", moduleLabel: "Incidentes de seguridad" },
-  { storageKey: "audit_assessment_answers_v1", moduleKey: "/audit", moduleLabel: "Auditoría en protección de datos" },
+  { storageKey: "audit_assessment_answers_v1", moduleKey: "/audit", moduleLabel: "Auditoría en protección de datos", shape: "singleton" },
   { storageKey: "auditReminders", moduleKey: "/audit-alarms", moduleLabel: "Recordatorios" },
   { storageKey: "proceduresPdpV2", moduleKey: "/litigation-management", moduleLabel: "Procedimientos PDP" },
   { storageKey: "proceduresPDP", moduleKey: "/litigation-management", moduleLabel: "Procedimientos PDP heredados" },
@@ -149,6 +196,7 @@ const DATASET_CONFIGS: DatasetConfig[] = [
   { moduleKey: "/awareness", moduleLabel: "Responsabilidad demostrada", storageKey: "accountability_v2_sm10" },
   { moduleKey: "/awareness", moduleLabel: "Responsabilidad demostrada", storageKey: "accountability_v2_sm11_exports" },
   { moduleKey: "/awareness", moduleLabel: "Responsabilidad demostrada", storageKey: "accountability_v2_sm13" },
+  { storageKey: "responsibility_legacy", moduleKey: "/awareness", moduleLabel: "Legado de responsabilidad demostrada", pattern: /^responsibility_/, shape: "singleton" },
 ]
 
 function isBrowser() {
@@ -225,6 +273,166 @@ function safeStringifyValue(value: unknown): string {
   return JSON.stringify(value)
 }
 
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value)
+}
+
+function normalizeRecordId(payload: unknown, fallback: string) {
+  if (!isPlainObject(payload)) return fallback
+
+  const candidates = [
+    payload.id,
+    payload.recordId,
+    payload.key,
+    payload.uuid,
+    payload.folio,
+    payload.projectCode,
+    payload.clave,
+    payload.nombreIncidente,
+    payload.databaseName,
+    payload.title,
+    payload.name,
+  ]
+
+  for (const candidate of candidates) {
+    if (typeof candidate === "string" && candidate.trim().length > 0) {
+      return candidate.trim()
+    }
+  }
+
+  return fallback
+}
+
+function normalizeRecordLabel(payload: unknown, fallback: string) {
+  if (!isPlainObject(payload)) return fallback
+
+  const candidates = [
+    payload.label,
+    payload.title,
+    payload.name,
+    payload.databaseName,
+    payload.noticeName,
+    payload.contractName,
+    payload.projectName,
+    payload.dpoName,
+    payload.nombreIncidente,
+    payload.identificador,
+    payload.folio,
+    payload.recordId,
+    payload.id,
+  ]
+
+  for (const candidate of candidates) {
+    if (typeof candidate === "string" && candidate.trim().length > 0) {
+      return candidate.trim()
+    }
+  }
+
+  return fallback
+}
+
+function normalizeRecordDate(payload: unknown, fallback: string | null) {
+  if (!isPlainObject(payload)) return fallback
+
+  const candidates = [
+    payload.updatedAt,
+    payload.createdAt,
+    payload.uploadDate,
+    payload.date,
+    payload.fecha,
+    payload.requestDate,
+    payload.fechaCreacion,
+    payload.fechaUltimaRevision,
+    payload.localUpdatedAt,
+  ]
+
+  for (const candidate of candidates) {
+    if (typeof candidate === "string" && candidate.trim().length > 0) {
+      return candidate
+    }
+  }
+
+  return fallback
+}
+
+function normalizeAttachmentIds(payload: unknown): string[] {
+  if (!isPlainObject(payload)) return []
+
+  const collected = new Set<string>()
+  const keyMatchers = /(attachment|file|document|evidence)/i
+
+  const visit = (value: unknown, key?: string) => {
+    if (typeof value === "string") {
+      const trimmed = value.trim()
+      if (!trimmed) return
+      if (key && keyMatchers.test(key) && /(^stored-file|^attachment|^[a-z]+-[a-z0-9-]+)/i.test(trimmed)) {
+        collected.add(trimmed)
+      }
+      return
+    }
+
+    if (Array.isArray(value)) {
+      value.forEach((entry) => visit(entry, key))
+      return
+    }
+
+    if (!isPlainObject(value)) return
+
+    Object.entries(value).forEach(([nestedKey, nestedValue]) => {
+      if (
+        typeof nestedValue === "string" &&
+        keyMatchers.test(nestedKey) &&
+        nestedValue.trim().length > 0
+      ) {
+        collected.add(nestedValue.trim())
+        return
+      }
+
+      if (Array.isArray(nestedValue) && keyMatchers.test(nestedKey)) {
+        nestedValue.forEach((entry) => visit(entry, nestedKey))
+      }
+    })
+  }
+
+  visit(payload)
+  return Array.from(collected)
+}
+
+function resolveDatasetShape(storageKey: string, data: unknown): "collection" | "singleton" {
+  if (Array.isArray(data)) return "collection"
+  const config = resolveDatasetConfig(storageKey)
+  if (config?.shape === "singleton") return "singleton"
+  return isPlainObject(data) ? "singleton" : "collection"
+}
+
+function ensureMutablePayload(
+  payload: unknown,
+  recordId: string,
+  label?: string,
+  attachmentIds?: string[],
+) {
+  if (isPlainObject(payload)) {
+    const nextPayload = { ...payload }
+    if (!normalizeRecordId(nextPayload, "").trim()) {
+      nextPayload.id = recordId
+    }
+    if (label && !normalizeRecordLabel(nextPayload, "").trim()) {
+      nextPayload.label = label
+    }
+    if (attachmentIds && attachmentIds.length > 0 && !Array.isArray(nextPayload.attachmentIds)) {
+      nextPayload.attachmentIds = attachmentIds
+    }
+    return nextPayload
+  }
+
+  return {
+    id: recordId,
+    label: label || `Registro ${recordId}`,
+    attachmentIds: attachmentIds || [],
+    value: payload,
+  }
+}
+
 function dispatchStorageRefresh(storageKey: string) {
   if (!isBrowser()) return
   window.dispatchEvent(new Event("storage"))
@@ -246,6 +454,27 @@ export function readPlatformStatus(): PlatformStatus | null {
   } catch {
     return null
   }
+}
+
+export function readScopedStorageJson<T>(storageKey: string, fallback: T): T {
+  if (!isBrowser()) return fallback
+  try {
+    const raw = window.localStorage.getItem(storageKey)
+    if (!raw) return fallback
+    return (JSON.parse(raw) as T) ?? fallback
+  } catch {
+    return fallback
+  }
+}
+
+export function writeScopedStorageJson(storageKey: string, value: unknown): void {
+  if (!isBrowser()) return
+  window.localStorage.setItem(storageKey, safeStringifyValue(value))
+}
+
+export function removeScopedStorageValue(storageKey: string): void {
+  if (!isBrowser()) return
+  window.localStorage.removeItem(storageKey)
 }
 
 function openDatabase(): Promise<IDBDatabase> {
@@ -345,6 +574,51 @@ export async function listCurrentUserDatasets(): Promise<DatasetSnapshot[]> {
   return allDatasets
     .filter((dataset) => dataset.ownerEmail === email)
     .sort((left, right) => (left.localUpdatedAt < right.localUpdatedAt ? 1 : -1))
+}
+
+export async function getCurrentUserDatasetByStorageKey(storageKey: string): Promise<DatasetSnapshot | null> {
+  const email = getActiveUserEmail()
+  if (!email) return null
+  return getValue<DatasetSnapshot>(DATASET_STORE, createDatasetId(email, storageKey))
+}
+
+export async function restoreDatasetSnapshotToScopedStorage(storageKey: string): Promise<boolean> {
+  const email = getActiveUserEmail()
+  if (!email) return false
+
+  const dataset = await getCurrentUserDatasetByStorageKey(storageKey)
+  if (!dataset || dataset.deletedAt) return false
+
+  const originals = getOriginalStorage()
+  const scopedKey = createScopedStorageKey(email, storageKey)
+  if (originals.getItem(scopedKey) !== null) return false
+
+  originals.setItem(scopedKey, safeStringifyValue(dataset.data))
+  dispatchStorageRefresh(storageKey)
+  return true
+}
+
+export async function restoreAllCurrentUserDatasetsToScopedStorage(): Promise<number> {
+  const email = getActiveUserEmail()
+  if (!email) return 0
+
+  const originals = getOriginalStorage()
+  const datasets = await listCurrentUserDatasets()
+  let restored = 0
+
+  for (const dataset of datasets) {
+    if (dataset.deletedAt) continue
+    const scopedKey = createScopedStorageKey(email, dataset.storageKey)
+    if (originals.getItem(scopedKey) !== null) continue
+    originals.setItem(scopedKey, safeStringifyValue(dataset.data))
+    restored += 1
+  }
+
+  if (restored > 0) {
+    dispatchStorageRefresh("*")
+  }
+
+  return restored
 }
 
 export async function listPendingDatasetOperations(): Promise<DatasetOperation[]> {
@@ -809,6 +1083,7 @@ export async function prepareLocalFirstWorkspaceAfterLogin(): Promise<void> {
   })
   installScopedLocalStorage()
   await migrateLegacyStorageToCurrentUser()
+  await restoreAllCurrentUserDatasetsToScopedStorage()
   await captureAllCurrentUserDatasets()
   if (!canUseServerSync(activeSession)) {
     writePlatformStatus({
@@ -841,6 +1116,7 @@ export async function prepareLocalFirstWorkspaceAfterLogin(): Promise<void> {
 export async function startPlatformLocalFirstRuntime(): Promise<() => void> {
   installScopedLocalStorage()
   await migrateLegacyStorageToCurrentUser()
+  await restoreAllCurrentUserDatasetsToScopedStorage()
   await captureAllCurrentUserDatasets()
   await queueUnsyncedCurrentUserDatasets()
 
@@ -883,30 +1159,192 @@ export async function startPlatformLocalFirstRuntime(): Promise<() => void> {
   }
 }
 
+function createRecordEnvelope(
+  dataset: DatasetSnapshot,
+  payload: unknown,
+  index: number,
+): ModuleRecordEnvelope {
+  const fallbackId = `${dataset.storageKey}-${index}`
+  const recordId = normalizeRecordId(payload, fallbackId)
+  const label = normalizeRecordLabel(payload, `${dataset.moduleLabel} ${index + 1}`)
+  const createdAt = normalizeRecordDate(
+    isPlainObject(payload) ? payload : null,
+    dataset.serverUpdatedAt ?? dataset.localUpdatedAt,
+  )
+  const updatedAt =
+    normalizeRecordDate(isPlainObject(payload) ? payload : null, dataset.serverUpdatedAt ?? dataset.localUpdatedAt) ??
+    dataset.localUpdatedAt
+
+  return {
+    datasetId: dataset.datasetId,
+    storageKey: dataset.storageKey,
+    moduleKey: dataset.moduleKey,
+    moduleLabel: dataset.moduleLabel,
+    recordId,
+    label,
+    ownerEmail: dataset.ownerEmail,
+    visibility: dataset.visibility,
+    sharedScope: dataset.sharedScope,
+    sharedWith: dataset.sharedWith,
+    version: dataset.version,
+    serverVersion: dataset.serverVersion,
+    syncStatus: dataset.syncStatus,
+    createdAt,
+    updatedAt,
+    deletedAt: dataset.deletedAt,
+    attachmentIds: normalizeAttachmentIds(payload),
+    payload,
+  }
+}
+
+export function listDatasetRecordEnvelopes(dataset: DatasetSnapshot): ModuleRecordEnvelope[] {
+  if (dataset.deletedAt !== null) return []
+
+  const shape = resolveDatasetShape(dataset.storageKey, dataset.data)
+  if (shape === "collection" && Array.isArray(dataset.data)) {
+    return dataset.data.slice(0, 500).map((item, index) => createRecordEnvelope(dataset, item, index))
+  }
+
+  if (dataset.data === null || typeof dataset.data === "undefined") {
+    return []
+  }
+
+  return [createRecordEnvelope(dataset, dataset.data, 0)]
+}
+
+export async function listCurrentUserModuleRecordEnvelopes(moduleKey?: string): Promise<ModuleRecordEnvelope[]> {
+  const datasets = await listCurrentUserDatasets()
+  return datasets
+    .filter((dataset) => (moduleKey ? dataset.moduleKey === moduleKey : true))
+    .flatMap((dataset) => listDatasetRecordEnvelopes(dataset))
+    .sort((left, right) => (left.updatedAt < right.updatedAt ? 1 : -1))
+}
+
+export function createModuleRecordAdapter(config: {
+  storageKey: string
+  moduleKey: string
+  moduleLabel: string
+  shape?: "collection" | "singleton"
+}): ModuleRecordAdapter {
+  const resolveCurrentData = async () => {
+    const dataset = await getCurrentUserDatasetByStorageKey(config.storageKey)
+    if (dataset && dataset.deletedAt === null) {
+      return dataset.data
+    }
+    return readScopedStorageJson<unknown>(config.storageKey, config.shape === "singleton" ? null : [])
+  }
+
+  const saveModuleRecord = async (input: ModuleRecordMutation) => {
+    const currentData = await resolveCurrentData()
+    const currentShape = config.shape || resolveDatasetShape(config.storageKey, currentData)
+    const nextRecordId = input.recordId?.trim() || globalThis.crypto?.randomUUID?.() || `${config.storageKey}-${Date.now()}`
+    const nextPayload = ensureMutablePayload(input.payload, nextRecordId, input.label, input.attachmentIds)
+
+    if (currentShape === "singleton") {
+      writeScopedStorageJson(config.storageKey, nextPayload)
+    } else {
+      const currentCollection = Array.isArray(currentData) ? [...currentData] : []
+      const existingIndex = currentCollection.findIndex(
+        (entry, index) => normalizeRecordId(entry, `${config.storageKey}-${index}`) === nextRecordId,
+      )
+
+      if (existingIndex >= 0) {
+        currentCollection[existingIndex] = nextPayload
+      } else {
+        currentCollection.unshift(nextPayload)
+      }
+
+      writeScopedStorageJson(config.storageKey, currentCollection)
+    }
+
+    const nextDataset =
+      (await getCurrentUserDatasetByStorageKey(config.storageKey)) ||
+      ({
+        datasetId: `pending::${config.storageKey}`,
+        ownerEmail: getActiveUserEmail() || "unknown",
+        storageKey: config.storageKey,
+        moduleKey: config.moduleKey,
+        moduleLabel: config.moduleLabel,
+        data: currentShape === "singleton" ? nextPayload : [nextPayload],
+        visibility: "private",
+        sharedScope: "private",
+        sharedWith: [],
+        version: 0,
+        serverVersion: 0,
+        syncStatus: "pending",
+        localUpdatedAt: new Date().toISOString(),
+        serverUpdatedAt: null,
+        deletedAt: null,
+      } as DatasetSnapshot)
+
+    const envelope =
+      listDatasetRecordEnvelopes({
+        ...nextDataset,
+        data: currentShape === "singleton"
+          ? nextPayload
+          : (() => {
+              const currentCollection = Array.isArray(currentData) ? [...currentData] : []
+              const existingIndex = currentCollection.findIndex(
+                (entry, index) => normalizeRecordId(entry, `${config.storageKey}-${index}`) === nextRecordId,
+              )
+              if (existingIndex >= 0) {
+                currentCollection[existingIndex] = nextPayload
+              } else {
+                currentCollection.unshift(nextPayload)
+              }
+              return currentCollection
+            })(),
+      }).find((record) => record.recordId === nextRecordId)
+
+    if (!envelope) {
+      throw new Error(`No fue posible reconstruir el registro ${nextRecordId} del módulo ${config.moduleKey}`)
+    }
+
+    return envelope
+  }
+
+  return {
+    storageKey: config.storageKey,
+    moduleKey: config.moduleKey,
+    moduleLabel: config.moduleLabel,
+    loadModuleRecords: async () => {
+      const dataset = await getCurrentUserDatasetByStorageKey(config.storageKey)
+      if (!dataset) return []
+      return listDatasetRecordEnvelopes(dataset)
+    },
+    listModuleRecords: async () => {
+      const dataset = await getCurrentUserDatasetByStorageKey(config.storageKey)
+      if (!dataset) return []
+      return listDatasetRecordEnvelopes(dataset)
+    },
+    saveModuleRecord,
+    deleteModuleRecord: async (recordId: string) => {
+      const currentData = await resolveCurrentData()
+      const currentShape = config.shape || resolveDatasetShape(config.storageKey, currentData)
+
+      if (currentShape === "singleton") {
+        removeScopedStorageValue(config.storageKey)
+        return
+      }
+
+      const nextCollection = (Array.isArray(currentData) ? currentData : []).filter(
+        (entry, index) => normalizeRecordId(entry, `${config.storageKey}-${index}`) !== recordId,
+      )
+      writeScopedStorageJson(config.storageKey, nextCollection)
+    },
+    restoreModuleState: async () => restoreDatasetSnapshotToScopedStorage(config.storageKey),
+    getShareableModuleRecords: async () => {
+      const dataset = await getCurrentUserDatasetByStorageKey(config.storageKey)
+      if (!dataset) return []
+      return getShareableRecords(dataset)
+    },
+  }
+}
+
 export function getShareableRecords(dataset: DatasetSnapshot): Array<{ recordKey: string; label: string; payload: unknown }> {
-  if (!Array.isArray(dataset.data)) return []
-
-  return dataset.data.slice(0, 100).map((item, index) => {
-    const typedItem = item as Record<string, unknown>
-    const recordKey =
-      String(
-        typedItem.id ??
-        typedItem.recordId ??
-        typedItem.key ??
-        typedItem.uuid ??
-        `${dataset.storageKey}-${index}`,
-      )
-    const label =
-      String(
-        typedItem.name ??
-        typedItem.title ??
-        typedItem.noticeName ??
-        typedItem.identificador ??
-        typedItem.contractName ??
-        typedItem.descripcion ??
-        `Registro ${index + 1}`,
-      )
-
-    return { recordKey, label, payload: item }
-  })
+  return listDatasetRecordEnvelopes(dataset).slice(0, 100).map((record) => ({
+    recordKey: record.recordId,
+    label: record.label,
+    payload: record.payload,
+  }))
 }

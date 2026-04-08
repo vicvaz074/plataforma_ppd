@@ -23,7 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
 import { ensureBrowserStorageEvents } from "@/lib/browser-storage-events"
-import { createFileURL, deleteFile, getFileById, saveFile } from "@/lib/fileStorage"
+import { deleteFile, getFileById, resolveStoredFileAccessUrl, saveFile } from "@/lib/fileStorage"
 import {
   getPolicyStatusLabel,
   getPublishedPoliciesForModule,
@@ -374,7 +374,7 @@ export function ArcoProcedures() {
       return
     }
 
-    window.open(createFileURL(file.content), "_blank", "noopener,noreferrer")
+    window.open(resolveStoredFileAccessUrl(file), "_blank", "noopener,noreferrer")
   }
 
   return (

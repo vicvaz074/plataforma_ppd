@@ -19,7 +19,7 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "semgrep": "semgrep scan --config .semgrep.yaml --metrics=off . || true",
     "test": "tsx --test",
-    "test:e2e": "NODE_ENV=production node --test tests/e2e/security.test.js"
+    "test:e2e": "NODE_ENV=production node --test tests/e2e/*.test.js"
   },
   "build": {
     "appId": "com.vicentevazquez.myproject",

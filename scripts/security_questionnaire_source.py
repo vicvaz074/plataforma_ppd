@@ -8,7 +8,10 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 SEED_PATH = Path(__file__).with_name("security_questionnaire_seed.json")
 
-TECHNICAL_TYPES = {"Código", "Configuración", "Logs", "HTTP", "SQL"}
+MANUAL_RESPONSE = "Se adjuntará posteriormente"
+MANUAL_COMMENT = "La evidencia operativa/corporativa del contratista será integrada posteriormente."
+MANUAL_EVIDENCE_TEXT = "Pendiente de anexo del contratista"
+TECHNICAL_TYPES = {"Código", "Configuración", "Logs", "HTTP", "SQL", "Visual"}
 
 
 def evidence_item(evidence_id: str, evidence_type: str, description: str, file_path: str) -> dict[str, Any]:
@@ -21,21 +24,23 @@ def evidence_item(evidence_id: str, evidence_type: str, description: str, file_p
 
 
 DOCUMENT_METADATA: dict[str, Any] = {
-    "title": "Respuesta integral al cuestionario de seguridad",
-    "subtitle": "Davara Governance - solucion on-premise hibrida local-first con evidencia multiformato",
+    "title": "Respuesta técnica al cuestionario de seguridad",
+    "subtitle": "Davara Governance - solución on-premise híbrida local-first con evidencia verificable",
     "client": "SURA Investments",
-    "date": "2026-04-07",
+    "date": "2026-04-08",
     "repository": str(ROOT),
     "scope_note": (
-        "La respuesta conserva la numeracion completa de los controles 1-54, incluyendo la seccion General. "
-        "La postura documental se presenta como una solucion on-premise hibrida local-first, con persistencia local resiliente, "
-        "repositorio central PostgreSQL on-premise, despliegue Docker endurecido, evidencia visual y soporte operativo del contratista."
+        "El presente documento responde el cuestionario de seguridad conservando la numeración original de los controles 1-54. "
+        "Los controles estrictamente técnicos se responden con evidencia implementada y validada en el repositorio y en el despliegue "
+        "on-premise. Los controles organizacionales, certificatorios, físicos o contractuales se dejan identificados para llenado "
+        "posterior del contratista, sin afirmar documentación no adjunta."
     ),
     "executive_summary": [
-        "La plataforma puede desplegarse completamente dentro del perimetro del cliente sin dependencia obligatoria de nube publica.",
-        "Se implemento una capa de sincronizacion local-first con IndexedDB, cola persistente, deteccion de conflictos y repositorio central PostgreSQL on-premise.",
-        "La evidencia incluye codigo, configuracion, logs, respuestas HTTP, consultas SQL, screenshots y documentacion operativa para un due diligence tecnico y ejecutivo.",
-        "Los controles organizacionales, fisicos y contractuales se sostienen con el paquete operativo del contratista y se presentan como evidencia complementaria del servicio.",
+        "La solución puede desplegarse íntegramente on-premise con Docker, PostgreSQL central, proxy TLS interno y respaldo validado.",
+        "La autenticación y la sesión operan con backend on-premise, permisos por módulo, aislamiento por usuario, compartición controlada y continuidad local-first.",
+        "Los módulos funcionales del sidebar ya comparten un contrato local-first homogéneo con datasets scopiados por usuario, restore desde PostgreSQL y trazabilidad de sincronización.",
+        "Los adjuntos y evidencias ya pueden almacenarse server-side con control de acceso, descarga autorizada y trazabilidad central.",
+        "La respuesta documental de esta ronda es técnica; lo organizacional y certificatorio queda claramente marcado para anexo posterior del contratista.",
     ],
 }
 
@@ -98,297 +103,230 @@ TYPE_BY_CONTROL = {
 }
 
 
-COMMENTARY_CONTROLS = {
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    11,
-    20,
-    23,
-    24,
-    25,
-    27,
-    28,
-    30,
-    38,
-    39,
-    40,
-    48,
-    50,
-    51,
-    52,
-    53,
-    54,
-}
-
-
 GENERAL_ROWS = [
     {
         "control": 1,
         "section": "General",
-        "title": "Modelo de prestacion y cobertura cloud/on-premise",
+        "title": "Cobertura de certificación para prestación exclusiva en nube",
         "question": (
-            "Si el servicio que se esta contratando presta los servicios unicamente en nube, "
-            "¿su empresa cuenta con controles y soporte documental alineados con seguridad de la informacion aplicable?"
+            "Si el servicio que se está contratando presta los servicios únicamente en nube, ¿su empresa cuenta con una certificación "
+            "alineada con seguridad de la información aplicable? En caso afirmativo, los soportes correspondientes se adjuntarán por separado."
         ),
     },
     {
         "control": 2,
         "section": "General",
-        "title": "Cobertura certificatoria y de control aplicable al servicio",
+        "title": "Cobertura certificatoria o de control aplicable al alcance del contrato",
         "question": (
-            "¿Su empresa cuenta con un marco de control y soporte documental que cubra los servicios, plataformas o sistemas "
-            "incluidos en el alcance del contrato?"
+            "¿Su empresa cuenta con un marco de control y soporte documental que cubra los servicios, plataformas o sistemas incluidos en el alcance del contrato? "
+            "Si la evidencia es certificatoria u organizacional, se adjuntará por separado."
         ),
     },
 ]
 
 
-SECTION_CLOSINGS = {
-    "General": "La solucion queda presentada como un servicio controlado, verificable y apto para ambientes con revisiones de due diligence.",
-    "Administración de Seguridad de la Información": "Esto refuerza una postura de gobierno y control coherente con la calidad esperada por un cliente regulado.",
-    "Protección de Información y Sistemas": "El resultado es una plataforma con controles visibles, endurecimiento tecnico y operacion verificable dentro del perimetro del cliente.",
-    "Gestión de vulnerabilidades": "La postura resultante es compatible con un esquema de mejora continua, remediacion priorizada y evidencia reproducible.",
-    "Gestión de Respuesta a Incidentes": "Con ello se sostiene una respuesta formal, trazable y auditable frente a eventos de seguridad relevantes.",
-    "Gestión de Accesos": "Esto permite demostrar control de acceso, segregacion y disciplina operativa sobre cuentas, dispositivos y privilegios.",
-    "Capacitación y Concientización": "Asi se acredita una cultura de seguridad y refuerzo continuo para el personal involucrado en la prestacion.",
-    "Gestión de Activos": "La solucion se presenta con trazabilidad de activos, propietarios y criterios de tratamiento de la informacion.",
-    "Desarrollo Seguro": "El desarrollo y la liberacion quedan respaldados por practicas tecnicas y operativas propias de un producto maduro.",
-    "Gestión de terceros": "Esto sostiene una relacion con terceros bajo evaluacion, control y delimitacion contractual de responsabilidades.",
-    "Gestión de Riesgos": "Se muestra una administracion del riesgo alineada a cambios de arquitectura, operacion y servicio.",
-    "Seguridad Física": "La operacion queda soportada por medidas fisicas y ambientales compatibles con una prestacion empresarial controlada.",
+MANUAL_CONTROL_IDS = {
+    1, 2, 3, 4, 5, 6, 7, 8,
+    20, 21, 22, 23, 24, 25,
+    27, 28, 29, 31, 32, 34, 36, 38, 39, 40,
+    44, 46, 49, 50, 51, 52, 53, 54,
 }
 
 
-CONTROL_SPECIFICS = {
-    1: "La prestacion propuesta no depende de una modalidad exclusivamente cloud, sino de un despliegue on-premise hibrido con componentes internos, proxy TLS, almacenamiento controlado y continuidad local gestionada",
-    2: "La cobertura del servicio se sustenta en un marco documental, tecnico y operativo que acompana la implantacion y permite soportar revisiones de control y atestacion aplicables al alcance contratado",
-    3: "Se dispone de un modelo de gestion de seguridad sustentado en politicas, responsables, evidencia cruzada y revisiones periodicas del producto y del servicio",
-    4: "El gobierno tecnico del servicio cubre ciclo de vida de ambientes, configuraciones, cambios, respaldos, restauracion y custodios operativos por componente",
-    5: "Las politicas de seguridad y ciberseguridad se apoyan en un paquete operativo vigente para despliegues on-premise y en controles aplicados directamente en el producto",
-    6: "Los roles de direccion del servicio, seguridad, implementacion, soporte y responsabilidad tecnica quedan definidos como parte del modelo operativo de entrega",
-    7: "La capacidad del equipo de seguridad y de soporte se presenta como parte del paquete operativo del contratista para la prestacion del servicio",
-    8: "La prestacion contempla formacion anual, concientizacion y refuerzo de practicas de seguridad para el personal involucrado en el servicio",
-    9: "La arquitectura implementada incorpora controles de aplicacion, contenedor, base de datos, proxy TLS y operacion centralizada sobre PostgreSQL on-premise",
-    10: "La prevencion de fuga se apoya en activos self-hosted, CSP cerrada, desactivacion por defecto de integraciones externas y control de acceso por rol y sesion",
-    11: "La solucion genera eventos de seguridad exportables e integrables con monitoreo central o SIEM corporativo del cliente, manteniendo trazabilidad desde el origen",
-    12: "La operacion utiliza TLS interno, sesiones server-side y repositorio central on-premise, complementados con almacenamiento controlado y trazabilidad de sincronizacion",
-    13: "Se implementaron procedimientos y artefactos reales de backup, checksum, manifiesto y restauracion validada para base de datos y artefactos server-side",
-    14: "La plataforma queda preparada para minimizar indisponibilidad mediante cola persistente, continuidad local, healthchecks, reinicio de servicios y separacion de componentes",
-    15: "Existe un flujo de identificacion, priorizacion y tratamiento de vulnerabilidades soportado por analisis, validaciones tecnicas y control de cambios",
-    16: "La administracion de parches y dependencias se integra al ciclo de build, validacion y despliegue del producto on-premise",
-    17: "La priorizacion de hallazgos se alinea a severidades estandar y permite gobernar vulnerabilidades con criterio reproducible",
-    18: "La remediacion por severidad se soporta en objetivos de tratamiento y ventanas controladas dentro del esquema operativo del servicio",
-    19: "La solucion admite pruebas y auditorias periodicas con evidencia de lint, build, pruebas E2E y verificacion de despliegue on-premise",
-    20: "Los resultados tecnicos generados para el producto pueden compartirse como evidencia reproducible ante una solicitud formal de SURA Investments",
-    21: "El servicio se apoya en un plan de respuesta a incidentes con deteccion, clasificacion, contencion, escalamiento, recuperacion y lecciones aprendidas",
-    22: "Se establece un procedimiento para gestionar incidentes e informar al cliente a traves de responsables definidos y evidencia centralizada",
-    23: "El compromiso operativo de notificacion contempla un umbral de 48 horas desde la confirmacion de un incidente material, con posibilidad de comunicacion preliminar anticipada",
-    24: "La investigacion de incidentes puede ejecutarse con capacidad interna y, cuando el caso lo exija, con apoyo de terceros especializados bajo control contractual",
-    25: "La respuesta del servicio se presenta con disciplina formal de registro y tratamiento de incidentes, manteniendo el historial y su tratamiento por canal contractual cuando corresponda",
-    26: "Los registros de seguridad, auditoria y operacion se preservan como evidencia respaldable y con objetivo de retencion extendida para fines de trazabilidad",
-    27: "La gestion de accesos se sustenta en minimo privilegio, cuentas nominativas, segregacion funcional y aprobacion previa de privilegios",
-    28: "Los accesos a activos del cliente se contemplan dentro de un esquema administrado de dispositivos autorizados y controlados por el proveedor o por el propio cliente",
-    29: "La linea base de seguridad para equipos y estaciones considera endurecimiento, inventario, control de acceso y uso dentro de un entorno administrado",
-    30: "Los accesos a sistemas de SURA pueden operar bajo configuraciones de minimo privilegio y segmentacion definidas para la implantacion on-premise",
-    31: "La politica de contrasenas se integra al modelo de control de acceso y robustez de autenticacion del servicio",
-    32: "La administracion de credenciales contempla caducidad o rotacion conforme a la politica del ambiente y a las exigencias del cliente",
-    33: "La robustez de credenciales exige una longitud minima fuerte y adecuada para ambientes regulados",
-    34: "Los cambios administrativos o restablecimientos pueden forzar renovacion de credenciales dentro del procedimiento de alta y recuperacion",
-    35: "La complejidad de contrasenas forma parte del esquema de autenticacion robusta aplicado al servicio",
-    36: "La administracion de credenciales contempla historial y restricciones de reutilizacion dentro del marco operativo del servicio",
-    37: "El control de intentos fallidos y bloqueo automatico se incorpora como medida de defensa frente a accesos no autorizados",
-    38: "El servicio contempla un programa anual de cultura de seguridad aplicable al personal asignado",
-    39: "La concientizacion sobre phishing e ingenieria social forma parte del paquete de seguridad y del esquema de capacitacion anual",
-    40: "Las faltas de seguridad y obligaciones de uso se cubren mediante reglas operativas, acuerdos y capacitacion de incorporacion y refuerzo",
-    41: "La informacion y los artefactos del servicio se gestionan con criterios de clasificacion, tratamiento y control conforme a su sensibilidad",
-    42: "La operacion se soporta en un inventario de activos y componentes con propietarios y responsabilidades definidos por capa",
-    43: "Los activos relevantes se valoran considerando confidencialidad, integridad, disponibilidad y tratamiento operativo correspondiente",
-    44: "La plataforma y sus componentes de soporte quedan sujetos a mantenimiento tecnico, actualizacion y control operacional planificado",
-    45: "La solucion incorpora capacidad para detectar actividad anomala, conflictos, errores de autorizacion y eventos de seguridad relevantes",
-    46: "Las practicas de desarrollo seguro se reflejan en politicas, configuraciones, validaciones y controles incorporados al repositorio y al despliegue",
-    47: "El ciclo aplicado es compatible con un enfoque DevSecOps, integrando controles de seguridad dentro del flujo de construccion y liberacion",
-    48: "El aseguramiento del codigo utiliza una combinacion de controles de aplicacion, herramientas de validacion, pruebas, contenedores endurecidos y evidencia reproducible",
-    49: "La preparacion del personal tecnico incluye actualizacion periodica en desarrollo seguro y gestion de vulnerabilidades",
-    50: "La incorporacion y seguimiento de terceros se plantea bajo evaluacion de seguridad, delimitacion contractual y control de acceso",
-    51: "La gestion de riesgos del servicio se sostiene con una matriz operativa revisable ante cambios, incidentes y nuevas implantaciones",
-    52: "La proteccion fisica y ambiental del servicio se soporta en reglas operativas, restriccion de acceso y controles de custodia de activos",
-    53: "La operacion contempla controles fisicos en instalaciones y monitoreo de su correcto funcionamiento dentro del entorno donde se presta el servicio",
-    54: "El desembarque incluye recuperacion de activos, revocacion de accesos fisicos y logicos y cierre de privilegios asociados al servicio",
+TECHNICAL_COMMENTS = {
+    9: "La solución opera on-premise con autenticación server-side, permisos por módulo, proxy TLS interno, contenedores endurecidos y repositorio central PostgreSQL.",
+    10: "La plataforma reduce fuga de información con CSP cerrada, activos self-hosted, integraciones externas deshabilitadas por defecto y acceso autenticado a adjuntos.",
+    11: "Los eventos de seguridad pueden exportarse desde el backend on-premise y correlacionarse con monitoreo central o SIEM del cliente.",
+    12: "El tráfico viaja sobre HTTPS/TLS interno y la persistencia central se controla mediante PostgreSQL y almacenamiento server-side con autorización por sesión.",
+    13: "Se implementó respaldo y restauración verificables para base de datos, adjuntos y artefactos server-side con evidencia de recuperación.",
+    14: "La topología on-premise utiliza servicios desacoplados, healthchecks, proxy dedicado y continuidad local-first para minimizar indisponibilidad.",
+    15: "El repositorio incorpora hardening, validaciones reproducibles y trazabilidad técnica para identificación y tratamiento de vulnerabilidades.",
+    16: "La entrega versiona dependencias, imágenes y despliegues Docker de forma reproducible, facilitando control técnico de actualizaciones y parches.",
+    17: "El paquete técnico documenta severidad y priorización de hallazgos con criterios de impacto aplicables al tratamiento operativo de vulnerabilidades.",
+    18: "La remediación se acompaña de prioridades y ventanas de atención documentadas en el esquema técnico de operación segura.",
+    19: "El producto puede someterse a validaciones periódicas mediante build, lint, pruebas y comprobaciones operativas de la pila on-premise.",
+    26: "Los eventos relevantes quedan centralizados y archivados en base de datos, logs operativos y respaldos on-premise con trazabilidad reproducible.",
+    30: "El acceso se controla por rol, sesión y permisos por módulo, con administración central on-premise y ejecución no privilegiada en contenedores.",
+    33: "La validación de contraseñas exige longitud mínima robusta desde la autenticación de la plataforma.",
+    35: "La plataforma exige complejidad de contraseñas mediante validación de mayúsculas, minúsculas, números y caracteres especiales.",
+    37: "El login aplica rate limiting y bloqueo temporal progresivo tras múltiples intentos fallidos.",
+    41: "La solución incorpora clasificación y tratamiento de información mediante módulos y estructuras documentales orientadas a control y trazabilidad.",
+    42: "La plataforma mantiene inventarios de información con propietarios, responsables y segregación por usuario en operación local-first y repositorio central.",
+    43: "Los inventarios consideran criticidad y tratamiento de la información mediante campos estructurados, persistencia local y sincronización central.",
+    45: "Se registran eventos de seguridad, autenticación y accesos no autorizados para detección, seguimiento y exportación central.",
+    47: "El desarrollo se apoya en prácticas de desarrollo seguro, revisión de cambios, build reproducible y validaciones automatizadas.",
+    48: "Se utilizan Next.js, PostgreSQL, Docker, CSP endurecida, validaciones estáticas, pruebas automatizadas y evidencias centralizadas para asegurar código y aplicaciones.",
 }
 
 
 EVIDENCE_CATALOG = [
-    evidence_item("EV-01", "Operativa", "Paquete operativo del contratista para gobierno, accesos, incidentes, terceros, riesgos y seguridad fisica.", "docs/paquete_evidencia_operativa_onprem.md"),
-    evidence_item("EV-02", "Operativa", "Marco de desarrollo seguro, vulnerabilidades, parches y control tecnico del ciclo de entrega.", "docs/seguridad_desarrollo_y_vulnerabilidades_onprem.md"),
-    evidence_item("EV-03", "Operativa", "Protocolo general de seguridad para despliegues Davara Governance on-premise.", "docs/protocolos_seguridad.md"),
-    evidence_item("EV-04", "Operativa", "Documento tecnico de arquitectura, implementacion y despliegue on-premise.", "docs/documento_tecnico_implantacion_onpremise.md"),
-    evidence_item("EV-05", "Configuración", "Imagen Docker multi-stage endurecida para la aplicacion.", "app/Dockerfile"),
-    evidence_item("EV-06", "Configuración", "Composicion on-premise con app, PostgreSQL, proxy TLS y backup-runner.", "docker-compose.onprem.yml"),
-    evidence_item("EV-07", "Configuración", "Reverse proxy TLS interno para la solucion on-premise.", "deploy/nginx/onprem.conf"),
-    evidence_item("EV-08", "SQL", "Esquema base PostgreSQL 16 con registros, auditoria, eventos y sincronizacion.", "deploy/sql/init/001_onprem_core.sql"),
-    evidence_item("EV-09", "SQL", "Consultas de verificacion para evidencia centralizada en PostgreSQL.", "deploy/sql/verify/001_evidence_queries.sql"),
-    evidence_item("EV-10", "HTTP", "Estado previo al bootstrap del dispositivo y de la sesion server-side.", "output/doc/evidence/http/EV-10-sync-status-prebootstrap.http"),
-    evidence_item("EV-11", "HTTP", "Bootstrap server-side exitoso con emision de sesion y registro del dispositivo.", "output/doc/evidence/http/EV-11-bootstrap.http"),
-    evidence_item("EV-12", "HTTP", "Estado central posterior al bootstrap con sesion activa.", "output/doc/evidence/http/EV-12-sync-status-postbootstrap.http"),
-    evidence_item("EV-13", "HTTP", "Sincronizacion push con alta de registro hacia el repositorio central.", "output/doc/evidence/http/EV-13-sync-push-create.http"),
-    evidence_item("EV-14", "HTTP", "Lectura pull de cambios centrales para el dispositivo.", "output/doc/evidence/http/EV-14-sync-pull.http"),
-    evidence_item("EV-15", "HTTP", "Actualizacion remota simulada para validar deteccion de cambios centrales.", "output/doc/evidence/http/EV-15-simulate-remote-update.http"),
-    evidence_item("EV-16", "HTTP", "Conflicto detectado y preservado durante la sincronizacion.", "output/doc/evidence/http/EV-16-sync-push-conflict.http"),
-    evidence_item("EV-17", "HTTP", "Resolucion controlada de conflicto y cierre de la incidencia tecnica.", "output/doc/evidence/http/EV-17-resolve-conflict.http"),
-    evidence_item("EV-18", "HTTP", "Exportacion de eventos de seguridad para monitoreo centralizado o SIEM.", "output/doc/evidence/http/EV-18-security-events.http"),
-    evidence_item("EV-19", "Código", "Cliente de persistencia local-first con IndexedDB, cola de sincronizacion y manejo de conflictos.", "app/lib/onprem/client-sync.ts"),
-    evidence_item("EV-20", "Código", "Capa server-side de sincronizacion, sesiones, conflictos y telemetria de seguridad.", "app/lib/onprem/sync-store.ts"),
-    evidence_item("EV-21", "Visual", "Consola de sincronizacion on-premise con estados, cola y resumen operativo.", "output/doc/evidence/screenshots/EV-21-sync-center-overview.png"),
-    evidence_item("EV-22", "Visual", "Bootstrap exitoso del dispositivo y emision de sesion server-side.", "output/doc/evidence/screenshots/EV-22-bootstrap-success.png"),
-    evidence_item("EV-23", "Visual", "Operacion offline con cola pendiente antes de la reconexion.", "output/doc/evidence/screenshots/EV-23-offline-queue-pending.png"),
-    evidence_item("EV-24", "Visual", "Sincronizacion exitosa hacia PostgreSQL on-premise.", "output/doc/evidence/screenshots/EV-24-sync-success.png"),
-    evidence_item("EV-25", "Visual", "Conflicto visible y preservado para resolucion explicita.", "output/doc/evidence/screenshots/EV-25-conflict-visible.png"),
-    evidence_item("EV-26", "Logs", "Resultado de lint local sin errores bloqueantes.", "output/doc/evidence/logs/pnpm-lint.txt"),
-    evidence_item("EV-27", "Logs", "Resultado de build de produccion exitoso.", "output/doc/evidence/logs/pnpm-build.txt"),
+    evidence_item("EV-02", "Configuración", "Marco técnico de desarrollo seguro, vulnerabilidades, parches y control del ciclo de entrega.", "docs/seguridad_desarrollo_y_vulnerabilidades_onprem.md"),
+    evidence_item("EV-05", "Configuración", "Imagen Docker multi-stage endurecida para la aplicación on-premise.", "app/Dockerfile"),
+    evidence_item("EV-06", "Configuración", "Composición on-premise con aplicación, PostgreSQL, proxy TLS y backup-runner.", "docker-compose.onprem.yml"),
+    evidence_item("EV-07", "Configuración", "Reverse proxy TLS interno para la solución on-premise.", "deploy/nginx/onprem.conf"),
+    evidence_item("EV-08", "SQL", "Esquema PostgreSQL on-premise con sesiones, registros, conflictos, adjuntos, auditoría y seguridad.", "deploy/sql/init/001_onprem_core.sql"),
+    evidence_item("EV-18", "HTTP", "Exportación de eventos de seguridad para correlación o SIEM.", "output/doc/evidence/http/EV-18-security-events.http"),
+    evidence_item("EV-21", "Visual", "Centro de sincronización con cola, estados y resumen operativo.", "output/doc/evidence/screenshots/EV-21-sync-center-overview.png"),
+    evidence_item("EV-25", "Visual", "Conflicto detectado y preservado para resolución explícita.", "output/doc/evidence/screenshots/EV-25-conflict-visible.png"),
+    evidence_item("EV-26", "Logs", "Resultado de lint del aplicativo sin errores bloqueantes.", "output/doc/evidence/logs/pnpm-lint.txt"),
+    evidence_item("EV-27", "Logs", "Resultado de build de producción exitoso.", "output/doc/evidence/logs/pnpm-build.txt"),
     evidence_item("EV-28", "Logs", "Pruebas E2E ejecutadas satisfactoriamente.", "output/doc/evidence/logs/pnpm-test-e2e.txt"),
     evidence_item("EV-29", "Configuración", "Variables operativas documentadas para despliegue on-premise.", "deploy/env/onprem.env.example"),
-    evidence_item("EV-30", "SQL", "Metricas de dispositivos, registros, conflictos y eventos en el repositorio central.", "output/doc/evidence/sql/EV-30-sql-metrics.txt"),
+    evidence_item("EV-30", "SQL", "Métricas de dispositivos, registros, conflictos y eventos en PostgreSQL.", "output/doc/evidence/sql/EV-30-sql-metrics.txt"),
     evidence_item("EV-31", "SQL", "Consulta de registros sincronizados en PostgreSQL.", "output/doc/evidence/sql/EV-31-sql-records.txt"),
     evidence_item("EV-32", "SQL", "Consulta de eventos de seguridad centralizados.", "output/doc/evidence/sql/EV-32-sql-security-events.txt"),
-    evidence_item("EV-33", "Visual", "Servicios Docker on-premise ejecutandose y con healthchecks positivos.", "output/doc/evidence/screenshots/EV-33-docker-services-healthy.png"),
-    evidence_item("EV-34", "Visual", "Validacion HTTPS interna y endpoints de salud a traves del proxy TLS.", "output/doc/evidence/screenshots/EV-34-https-healthcheck.png"),
-    evidence_item("EV-35", "Visual", "Visualizacion de evidencia SQL con registros centralizados.", "output/doc/evidence/screenshots/EV-35-sql-central-records.png"),
-    evidence_item("EV-36", "Visual", "Evidencia visual de backup y restauracion verificada.", "output/doc/evidence/screenshots/EV-36-backup-restore-verified.png"),
-    evidence_item("EV-37", "Visual", "Preview renderizado del documento final de respuesta.", "output/doc/evidence/screenshots/EV-37-docx-preview.png"),
-    evidence_item("EV-38", "Logs", "Prueba de backup y restauracion con checksum y base restaurada.", "output/doc/evidence/logs/backup-test.txt"),
-    evidence_item("EV-39", "Configuración", "Variables de entorno oficiales para la solucion web on-premise.", "app/.env.example"),
-    evidence_item("EV-40", "Código", "Endpoint de bootstrap server-side para sesion y dispositivo.", "app/app/api/auth/bootstrap/route.ts"),
-    evidence_item("EV-41", "Código", "Endpoint de sincronizacion push hacia el repositorio central.", "app/app/api/sync/push/route.ts"),
-    evidence_item("EV-42", "Código", "Endpoint de sincronizacion pull y estado central.", "app/app/api/sync/pull/route.ts"),
-    evidence_item("EV-43", "Código", "Centro de sincronizacion visible para demostracion funcional y evidencia.", "app/app/sync-center/page.tsx"),
+    evidence_item("EV-33", "Visual", "Servicios Docker on-premise ejecutándose con healthchecks positivos.", "output/doc/evidence/screenshots/EV-33-docker-services-healthy.png"),
+    evidence_item("EV-34", "Visual", "Validación HTTPS interna y endpoints de salud a través del proxy TLS.", "output/doc/evidence/screenshots/EV-34-https-healthcheck.png"),
+    evidence_item("EV-35", "Visual", "Visualización de evidencia SQL con registros centralizados.", "output/doc/evidence/screenshots/EV-35-sql-central-records.png"),
+    evidence_item("EV-36", "Visual", "Evidencia visual de backup y restauración verificada.", "output/doc/evidence/screenshots/EV-36-backup-restore-verified.png"),
+    evidence_item("EV-38", "Logs", "Prueba de backup y restore con checksum y restauración funcional.", "output/doc/evidence/logs/backup-test.txt"),
+    evidence_item("EV-39", "Configuración", "Variables de entorno oficiales de la solución web on-premise.", "app/.env.example"),
+    evidence_item("EV-40", "Código", "Endpoint de autenticación bootstrap/login on-premise.", "app/app/api/auth/login/route.ts"),
+    evidence_item("EV-41", "Código", "Endpoint de sincronización push hacia el repositorio central.", "app/app/api/sync/push/route.ts"),
+    evidence_item("EV-42", "Código", "Endpoint de sincronización pull y estado central.", "app/app/api/sync/pull/route.ts"),
+    evidence_item("EV-43", "Código", "Centro de sincronización visible para demostración funcional.", "app/app/sync-center/page.tsx"),
     evidence_item("EV-44", "Código", "Cabeceras de seguridad y CSP self-hosted endurecida.", "app/security-headers.cjs"),
-    evidence_item("EV-45", "Código", "Asistente externo deshabilitado por defecto para despliegues on-premise estrictos.", "app/components/alicia-assistant.tsx"),
-    evidence_item("EV-46", "Código", "Cliente Electron preparado para consumir URL interna corporativa controlada.", "main/main.js"),
-    evidence_item("EV-47", "Logs", "Comprobacion runtime de la pila on-premise sobre HTTPS interno.", "output/doc/validation/docker-compose-runtime-check.txt"),
+    evidence_item("EV-45", "Código", "Integraciones externas no esenciales deshabilitadas por defecto.", "app/components/alicia-assistant.tsx"),
+    evidence_item("EV-47", "Logs", "Comprobación runtime de la pila on-premise sobre HTTPS interno.", "output/doc/validation/docker-compose-runtime-check.txt"),
     evidence_item("EV-48", "Logs", "Estado de contenedores on-premise y healthchecks.", "output/doc/validation/docker-compose-ps-initial.txt"),
-    evidence_item("EV-49", "Código", "Reglas de robustez de contrasenas y validacion de credenciales.", "app/lib/password-validation.ts"),
-    evidence_item("EV-50", "Código", "Control de intentos fallidos y bloqueo temporal.", "app/lib/rate-limiter.ts"),
-    evidence_item("EV-51", "Código", "Autenticacion, sesiones y eventos de acceso en el aplicativo.", "app/lib/auth.ts"),
-    evidence_item("EV-52", "Código", "Modelo de roles, perfiles y permisos por modulo.", "app/lib/user-permissions.ts"),
-    evidence_item("EV-53", "Código", "Modulo de cultura y concientizacion disponible dentro de la plataforma.", "app/app/awareness/page.tsx"),
-    evidence_item("EV-54", "Código", "Modelo documental de politicas, propietarios y clasificacion.", "app/lib/policy-governance.ts"),
-    evidence_item("EV-55", "Código", "Modulo de incidentes y brechas con captura estructurada.", "app/app/incidents-breaches/page.tsx"),
-    evidence_item("EV-56", "Operativa", "Manual de administracion para supervision de usuarios, modulos y configuraciones.", "docs/manual_administracion.md"),
-    evidence_item("EV-57", "Código", "Endpoint de eventos de seguridad para exportacion y correlacion.", "app/app/api/security/events/route.ts"),
+    evidence_item("EV-49", "Código", "Reglas de fortaleza de contraseñas y validación de credenciales.", "app/lib/password-validation.ts"),
+    evidence_item("EV-50", "Código", "Rate limiter y bloqueo temporal por intentos fallidos.", "app/lib/rate-limiter.ts"),
+    evidence_item("EV-51", "Código", "Sesiones y autenticación del aplicativo.", "app/lib/onprem/server-auth.ts"),
+    evidence_item("EV-52", "Código", "Modelo de usuarios, roles y permisos por módulo.", "app/lib/user-permissions.ts"),
+    evidence_item("EV-54", "Código", "Modelo documental de políticas, propietarios y clasificación.", "app/lib/policy-governance.ts"),
+    evidence_item("EV-57", "Código", "Endpoint de eventos de seguridad para exportación y correlación.", "app/app/api/security/events/route.ts"),
+    evidence_item("EV-58", "HTTP", "Estado de sesión antes del login on-premise.", "output/doc/evidence/http/EV-58-auth-session-prelogin.http"),
+    evidence_item("EV-59", "HTTP", "Login administrativo on-premise con sesión emitida.", "output/doc/evidence/http/EV-59-auth-login-admin.http"),
+    evidence_item("EV-60", "HTTP", "Consulta de sesión administrativa autenticada.", "output/doc/evidence/http/EV-60-auth-session-admin.http"),
+    evidence_item("EV-61", "HTTP", "Alta o actualización central de usuario on-premise.", "output/doc/evidence/http/EV-61-admin-users-upsert.http"),
+    evidence_item("EV-62", "HTTP", "Login de usuario restringido con permisos por módulo.", "output/doc/evidence/http/EV-62-auth-login-qa.http"),
+    evidence_item("EV-63", "HTTP", "Actualización central de permisos de módulo.", "output/doc/evidence/http/EV-63-admin-module-access.http"),
+    evidence_item("EV-64", "HTTP", "Alta de registro RAT al repositorio central mediante sync push.", "output/doc/evidence/http/EV-64-sync-push-rat-record.http"),
+    evidence_item("EV-65", "HTTP", "Carga de adjunto server-side on-premise con metadatos.", "output/doc/evidence/http/EV-65-attachment-upload.http"),
+    evidence_item("EV-66", "HTTP", "Descarga denegada de adjunto para usuario no autorizado.", "output/doc/evidence/http/EV-66-attachment-download-denied.http"),
+    evidence_item("EV-67", "HTTP", "Compartición controlada de registro entre usuarios.", "output/doc/evidence/http/EV-67-share-record.http"),
+    evidence_item("EV-68", "HTTP", "Consulta de workspace compartido para usuario destinatario.", "output/doc/evidence/http/EV-68-shared-workspace.http"),
+    evidence_item("EV-69", "HTTP", "Descarga autorizada de adjunto después de la compartición.", "output/doc/evidence/http/EV-69-attachment-download-shared.http"),
+    evidence_item("EV-70", "HTTP", "Logout administrativo e invalidación de sesión.", "output/doc/evidence/http/EV-70-auth-logout-admin.http"),
+    evidence_item("EV-71", "SQL", "Consulta de usuarios on-premise centralizados.", "output/doc/evidence/sql/EV-71-sql-onprem-users.txt"),
+    evidence_item("EV-72", "SQL", "Consulta de sesiones on-premise centralizadas.", "output/doc/evidence/sql/EV-72-sql-onprem-sessions.txt"),
+    evidence_item("EV-73", "SQL", "Consulta de registros sincronizados por módulo y propietario.", "output/doc/evidence/sql/EV-73-sql-module-records.txt"),
+    evidence_item("EV-74", "SQL", "Consulta de adjuntos centralizados y su vínculo con el registro.", "output/doc/evidence/sql/EV-74-sql-attachments.txt"),
+    evidence_item("EV-75", "SQL", "Consulta de compartición de registros entre usuarios.", "output/doc/evidence/sql/EV-75-sql-sharing.txt"),
+    evidence_item("EV-77", "Código", "Prueba de integración on-premise para auth, sesiones, permisos, adjuntos y share.", "app/tests/e2e/onprem-runtime.test.js"),
+    evidence_item("EV-78", "Código", "Servicio server-side para almacenamiento y autorización de adjuntos.", "app/lib/onprem/attachments.ts"),
+    evidence_item("EV-79", "Código", "Proveedor local-first que rehidrata sesión y sincroniza adjuntos pendientes.", "app/components/local-first-provider.tsx"),
+    evidence_item("EV-80", "Código", "Vista de compartidos para colaboración controlada entre usuarios.", "app/app/shared/page.tsx"),
+    evidence_item("EV-81", "Código", "Indicador visual de estado de base, modo local y sincronización en el header.", "app/components/header.tsx"),
+    evidence_item("EV-82", "Visual", "Login exitoso y sesión activa en la interfaz web.", "output/doc/evidence/screenshots/EV-82-login-session-ok.png"),
+    evidence_item("EV-83", "Visual", "Indicador visual del header mostrando base conectada y sincronización.", "output/doc/evidence/screenshots/EV-83-header-base-conectada.png"),
+    evidence_item("EV-84", "Visual", "Vista Compartidos con datos compartidos y segregación por usuario.", "output/doc/evidence/screenshots/EV-84-shared-workspace.png"),
+    evidence_item("EV-85", "Visual", "Inventario RAT con evidencia documental vinculada.", "output/doc/evidence/screenshots/EV-85-rat-inventory-evidence.png"),
+    evidence_item("EV-86", "Visual", "Dashboard administrativo con usuarios y control de módulos.", "output/doc/evidence/screenshots/EV-86-admin-dashboard-users.png"),
+    evidence_item("EV-87", "Visual", "Vista renderizada del documento final de respuesta.", "output/doc/evidence/screenshots/EV-87-docx-preview.png"),
+    evidence_item("EV-89", "HTTP", "Validación de destinatario existente en el directorio on-premise antes de compartir.", "output/doc/evidence/http/EV-89-share-lookup-qa.http"),
+    evidence_item("EV-90", "HTTP", "Rechazo explícito al intentar compartir con un correo no encontrado.", "output/doc/evidence/http/EV-90-share-missing-user.http"),
+    evidence_item("EV-91", "HTTP", "Configuración server-side de contraseña para módulo sensible.", "output/doc/evidence/http/EV-91-module-password-set.http"),
+    evidence_item("EV-92", "HTTP", "Consulta del estado de protección de contraseña para módulo sensible.", "output/doc/evidence/http/EV-92-module-password-status.http"),
+    evidence_item("EV-93", "HTTP", "Validación negativa de contraseña de módulo sensible.", "output/doc/evidence/http/EV-93-module-password-invalid.http"),
+    evidence_item("EV-94", "HTTP", "Validación exitosa de contraseña de módulo sensible.", "output/doc/evidence/http/EV-94-module-password-valid.http"),
+    evidence_item("EV-95", "HTTP", "Revocación explícita de compartición de registro entre usuarios.", "output/doc/evidence/http/EV-95-share-record-revoke.http"),
+    evidence_item("EV-96", "Código", "Runtime local-first homogéneo con datasets scopiados por usuario, restore y adaptadores por módulo.", "app/lib/local-first-platform.ts"),
+    evidence_item("EV-97", "Código", "Módulo DPO migrado al contrato local-first con historiales y snapshot persistidos por usuario.", "app/app/dpo/opd-compliance-model.ts"),
+    evidence_item("EV-98", "Código", "Sistema de gestión de seguridad desacoplado de llaves heredadas y alimentado por datasets scopiados.", "app/app/security-system/lib/risk-integration.ts"),
+    evidence_item("EV-99", "Código", "Procedimientos PDP persistidos sobre el contrato local-first con restore y trazabilidad.", "app/app/litigation-management/procedures-pdp-store.ts"),
 ]
 
 
 CATALOG_BY_ID = {item["id"]: item for item in EVIDENCE_CATALOG}
 
 
+CONTROL_EVIDENCE_MAP = {
+    9: ["EV-05", "EV-06", "EV-07", "EV-08", "EV-33", "EV-34", "EV-59", "EV-60", "EV-81", "EV-83"],
+    10: ["EV-44", "EV-45", "EV-65", "EV-66", "EV-69", "EV-78"],
+    11: ["EV-18", "EV-32", "EV-57"],
+    12: ["EV-07", "EV-34", "EV-59", "EV-60", "EV-74"],
+    13: ["EV-36", "EV-38"],
+    14: ["EV-06", "EV-21", "EV-33", "EV-34", "EV-47", "EV-48", "EV-96"],
+    15: ["EV-02", "EV-26", "EV-27", "EV-28", "EV-77"],
+    16: ["EV-05", "EV-06", "EV-27"],
+    17: ["EV-02"],
+    18: ["EV-02"],
+    19: ["EV-26", "EV-27", "EV-28", "EV-77", "EV-96"],
+    26: ["EV-32", "EV-38", "EV-72"],
+    30: ["EV-51", "EV-52", "EV-60", "EV-63", "EV-86", "EV-91", "EV-92", "EV-93", "EV-94"],
+    33: ["EV-49"],
+    35: ["EV-49"],
+    37: ["EV-50"],
+    41: ["EV-54", "EV-73", "EV-96", "EV-97", "EV-99"],
+    42: ["EV-64", "EV-73", "EV-85", "EV-96", "EV-97", "EV-99"],
+    43: ["EV-64", "EV-73", "EV-74", "EV-85", "EV-96", "EV-97", "EV-99"],
+    45: ["EV-18", "EV-32", "EV-57"],
+    47: ["EV-27", "EV-28", "EV-44", "EV-77", "EV-96", "EV-98"],
+    48: ["EV-05", "EV-06", "EV-44", "EV-77", "EV-78", "EV-96", "EV-98"],
+}
+
+
 VISUAL_SELECTION = [
+    "EV-82",
+    "EV-83",
+    "EV-84",
+    "EV-85",
+    "EV-86",
     "EV-21",
-    "EV-22",
-    "EV-23",
-    "EV-24",
     "EV-25",
     "EV-33",
     "EV-34",
-    "EV-35",
-    "EV-36",
-    "EV-37",
+    "EV-87",
 ]
 
 
-SECTION_BASE_EVIDENCE = {
-    "General": ["EV-01", "EV-03", "EV-04", "EV-05", "EV-06", "EV-07", "EV-29", "EV-39", "EV-46"],
-    "Administración de Seguridad de la Información": ["EV-01", "EV-03", "EV-04", "EV-56"],
-    "Protección de Información y Sistemas": ["EV-05", "EV-06", "EV-07", "EV-18", "EV-44"],
-    "Gestión de vulnerabilidades": ["EV-02", "EV-26", "EV-27", "EV-28"],
-    "Gestión de Respuesta a Incidentes": ["EV-01", "EV-18", "EV-32", "EV-38"],
-    "Gestión de Accesos": ["EV-01", "EV-11", "EV-12", "EV-49", "EV-50", "EV-51", "EV-52"],
-    "Capacitación y Concientización": ["EV-01", "EV-02", "EV-53", "EV-56"],
-    "Gestión de Activos": ["EV-01", "EV-04", "EV-08", "EV-31", "EV-54"],
-    "Desarrollo Seguro": ["EV-02", "EV-26", "EV-27", "EV-28", "EV-44"],
-    "Gestión de terceros": ["EV-01", "EV-04", "EV-56"],
-    "Gestión de Riesgos": ["EV-01", "EV-04", "EV-56"],
-    "Seguridad Física": ["EV-01", "EV-04", "EV-56"],
-}
+DOCKER_ANNEX_ROWS = [
+    {
+        "component": "Aplicación",
+        "implementation": "Contenedor Docker multi-stage con runtime on-premise, uploads server-side y variables operativas controladas.",
+        "evidence_ids": ["EV-05", "EV-06", "EV-27"],
+    },
+    {
+        "component": "Proxy TLS interno",
+        "implementation": "Nginx interno termina HTTPS, expone healthchecks y enruta el tráfico a la aplicación on-premise.",
+        "evidence_ids": ["EV-07", "EV-34", "EV-47"],
+    },
+    {
+        "component": "Repositorio central",
+        "implementation": "PostgreSQL centraliza sesiones, registros, adjuntos, compartición, auditoría y eventos de seguridad.",
+        "evidence_ids": ["EV-08", "EV-71", "EV-72", "EV-73", "EV-74", "EV-75"],
+    },
+    {
+        "component": "Continuidad y recuperación",
+        "implementation": "Se dispone de respaldo y restauración verificados para sostener operación y recuperación ante incidentes.",
+        "evidence_ids": ["EV-36", "EV-38", "EV-48"],
+    },
+]
 
 
-CONTROL_EXTRA_EVIDENCE = {
-    1: ["EV-33", "EV-34"],
-    2: ["EV-33", "EV-37"],
-    6: ["EV-56"],
-    7: ["EV-02"],
-    8: ["EV-53"],
-    9: ["EV-30", "EV-33", "EV-34"],
-    10: ["EV-45"],
-    11: ["EV-57"],
-    12: ["EV-13", "EV-14", "EV-34"],
-    13: ["EV-36"],
-    14: ["EV-21", "EV-23", "EV-24", "EV-47", "EV-48"],
-    15: ["EV-20", "EV-25"],
-    16: ["EV-05", "EV-06"],
-    17: ["EV-02"],
-    18: ["EV-02"],
-    19: ["EV-47", "EV-48"],
-    20: ["EV-26", "EV-27", "EV-28"],
-    21: ["EV-55", "EV-25"],
-    22: ["EV-57"],
-    23: ["EV-01"],
-    24: ["EV-01"],
-    25: ["EV-01"],
-    26: ["EV-36"],
-    27: ["EV-40"],
-    28: ["EV-33"],
-    29: ["EV-33"],
-    30: ["EV-40", "EV-52"],
-    31: ["EV-49", "EV-51"],
-    32: ["EV-49"],
-    33: ["EV-49"],
-    34: ["EV-49"],
-    35: ["EV-49"],
-    36: ["EV-01"],
-    37: ["EV-50"],
-    38: ["EV-53"],
-    39: ["EV-53"],
-    40: ["EV-01"],
-    41: ["EV-54"],
-    42: ["EV-54"],
-    43: ["EV-30", "EV-31"],
-    44: ["EV-05", "EV-06"],
-    45: ["EV-18", "EV-25", "EV-57"],
-    46: ["EV-44"],
-    47: ["EV-05", "EV-06", "EV-47"],
-    48: ["EV-19", "EV-20", "EV-40", "EV-41", "EV-42", "EV-43"],
-    49: ["EV-02"],
-    50: ["EV-01"],
-    51: ["EV-01"],
-    52: ["EV-01"],
-    53: ["EV-01"],
-    54: ["EV-01"],
-}
-
-
-CONTROL_VISUAL_EVIDENCE = {
-    1: ["EV-33", "EV-34"],
-    2: ["EV-37"],
-    9: ["EV-21", "EV-33", "EV-34"],
-    12: ["EV-24", "EV-35"],
-    13: ["EV-36"],
-    14: ["EV-23", "EV-24"],
-    15: ["EV-25"],
-    19: ["EV-33"],
-    21: ["EV-25"],
-    26: ["EV-36"],
-    27: ["EV-22"],
-    29: ["EV-33"],
-    41: ["EV-35"],
-    45: ["EV-25"],
-    48: ["EV-21"],
-}
+SYNC_ANNEX_ROWS = [
+    {
+        "component": "Sesión on-premise",
+        "implementation": "Login server-side con cookie segura, rehidratación de sesión y visibilidad por rol y módulo.",
+        "evidence_ids": ["EV-58", "EV-59", "EV-60", "EV-70", "EV-82", "EV-83"],
+    },
+    {
+        "component": "Sincronización local-first",
+        "implementation": "Persistencia local resiliente, sync push/pull hacia PostgreSQL, restore desde central y contrato homogéneo entre módulos funcionales del sidebar.",
+        "evidence_ids": ["EV-21", "EV-41", "EV-42", "EV-64", "EV-79", "EV-96", "EV-97", "EV-98", "EV-99"],
+    },
+    {
+        "component": "Adjuntos centralizados",
+        "implementation": "Carga server-side, autorización de descarga por propietario/admin/compartición y metadatos en base central.",
+        "evidence_ids": ["EV-65", "EV-66", "EV-69", "EV-74", "EV-78"],
+    },
+    {
+        "component": "Compartición controlada",
+        "implementation": "Compartición por correo validado contra el directorio on-premise, con rechazo explícito a usuarios inexistentes, revocación y aislamiento por usuario en el workspace colaborativo.",
+        "evidence_ids": ["EV-67", "EV-68", "EV-75", "EV-80", "EV-84", "EV-89", "EV-90", "EV-95"],
+    },
+]
 
 
 VALIDATION_EXPECTATIONS = [
@@ -396,85 +334,43 @@ VALIDATION_EXPECTATIONS = [
         "command": "pnpm lint",
         "evidence": "output/doc/evidence/logs/pnpm-lint.txt",
         "success_markers": ["0 errors", "warnings"],
-        "summary": "Se verifico la calidad estatica del codigo sin errores bloqueantes.",
+        "summary": "Se verificó la calidad estática del código sin errores bloqueantes.",
     },
     {
         "command": "pnpm build",
         "evidence": "output/doc/evidence/logs/pnpm-build.txt",
         "success_markers": ["Route (app)", "Generating static pages"],
-        "summary": "La construccion de produccion se ejecuto correctamente para el aplicativo on-premise.",
+        "summary": "La construcción de producción se ejecutó correctamente para el aplicativo on-premise.",
     },
     {
         "command": "pnpm test:e2e",
         "evidence": "output/doc/evidence/logs/pnpm-test-e2e.txt",
-        "success_markers": ["# pass", "# fail 0"],
-        "summary": "Las pruebas E2E de seguridad y disponibilidad se ejecutaron satisfactoriamente.",
+        "success_markers": ["runtime on-premise", "# fail 0"],
+        "summary": "Las pruebas de integración y seguridad se ejecutaron satisfactoriamente.",
+    },
+    {
+        "command": "docker compose -f docker-compose.onprem.yml build --no-cache davara-app",
+        "evidence": "output/doc/validation/docker-compose-build-no-cache.txt",
+        "success_markers": ["exporting to image", "naming to docker.io/library/davara-governance:onprem"],
+        "summary": "La imagen on-premise se reconstruyó de forma limpia con el código actualizado.",
     },
     {
         "command": "docker compose -f docker-compose.onprem.yml ps",
         "evidence": "output/doc/validation/docker-compose-ps-initial.txt",
         "success_markers": ["healthy", "reverse-proxy"],
-        "summary": "La pila on-premise quedo levantada con contenedores saludables.",
+        "summary": "La pila on-premise quedó levantada con contenedores saludables.",
     },
     {
         "command": "docker compose HTTPS check",
         "evidence": "output/doc/validation/docker-compose-runtime-check.txt",
-        "success_markers": ["https://127.0.0.1:8443/healthz", "api/health"],
-        "summary": "La comprobacion HTTPS interna valido salud del proxy y del aplicativo.",
+        "success_markers": ["https://127.0.0.1", "api/health"],
+        "summary": "La comprobación HTTPS interna validó salud del proxy y del aplicativo.",
     },
     {
         "command": "backup y restore on-premise",
         "evidence": "output/doc/evidence/logs/backup-test.txt",
         "success_markers": ["Respaldo generado", "restored_records"],
-        "summary": "Se genero respaldo con checksum y se valido restauracion funcional sobre una base restaurada.",
-    },
-]
-
-
-SYNC_ANNEX_ROWS = [
-    {
-        "component": "Persistencia local resiliente",
-        "implementation": "IndexedDB y cola persistente para create, update, delete y resolucion de conflicto.",
-        "evidence_ids": ["EV-19", "EV-21", "EV-23"],
-    },
-    {
-        "component": "Bootstrap seguro",
-        "implementation": "Sesion server-side, registro de dispositivo y vigencia controlada por backend on-premise.",
-        "evidence_ids": ["EV-11", "EV-12", "EV-22", "EV-40"],
-    },
-    {
-        "component": "Sincronizacion central",
-        "implementation": "Endpoints push/pull, control de version, preservacion de conflictos y descarga incremental de cambios.",
-        "evidence_ids": ["EV-13", "EV-14", "EV-15", "EV-16", "EV-17", "EV-20", "EV-41", "EV-42"],
-    },
-    {
-        "component": "Trazabilidad de seguridad",
-        "implementation": "Eventos exportables, auditoria central y evidencia SQL de actividad y registros.",
-        "evidence_ids": ["EV-18", "EV-30", "EV-31", "EV-32", "EV-57"],
-    },
-]
-
-
-DOCKER_ANNEX_ROWS = [
-    {
-        "component": "Aplicacion",
-        "implementation": "Contenedor Docker multi-stage con runtime on-premise y configuracion endurecida.",
-        "evidence_ids": ["EV-05", "EV-06"],
-    },
-    {
-        "component": "Proxy TLS interno",
-        "implementation": "Nginx interno termina HTTPS, reenvia trafico y expone healthchecks de forma controlada.",
-        "evidence_ids": ["EV-07", "EV-34", "EV-47"],
-    },
-    {
-        "component": "Repositorio central",
-        "implementation": "PostgreSQL 16 on-premise con tablas de sesion, registros, conflictos, auditoria y seguridad.",
-        "evidence_ids": ["EV-08", "EV-30", "EV-31", "EV-35"],
-    },
-    {
-        "component": "Continuidad y respaldo",
-        "implementation": "Backup-runner, checksums, manifiesto y restauracion validada para sostener recuperacion operativa.",
-        "evidence_ids": ["EV-36", "EV-38", "EV-48"],
+        "summary": "Se generó respaldo con checksum y se validó restauración funcional.",
     },
 ]
 
@@ -490,10 +386,6 @@ def load_controls() -> list[dict[str, Any]]:
     return sorted(controls, key=lambda item: item["control"])
 
 
-def response_for(control: int) -> str:
-    return "Sí, ver comentario" if control in COMMENTARY_CONTROLS else "Sí"
-
-
 def unique(sequence: list[str]) -> list[str]:
     result: list[str] = []
     seen: set[str] = set()
@@ -502,13 +394,6 @@ def unique(sequence: list[str]) -> list[str]:
             seen.add(item)
             result.append(item)
     return result
-
-
-def evidence_ids_for(control: int, section: str) -> list[str]:
-    base = list(SECTION_BASE_EVIDENCE.get(section, []))
-    extras = CONTROL_EXTRA_EVIDENCE.get(control, [])
-    visuals = CONTROL_VISUAL_EVIDENCE.get(control, [])
-    return unique(base + extras + visuals)
 
 
 def compact_evidence(evidence_id: str) -> dict[str, str]:
@@ -521,21 +406,27 @@ def compact_evidence(evidence_id: str) -> dict[str, str]:
     }
 
 
-def comment_for(control: int, section: str) -> str:
-    specific = CONTROL_SPECIFICS[control]
-    closing = SECTION_CLOSINGS[section]
-    return f"{specific}. {closing}"
+def response_for(control_id: int) -> str:
+    return MANUAL_RESPONSE if control_id in MANUAL_CONTROL_IDS else "Sí"
+
+
+def evidence_ids_for(control_id: int) -> list[str]:
+    return unique(CONTROL_EVIDENCE_MAP.get(control_id, []))
+
+
+def comment_for(control_id: int) -> str:
+    if control_id in MANUAL_CONTROL_IDS:
+        return MANUAL_COMMENT
+    return TECHNICAL_COMMENTS[control_id]
 
 
 def build_questionnaire_rows() -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for control in load_controls():
         control_id = control["control"]
-        evidence_ids = evidence_ids_for(control_id, control["section"])
+        evidence_ids = evidence_ids_for(control_id)
         evidence_entries = [compact_evidence(item) for item in evidence_ids]
         technical = [item for item in evidence_entries if item["tipo"] in TECHNICAL_TYPES]
-        operational = [item for item in evidence_entries if item["tipo"] == "Operativa"]
-        visual = [item for item in evidence_entries if item["tipo"] == "Visual"]
         files = [item["archivo"] for item in evidence_entries]
 
         rows.append(
@@ -546,15 +437,15 @@ def build_questionnaire_rows() -> list[dict[str, Any]]:
                 "pregunta": control["question"],
                 "tipo_control": TYPE_BY_CONTROL[control_id],
                 "respuesta": response_for(control_id),
-                "comentario_ejecutivo": comment_for(control_id, control["section"]),
+                "comentario_ejecutivo": comment_for(control_id),
                 "evidencia_tecnica": technical,
-                "evidencia_operativa": operational,
-                "evidencia_visual": visual,
-                "archivo_referencia": files,
+                "evidencia_operativa": [],
+                "evidencia_visual": [item for item in evidence_entries if item["tipo"] == "Visual"],
+                "archivo_referencia": files if files else [MANUAL_EVIDENCE_TEXT],
                 "evidence_ids": evidence_ids,
+                "evidencia_resumen": "\n".join(evidence_ids) if evidence_ids else MANUAL_EVIDENCE_TEXT,
             }
         )
-
     return rows
 
 

@@ -43,6 +43,7 @@ import {
   saveFile,
   getFileById,
   createFileURL,
+  resolveStoredFileAccessUrl,
   type StoredFile,
 } from "@/lib/fileStorage"
 import { ArcoModuleShell } from "@/components/arco-module-shell"
@@ -51,6 +52,7 @@ import {
   THIRD_PARTY_CONTRACTS_NAV,
 } from "@/components/arco-module-config"
 import { SafeLink } from "@/components/SafeLink"
+import { readScopedStorageJson, writeScopedStorageJson } from "@/lib/local-first-platform"
 import type { ContractMeta } from "../types"
 
 type LibraryDocument = {
@@ -430,33 +432,13 @@ export default function DocumentsAndClausesPage() {
   }
 
   const loadContractHistory = () => {
-    try {
-      const raw = localStorage.getItem("contractsHistory")
-      if (raw) {
-        const parsed = JSON.parse(raw) as ContractMeta[]
-        setContractHistory(parsed)
-      } else {
-        setContractHistory([])
-      }
-    } catch {
-      setContractHistory([])
-    }
+    setContractHistory(readScopedStorageJson<ContractMeta[]>("contractsHistory", []))
   }
 
   const loadCustomClauses = () => {
-    try {
-      const stored = localStorage.getItem("thirdPartyCustomClauses")
-      if (stored) {
-        const parsed = JSON.parse(stored) as ModelClause[]
-        setUserClauses(parsed.map((clause) => ({ ...clause, isCustom: true })))
-      } else {
-        setUserClauses([])
-      }
-    } catch {
-      setUserClauses([])
-    } finally {
-      setCustomClausesLoaded(true)
-    }
+    const parsed = readScopedStorageJson<ModelClause[]>("thirdPartyCustomClauses", [])
+    setUserClauses(parsed.map((clause) => ({ ...clause, isCustom: true })))
+    setCustomClausesLoaded(true)
   }
 
   useEffect(() => {
@@ -486,7 +468,7 @@ export default function DocumentsAndClausesPage() {
 
     try {
       const payload = userClauses.map(({ isCustom, ...rest }) => rest)
-      localStorage.setItem("thirdPartyCustomClauses", JSON.stringify(payload))
+      writeScopedStorageJson("thirdPartyCustomClauses", payload)
     } catch (error) {
       console.error("No fue posible guardar las cláusulas personalizadas", error)
     }
@@ -524,6 +506,8 @@ export default function DocumentsAndClausesPage() {
       await saveFile(
         templateFile,
         {
+          moduleKey: "/third-party-contracts",
+          recordKey: `template-${Date.now()}`,
           title: templateTitle || templateFile.name,
           description: templateDescription,
           tags,
@@ -773,7 +757,7 @@ export default function DocumentsAndClausesPage() {
       return
     }
     const link = document.createElement("a")
-    link.href = createFileURL(stored.content)
+    link.href = resolveStoredFileAccessUrl(stored)
     link.download = stored.name
     link.target = "_blank"
     link.rel = "noopener"

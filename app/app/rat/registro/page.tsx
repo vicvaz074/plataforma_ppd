@@ -18,6 +18,11 @@ import { InventoryForm } from "../components/inventory-form"
 import { InventoryList } from "../components/inventory-list"
 import type { Inventory, SubInventory, PersonalData } from "../types"
 import { parseRatExcel } from "../utils/parseRatExcel"
+import {
+  readScopedStorageJson,
+  removeScopedStorageValue,
+  writeScopedStorageJson,
+} from "@/lib/local-first-platform"
 
 // --- FUNCIÓN SEGURA PARA DATOS PERSONALES ---
 const defaultPersonalData = (): PersonalData => ({
@@ -198,13 +203,11 @@ export default function RegistroPage() {
   >
   const [hasSavedProgress, setHasSavedProgress] = useState(false)
 
-  // --- CARGA DE LOCALSTORAGE CON SANITIZACIÓN ---
+  // --- CARGA DEL RUNTIME LOCAL-FIRST CON SANITIZACIÓN ---
   useEffect(() => {
-    const saved = localStorage.getItem("inventories")
-    if (saved) {
+    const parsed = readScopedStorageJson<Inventory[] | null>("inventories", null)
+    if (parsed) {
       try {
-        const parsed = JSON.parse(saved) as Inventory[]
-
         // Recorre cada inventario y cada subinventario para asegurarse que tienen todos los campos
         const safeParsed = parsed.map(inv => ({
           ...defaultInventory(),
@@ -226,19 +229,19 @@ export default function RegistroPage() {
 
         setInventories(safeParsed)
       } catch {
-        localStorage.removeItem("inventories")
+        removeScopedStorageValue("inventories")
       }
     }
   }, [])
 
   useEffect(() => {
-    localStorage.setItem("inventories", JSON.stringify(inventories))
+    writeScopedStorageJson("inventories", inventories)
   }, [inventories])
 
   useEffect(() => {
     if (typeof window === "undefined") return
     const updateProgressFlag = () => {
-      setHasSavedProgress(Boolean(localStorage.getItem("inventories_progress")))
+      setHasSavedProgress(Boolean(readScopedStorageJson("inventories_progress", null)))
     }
     updateProgressFlag()
     window.addEventListener("inventory-progress-saved", updateProgressFlag)
@@ -309,10 +312,10 @@ export default function RegistroPage() {
 
   const handleContinueSavedInventory = () => {
     if (typeof window === "undefined") return
-    const saved = localStorage.getItem("inventories_progress")
+    const saved = readScopedStorageJson<Inventory | null>("inventories_progress", null)
     if (!saved) return
     try {
-      const parsed = JSON.parse(saved) as Inventory
+      const parsed = saved
       const safeInventory: Inventory = {
         ...defaultInventory(),
         ...parsed,
@@ -332,7 +335,7 @@ export default function RegistroPage() {
       setMode("create")
     } catch {
       // Si hay un error al parsear, limpiar el progreso guardado
-      localStorage.removeItem("inventories_progress")
+      removeScopedStorageValue("inventories_progress")
       setHasSavedProgress(false)
     }
   }
@@ -488,6 +491,5 @@ export default function RegistroPage() {
     </motion.div>
   )
 }
-
 
 

@@ -9,6 +9,12 @@
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/app/api/documents/upload/route.ts
   47:11  warning  Found mkdir from package "fs/promises" with non literal argument at index 0  security/detect-non-literal-fs-filename
 
+/Users/vicentevazquez/Desktop/plataforma_ppd-main/app/app/api/module-passwords/status/route.ts
+  15:7  warning  Generic Object Injection Sink  security/detect-object-injection
+
+/Users/vicentevazquez/Desktop/plataforma_ppd-main/app/app/api/module-passwords/verify/route.ts
+  15:7  warning  Generic Object Injection Sink  security/detect-object-injection
+
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/app/arco-rights/components/arco-request-form.tsx
   79:9   warning  Generic Object Injection Sink  security/detect-object-injection
   82:16  warning  Generic Object Injection Sink  security/detect-object-injection
@@ -30,90 +36,84 @@
   922:14  warning  Generic Object Injection Sink  security/detect-object-injection
 
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/app/audit/page.tsx
-   782:23  warning  Generic Object Injection Sink  security/detect-object-injection
-   911:41  warning  Generic Object Injection Sink  security/detect-object-injection
-   925:24  warning  Generic Object Injection Sink  security/detect-object-injection
-   927:9   warning  Generic Object Injection Sink  security/detect-object-injection
-   927:23  warning  Generic Object Injection Sink  security/detect-object-injection
-   938:52  warning  Generic Object Injection Sink  security/detect-object-injection
-   939:69  warning  Generic Object Injection Sink  security/detect-object-injection
-  1005:36  warning  Generic Object Injection Sink  security/detect-object-injection
-  1006:20  warning  Generic Object Injection Sink  security/detect-object-injection
-  1015:17  warning  Generic Object Injection Sink  security/detect-object-injection
-  1016:20  warning  Generic Object Injection Sink  security/detect-object-injection
-  1043:17  warning  Generic Object Injection Sink  security/detect-object-injection
-  1044:16  warning  Generic Object Injection Sink  security/detect-object-injection
-  1045:25  warning  Generic Object Injection Sink  security/detect-object-injection
-  1054:17  warning  Generic Object Injection Sink  security/detect-object-injection
-  1055:16  warning  Generic Object Injection Sink  security/detect-object-injection
-  1056:21  warning  Generic Object Injection Sink  security/detect-object-injection
+   776:23  warning  Generic Object Injection Sink  security/detect-object-injection
+   905:41  warning  Generic Object Injection Sink  security/detect-object-injection
+   919:24  warning  Generic Object Injection Sink  security/detect-object-injection
+   921:9   warning  Generic Object Injection Sink  security/detect-object-injection
+   921:23  warning  Generic Object Injection Sink  security/detect-object-injection
+   932:52  warning  Generic Object Injection Sink  security/detect-object-injection
+   933:69  warning  Generic Object Injection Sink  security/detect-object-injection
+   999:36  warning  Generic Object Injection Sink  security/detect-object-injection
+  1000:20  warning  Generic Object Injection Sink  security/detect-object-injection
+  1009:17  warning  Generic Object Injection Sink  security/detect-object-injection
+  1010:20  warning  Generic Object Injection Sink  security/detect-object-injection
+  1037:17  warning  Generic Object Injection Sink  security/detect-object-injection
+  1038:16  warning  Generic Object Injection Sink  security/detect-object-injection
+  1039:25  warning  Generic Object Injection Sink  security/detect-object-injection
+  1048:17  warning  Generic Object Injection Sink  security/detect-object-injection
+  1049:16  warning  Generic Object Injection Sink  security/detect-object-injection
+  1050:21  warning  Generic Object Injection Sink  security/detect-object-injection
 
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/app/awareness/accountability-module.tsx
-   692:49  warning  Generic Object Injection Sink             security/detect-object-injection
-   745:41  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-   748:46  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-   750:48  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-   774:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-   798:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-   818:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-   828:67  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-   839:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-   849:67  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-   862:48  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-   862:67  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-   919:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-   919:69  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-   919:86  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-   940:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-   961:54  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-   982:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  1005:43  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  1025:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  1027:41  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  1046:43  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  1053:46  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  1055:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  1070:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  1532:65  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  1533:61  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  1534:65  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  1535:65  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  1536:61  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  1537:58  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  1538:55  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   687:49  warning  Generic Object Injection Sink             security/detect-object-injection
+   740:41  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   743:46  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   745:48  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   769:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   793:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   813:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   823:67  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   834:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   844:67  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   857:48  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   857:67  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   914:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   914:69  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   914:86  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   935:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   956:54  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   977:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  1000:43  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  1020:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  1022:41  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  1041:43  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  1048:46  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  1050:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  1065:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  1527:65  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  1528:61  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  1529:65  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  1530:65  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  1531:61  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  1532:58  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  1533:55  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/app/dashboard/page.tsx
-    35:3   warning  'Unlock' is defined but never used                @typescript-eslint/no-unused-vars
-    42:3   warning  'ChevronRight' is defined but never used          @typescript-eslint/no-unused-vars
-    64:3   warning  'saveUsers' is defined but never used             @typescript-eslint/no-unused-vars
-    66:3   warning  'updateUser' is defined but never used            @typescript-eslint/no-unused-vars
-    75:3   warning  'toggleModulePassword' is defined but never used  @typescript-eslint/no-unused-vars
-    89:39  warning  Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
-   147:57  warning  Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
-   148:42  warning  Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
-   149:42  warning  Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
-   150:42  warning  Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
-   151:42  warning  Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
-   152:42  warning  Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
-   153:42  warning  Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
-   154:42  warning  Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
-   155:42  warning  Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
-   156:42  warning  Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
-   213:51  warning  Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
-   214:51  warning  Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
-   215:47  warning  Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
-   216:35  warning  Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
-   217:37  warning  Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
-   218:45  warning  Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
-   221:45  warning  Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
-   222:47  warning  Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
-   223:49  warning  Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
-   224:37  warning  Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
-   312:13  warning  Variable Assigned to Object Injection Sink        security/detect-object-injection
-   336:37  warning  't' is defined but never used                     @typescript-eslint/no-unused-vars
-   336:70  warning  Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
-   812:51  warning  Generic Object Injection Sink                     security/detect-object-injection
-  1042:13  warning  Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
+   126:39  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   184:57  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   185:42  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   186:42  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   187:42  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   188:42  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   189:42  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   190:42  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   191:42  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   192:42  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   193:42  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   250:51  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   251:51  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   252:47  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   253:35  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   254:37  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   255:45  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   258:45  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   259:47  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   260:49  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   261:37  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   349:9   warning  't' is assigned a value but never used      @typescript-eslint/no-unused-vars
+   349:13  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+   918:51  warning  Generic Object Injection Sink               security/detect-object-injection
+  1168:13  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
 
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/app/data-policies/policies-manager-content.tsx
    530:75  warning  Generic Object Injection Sink  security/detect-object-injection
@@ -188,43 +188,43 @@
 
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/app/davara-training/lib/training.store.ts
    18:3   warning  'MatrizRolTemas' is defined but never used  @typescript-eslint/no-unused-vars
-   85:11  warning  'get' is defined but never used             @typescript-eslint/no-unused-vars
-  179:29  warning  Generic Object Injection Sink               security/detect-object-injection
+   87:11  warning  'get' is defined but never used             @typescript-eslint/no-unused-vars
+  181:29  warning  Generic Object Injection Sink               security/detect-object-injection
 
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/app/dpo/opd-compliance-model.ts
-  815:37  warning  Generic Object Injection Sink  security/detect-object-injection
-  852:21  warning  Generic Object Injection Sink  security/detect-object-injection
+  816:37  warning  Generic Object Injection Sink  security/detect-object-injection
+  853:21  warning  Generic Object Injection Sink  security/detect-object-injection
 
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/app/dpo/reports/page.tsx
-  288:5   warning  Generic Object Injection Sink             security/detect-object-injection
-  431:69  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  441:5   warning  Generic Object Injection Sink             security/detect-object-injection
-  460:5   warning  Generic Object Injection Sink             security/detect-object-injection
-  479:5   warning  Generic Object Injection Sink             security/detect-object-injection
-  498:5   warning  Generic Object Injection Sink             security/detect-object-injection
-  499:10  warning  Generic Object Injection Sink             security/detect-object-injection
-  527:5   warning  Generic Object Injection Sink             security/detect-object-injection
-  814:25  warning  'index' is defined but never used         @typescript-eslint/no-unused-vars
+  282:5   warning  Generic Object Injection Sink             security/detect-object-injection
+  424:69  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  434:5   warning  Generic Object Injection Sink             security/detect-object-injection
+  453:5   warning  Generic Object Injection Sink             security/detect-object-injection
+  472:5   warning  Generic Object Injection Sink             security/detect-object-injection
+  491:5   warning  Generic Object Injection Sink             security/detect-object-injection
+  492:10  warning  Generic Object Injection Sink             security/detect-object-injection
+  520:5   warning  Generic Object Injection Sink             security/detect-object-injection
+  807:25  warning  'index' is defined but never used         @typescript-eslint/no-unused-vars
 
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/app/dynamic-dashboard/page.tsx
   60:13  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
 
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/app/eipd/registro/page.tsx
-   280:7   warning  Generic Object Injection Sink               security/detect-object-injection
-   280:30  warning  Generic Object Injection Sink               security/detect-object-injection
-   348:18  warning  Generic Object Injection Sink               security/detect-object-injection
-   497:26  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
-  1377:60  warning  Generic Object Injection Sink               security/detect-object-injection
-  2336:37  warning  Generic Object Injection Sink               security/detect-object-injection
-  2339:38  warning  Generic Object Injection Sink               security/detect-object-injection
-  2343:47  warning  Generic Object Injection Sink               security/detect-object-injection
-  2353:40  warning  Generic Object Injection Sink               security/detect-object-injection
-  2360:30  warning  Generic Object Injection Sink               security/detect-object-injection
-  2361:77  warning  Generic Object Injection Sink               security/detect-object-injection
-  2587:56  warning  Generic Object Injection Sink               security/detect-object-injection
-  2640:22  warning  Generic Object Injection Sink               security/detect-object-injection
-  2640:46  warning  Generic Object Injection Sink               security/detect-object-injection
-  2641:22  warning  Generic Object Injection Sink               security/detect-object-injection
+   281:7   warning  Generic Object Injection Sink               security/detect-object-injection
+   281:30  warning  Generic Object Injection Sink               security/detect-object-injection
+   349:18  warning  Generic Object Injection Sink               security/detect-object-injection
+   490:26  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+  1370:60  warning  Generic Object Injection Sink               security/detect-object-injection
+  2329:37  warning  Generic Object Injection Sink               security/detect-object-injection
+  2332:38  warning  Generic Object Injection Sink               security/detect-object-injection
+  2336:47  warning  Generic Object Injection Sink               security/detect-object-injection
+  2346:40  warning  Generic Object Injection Sink               security/detect-object-injection
+  2353:30  warning  Generic Object Injection Sink               security/detect-object-injection
+  2354:77  warning  Generic Object Injection Sink               security/detect-object-injection
+  2580:56  warning  Generic Object Injection Sink               security/detect-object-injection
+  2633:22  warning  Generic Object Injection Sink               security/detect-object-injection
+  2633:46  warning  Generic Object Injection Sink               security/detect-object-injection
+  2634:22  warning  Generic Object Injection Sink               security/detect-object-injection
 
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/app/external-recipients/page.tsx
   90:13  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
@@ -266,10 +266,10 @@
    33:3   warning  'defaultRecommendationsForImprovement' is defined but never used  @typescript-eslint/no-unused-vars
    33:41  warning  'defaultDocumentacionIncidente' is defined but never used         @typescript-eslint/no-unused-vars
    33:72  warning  'defaultRegistrosComunicacion' is defined but never used          @typescript-eslint/no-unused-vars
-   76:10  warning  'activeSection' is assigned a value but never used                @typescript-eslint/no-unused-vars
-   81:10  warning  'activePipelineFilter' is assigned a value but never used         @typescript-eslint/no-unused-vars
-   81:32  warning  'setActivePipelineFilter' is assigned a value but never used      @typescript-eslint/no-unused-vars
-   92:9   warning  'evidenciaFiles' is assigned a value but never used               @typescript-eslint/no-unused-vars
+   77:10  warning  'activeSection' is assigned a value but never used                @typescript-eslint/no-unused-vars
+   82:10  warning  'activePipelineFilter' is assigned a value but never used         @typescript-eslint/no-unused-vars
+   82:32  warning  'setActivePipelineFilter' is assigned a value but never used      @typescript-eslint/no-unused-vars
+   93:9   warning  'evidenciaFiles' is assigned a value but never used               @typescript-eslint/no-unused-vars
   188:9   warning  'handleEvidenceUpload' is assigned a value but never used         @typescript-eslint/no-unused-vars
   205:9   warning  'handleRemoveEvidence' is assigned a value but never used         @typescript-eslint/no-unused-vars
   798:33  warning  Unexpected any. Specify a different type                          @typescript-eslint/no-explicit-any
@@ -305,12 +305,14 @@
   385:17  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
 
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/app/litigation-management/procedures-pdp-store.ts
-  433:31  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
-  494:5   warning  Generic Object Injection Sink               security/detect-object-injection
+  434:31  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+  495:5   warning  Generic Object Injection Sink               security/detect-object-injection
 
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/app/login/page.tsx
   19:36  warning  'getStrengthColor' is defined but never used  @typescript-eslint/no-unused-vars
-  30:13  warning  Variable Assigned to Object Injection Sink    security/detect-object-injection
+  32:13  warning  Variable Assigned to Object Injection Sink    security/detect-object-injection
+  80:39  warning  Generic Object Injection Sink                 security/detect-object-injection
+  85:7   warning  Generic Object Injection Sink                 security/detect-object-injection
 
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/app/module-insights/[dataset]/module-insights-page-client.tsx
   129:53  warning  Generic Object Injection Sink  security/detect-object-injection
@@ -318,9 +320,9 @@
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/app/page.tsx
     4:8   warning  'Link' is defined but never used            @typescript-eslint/no-unused-vars
    12:8   warning  'aliciaImg' is defined but never used       @typescript-eslint/no-unused-vars
-  186:13  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
   187:13  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
-  188:19  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+  188:13  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+  189:19  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
 
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/app/privacy-notices/notices-content.tsx
   191:7   warning  'RESPONSIBLE_AREA_LABELS' is assigned a value but never used    @typescript-eslint/no-unused-vars
@@ -335,148 +337,155 @@
   18:13  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
 
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/app/rat/components/inventory-form.tsx
-   104:5   warning  Generic Object Injection Sink               security/detect-object-injection
-   435:47  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
-   436:61  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
-   458:47  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
-   459:65  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
-   486:54  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
-   525:14  warning  'err' is defined but never used             @typescript-eslint/no-unused-vars
-   525:19  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
-   554:14  warning  'err' is defined but never used             @typescript-eslint/no-unused-vars
-   596:16  warning  'error' is defined but never used           @typescript-eslint/no-unused-vars
-   620:5   warning  Generic Object Injection Sink               security/detect-object-injection
-   628:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
-   634:7   warning  Generic Object Injection Sink               security/detect-object-injection
-   644:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
-   650:7   warning  Generic Object Injection Sink               security/detect-object-injection
-   660:57  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
-   665:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
-   666:20  warning  Generic Object Injection Sink               security/detect-object-injection
-   667:7   warning  Generic Object Injection Sink               security/detect-object-injection
-   670:12  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
-   675:64  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
-   680:12  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   109:5   warning  Generic Object Injection Sink               security/detect-object-injection
+   440:47  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   441:61  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   458:43  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   463:47  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   464:65  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   491:54  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   530:14  warning  'err' is defined but never used             @typescript-eslint/no-unused-vars
+   530:19  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   559:14  warning  'err' is defined but never used             @typescript-eslint/no-unused-vars
+   601:16  warning  'error' is defined but never used           @typescript-eslint/no-unused-vars
+   625:5   warning  Generic Object Injection Sink               security/detect-object-injection
+   633:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+   639:7   warning  Generic Object Injection Sink               security/detect-object-injection
+   649:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+   655:7   warning  Generic Object Injection Sink               security/detect-object-injection
+   665:57  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   670:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+   671:20  warning  Generic Object Injection Sink               security/detect-object-injection
+   672:7   warning  Generic Object Injection Sink               security/detect-object-injection
+   675:12  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   680:64  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
    685:12  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
    690:12  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
    695:12  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
-   701:12  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
-   708:12  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   700:12  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   706:12  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
    713:12  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
    718:12  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
    723:12  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
-   725:38  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
-   736:24  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
-   763:12  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
-   783:12  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
-   792:65  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
-   810:52  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
-   858:19  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
-   866:7   warning  Generic Object Injection Sink               security/detect-object-injection
-   875:17  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
-   876:5   warning  Generic Object Injection Sink               security/detect-object-injection
-   885:17  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
-   887:22  warning  Generic Object Injection Sink               security/detect-object-injection
-   895:5   warning  Generic Object Injection Sink               security/detect-object-injection
-   896:5   warning  Generic Object Injection Sink               security/detect-object-injection
-   906:17  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
-   908:5   warning  Generic Object Injection Sink               security/detect-object-injection
-   908:26  warning  Generic Object Injection Sink               security/detect-object-injection
+   728:12  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   730:38  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   741:24  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+   777:12  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   797:12  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   806:65  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   824:52  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   872:19  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+   880:7   warning  Generic Object Injection Sink               security/detect-object-injection
+   889:17  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+   890:5   warning  Generic Object Injection Sink               security/detect-object-injection
+   899:17  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+   901:22  warning  Generic Object Injection Sink               security/detect-object-injection
    909:5   warning  Generic Object Injection Sink               security/detect-object-injection
-   915:17  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
-   917:18  warning  Generic Object Injection Sink               security/detect-object-injection
-   918:5   warning  Generic Object Injection Sink               security/detect-object-injection
-   921:5   warning  Generic Object Injection Sink               security/detect-object-injection
-   928:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
-   932:7   warning  Generic Object Injection Sink               security/detect-object-injection
-   940:12  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
-   944:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
-   947:12  warning  Generic Object Injection Sink               security/detect-object-injection
-   948:7   warning  Generic Object Injection Sink               security/detect-object-injection
-   949:12  warning  Generic Object Injection Sink               security/detect-object-injection
-   952:7   warning  Generic Object Injection Sink               security/detect-object-injection
-   960:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
-   963:7   warning  Generic Object Injection Sink               security/detect-object-injection
+   910:5   warning  Generic Object Injection Sink               security/detect-object-injection
+   920:17  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+   922:5   warning  Generic Object Injection Sink               security/detect-object-injection
+   922:26  warning  Generic Object Injection Sink               security/detect-object-injection
+   923:5   warning  Generic Object Injection Sink               security/detect-object-injection
+   929:17  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+   931:18  warning  Generic Object Injection Sink               security/detect-object-injection
+   932:5   warning  Generic Object Injection Sink               security/detect-object-injection
+   935:5   warning  Generic Object Injection Sink               security/detect-object-injection
+   942:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+   946:7   warning  Generic Object Injection Sink               security/detect-object-injection
+   954:12  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   958:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+   961:12  warning  Generic Object Injection Sink               security/detect-object-injection
+   962:7   warning  Generic Object Injection Sink               security/detect-object-injection
+   963:12  warning  Generic Object Injection Sink               security/detect-object-injection
+   966:7   warning  Generic Object Injection Sink               security/detect-object-injection
    974:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
-   978:22  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
-   986:7   warning  Generic Object Injection Sink               security/detect-object-injection
-   987:7   warning  Generic Object Injection Sink               security/detect-object-injection
-   995:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
-   999:7   warning  Generic Object Injection Sink               security/detect-object-injection
-  1007:12  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
-  1011:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
-  1014:12  warning  Generic Object Injection Sink               security/detect-object-injection
-  1015:7   warning  Generic Object Injection Sink               security/detect-object-injection
-  1016:12  warning  Generic Object Injection Sink               security/detect-object-injection
-  1019:7   warning  Generic Object Injection Sink               security/detect-object-injection
-  1027:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
-  1030:7   warning  Generic Object Injection Sink               security/detect-object-injection
-  1038:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
-  1042:22  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
-  1050:7   warning  Generic Object Injection Sink               security/detect-object-injection
-  1051:7   warning  Generic Object Injection Sink               security/detect-object-injection
-  1059:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
-  1063:7   warning  Generic Object Injection Sink               security/detect-object-injection
-  1071:12  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
-  1075:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
-  1078:12  warning  Generic Object Injection Sink               security/detect-object-injection
-  1079:7   warning  Generic Object Injection Sink               security/detect-object-injection
-  1079:29  warning  Generic Object Injection Sink               security/detect-object-injection
-  1080:7   warning  Generic Object Injection Sink               security/detect-object-injection
-  1092:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
-  1095:12  warning  Generic Object Injection Sink               security/detect-object-injection
-  1096:20  warning  Generic Object Injection Sink               security/detect-object-injection
-  1096:20  warning  Generic Object Injection Sink               security/detect-object-injection
-  1100:7   warning  Generic Object Injection Sink               security/detect-object-injection
-  1101:12  warning  Generic Object Injection Sink               security/detect-object-injection
-  1104:7   warning  Generic Object Injection Sink               security/detect-object-injection
-  1112:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
-  1115:7   warning  Generic Object Injection Sink               security/detect-object-injection
-  1132:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
-  1135:12  warning  Generic Object Injection Sink               security/detect-object-injection
-  1136:7   warning  Generic Object Injection Sink               security/detect-object-injection
-  1137:12  warning  Generic Object Injection Sink               security/detect-object-injection
-  1141:7   warning  Generic Object Injection Sink               security/detect-object-injection
-  1146:14  warning  Generic Object Injection Sink               security/detect-object-injection
-  1154:25  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
-  1157:14  warning  Generic Object Injection Sink               security/detect-object-injection
-  1158:9   warning  Generic Object Injection Sink               security/detect-object-injection
-  1159:14  warning  Generic Object Injection Sink               security/detect-object-injection
-  1162:9   warning  Generic Object Injection Sink               security/detect-object-injection
-  1173:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
-  1177:7   warning  Generic Object Injection Sink               security/detect-object-injection
-  1185:12  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
-  1189:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
-  1192:12  warning  Generic Object Injection Sink               security/detect-object-injection
-  1193:7   warning  Generic Object Injection Sink               security/detect-object-injection
-  1194:12  warning  Generic Object Injection Sink               security/detect-object-injection
-  1197:7   warning  Generic Object Injection Sink               security/detect-object-injection
-  1209:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
-  1212:12  warning  Generic Object Injection Sink               security/detect-object-injection
-  1213:20  warning  Generic Object Injection Sink               security/detect-object-injection
-  1213:20  warning  Generic Object Injection Sink               security/detect-object-injection
-  1217:7   warning  Generic Object Injection Sink               security/detect-object-injection
-  1218:12  warning  Generic Object Injection Sink               security/detect-object-injection
-  1221:7   warning  Generic Object Injection Sink               security/detect-object-injection
-  1229:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
-  1232:7   warning  Generic Object Injection Sink               security/detect-object-injection
-  1245:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
-  1248:12  warning  Generic Object Injection Sink               security/detect-object-injection
-  1249:7   warning  Generic Object Injection Sink               security/detect-object-injection
-  1250:12  warning  Generic Object Injection Sink               security/detect-object-injection
-  1254:7   warning  Generic Object Injection Sink               security/detect-object-injection
-  1259:14  warning  Generic Object Injection Sink               security/detect-object-injection
-  1266:25  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
-  1269:14  warning  Generic Object Injection Sink               security/detect-object-injection
-  1270:9   warning  Generic Object Injection Sink               security/detect-object-injection
-  1271:14  warning  Generic Object Injection Sink               security/detect-object-injection
-  1274:9   warning  Generic Object Injection Sink               security/detect-object-injection
+   977:7   warning  Generic Object Injection Sink               security/detect-object-injection
+   988:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+   992:22  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+  1000:7   warning  Generic Object Injection Sink               security/detect-object-injection
+  1001:7   warning  Generic Object Injection Sink               security/detect-object-injection
+  1009:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+  1013:7   warning  Generic Object Injection Sink               security/detect-object-injection
+  1021:12  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  1025:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+  1028:12  warning  Generic Object Injection Sink               security/detect-object-injection
+  1029:7   warning  Generic Object Injection Sink               security/detect-object-injection
+  1030:12  warning  Generic Object Injection Sink               security/detect-object-injection
+  1033:7   warning  Generic Object Injection Sink               security/detect-object-injection
+  1041:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+  1044:7   warning  Generic Object Injection Sink               security/detect-object-injection
+  1052:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+  1056:22  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+  1064:7   warning  Generic Object Injection Sink               security/detect-object-injection
+  1065:7   warning  Generic Object Injection Sink               security/detect-object-injection
+  1073:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+  1077:7   warning  Generic Object Injection Sink               security/detect-object-injection
+  1085:12  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  1089:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+  1092:12  warning  Generic Object Injection Sink               security/detect-object-injection
+  1093:7   warning  Generic Object Injection Sink               security/detect-object-injection
+  1093:29  warning  Generic Object Injection Sink               security/detect-object-injection
+  1094:7   warning  Generic Object Injection Sink               security/detect-object-injection
+  1106:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+  1109:12  warning  Generic Object Injection Sink               security/detect-object-injection
+  1110:20  warning  Generic Object Injection Sink               security/detect-object-injection
+  1110:20  warning  Generic Object Injection Sink               security/detect-object-injection
+  1114:7   warning  Generic Object Injection Sink               security/detect-object-injection
+  1115:12  warning  Generic Object Injection Sink               security/detect-object-injection
+  1118:7   warning  Generic Object Injection Sink               security/detect-object-injection
+  1126:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+  1129:7   warning  Generic Object Injection Sink               security/detect-object-injection
+  1146:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+  1149:12  warning  Generic Object Injection Sink               security/detect-object-injection
+  1150:7   warning  Generic Object Injection Sink               security/detect-object-injection
+  1151:12  warning  Generic Object Injection Sink               security/detect-object-injection
+  1155:7   warning  Generic Object Injection Sink               security/detect-object-injection
+  1160:14  warning  Generic Object Injection Sink               security/detect-object-injection
+  1162:33  warning  Generic Object Injection Sink               security/detect-object-injection
+  1163:35  warning  Generic Object Injection Sink               security/detect-object-injection
+  1164:23  warning  Generic Object Injection Sink               security/detect-object-injection
+  1173:25  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+  1176:14  warning  Generic Object Injection Sink               security/detect-object-injection
+  1177:9   warning  Generic Object Injection Sink               security/detect-object-injection
+  1178:14  warning  Generic Object Injection Sink               security/detect-object-injection
+  1181:9   warning  Generic Object Injection Sink               security/detect-object-injection
+  1192:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+  1196:7   warning  Generic Object Injection Sink               security/detect-object-injection
+  1204:12  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  1208:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+  1211:12  warning  Generic Object Injection Sink               security/detect-object-injection
+  1212:7   warning  Generic Object Injection Sink               security/detect-object-injection
+  1213:12  warning  Generic Object Injection Sink               security/detect-object-injection
+  1216:7   warning  Generic Object Injection Sink               security/detect-object-injection
+  1228:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+  1231:12  warning  Generic Object Injection Sink               security/detect-object-injection
+  1232:20  warning  Generic Object Injection Sink               security/detect-object-injection
+  1232:20  warning  Generic Object Injection Sink               security/detect-object-injection
+  1236:7   warning  Generic Object Injection Sink               security/detect-object-injection
+  1237:12  warning  Generic Object Injection Sink               security/detect-object-injection
+  1240:7   warning  Generic Object Injection Sink               security/detect-object-injection
+  1248:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+  1251:7   warning  Generic Object Injection Sink               security/detect-object-injection
+  1264:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+  1267:12  warning  Generic Object Injection Sink               security/detect-object-injection
+  1268:7   warning  Generic Object Injection Sink               security/detect-object-injection
+  1269:12  warning  Generic Object Injection Sink               security/detect-object-injection
+  1273:7   warning  Generic Object Injection Sink               security/detect-object-injection
+  1278:14  warning  Generic Object Injection Sink               security/detect-object-injection
+  1280:33  warning  Generic Object Injection Sink               security/detect-object-injection
+  1281:35  warning  Generic Object Injection Sink               security/detect-object-injection
+  1282:23  warning  Generic Object Injection Sink               security/detect-object-injection
+  1290:25  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+  1293:14  warning  Generic Object Injection Sink               security/detect-object-injection
+  1294:9   warning  Generic Object Injection Sink               security/detect-object-injection
+  1295:14  warning  Generic Object Injection Sink               security/detect-object-injection
+  1298:9   warning  Generic Object Injection Sink               security/detect-object-injection
 
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/app/rat/components/inventory-list.tsx
-  159:9   warning  Generic Object Injection Sink  security/detect-object-injection
-  159:25  warning  Generic Object Injection Sink  security/detect-object-injection
-  160:26  warning  Generic Object Injection Sink  security/detect-object-injection
-  160:50  warning  Generic Object Injection Sink  security/detect-object-injection
+  160:9   warning  Generic Object Injection Sink  security/detect-object-injection
+  160:25  warning  Generic Object Injection Sink  security/detect-object-injection
+  161:26  warning  Generic Object Injection Sink  security/detect-object-injection
+  161:50  warning  Generic Object Injection Sink  security/detect-object-injection
 
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/app/rat/components/risk-analysis.tsx
    32:3   warning  'FileCheck' is defined but never used  @typescript-eslint/no-unused-vars
@@ -534,40 +543,40 @@
   196:10  warning  Generic Object Injection Sink  security/detect-object-injection
 
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/app/rat/informes/page.tsx
-  217:7   warning  'REMISSION_SECTION_FIELDS' is assigned a value but never used  @typescript-eslint/no-unused-vars
-  288:42  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
-  290:37  warning  Generic Object Injection Sink                                  security/detect-object-injection
-  309:33  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
-  317:24  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
-  318:40  warning  Generic Object Injection Sink                                  security/detect-object-injection
-  319:27  warning  Function Call Object Injection Sink                            security/detect-object-injection
-  454:15  warning  Generic Object Injection Sink                                  security/detect-object-injection
-  454:28  warning  Generic Object Injection Sink                                  security/detect-object-injection
-  466:7   warning  Generic Object Injection Sink                                  security/detect-object-injection
-  466:21  warning  Generic Object Injection Sink                                  security/detect-object-injection
-  676:68  warning  Function Call Object Injection Sink                            security/detect-object-injection
-  676:76  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
-  685:69  warning  Function Call Object Injection Sink                            security/detect-object-injection
-  685:77  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
-  692:33  warning  Function Call Object Injection Sink                            security/detect-object-injection
-  692:41  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
-  694:17  warning  Generic Object Injection Sink                                  security/detect-object-injection
-  695:33  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
-  703:25  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
-  704:29  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
-  732:29  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
-  733:25  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
-  750:17  warning  'isRemissionField' is assigned a value but never used          @typescript-eslint/no-unused-vars
-  760:29  warning  Function Call Object Injection Sink                            security/detect-object-injection
-  760:37  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
-  765:13  warning  Generic Object Injection Sink                                  security/detect-object-injection
-  766:29  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
-  769:29  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
-  770:25  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
-  791:29  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
-  792:25  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
-  822:29  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
-  823:23  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
+  218:7   warning  'REMISSION_SECTION_FIELDS' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  289:42  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
+  291:37  warning  Generic Object Injection Sink                                  security/detect-object-injection
+  310:33  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
+  318:24  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
+  319:40  warning  Generic Object Injection Sink                                  security/detect-object-injection
+  320:27  warning  Function Call Object Injection Sink                            security/detect-object-injection
+  448:15  warning  Generic Object Injection Sink                                  security/detect-object-injection
+  448:28  warning  Generic Object Injection Sink                                  security/detect-object-injection
+  460:7   warning  Generic Object Injection Sink                                  security/detect-object-injection
+  460:21  warning  Generic Object Injection Sink                                  security/detect-object-injection
+  670:68  warning  Function Call Object Injection Sink                            security/detect-object-injection
+  670:76  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
+  679:69  warning  Function Call Object Injection Sink                            security/detect-object-injection
+  679:77  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
+  686:33  warning  Function Call Object Injection Sink                            security/detect-object-injection
+  686:41  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
+  688:17  warning  Generic Object Injection Sink                                  security/detect-object-injection
+  689:33  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
+  697:25  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
+  698:29  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
+  726:29  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
+  727:25  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
+  744:17  warning  'isRemissionField' is assigned a value but never used          @typescript-eslint/no-unused-vars
+  754:29  warning  Function Call Object Injection Sink                            security/detect-object-injection
+  754:37  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
+  759:13  warning  Generic Object Injection Sink                                  security/detect-object-injection
+  760:29  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
+  763:29  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
+  764:25  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
+  785:29  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
+  786:25  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
+  816:29  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
+  817:23  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
 
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/app/rat/page.tsx
    61:13  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
@@ -575,7 +584,7 @@
   116:59  warning  Generic Object Injection Sink               security/detect-object-injection
 
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/app/rat/registro/page.tsx
-  278:54  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  281:54  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/app/rat/types.ts
   260:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
@@ -716,8 +725,8 @@
     5:63  warning  'Settings' is defined but never used      @typescript-eslint/no-unused-vars
     5:73  warning  'Eye' is defined but never used           @typescript-eslint/no-unused-vars
     5:78  warning  'ChevronRight' is defined but never used  @typescript-eslint/no-unused-vars
-  172:94  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  249:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  168:94  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  245:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/app/security-system/components/fase-4/Paso9Dashboard.tsx
    4:10  warning  'motion' is defined but never used           @typescript-eslint/no-unused-vars
@@ -753,42 +762,43 @@
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/app/security-system/lib/rat-integration.ts
     7:21  warning  'SubInventory' is defined but never used  @typescript-eslint/no-unused-vars
     7:49  warning  'RiskLevel' is defined but never used     @typescript-eslint/no-unused-vars
-   87:10  warning  'maxRiskLevel' is defined but never used  @typescript-eslint/no-unused-vars
-  126:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  131:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  138:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  145:30  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  157:9   warning  Generic Object Injection Sink             security/detect-object-injection
+   80:10  warning  'maxRiskLevel' is defined but never used  @typescript-eslint/no-unused-vars
+  119:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  124:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  131:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  138:30  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  150:9   warning  Generic Object Injection Sink             security/detect-object-injection
 
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/app/security-system/lib/risk-integration.ts
-  239:27  warning  Generic Object Injection Sink  security/detect-object-injection
-  324:24  warning  Generic Object Injection Sink  security/detect-object-injection
+  232:27  warning  Generic Object Injection Sink  security/detect-object-injection
+  317:24  warning  Generic Object Injection Sink  security/detect-object-injection
 
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/app/security-system/lib/store/sgsdp.store.ts
-  243:29  warning  Generic Object Injection Sink                       security/detect-object-injection
-  279:31  warning  Function Call Object Injection Sink                 security/detect-object-injection
-  280:13  warning  Generic Object Injection Sink                       security/detect-object-injection
-  281:18  warning  Generic Object Injection Sink                       security/detect-object-injection
-  501:16  warning  'implementadas' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  245:29  warning  Generic Object Injection Sink                       security/detect-object-injection
+  281:31  warning  Function Call Object Injection Sink                 security/detect-object-injection
+  282:13  warning  Generic Object Injection Sink                       security/detect-object-injection
+  283:18  warning  Generic Object Injection Sink                       security/detect-object-injection
+  503:16  warning  'implementadas' is assigned a value but never used  @typescript-eslint/no-unused-vars
 
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/app/settings/page.tsx
   20:13  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
 
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/app/third-party-contracts/documents/page.tsx
-   325:19  warning  Found non-literal argument to RegExp Constructor  security/detect-non-literal-regexp
-   410:7   warning  Generic Object Injection Sink                     security/detect-object-injection
-   488:42  warning  'isCustom' is defined but never used              @typescript-eslint/no-unused-vars
-  1338:38  warning  Generic Object Injection Sink                     security/detect-object-injection
-  1609:28  warning  Generic Object Injection Sink                     security/detect-object-injection
+    45:3   warning  'createFileURL' is defined but never used         @typescript-eslint/no-unused-vars
+   327:19  warning  Found non-literal argument to RegExp Constructor  security/detect-non-literal-regexp
+   412:7   warning  Generic Object Injection Sink                     security/detect-object-injection
+   470:42  warning  'isCustom' is defined but never used              @typescript-eslint/no-unused-vars
+  1322:38  warning  Generic Object Injection Sink                     security/detect-object-injection
+  1593:28  warning  Generic Object Injection Sink                     security/detect-object-injection
 
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/app/third-party-contracts/registration/page.tsx
-  482:37  warning  Unexpected any. Specify a different type                                                        @typescript-eslint/no-explicit-any
-  512:14  warning  Unexpected any. Specify a different type                                                        @typescript-eslint/no-explicit-any
-  514:5   warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/exhaustive-deps')
+  485:37  warning  Unexpected any. Specify a different type                                                        @typescript-eslint/no-explicit-any
+  507:14  warning  Unexpected any. Specify a different type                                                        @typescript-eslint/no-explicit-any
+  509:5   warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/exhaustive-deps')
 
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/app/third-party-contracts/reportes/page.tsx
-  39:7   warning  Generic Object Injection Sink  security/detect-object-injection
-  39:29  warning  Generic Object Injection Sink  security/detect-object-injection
+  36:7   warning  Generic Object Injection Sink  security/detect-object-injection
+  36:29  warning  Generic Object Injection Sink  security/detect-object-injection
 
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/components/alicia-assistant.tsx
   12:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
@@ -809,13 +819,13 @@
   18:13  warning  Variable Assigned to Object Injection Sink    security/detect-object-injection
 
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/components/header.tsx
-  46:13  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+  54:13  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
 
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/components/security/ControlProfileSummary.tsx
   103:22  warning  Generic Object Injection Sink  security/detect-object-injection
 
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/components/sidebar.tsx
-  102:13  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+  108:13  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
 
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/components/ui/chart.tsx
    73:7   warning  '_' is defined but never used             @typescript-eslint/no-unused-vars
@@ -865,7 +875,7 @@
   240:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/lib/documents.ts
-  51:68  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  52:68  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/lib/encryption.ts
   31:35  warning  Function Call Object Injection Sink  security/detect-object-injection
@@ -877,23 +887,27 @@
   58:12  warning  Generic Object Injection Sink  security/detect-object-injection
 
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/lib/fileStorage.ts
-   16:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-   26:29  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-   48:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-   95:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  181:73  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  192:51  warning  Function Call Object Injection Sink       security/detect-object-injection
-  201:5   warning  Generic Object Injection Sink             security/detect-object-injection
-  217:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  231:10  warning  Generic Object Injection Sink             security/detect-object-injection
-  237:12  warning  Generic Object Injection Sink             security/detect-object-injection
-  242:5   warning  Generic Object Injection Sink             security/detect-object-injection
+   17:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   31:29  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   75:49  warning  Function Call Object Injection Sink       security/detect-object-injection
+   76:3   warning  Generic Object Injection Sink             security/detect-object-injection
+   81:50  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  100:51  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  140:5   warning  Generic Object Injection Sink             security/detect-object-injection
+  279:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  321:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  383:73  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  409:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/vicentevazquez/Desktop/plataforma_ppd-main/app/lib/local-first-platform.ts
+  1252:9   warning  Generic Object Injection Sink  security/detect-object-injection
+  1291:17  warning  Generic Object Injection Sink  security/detect-object-injection
 
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/lib/module-statistics.ts
-  258:18  warning  Generic Object Injection Sink               security/detect-object-injection
-  271:19  warning  Generic Object Injection Sink               security/detect-object-injection
-  341:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
-  342:7   warning  Generic Object Injection Sink               security/detect-object-injection
+  256:18  warning  Generic Object Injection Sink               security/detect-object-injection
+  269:19  warning  Generic Object Injection Sink               security/detect-object-injection
+  339:23  warning  Variable Assigned to Object Injection Sink  security/detect-object-injection
+  340:7   warning  Generic Object Injection Sink               security/detect-object-injection
 
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/lib/notification-engine.ts
    115:32   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
@@ -944,8 +958,30 @@
   1341:39   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
   1358:39   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
+/Users/vicentevazquez/Desktop/plataforma_ppd-main/app/lib/onprem/attachments.ts
+  223:9   warning  Found mkdir from package "node:fs/promises" with non literal argument at index 0     security/detect-non-literal-fs-filename
+  303:24  warning  Found readFile from package "node:fs/promises" with non literal argument at index 0  security/detect-non-literal-fs-filename
+
+/Users/vicentevazquez/Desktop/plataforma_ppd-main/app/lib/onprem/runtime-paths.ts
+  19:5  warning  Found mkdir from package "fs/promises" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  20:5  warning  Found mkdir from package "fs/promises" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  21:5  warning  Found mkdir from package "fs/promises" with non literal argument at index 0  security/detect-non-literal-fs-filename
+
+/Users/vicentevazquez/Desktop/plataforma_ppd-main/app/lib/onprem/security-events.ts
+  34:9   warning  Found appendFile from package "fs/promises" with non literal argument at index 0  security/detect-non-literal-fs-filename
+  93:25  warning  Found readFile from package "fs/promises" with non literal argument at index 0    security/detect-non-literal-fs-filename
+
+/Users/vicentevazquez/Desktop/plataforma_ppd-main/app/lib/onprem/user-directory.ts
+  38:5  warning  Generic Object Injection Sink  security/detect-object-injection
+  72:5  warning  Generic Object Injection Sink  security/detect-object-injection
+
+/Users/vicentevazquez/Desktop/plataforma_ppd-main/app/lib/platform-access.ts
+  75:7   warning  Generic Object Injection Sink  security/detect-object-injection
+  78:10  warning  Generic Object Injection Sink  security/detect-object-injection
+
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/lib/policy-governance.ts
-  217:63  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  218:63  warning  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  288:10  warning  'safeParseJSON' is defined but never used  @typescript-eslint/no-unused-vars
 
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/lib/rate-limiter.ts
   98:31  warning  Generic Object Injection Sink  security/detect-object-injection
@@ -980,15 +1016,20 @@
   1:10  warning  'rejects' is defined but never used  @typescript-eslint/no-unused-vars
 
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/lib/user-permissions.ts
-  126:46  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  173:3   warning  Generic Object Injection Sink             security/detect-object-injection
-  173:21  warning  Generic Object Injection Sink             security/detect-object-injection
-  216:7   warning  Generic Object Injection Sink             security/detect-object-injection
-  219:9   warning  Generic Object Injection Sink             security/detect-object-injection
-  220:9   warning  Generic Object Injection Sink             security/detect-object-injection
-  235:26  warning  Generic Object Injection Sink             security/detect-object-injection
-  258:5   warning  Generic Object Injection Sink             security/detect-object-injection
-  276:5   warning  Generic Object Injection Sink             security/detect-object-injection
+  148:46  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  150:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  219:46  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  284:3   warning  Generic Object Injection Sink             security/detect-object-injection
+  284:21  warning  Generic Object Injection Sink             security/detect-object-injection
+  327:7   warning  Generic Object Injection Sink             security/detect-object-injection
+  330:9   warning  Generic Object Injection Sink             security/detect-object-injection
+  331:9   warning  Generic Object Injection Sink             security/detect-object-injection
+  346:26  warning  Generic Object Injection Sink             security/detect-object-injection
+  413:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  441:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  458:5   warning  Generic Object Injection Sink             security/detect-object-injection
+  480:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  501:5   warning  Generic Object Injection Sink             security/detect-object-injection
 
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/replace-links.js
    7:17  warning  Found readFileSync from package "fs" with non literal argument at index 0   security/detect-non-literal-fs-filename
@@ -1005,6 +1046,6 @@
 /Users/vicentevazquez/Desktop/plataforma_ppd-main/app/tests/procedures-pdp.test.js
   18:12  warning  Generic Object Injection Sink  security/detect-object-injection
 
-✖ 792 problems (0 errors, 792 warnings)
+✖ 817 problems (0 errors, 817 warnings)
   0 errors and 4 warnings potentially fixable with the `--fix` option.
 

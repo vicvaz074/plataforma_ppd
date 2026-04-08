@@ -1,16 +1,11 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getOnPremSession } from "@/lib/onprem/server-auth"
 import { query } from "@/lib/onprem/db"
+import { resolveShareTargets } from "@/lib/onprem/share-targets"
+import { logAuditEventServer, logSecurityEvent } from "@/lib/onprem/security-events"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
-
-function normalizeEmails(values: unknown): string[] {
-  if (!Array.isArray(values)) return []
-  return values
-    .map((value) => String(value).trim().toLowerCase())
-    .filter((value, index, array) => value.length > 0 && array.indexOf(value) === index)
-}
 
 export async function POST(request: NextRequest) {
   const session = await getOnPremSession().catch(() => null)
@@ -23,11 +18,27 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Solicitud inválida para compartir registro" }, { status: 400 })
   }
 
-  const targetEmails = normalizeEmails(body.targetEmails)
+  const { resolved, missing, selfTargets } = await resolveShareTargets(body.targetEmails, session.email)
+  if (selfTargets.length > 0) {
+    return NextResponse.json(
+      { error: "No puedes compartir información contigo mismo", selfTargets },
+      { status: 400 },
+    )
+  }
+  if (missing.length > 0 || resolved.length === 0) {
+    return NextResponse.json(
+      {
+        error: "Usuario no encontrado en el directorio on-premise",
+        missing,
+      },
+      { status: 404 },
+    )
+  }
+
   const active = body.active !== false
   const payload = body.payload ?? {}
 
-  for (const targetEmail of targetEmails) {
+  for (const target of resolved) {
     await query(
       `insert into shared_records (owner_email, target_email, module_key, record_key, label, payload, active, created_by)
        values ($1, $2, $3, $4, $5, $6::jsonb, $7, $8)
@@ -38,7 +49,7 @@ export async function POST(request: NextRequest) {
                      created_by = excluded.created_by`,
       [
         session.email,
-        targetEmail,
+        target.email,
         String(body.moduleKey),
         String(body.recordKey),
         String(body.label || body.recordKey),
@@ -49,10 +60,36 @@ export async function POST(request: NextRequest) {
     )
   }
 
+  await logAuditEventServer(
+    active ? "SHARE_RECORD_GRANTED" : "SHARE_RECORD_REVOKED",
+    session.email,
+    active
+      ? "Registro compartido con usuario validado en directorio on-premise"
+      : "Compartición de registro revocada",
+    {
+      moduleKey: String(body.moduleKey),
+      recordKey: String(body.recordKey),
+      targets: resolved,
+    },
+  )
+  await logSecurityEvent({
+    category: "sharing",
+    severity: "info",
+    message: active
+      ? "Configuración de compartición por registro actualizada"
+      : "Configuración de compartición por registro revocada",
+    actorEmail: session.email,
+    metadata: {
+      moduleKey: String(body.moduleKey),
+      recordKey: String(body.recordKey),
+      targets: resolved,
+    },
+  })
+
   return NextResponse.json(
     {
       message: "Configuración de compartición por registro actualizada",
-      targetEmails,
+      targets: resolved,
       moduleKey: String(body.moduleKey),
       recordKey: String(body.recordKey),
       active,

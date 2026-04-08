@@ -11,6 +11,7 @@ import "@/lib/zod-config"
 import { Sidebar } from "@/components/sidebar"
 import { Header } from "@/components/header"
 import { LocalFirstProvider } from "@/components/local-first-provider"
+import { ModuleGuard } from "@/components/ModuleGuard"
 import { createSession, isSessionValid, startInactivityMonitor, onSessionExpired, destroySession } from "@/lib/session"
 import { hasModuleAccessFromSnapshot, readSessionSnapshot, resolveCurrentModuleSlug, writeSessionSnapshot } from "@/lib/platform-access"
 
@@ -154,6 +155,14 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
     pathname === "/login/" ||
     pathname.endsWith("/login/index.html")
 
+  const currentModuleSlug = resolveCurrentModuleSlug(pathname)
+  const guardedChildren =
+    authed && currentModuleSlug && !isLoginPage ? (
+      <ModuleGuard moduleSlug={currentModuleSlug}>{children}</ModuleGuard>
+    ) : (
+      children
+    )
+
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
       <SecurityProvider>
@@ -165,7 +174,7 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
                   <>{children}</>
                 ) : (
                   <AppShell authed={authed}>
-                    {children}
+                    {guardedChildren}
                   </AppShell>
                 )}
               </SidebarProvider>

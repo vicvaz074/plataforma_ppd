@@ -1,4 +1,5 @@
 import type { StoredFile } from "@/lib/fileStorage"
+import { readScopedStorageJson, writeScopedStorageJson } from "@/lib/local-first-platform"
 import { secureRandomId } from "@/lib/secure-random"
 
 export type DpoYesNoNa = "si" | "no" | "na"
@@ -957,18 +958,11 @@ export function createProjectReviewRecord(draft: DpoProjectReviewDraft): DpoProj
 }
 
 function safeRead<T>(key: string, fallback: T): T {
-  if (typeof window === "undefined") return fallback
-  try {
-    const raw = localStorage.getItem(key)
-    return raw ? (JSON.parse(raw) as T) : fallback
-  } catch {
-    return fallback
-  }
+  return readScopedStorageJson<T>(key, fallback)
 }
 
 function safeWrite(key: string, value: unknown) {
-  if (typeof window === "undefined") return
-  localStorage.setItem(key, JSON.stringify(value))
+  writeScopedStorageJson(key, value)
 }
 
 export function notifyDpoStorageChange() {

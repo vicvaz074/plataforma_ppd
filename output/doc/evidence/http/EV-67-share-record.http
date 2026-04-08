@@ -1,0 +1,33 @@
+HTTP/1.1 200 OK
+connection: keep-alive
+content-security-policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'sha256-skqujXORqzxt1aE0NNXxujEanPTX6raoqSscTV/Ww/Y=' 'sha256-nzTgYzXYDNe6BAHiiI7NNlfK8n/auuOAhh2t92YvuXo=' 'sha256-vGQdhYJbTuF+M8iCn1IZCHpdkiICocWHDq4qnQF4Rjw=' 'sha256-441zG27rExd4/il+NvIqyL8zFx5XmyNQtE381kSkUJk=' 'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; media-src 'self' blob: data:; frame-src 'none'; frame-ancestors 'none'; form-action 'self'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests
+content-type: application/json
+cross-origin-embedder-policy: credentialless
+cross-origin-opener-policy: same-origin
+cross-origin-resource-policy: same-site
+date: Wed, 08 Apr 2026 18:01:44 GMT
+keep-alive: timeout=5
+origin-agent-cluster: ?1
+permissions-policy: accelerometer=(), autoplay=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=(), interest-cohort=()
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=63072000; includeSubDomains; preload
+transfer-encoding: chunked
+vary: rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch
+x-content-type-options: nosniff
+x-frame-options: DENY
+x-permitted-cross-domain-policies: none
+x-xss-protection: 1; mode=block
+
+{
+  "message": "Configuración de compartición por registro actualizada",
+  "targets": [
+    {
+      "email": "qa-evidence@example.com",
+      "name": "Usuario Evidencia"
+    }
+  ],
+  "moduleKey": "/rat",
+  "recordKey": "evidence-rat-1775671302398",
+  "active": true,
+  "timestamp": "2026-04-08T18:01:44.267Z"
+}

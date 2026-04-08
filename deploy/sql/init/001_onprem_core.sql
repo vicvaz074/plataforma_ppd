@@ -138,6 +138,17 @@ create table if not exists shared_records (
 
 create index if not exists idx_shared_records_target on shared_records (target_email, module_key, active);
 
+create table if not exists module_password_policies (
+  module_slug text primary key,
+  password_hash text not null,
+  enabled boolean not null default true,
+  updated_by text,
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists idx_module_password_policies_enabled
+  on module_password_policies (enabled, updated_at desc);
+
 create table if not exists attachments (
   id uuid primary key default gen_random_uuid(),
   module_key text not null,
@@ -147,9 +158,15 @@ create table if not exists attachments (
   byte_size bigint not null default 0,
   sha256 text,
   storage_path text not null,
+  owner_email text,
   created_by text,
-  created_at timestamptz not null default now()
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
 );
+
+create index if not exists idx_attachments_owner on attachments (owner_email, module_key, created_at desc);
+create index if not exists idx_attachments_record on attachments (module_key, record_key, created_at desc);
 
 create table if not exists audit_events (
   id bigserial primary key,

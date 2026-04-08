@@ -32,6 +32,7 @@ import { jsPDF } from "jspdf"
 import autoTable from "jspdf-autotable"
 import { useToast } from "@/components/ui/use-toast"
 import { SafeLink } from "@/components/SafeLink"
+import { readScopedStorageJson } from "@/lib/local-first-platform"
 import {
   ChevronLeft,
   Download,
@@ -363,14 +364,7 @@ export default function InformesPage() {
 
   // Load saved inventories
   useEffect(() => {
-    const saved = localStorage.getItem("inventories")
-    if (saved) {
-      try {
-        setInventories(JSON.parse(saved) as Inventory[])
-      } catch (err) {
-        console.error("Failed to parse inventories", err)
-      }
-    }
+    setInventories(readScopedStorageJson<Inventory[]>("inventories", []))
   }, [])
 
   useEffect(() => {
