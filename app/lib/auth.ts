@@ -55,7 +55,7 @@ const DEFAULT_USERS: StoredUser[] = [
     email: "izquierdo.manola@gmail.com",
     password: "$2b$10$UyYUnv33oKfOxMmA60ppbej6c/GebDgVW2Qu3OhebZ9BJ9SEKuSpm",
     approved: true,
-    role: "user",
+    role: "admin",
   },
   {
     name: "María Elena Velazquez",
