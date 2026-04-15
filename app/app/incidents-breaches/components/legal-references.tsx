@@ -43,7 +43,7 @@ export function LegalReferences() {
                     className={`text-xs px-2.5 py-1 rounded-lg ${
                       isExpanded
                         ? "border-[#2E7D73] text-[#2E7D73] bg-[#2E7D73]/10"
-                        : "border-[#0a0147]/30 text-[#0a0147]"
+                        : "border-[#1b75bc]/30 text-[#1b75bc]"
                     }`}
                   >
                     Art. {article.number}

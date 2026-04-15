@@ -97,7 +97,7 @@ export const MODULE_COLOR_PALETTES = {
   dpo: ["#0a4abf", "#2563eb", "#14b8a6", "#22c55e", "#f59e0b", "#fb7185", "#8b5cf6", "#1f2937"],
   eipd: ["#1e3a8a", "#2563eb", "#0284c7", "#10b981", "#84cc16", "#f59e0b", "#ef4444", "#7c3aed"],
   policies: ["#1d4ed8", "#0ea5e9", "#22c55e", "#eab308", "#f97316", "#ef4444", "#8b5cf6", "#334155"],
-  awareness: ["#0a0147", "#0a4abf", "#2563eb", "#22c55e", "#f59e0b", "#ef4444", "#8b5cf6", "#334155"],
+  awareness: ["#1b75bc", "#0a4abf", "#2563eb", "#22c55e", "#f59e0b", "#ef4444", "#8b5cf6", "#334155"],
 } as const
 
 function badgeToneClasses(tone: HeaderBadgeTone = "neutral") {
@@ -176,14 +176,14 @@ function DesktopNavItem({
   const classes = cn(
     "flex min-h-[36px] w-full items-center gap-2.5 rounded-[20px] px-2.5 py-2 text-left text-[12px] font-medium transition-all",
     item.active
-      ? "bg-white text-[#0a0147] shadow-[0_12px_24px_rgba(10,1,71,0.08)]"
-      : "text-[#4f6788] hover:bg-white/80 hover:text-[#0a0147]",
+      ? "bg-white text-[#1b75bc] shadow-[0_12px_24px_rgba(27,117,188,0.08)]"
+      : "text-[#4f6788] hover:bg-white/80 hover:text-[#1b75bc]",
   )
 
   const content = (
     <>
       <span className={cn("h-2.5 w-2.5 rounded-full", item.active ? "bg-[#0a4abf]" : "bg-[#7ea4df]")} />
-      <Icon className={cn("h-4 w-4 shrink-0", item.active ? "text-[#0a0147]" : "text-[#5f7698]")} />
+      <Icon className={cn("h-4 w-4 shrink-0", item.active ? "text-[#1b75bc]" : "text-[#5f7698]")} />
       <span className="min-w-0 flex-1 truncate leading-tight" title={item.label}>
         {label}
       </span>
@@ -231,14 +231,14 @@ function MobileNavItem({
   const classes = cn(
     "flex min-h-[48px] w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-medium transition-colors",
     item.active
-      ? "bg-white text-[#0a0147] shadow-[0_12px_24px_rgba(10,1,71,0.08)]"
-      : "text-[#4f6788] hover:bg-white/80 hover:text-[#0a0147]",
+      ? "bg-white text-[#1b75bc] shadow-[0_12px_24px_rgba(27,117,188,0.08)]"
+      : "text-[#4f6788] hover:bg-white/80 hover:text-[#1b75bc]",
   )
 
   const content = (
     <>
       <span className={cn("h-2.5 w-2.5 rounded-full", item.active ? "bg-[#0a4abf]" : "bg-[#7ea4df]")} />
-      <Icon className={cn("h-4 w-4 shrink-0", item.active ? "text-[#0a0147]" : "text-[#5f7698]")} />
+      <Icon className={cn("h-4 w-4 shrink-0", item.active ? "text-[#1b75bc]" : "text-[#5f7698]")} />
       <span className="min-w-0 flex-1 break-words leading-snug">{label}</span>
       {item.badge !== undefined ? (
         <span className="ml-auto rounded-full bg-[#dbeafe] px-2 py-0.5 text-[10px] font-semibold text-[#0a4abf]">
@@ -495,14 +495,14 @@ export function ModuleWorkspaceShell({
                 <div className="space-y-2.5">
                   <Link
                     href={backHref}
-                    className="inline-flex items-center gap-1 text-sm text-[#5f7698] transition-colors hover:text-[#0a0147]"
+                    className="inline-flex items-center gap-1 text-sm text-[#5f7698] transition-colors hover:text-[#1b75bc]"
                   >
                     <ChevronLeft className="h-4 w-4" />
                     {backLabel}
                   </Link>
                   <div className="space-y-1">
                     <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#5f7698]">{moduleLabel}</p>
-                    <p className="text-xl font-semibold leading-tight text-[#0a0147]">{moduleTitle}</p>
+                    <p className="text-xl font-semibold leading-tight text-[#1b75bc]">{moduleTitle}</p>
                   </div>
                 </div>
 
@@ -560,7 +560,7 @@ export function ModuleWorkspaceShell({
                       </SheetTrigger>
                       <SheetContent side="left" className="w-[88vw] max-w-sm border-r border-[#d6e1f6] bg-[#edf4ff] p-0">
                         <SheetHeader className="border-b border-[#d6e1f6] px-5 py-5 text-left">
-                          <SheetTitle className="text-xl text-[#0a0147]">{moduleTitle}</SheetTitle>
+                          <SheetTitle className="text-xl text-[#1b75bc]">{moduleTitle}</SheetTitle>
                           <SheetDescription className="text-sm leading-6 text-[#5f7698]">
                             {moduleDescription}
                           </SheetDescription>
