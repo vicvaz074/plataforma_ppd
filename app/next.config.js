@@ -1,5 +1,6 @@
 // next.config.js
 const { PHASE_DEVELOPMENT_SERVER } = require('next/constants');
+const path = require("path")
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
 });
@@ -17,6 +18,7 @@ module.exports = (phase) => {
   return withBundleAnalyzer({
     poweredByHeader: false,
     reactStrictMode: true,
+    outputFileTracingRoot: path.resolve(__dirname),
 
     async headers() {
       return [
@@ -32,9 +34,8 @@ module.exports = (phase) => {
     trailingSlash: useElectronStaticExport ? true : false,
     assetPrefix: useElectronStaticExport ? './' : '',
     output: useElectronStaticExport ? 'export' : undefined,
-
     images: {
-      domains: ['hebbkx1anhila5yf.public.blob.vercel-storage.com'],
+      unoptimized: true,
     },
   });
 };

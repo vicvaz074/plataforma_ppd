@@ -464,11 +464,17 @@ export function PrivacyNoticesContent({ section }: PrivacyNoticesContentProps) {
       setIsSubmitting(true);
       const now = new Date().toISOString();
       const userName = localStorage.getItem("userName") || "Desconocido";
+      const noticeRecordKey =
+        editingNotice?.metadata.recordKey ||
+        editingNotice?.id ||
+        `privacy-notice-${Date.now()}`;
 
       const trimmed = (text?: string) =>
         text && text.trim().length > 0 ? text.trim() : undefined;
 
       const metadata = {
+        moduleKey: "/privacy-notices",
+        recordKey: noticeRecordKey,
         title: values.noticeName,
         noticeName: values.noticeName,
         holderCategories: values.holderCategories,
@@ -551,6 +557,8 @@ export function PrivacyNoticesContent({ section }: PrivacyNoticesContentProps) {
           {
             title: "Política de Avisos de Privacidad",
             relatedNotice: values.noticeName,
+            moduleKey: "/privacy-notices",
+            recordKey: noticeRecordKey,
             policyLink: trimmed(values.policyLink),
           },
           "privacy-policy",
@@ -569,6 +577,8 @@ export function PrivacyNoticesContent({ section }: PrivacyNoticesContentProps) {
               {
                 title: `Evidencia de puesta a disposición - ${values.noticeName}`,
                 relatedNotice: values.noticeName,
+                moduleKey: "/privacy-notices",
+                recordKey: noticeRecordKey,
               },
               "privacy-evidence",
             ),

@@ -16,10 +16,32 @@ const isDev = process.env.NODE_ENV === "development"
 const PORT = 3456
 let server
 const devAppIconPath = path.join(__dirname, "../assets/Logo_plataforma_ppd.png")
+const configuredServerUrl = resolveConfiguredServerUrl()
+const packagedAppOrigin = `http://localhost:${PORT}`
 
 const allowedOrigins = isDev
   ? ["http://localhost:3000"]
-  : [`http://localhost:${PORT}`]
+  : [configuredServerUrl ? new URL(configuredServerUrl).origin : packagedAppOrigin]
+
+function resolveConfiguredServerUrl() {
+  if (isDev) return null
+
+  const rawUrl = process.env.DAVARA_SERVER_URL?.trim()
+  if (!rawUrl) return null
+
+  try {
+    const parsed = new URL(rawUrl)
+    if (!["http:", "https:"].includes(parsed.protocol)) {
+      console.warn("DAVARA_SERVER_URL ignorada: protocolo no soportado")
+      return null
+    }
+
+    return parsed.toString().replace(/\/$/, "")
+  } catch (error) {
+    console.warn("DAVARA_SERVER_URL ignorada: URL inválida", error)
+    return null
+  }
+}
 
 const isAllowedUrl = (url) => {
   try {
@@ -37,6 +59,8 @@ const applySecurityHeaders = (res) => {
 ipcMain.handle("app:getRuntime", () => ({
   isElectron: true,
   environment: isDev ? "development" : "production",
+  serverUrl: isDev ? "http://localhost:3000" : configuredServerUrl || packagedAppOrigin,
+  usesExternalServer: Boolean(configuredServerUrl),
 }))
 
 app.on("web-contents-created", (event, contents) => {
@@ -165,7 +189,7 @@ async function createWindow() {
 
   const url = isDev
     ? "http://localhost:3000"
-    : `http://localhost:${PORT}`
+    : configuredServerUrl || packagedAppOrigin
 
   await win.loadURL(url)
 
@@ -185,7 +209,7 @@ app.whenReady().then(async () => {
     callback(false)
   })
 
-  if (!isDev) await createServer()
+  if (!isDev && !configuredServerUrl) await createServer()
   await createWindow()
 })
 
@@ -202,7 +226,7 @@ app.on("before-quit", () => {
 
 app.on("activate", async () => {
   if (BrowserWindow.getAllWindows().length === 0) {
-    if (!isDev && (!server || server.listening === false)) {
+    if (!isDev && !configuredServerUrl && (!server || server.listening === false)) {
       await createServer()
     }
     await createWindow()

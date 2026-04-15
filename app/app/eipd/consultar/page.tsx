@@ -13,6 +13,7 @@ import {
   ModuleSectionCard,
 } from "@/components/arco-module-shell"
 import { EIPD_META, EIPD_NAV } from "@/components/arco-module-config"
+import { readScopedStorageJson, writeScopedStorageJson } from "@/lib/local-first-platform"
 
 type EipdForm = {
   id: string
@@ -84,19 +85,11 @@ export default function EipdConsultPage() {
   const [forms, setForms] = useState<EipdForm[]>([])
 
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY)
-    if (!stored) return
-
-    try {
-      const parsed = JSON.parse(stored) as EipdForm[]
-      setForms(parsed)
-    } catch (error) {
-      console.error("No se pudieron cargar los formularios EIPD", error)
-    }
+    setForms(readScopedStorageJson<EipdForm[]>(STORAGE_KEY, []))
   }, [])
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(forms))
+    writeScopedStorageJson(STORAGE_KEY, forms)
   }, [forms])
 
   const handleEdit = (formId: string) => {

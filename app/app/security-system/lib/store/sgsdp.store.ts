@@ -4,6 +4,8 @@ import * as Types from '../models/sgsdp.types';
 import { CATALOGO_CONTROLES } from '../catalogo-controles';
 import type { Inventory } from '@/app/rat/types';
 
+export const SGSDP_STORAGE_KEY = "davara-sgsdp-storage";
+
 // Defaults vacíos — el usuario construye todo desde cero
 const defaultInstancia: Types.SgsdpInstancia = {
   id: "SGSDP-" + new Date().getFullYear(),
@@ -561,7 +563,7 @@ export const useSgsdpStore = create<SgsdpState>()(
 
     }),
     {
-      name: 'davara-sgsdp-storage',
+      name: SGSDP_STORAGE_KEY,
     }
   )
 );

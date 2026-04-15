@@ -28,6 +28,7 @@ import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { buildAdvancedMetrics } from "@/lib/module-statistics"
 import { getFilesByCategory, type StoredFile } from "@/lib/fileStorage"
+import { readScopedStorageJson } from "@/lib/local-first-platform"
 import { loadDpoSnapshot, type DpoComplianceSnapshot } from "./opd-compliance-model"
 
 type DpoReportRecord = {
@@ -67,19 +68,8 @@ export default function DPOPage() {
   useEffect(() => {
     const refresh = () => {
       setCompliance(loadDpoSnapshot())
-
-      try {
-        setReports(JSON.parse(localStorage.getItem("dpo-reports") || "[]"))
-      } catch {
-        setReports([])
-      }
-
-      try {
-        setActas(JSON.parse(localStorage.getItem("dpo-actas") || "[]"))
-      } catch {
-        setActas([])
-      }
-
+      setReports(readScopedStorageJson<DpoReportRecord[]>("dpo-reports", []))
+      setActas(readScopedStorageJson<DpoActaRecord[]>("dpo-actas", []))
       setEvidenceFiles(getFilesByCategory("dpo-compliance"))
     }
 

@@ -42,7 +42,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
-import { fileStorage, type StoredFile } from "@/lib/fileStorage"
+import { fileStorage, resolveStoredFileAccessUrl, type StoredFile } from "@/lib/fileStorage"
 import { cn } from "@/lib/utils"
 import type {
   DpoAccreditationDraft,
@@ -2190,7 +2190,7 @@ export default function DPOCompliancePage() {
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-2">
                               <Button variant="ghost" size="icon" asChild>
-                                <a href={fileStorage.createFileURL(file.content)} target="_blank" rel="noreferrer">
+                                <a href={resolveStoredFileAccessUrl(file)} target="_blank" rel="noreferrer">
                                   <Eye className="h-4 w-4" />
                                 </a>
                               </Button>

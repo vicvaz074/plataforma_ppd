@@ -1,0 +1,12 @@
+          email          | role_name | approved |          updated_at           
+-------------------------+-----------+----------+-------------------------------
+ admin@example.com       | admin     | t        | 2026-04-08 18:01:43.844612+00
+ qa-evidence@example.com | custom    | t        | 2026-04-08 18:01:43.733115+00
+ vvazquez@davara.com.mx  | custom    | t        | 2026-04-08 17:38:39.265792+00
+ user1@example.com       | custom    | t        | 2026-04-08 17:38:39.26485+00
+ user2@example.com       | custom    | t        | 2026-04-08 17:38:39.257135+00
+ demo@example.com        | custom    | t        | 2026-04-08 17:38:39.254623+00
+ qa-user@example.com     | custom    | t        | 2026-04-08 17:38:39.253376+00
+ qa-access@example.com   | custom    | t        | 2026-04-08 17:38:39.251972+00
+(8 rows)
+

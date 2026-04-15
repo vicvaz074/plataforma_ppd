@@ -1,5 +1,6 @@
 "use client"
 
+import { readScopedStorageJson, writeScopedStorageJson } from "@/lib/local-first-platform"
 import { secureRandomId } from "@/lib/secure-random"
 
 export const ARCO_PROCEDURE_POLICY_KEY = "arcoProcedurePolicyLinkV1"
@@ -99,8 +100,9 @@ export function loadArcoProcedurePolicyState() {
   if (!isBrowser()) return createEmptyState()
 
   try {
-    const raw = window.localStorage.getItem(ARCO_PROCEDURE_POLICY_KEY)
-    return normalizeArcoProcedurePolicyState(raw ? JSON.parse(raw) : null)
+    return normalizeArcoProcedurePolicyState(
+      readScopedStorageJson<ArcoProcedurePolicyState | null>(ARCO_PROCEDURE_POLICY_KEY, null),
+    )
   } catch {
     return createEmptyState()
   }
@@ -109,7 +111,7 @@ export function loadArcoProcedurePolicyState() {
 export function persistArcoProcedurePolicyState(state: ArcoProcedurePolicyState) {
   if (!isBrowser()) return
   const normalized = normalizeArcoProcedurePolicyState(state)
-  window.localStorage.setItem(ARCO_PROCEDURE_POLICY_KEY, JSON.stringify(normalized))
+  writeScopedStorageJson(ARCO_PROCEDURE_POLICY_KEY, normalized)
 }
 
 export function buildArcoSupplementalEvidence(input: {

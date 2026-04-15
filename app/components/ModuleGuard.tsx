@@ -8,12 +8,13 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
   hasModuleAccess,
-  hasModulePassword,
+  checkModulePasswordRequired,
   verifyModulePassword,
   isModuleUnlocked,
   unlockModule,
   ALL_MODULES,
 } from "@/lib/user-permissions"
+import { hasModuleAccessFromSnapshot, readSessionSnapshot } from "@/lib/platform-access"
 
 interface ModuleGuardProps {
   moduleSlug: string
@@ -27,28 +28,44 @@ export function ModuleGuard({ moduleSlug, children }: ModuleGuardProps) {
   const [passwordError, setPasswordError] = useState(false)
 
   useEffect(() => {
-    const email = localStorage.getItem("userEmail")
-    const role = localStorage.getItem("userRole")
+    let cancelled = false
 
-    // Admin always has access
-    if (role === "admin") {
+    const validateAccess = async () => {
+      const snapshot = readSessionSnapshot()
+      const email = snapshot?.email || localStorage.getItem("userEmail")
+      const role = snapshot?.role || localStorage.getItem("userRole")
+
+      // Admin always has access
+      if (role === "admin") {
+        if (!cancelled) setStatus("allowed")
+        return
+      }
+
+      const hasAccess = snapshot
+        ? hasModuleAccessFromSnapshot(moduleSlug, snapshot)
+        : hasModuleAccess(email, moduleSlug)
+
+      if (!hasAccess) {
+        if (!cancelled) setStatus("denied")
+        return
+      }
+
+      const requiresPassword = await checkModulePasswordRequired(moduleSlug)
+      if (cancelled) return
+
+      if (requiresPassword && !isModuleUnlocked(moduleSlug)) {
+        setStatus("password-required")
+        return
+      }
+
       setStatus("allowed")
-      return
     }
 
-    // Check module permission
-    if (!hasModuleAccess(email, moduleSlug)) {
-      setStatus("denied")
-      return
-    }
+    void validateAccess()
 
-    // Check module password
-    if (hasModulePassword(moduleSlug) && !isModuleUnlocked(moduleSlug)) {
-      setStatus("password-required")
-      return
+    return () => {
+      cancelled = true
     }
-
-    setStatus("allowed")
   }, [moduleSlug])
 
   const handlePasswordSubmit = async (e: React.FormEvent) => {

@@ -34,7 +34,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/components/ui/use-toast"
 import type { Inventory, SubInventory } from "../types"
-import { getAllFiles, getFileById } from "@/lib/fileStorage"
+import { getAllFiles, getFileById, resolveStoredFileAccessUrl } from "@/lib/fileStorage"
 import {
   ChevronDown,
   Eye,
@@ -53,6 +53,7 @@ import { SafeLink } from "@/components/SafeLink"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { generateInventoryPDF } from "../utils/inventory-pdf"
 import { Input } from "@/components/ui/input"
+import { writeScopedStorageJson } from "@/lib/local-first-platform"
 
 interface InventoryListProps {
   inventories: Inventory[]
@@ -201,7 +202,7 @@ export function InventoryList({
   const handleDelete = (id: string) => {
     const updated = inventories.filter(inv => inv.id !== id)
     setInventories(updated)
-    localStorage.setItem("inventories", JSON.stringify(updated))
+    writeScopedStorageJson("inventories", updated)
     toast({ title: "Inventario eliminado", description: "El inventario ha sido eliminado correctamente." })
   }
 
@@ -238,13 +239,14 @@ export function InventoryList({
       toast({ title: "Error", description: "No se pudo abrir el archivo.", variant: "destructive" })
       return
     }
-    if (!file.content.startsWith("data:") && !file.content.startsWith("blob:")) {
+    const fileUrl = resolveStoredFileAccessUrl(file)
+    if (!fileUrl.startsWith("data:") && !fileUrl.startsWith("blob:") && !fileUrl.startsWith("/api/attachments/")) {
       toast({ title: "Error", description: "El formato del archivo no es válido.", variant: "destructive" })
       return
     }
 
     const anchor = document.createElement("a")
-    anchor.href = file.content
+    anchor.href = fileUrl
     anchor.target = "_blank"
     anchor.rel = "noopener noreferrer"
     anchor.click()
@@ -396,7 +398,7 @@ const generatePDF = (inventory: Inventory) => {
 
         const mergedInventories = Array.from(inventoryMap.values())
         setInventories(mergedInventories)
-        localStorage.setItem("inventories", JSON.stringify(mergedInventories))
+        writeScopedStorageJson("inventories", mergedInventories)
         setExpandedInventoryId(null)
 
         toast({

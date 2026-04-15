@@ -1,12 +1,7 @@
 function buildContentSecurityPolicy({ isDev = false } = {}) {
   const scriptSrc = ["'self'", "'unsafe-inline'"]
   const styleSrc = isDev
-    ? [
-        "'self'",
-        "'unsafe-inline'",
-        "https://cdn.jsdelivr.net",
-        "https://fonts.cdnfonts.com",
-      ]
+    ? ["'self'", "'unsafe-inline'"]
     : [
         "'self'",
         "'sha256-skqujXORqzxt1aE0NNXxujEanPTX6raoqSscTV/Ww/Y='",
@@ -14,8 +9,6 @@ function buildContentSecurityPolicy({ isDev = false } = {}) {
         "'sha256-vGQdhYJbTuF+M8iCn1IZCHpdkiICocWHDq4qnQF4Rjw='",
         "'sha256-441zG27rExd4/il+NvIqyL8zFx5XmyNQtE381kSkUJk='",
         "'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='",
-        "https://cdn.jsdelivr.net",
-        "https://fonts.cdnfonts.com",
       ]
   const connectSrc = ["'self'"]
 
@@ -28,8 +21,8 @@ function buildContentSecurityPolicy({ isDev = false } = {}) {
     "default-src 'self'",
     `script-src ${scriptSrc.join(" ")}`,
     `style-src ${styleSrc.join(" ")}`,
-    "img-src 'self' data: blob: https://hebbkx1anhila5yf.public.blob.vercel-storage.com",
-    "font-src 'self' data: https://cdn.jsdelivr.net https://fonts.cdnfonts.com",
+    "img-src 'self' data: blob:",
+    "font-src 'self' data:",
     `connect-src ${connectSrc.join(" ")}`,
     "media-src 'self' blob: data:",
     "frame-src 'none'",

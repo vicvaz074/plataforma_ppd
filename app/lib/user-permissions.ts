@@ -28,8 +28,10 @@ export interface PlatformUser {
 
 export interface ModulePassword {
   moduleSlug: string
-  password: string // bcrypt hash (cifrado en reposo via encrypted-storage)
+  passwordHash?: string
   enabled: boolean
+  updatedBy?: string | null
+  updatedAt?: string
 }
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -101,6 +103,97 @@ const DEMO_USER_PERMISSIONS: Record<string, boolean> = (() => {
 const USERS_KEY = "platform_users"
 const MODULE_PASSWORDS_KEY = "module_passwords"
 const USER_PERMISSIONS_CACHE_KEY = "current_user_permissions"
+const SESSION_SNAPSHOT_KEY = "davara_session_snapshot_v1"
+let usersSyncTimer: number | null = null
+
+type SessionSnapshotLike = {
+  email?: string
+  role?: string
+  modulePermissions?: Record<string, boolean>
+}
+
+function readSessionSnapshot(): SessionSnapshotLike | null {
+  if (typeof window === "undefined") return null
+  const raw = localStorage.getItem(SESSION_SNAPSHOT_KEY)
+  if (!raw) return null
+  try {
+    const parsed = JSON.parse(raw) as SessionSnapshotLike
+    return parsed && typeof parsed === "object" ? parsed : null
+  } catch {
+    return null
+  }
+}
+
+function normalizeEmail(value: string | null | undefined) {
+  return value?.trim().toLowerCase() || null
+}
+
+function hasCurrentAdminSession() {
+  const snapshot = readSessionSnapshot()
+  if (snapshot?.role === "admin") return true
+  return localStorage.getItem("userRole") === "admin"
+}
+
+function sessionMatchesEmail(email: string) {
+  const snapshot = readSessionSnapshot()
+  const sessionEmail = normalizeEmail(snapshot?.email || localStorage.getItem("userEmail"))
+  return sessionEmail !== null && sessionEmail === normalizeEmail(email)
+}
+
+function persistUsersLocally(users: PlatformUser[]): void {
+  if (typeof window === "undefined") return
+  localStorage.setItem(USERS_KEY, JSON.stringify(users))
+}
+
+function mergeUsersWithLocalPasswords(users: any[]): PlatformUser[] {
+  const localUsers = getUsers()
+  return users.map((user: any) => {
+    const localUser = localUsers.find((currentUser) => currentUser.email === user.email)
+    return {
+      name: user.name,
+      email: user.email,
+      password: localUser?.password || "",
+      role: user.role,
+      approved: user.approved,
+      modulePermissions: user.modulePermissions || {},
+      createdAt: localUser?.createdAt || user.createdAt || new Date().toISOString(),
+      lastLogin: user.lastLogin || localUser?.lastLogin,
+    }
+  })
+}
+
+function scheduleUsersSync(users: PlatformUser[]): void {
+  if (typeof window === "undefined") return
+  if (!hasCurrentAdminSession()) return
+
+  if (usersSyncTimer) {
+    window.clearTimeout(usersSyncTimer)
+  }
+
+  usersSyncTimer = window.setTimeout(() => {
+    void fetch("/api/admin/users", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        users: users.map((user) => ({
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          approved: user.approved,
+          modulePermissions: user.modulePermissions,
+          passwordHash: user.password || null,
+        })),
+      }),
+    }).then(async (response) => {
+      if (!response.ok) return
+      const payload = await response.json().catch(() => null)
+      if (!payload?.users) return
+      persistUsersLocally(mergeUsersWithLocalPasswords(payload.users))
+    }).catch(() => {
+      // La edición local sigue siendo válida y se reintentará en la siguiente mutación.
+    })
+  }, 400)
+}
 
 // ─── User CRUD ───────────────────────────────────────────────────────────────
 
@@ -111,8 +204,8 @@ export function getUsers(): PlatformUser[] {
 }
 
 export function saveUsers(users: PlatformUser[]): void {
-  if (typeof window === "undefined") return
-  localStorage.setItem(USERS_KEY, JSON.stringify(users))
+  persistUsersLocally(users)
+  scheduleUsersSync(users)
 }
 
 export function initializeDefaultUsers(): void {
@@ -136,6 +229,24 @@ export function initializeDefaultUsers(): void {
       saveUsers(migrated)
       return
     } catch { /* ignore */ }
+  }
+}
+
+export async function refreshUsersFromServer(): Promise<PlatformUser[]> {
+  if (typeof window === "undefined" || !hasCurrentAdminSession()) {
+    return getUsers()
+  }
+
+  try {
+    const response = await fetch("/api/admin/users")
+    if (!response.ok) return getUsers()
+    const payload = await response.json().catch(() => null)
+    if (!payload?.users) return getUsers()
+    const normalizedUsers = mergeUsersWithLocalPasswords(payload.users)
+    persistUsersLocally(normalizedUsers)
+    return normalizedUsers
+  } catch {
+    return getUsers()
   }
 }
 
@@ -190,11 +301,15 @@ export function rejectUser(email: string): void {
 // ─── Permission Checks ──────────────────────────────────────────────────────
 
 export function getUserPermissions(email: string): Record<string, boolean> {
-  if (email === "admin@example.com") return ROLE_PRESETS.admin
-  if (email === "gbarco@davara.com.mx") return ROLE_PRESETS.admin
-  if (email === "veronica.garciao@oxxo.com") return ROLE_PRESETS.admin
-  if (email === "veronica.garciao@femsa.com") return ROLE_PRESETS.admin
-  if (email === "jorge.valderrama@externo.mx") return ROLE_PRESETS.admin
+  if (sessionMatchesEmail(email) && hasCurrentAdminSession()) return ROLE_PRESETS.admin
+
+  const snapshot = readSessionSnapshot()
+  if (snapshot && sessionMatchesEmail(email) && snapshot.modulePermissions) {
+    return snapshot.role === "admin"
+      ? ROLE_PRESETS.admin
+      : snapshot.modulePermissions
+  }
+
   const users = getUsers()
   const user = users.find((u) => u.email === email)
   if (!user) return allModulesPermissions(false)
@@ -206,11 +321,7 @@ export function getUserPermissions(email: string): Record<string, boolean> {
 
 export function hasModuleAccess(email: string | null, moduleSlug: string): boolean {
   if (!email) return false
-  if (email === "admin@example.com") return true
-  if (email === "gbarco@davara.com.mx") return true
-  if (email === "veronica.garciao@oxxo.com") return true
-  if (email === "veronica.garciao@femsa.com") return true
-  if (email === "jorge.valderrama@externo.mx") return true
+  if (sessionMatchesEmail(email) && hasCurrentAdminSession()) return true
   const perms = getUserPermissions(email)
   // Check both exact match and prefix
   if (perms[moduleSlug] === true) return true
@@ -242,7 +353,43 @@ export function setUserRole(email: string, role: UserRole): void {
 export function getModulePasswords(): ModulePassword[] {
   if (typeof window === "undefined") return []
   const raw = localStorage.getItem(MODULE_PASSWORDS_KEY)
-  return raw ? JSON.parse(raw) : []
+  if (!raw) return []
+
+  try {
+    const parsed = JSON.parse(raw)
+    if (!Array.isArray(parsed)) return []
+    const normalizedEntries = parsed
+      .map((entry): ModulePassword | null => {
+        if (!entry || typeof entry !== "object") return null
+        const candidate = entry as {
+          moduleSlug?: unknown
+          passwordHash?: unknown
+          password?: unknown
+          enabled?: unknown
+          updatedBy?: unknown
+          updatedAt?: unknown
+        }
+        if (typeof candidate.moduleSlug !== "string" || candidate.moduleSlug.trim().length === 0) {
+          return null
+        }
+        return {
+          moduleSlug: candidate.moduleSlug,
+          passwordHash:
+            typeof candidate.passwordHash === "string"
+              ? candidate.passwordHash
+              : typeof candidate.password === "string"
+                ? candidate.password
+                : undefined,
+          enabled: candidate.enabled !== false,
+          updatedBy: typeof candidate.updatedBy === "string" ? candidate.updatedBy : null,
+          updatedAt: typeof candidate.updatedAt === "string" ? candidate.updatedAt : undefined,
+        }
+      })
+      .filter((entry): entry is ModulePassword => entry !== null)
+    return normalizedEntries
+  } catch {
+    return []
+  }
 }
 
 function saveModulePasswords(passwords: ModulePassword[]): void {
@@ -250,20 +397,98 @@ function saveModulePasswords(passwords: ModulePassword[]): void {
   localStorage.setItem(MODULE_PASSWORDS_KEY, JSON.stringify(passwords))
 }
 
+export async function refreshModulePasswordsFromServer(): Promise<ModulePassword[]> {
+  if (typeof window === "undefined" || !hasCurrentAdminSession()) {
+    return getModulePasswords()
+  }
+
+  try {
+    const response = await fetch("/api/admin/module-passwords", {
+      cache: "no-store",
+      credentials: "same-origin",
+    })
+    if (!response.ok) return getModulePasswords()
+    const payload = await response.json().catch(() => null)
+    const policies = Array.isArray(payload?.policies)
+      ? payload.policies.map((policy: any) => ({
+          moduleSlug: String(policy.moduleSlug),
+          enabled: policy.enabled !== false,
+          updatedBy: typeof policy.updatedBy === "string" ? policy.updatedBy : null,
+          updatedAt: typeof policy.updatedAt === "string" ? policy.updatedAt : undefined,
+        }))
+      : []
+    saveModulePasswords(policies)
+    return policies
+  } catch {
+    return getModulePasswords()
+  }
+}
+
 export async function setModulePassword(moduleSlug: string, password: string): Promise<void> {
+  if (typeof window !== "undefined" && hasCurrentAdminSession()) {
+    const response = await fetch("/api/admin/module-passwords", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      credentials: "same-origin",
+      body: JSON.stringify({ moduleSlug, password, enabled: true }),
+    })
+    if (!response.ok) {
+      const payload = await response.json().catch(() => null)
+      throw new Error(payload?.error || "No fue posible guardar la contraseña del módulo")
+    }
+    const payload = await response.json().catch(() => null)
+    const policies = Array.isArray(payload?.policies)
+      ? payload.policies.map((policy: any) => ({
+          moduleSlug: String(policy.moduleSlug),
+          enabled: policy.enabled !== false,
+          updatedBy: typeof policy.updatedBy === "string" ? policy.updatedBy : null,
+          updatedAt: typeof policy.updatedAt === "string" ? policy.updatedAt : undefined,
+        }))
+      : []
+    saveModulePasswords(policies)
+    logAuditEvent("MODULE_PASSWORD_SET", "admin", `Contraseña establecida para módulo: ${moduleSlug}`)
+    return
+  }
+
   const passwords = getModulePasswords()
   const hashedPassword = await bcrypt.hash(password, 10)
   const idx = passwords.findIndex((p) => p.moduleSlug === moduleSlug)
+  const nextEntry: ModulePassword = { moduleSlug, passwordHash: hashedPassword, enabled: true }
   if (idx >= 0) {
-    passwords[idx] = { moduleSlug, password: hashedPassword, enabled: true }
+    passwords[idx] = nextEntry
   } else {
-    passwords.push({ moduleSlug, password: hashedPassword, enabled: true })
+    passwords.push(nextEntry)
   }
   saveModulePasswords(passwords)
   logAuditEvent("MODULE_PASSWORD_SET", "admin", `Contraseña establecida para módulo: ${moduleSlug}`)
 }
 
-export function removeModulePassword(moduleSlug: string): void {
+export async function removeModulePassword(moduleSlug: string): Promise<void> {
+  if (typeof window !== "undefined" && hasCurrentAdminSession()) {
+    const response = await fetch("/api/admin/module-passwords", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      credentials: "same-origin",
+      body: JSON.stringify({ moduleSlug, enabled: false }),
+    })
+    if (!response.ok) {
+      const payload = await response.json().catch(() => null)
+      throw new Error(payload?.error || "No fue posible remover la contraseña del módulo")
+    }
+    const payload = await response.json().catch(() => null)
+    const policies = Array.isArray(payload?.policies)
+      ? payload.policies.map((policy: any) => ({
+          moduleSlug: String(policy.moduleSlug),
+          enabled: policy.enabled !== false,
+          updatedBy: typeof policy.updatedBy === "string" ? policy.updatedBy : null,
+          updatedAt: typeof policy.updatedAt === "string" ? policy.updatedAt : undefined,
+        }))
+      : []
+    saveModulePasswords(policies)
+    logAuditEvent("MODULE_PASSWORD_REMOVED", "admin", `Contraseña eliminada para módulo: ${moduleSlug}`)
+    return
+  }
+
   const passwords = getModulePasswords().filter((p) => p.moduleSlug !== moduleSlug)
   saveModulePasswords(passwords)
   logAuditEvent("MODULE_PASSWORD_REMOVED", "admin", `Contraseña eliminada para módulo: ${moduleSlug}`)
@@ -279,15 +504,71 @@ export function toggleModulePassword(moduleSlug: string, enabled: boolean): void
 }
 
 export async function verifyModulePassword(moduleSlug: string, password: string): Promise<boolean> {
+  if (typeof window !== "undefined") {
+    try {
+      const response = await fetch("/api/module-passwords/verify", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ moduleSlug, password }),
+      })
+      const payload = await response.json().catch(() => null)
+      if (response.ok || response.status === 401) {
+        const current = getModulePasswords().filter((entry) => entry.moduleSlug !== moduleSlug)
+        if (payload?.policy?.enabled) {
+          current.push({
+            moduleSlug,
+            enabled: true,
+            updatedAt: typeof payload.policy.updatedAt === "string" ? payload.policy.updatedAt : undefined,
+          })
+        }
+        saveModulePasswords(current)
+        return payload?.valid === true
+      }
+    } catch {
+      // El fallback local cubre la continuidad si existe caché legado del módulo.
+    }
+  }
+
   const passwords = getModulePasswords()
   const entry = passwords.find((p) => p.moduleSlug === moduleSlug && p.enabled)
   if (!entry) return true // no password set = free access
+  const currentPassword = entry.passwordHash
+  if (!currentPassword) return false
   // Soportar tanto hashes bcrypt como contraseñas legacy en texto plano
-  if (entry.password.startsWith("$2")) {
-    return bcrypt.compare(password, entry.password)
+  if (currentPassword.startsWith("$2")) {
+    return bcrypt.compare(password, currentPassword)
   }
   // Fallback para contraseñas legacy en texto plano (migración pendiente)
-  return entry.password === password
+  return currentPassword === password
+}
+
+export async function checkModulePasswordRequired(moduleSlug: string): Promise<boolean> {
+  if (typeof window !== "undefined") {
+    try {
+      const response = await fetch(`/api/module-passwords/status?moduleSlug=${encodeURIComponent(moduleSlug)}`, {
+        cache: "no-store",
+        credentials: "same-origin",
+      })
+      const payload = await response.json().catch(() => null)
+      if (response.ok) {
+        const current = getModulePasswords().filter((entry) => entry.moduleSlug !== moduleSlug)
+        if (payload?.enabled) {
+          current.push({
+            moduleSlug,
+            enabled: true,
+            updatedAt: typeof payload?.policy?.updatedAt === "string" ? payload.policy.updatedAt : undefined,
+          })
+        }
+        saveModulePasswords(current)
+        return payload?.enabled === true
+      }
+    } catch {
+      // Si el backend no está disponible, se usa el snapshot local vigente.
+    }
+  }
+
+  return hasModulePassword(moduleSlug)
 }
 
 export function hasModulePassword(moduleSlug: string): boolean {

@@ -1,0 +1,286 @@
+- generic [active] [ref=e1]:
+  - alert [ref=e2]
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - link "Davara Governance" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img "Davara Governance" [ref=e7]
+      - button "Collapse sidebar" [ref=e8] [cursor=pointer]:
+        - img [ref=e9]
+    - navigation [ref=e11]:
+      - link "Inventarios de datos personales" [ref=e13] [cursor=pointer]:
+        - /url: /rat
+        - img [ref=e15]
+        - generic [ref=e19]: Inventarios de datos personales
+      - link "Avisos de privacidad" [ref=e21] [cursor=pointer]:
+        - /url: /privacy-notices
+        - img [ref=e23]
+        - generic [ref=e26]: Avisos de privacidad
+      - link "Contratos con terceros" [ref=e28] [cursor=pointer]:
+        - /url: /third-party-contracts
+        - img [ref=e30]
+        - generic [ref=e33]: Contratos con terceros
+      - link "Oficial de Protección de Datos" [ref=e35] [cursor=pointer]:
+        - /url: /dpo
+        - img [ref=e37]
+        - generic [ref=e49]: Oficial de Protección de Datos
+      - link "Derechos ARCO" [ref=e51] [cursor=pointer]:
+        - /url: /arco-rights
+        - img [ref=e53]
+        - generic [ref=e58]: Derechos ARCO
+      - link "Sistema de gestión de seguridad de datos personales" [ref=e60] [cursor=pointer]:
+        - /url: /security-system
+        - img [ref=e62]
+        - generic [ref=e64]: Sistema de gestión de seguridad de datos personales
+      - link "Gestión de incidentes de seguridad" [ref=e66] [cursor=pointer]:
+        - /url: /incidents-breaches
+        - img [ref=e68]
+        - generic [ref=e70]: Gestión de incidentes de seguridad
+      - link "Evaluación de Impacto Datos Personales" [ref=e72] [cursor=pointer]:
+        - /url: /eipd
+        - img [ref=e74]
+        - generic [ref=e77]: Evaluación de Impacto Datos Personales
+      - link "Responsabilidad demostrada" [ref=e79] [cursor=pointer]:
+        - /url: /awareness
+        - img [ref=e81]
+        - generic [ref=e84]: Responsabilidad demostrada
+      - link "Políticas de Protección de Datos" [ref=e86] [cursor=pointer]:
+        - /url: /data-policies
+        - img [ref=e88]
+        - generic [ref=e92]: Políticas de Protección de Datos
+      - link "Capacitación" [ref=e94] [cursor=pointer]:
+        - /url: /davara-training
+        - img [ref=e96]
+        - generic [ref=e99]: Capacitación
+      - link "Procedimientos PDP" [ref=e101] [cursor=pointer]:
+        - /url: /litigation-management
+        - img [ref=e103]
+        - generic [ref=e107]: Procedimientos PDP
+      - link "Auditoría en protección de datos" [ref=e109] [cursor=pointer]:
+        - /url: /audit
+        - img [ref=e111]
+        - generic [ref=e113]: Auditoría en protección de datos
+      - link "Recordatorios" [ref=e115] [cursor=pointer]:
+        - /url: /audit-alarms
+        - img [ref=e117]
+        - generic [ref=e120]: Recordatorios
+      - link "Alicia Alicia" [ref=e122] [cursor=pointer]:
+        - /url: /alicia
+        - img "Alicia" [ref=e124]
+        - generic [ref=e125]: Alicia
+  - banner [ref=e126]:
+    - generic [ref=e127]:
+      - generic [ref=e128]:
+        - generic:
+          - link "Davara Governance":
+            - /url: /
+            - img "Davara Governance"
+        - heading "Protección de Datos Personales" [level=1] [ref=e130]
+      - generic [ref=e131]:
+        - combobox [ref=e132] [cursor=pointer]:
+          - img [ref=e133]
+          - generic: ES
+          - img [ref=e136]
+        - link "Panel de control" [ref=e138] [cursor=pointer]:
+          - /url: /dashboard
+          - button "Panel de control" [ref=e139]:
+            - img [ref=e140]
+            - generic [ref=e145]: Panel de control
+        - button "Notificaciones" [ref=e147] [cursor=pointer]:
+          - img [ref=e148]
+          - generic [ref=e151]: "5"
+        - button "Administrador" [ref=e152] [cursor=pointer]:
+          - img [ref=e153]
+          - generic [ref=e156]: Administrador
+          - img [ref=e157]
+        - button [ref=e159] [cursor=pointer]:
+          - img [ref=e161]
+  - main [ref=e164]:
+    - generic [ref=e166]:
+      - generic [ref=e167]:
+        - generic [ref=e168]:
+          - img [ref=e170]
+          - generic [ref=e173]:
+            - paragraph [ref=e174]: Centro de Sincronización
+            - heading "Operación híbrida local-first con repositorio central on-premise" [level=1] [ref=e175]
+        - paragraph [ref=e176]: Esta consola concentra bootstrap seguro, persistencia local en IndexedDB, cola de sincronización, detección de conflictos, trazabilidad de eventos y estado de PostgreSQL. Está diseñada para producir evidencia verificable frente al cliente.
+        - generic [ref=e177]:
+          - generic [ref=e178]: "Estado de red: Conectado"
+          - generic [ref=e179]: "Cola pendiente: 1"
+          - generic [ref=e180]: "Conflictos abiertos: 0"
+          - generic [ref=e181]: "Registros locales: 2"
+      - generic [ref=e182]:
+        - generic [ref=e183]:
+          - generic [ref=e184]:
+            - heading "Bootstrap seguro del dispositivo" [level=3] [ref=e185]
+            - paragraph [ref=e186]: Emite una sesión server-side, registra el dispositivo y habilita las rutas de sincronización central sobre PostgreSQL.
+          - generic [ref=e187]:
+            - generic [ref=e188]:
+              - generic [ref=e189]:
+                - text: Usuario
+                - textbox "Usuario" [ref=e190]: admin@example.com
+              - generic [ref=e191]:
+                - text: Contraseña
+                - textbox "Contraseña" [ref=e192]: password
+              - generic [ref=e193]:
+                - text: Nombre del dispositivo
+                - textbox "Nombre del dispositivo" [ref=e194]: Estación de Evidencia On-Premise
+            - button "Emitir sesión on-premise" [ref=e195] [cursor=pointer]:
+              - img [ref=e196]
+              - text: Emitir sesión on-premise
+        - generic [ref=e201]:
+          - generic [ref=e202]:
+            - heading "Continuidad operativa" [level=3] [ref=e203]
+            - paragraph [ref=e204]: Permite demostrar trabajo local aun cuando el backend o la base no estén disponibles temporalmente.
+          - generic [ref=e205]:
+            - generic [ref=e206]:
+              - generic [ref=e207]:
+                - paragraph [ref=e208]: Modo sin conectividad
+                - paragraph [ref=e209]: Fuerza operación local para validar cola pendiente y reanudación posterior.
+              - switch [ref=e210] [cursor=pointer]
+            - generic [ref=e211]:
+              - paragraph [ref=e212]: Resultado operativo actual
+              - paragraph [ref=e213]: "Conectividad efectiva: Disponible"
+              - paragraph [ref=e214]: "Último mensaje: Se creó una actualización remota para provocar un conflicto de versión en la próxima sincronización."
+      - generic [ref=e215]:
+        - generic [ref=e216]:
+          - generic [ref=e217]:
+            - heading "Captura local resiliente" [level=3] [ref=e218]
+            - paragraph [ref=e219]: Crea y modifica registros locales con versionado esperado antes de sincronizar hacia PostgreSQL.
+          - generic [ref=e220]:
+            - generic [ref=e221]:
+              - text: Título de evidencia
+              - textbox "Título de evidencia" [ref=e222]: Continuidad operativa sin conectividad
+            - generic [ref=e223]:
+              - text: Detalle técnico
+              - textbox "Detalle técnico" [ref=e224]: Registro capturado localmente para demostrar persistencia resiliente y sincronización diferida con PostgreSQL on-premise.
+            - generic [ref=e225]:
+              - button "Crear registro local" [ref=e226] [cursor=pointer]:
+                - img [ref=e227]
+                - text: Crear registro local
+              - button "Modificar último registro" [ref=e370] [cursor=pointer]:
+                - img [ref=e371]
+                - text: Modificar último registro
+        - generic [ref=e231]:
+          - generic [ref=e232]:
+            - heading "Sincronización y conflictos" [level=3] [ref=e233]
+            - paragraph [ref=e234]: Reanuda cambios pendientes, detecta colisiones de versión y permite una resolución explícita y auditable.
+          - generic [ref=e235]:
+            - button "Sincronizar cola pendiente" [ref=e236] [cursor=pointer]:
+              - img [ref=e237]
+              - text: Sincronizar cola pendiente
+            - button "Simular conflicto remoto" [ref=e376] [cursor=pointer]:
+              - img [ref=e377]
+              - text: Simular conflicto remoto
+            - button "Resolver último conflicto con versión local" [disabled]
+            - generic [ref=e240]:
+              - paragraph [ref=e241]: Política aplicada
+              - paragraph [ref=e242]: No existe sobrescritura silenciosa. Cada colisión se registra, conserva ambas versiones y exige resolución explícita.
+        - generic [ref=e243]:
+          - generic [ref=e244]:
+            - heading "Estado central on-premise" [level=3] [ref=e245]
+            - paragraph [ref=e246]: Resume la disponibilidad del backend, la base central y el volumen de actividad registrada.
+          - generic [ref=e247]:
+            - generic [ref=e248]:
+              - generic [ref=e249]:
+                - paragraph [ref=e250]: Base central
+                - paragraph [ref=e251]: Conectada
+              - generic [ref=e252]:
+                - paragraph [ref=e253]: Sesión
+                - paragraph [ref=e254]: admin@example.com
+              - generic [ref=e255]:
+                - paragraph [ref=e256]: Dispositivos
+                - paragraph [ref=e257]: "2"
+              - generic [ref=e258]:
+                - paragraph [ref=e259]: Registros centrales
+                - paragraph [ref=e260]: "2"
+            - button "Actualizar estado central" [ref=e261] [cursor=pointer]
+      - generic [ref=e262]:
+        - generic [ref=e263]:
+          - generic [ref=e264]:
+            - heading "Estado local y cola pendiente" [level=3] [ref=e265]
+            - paragraph [ref=e266]: Esta sección se usa como evidencia visual del comportamiento local-first en el navegador.
+          - generic [ref=e267]:
+            - generic [ref=e268]:
+              - paragraph [ref=e269]: Registros locales
+              - generic [ref=e270]:
+                - generic [ref=e380]:
+                  - generic [ref=e381]:
+                    - generic [ref=e382]:
+                      - paragraph [ref=e383]: Continuidad operativa sin conectividad
+                      - paragraph [ref=e384]: Registro capturado localmente para demostrar persistencia resiliente y sincronización diferida con PostgreSQL on-premise. | Evidencia actualizada localmente antes de reconectar.
+                    - generic [ref=e385]: pending
+                  - generic [ref=e386]:
+                    - generic [ref=e387]: "RecordKey: fa04c169-4e1b-4c0b-b789-8ae595fe6408"
+                    - generic [ref=e388]: "Versión local: 2"
+                    - generic [ref=e389]: "Versión central: 1"
+                    - generic [ref=e390]: "Actualizado: 07/04/26, 5:34:41 p.m."
+                - generic [ref=e395]:
+                  - generic [ref=e396]:
+                    - generic [ref=e397]:
+                      - paragraph [ref=e398]: Registro API on-premise
+                      - paragraph [ref=e399]: Actualizacion local con version obsoleta para provocar conflicto controlado.
+                    - generic [ref=e400]: synced
+                  - generic [ref=e401]:
+                    - generic [ref=e402]: "RecordKey: evidence-api-001"
+                    - generic [ref=e403]: "Versión local: 3"
+                    - generic [ref=e404]: "Versión central: 3"
+                    - generic [ref=e405]: "Actualizado: 07/04/26, 5:29:58 p.m."
+            - generic [ref=e272]:
+              - paragraph [ref=e273]: Cola pendiente
+              - generic [ref=e443]:
+                - paragraph [ref=e444]: UPDATE sobre fa04c169-4e1b-4c0b-b789-8ae595fe6408
+                - paragraph [ref=e445]: "BaseVersion: 1"
+                - paragraph [ref=e446]: "Creada: 07/04/26, 5:34:41 p.m."
+        - generic [ref=e276]:
+          - generic [ref=e277]:
+            - heading "Conflictos y eventos recientes" [level=3] [ref=e278]
+            - paragraph [ref=e279]: Las colisiones de versión y los eventos de seguridad se muestran como evidencia auditable.
+          - generic [ref=e280]:
+            - generic [ref=e281]:
+              - paragraph [ref=e282]: Conflictos preservados
+              - paragraph [ref=e284]: No hay conflictos abiertos.
+            - generic [ref=e285]:
+              - paragraph [ref=e286]: Eventos de seguridad
+              - generic [ref=e287]:
+                - generic [ref=e447]:
+                  - generic [ref=e448]:
+                    - generic [ref=e449]: sync
+                    - generic [ref=e450]: warning
+                  - paragraph [ref=e451]: Se ejecutó una actualización remota simulada para validar resolución de conflictos
+                  - paragraph [ref=e452]: 07/04/26, 5:34:44 p.m.
+                - generic [ref=e453]:
+                  - generic [ref=e454]:
+                    - generic [ref=e455]: sync
+                    - generic [ref=e456]: info
+                  - paragraph [ref=e457]: Operación create aplicada en repositorio central
+                  - paragraph [ref=e458]: 07/04/26, 5:34:23 p.m.
+                - generic [ref=e459]:
+                  - generic [ref=e460]:
+                    - generic [ref=e461]: auth
+                    - generic [ref=e462]: info
+                  - paragraph [ref=e463]: Bootstrap on-premise exitoso y sesión emitida
+                  - paragraph [ref=e464]: 07/04/26, 5:33:50 p.m.
+                - generic [ref=e465]:
+                  - generic [ref=e466]:
+                    - generic [ref=e467]: sync
+                    - generic [ref=e468]: info
+                  - paragraph [ref=e469]: Conflicto de sincronización resuelto de forma explícita
+                  - paragraph [ref=e470]: 07/04/26, 5:29:58 p.m.
+                - generic [ref=e471]:
+                  - generic [ref=e472]:
+                    - generic [ref=e473]: sync
+                    - generic [ref=e474]: warning
+                  - paragraph [ref=e475]: Se detectó un conflicto de sincronización y se preservaron ambas versiones
+                  - paragraph [ref=e476]: 07/04/26, 5:29:57 p.m.
+                - generic [ref=e477]:
+                  - generic [ref=e478]:
+                    - generic [ref=e479]: sync
+                    - generic [ref=e480]: warning
+                  - paragraph [ref=e481]: Se ejecutó una actualización remota simulada para validar resolución de conflictos
+                  - paragraph [ref=e482]: 07/04/26, 5:29:57 p.m.
+      - generic [ref=e324]:
+        - generic [ref=e325]:
+          - img [ref=e326]
+          - text: Criterio de evidencia
+        - paragraph [ref=e333]: La combinación de bootstrap seguro, IndexedDB, cola pendiente, sincronización versionada, conflicto controlado, PostgreSQL on-premise y eventos auditables se utilizará como evidencia técnica y visual en el documento final para sustentar una postura afirmativa frente al cuestionario.

@@ -23,11 +23,11 @@ import { useToast } from "@/components/ui/use-toast"
 import {
   DPO_ROLE_OPTIONS,
   DPO_AREA_OPTIONS,
-  DPO_STORAGE_KEYS,
   type DpoAccreditationDraft,
   createAccreditationDraft,
   createAccreditationRecord,
   loadAccreditationHistory,
+  saveAccreditationHistory,
 } from "../opd-compliance-model"
 
 export default function DpoRegistroPage() {
@@ -43,7 +43,8 @@ export default function DpoRegistroPage() {
     const record = createAccreditationRecord(draft)
     const history = loadAccreditationHistory()
     history.push(record)
-    localStorage.setItem(DPO_STORAGE_KEYS.accreditationHistory, JSON.stringify(history))
+    saveAccreditationHistory(history)
+    window.dispatchEvent(new Event("storage"))
 
     toast({ title: "Registro guardado", description: `Se registró a ${draft.dpoName} como oficial de protección de datos.` })
     setDraft(createAccreditationDraft())

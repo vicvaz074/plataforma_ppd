@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { useEffect, useMemo, useState } from "react"
 import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
+import { readScopedStorageJson } from "@/lib/local-first-platform"
 
 import { ArcoModuleShell, MODULE_COLOR_PALETTES } from "@/components/arco-module-shell"
 import { EIPD_META, EIPD_NAV } from "@/components/arco-module-config"
@@ -25,11 +26,7 @@ export default function EipdReportsPage() {
 
   useEffect(() => {
     const load = () => {
-      try {
-        setForms(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"))
-      } catch {
-        setForms([])
-      }
+      setForms(readScopedStorageJson<EipdForm[]>(STORAGE_KEY, []))
     }
     load()
     window.addEventListener("storage", load)

@@ -26,6 +26,7 @@ import {
 import { EIPD_META, EIPD_NAV } from "@/components/arco-module-config"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { readScopedStorageJson } from "@/lib/local-first-platform"
 import { buildAdvancedMetrics } from "@/lib/module-statistics"
 
 type EipdForm = {
@@ -56,11 +57,7 @@ export default function EipdLandingPage() {
 
   useEffect(() => {
     const refresh = () => {
-      try {
-        setForms(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"))
-      } catch {
-        setForms([])
-      }
+      setForms(readScopedStorageJson<EipdForm[]>(STORAGE_KEY, []))
     }
 
     refresh()
