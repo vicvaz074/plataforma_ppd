@@ -180,7 +180,7 @@ export function Header({ withSidebar = false }: { withSidebar?: boolean }) {
           </div>
 
           <div className="hidden md:block">
-            <h1 className="text-xl font-normal" style={{ fontFamily: "Futura PT Medium, sans-serif" }}>
+            <h1 className="text-xl font-normal text-black" style={{ fontFamily: "Futura PT Medium, sans-serif" }}>
               {t.welcomeMessage}
             </h1>
           </div>
