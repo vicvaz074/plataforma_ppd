@@ -24,7 +24,7 @@ export function SectionA({ form }: { form: UseFormReturn<IncidentFormData> }) {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3 mb-2">
-        <div className="w-8 h-8 rounded-lg bg-[#0a0147]/10 flex items-center justify-center text-[#0a0147] text-sm font-medium">A</div>
+        <div className="w-8 h-8 rounded-lg bg-[#1b75bc]/10 flex items-center justify-center text-[#1b75bc] text-sm font-medium">A</div>
         <h3 className="text-xl font-medium">Lista de contactos</h3>
       </div>
       {form.watch("contactGroups").map((group, groupIndex) => (
@@ -73,7 +73,7 @@ export function SectionB({ form }: { form: UseFormReturn<IncidentFormData> }) {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3 mb-2">
-        <div className="w-8 h-8 rounded-lg bg-[#0a0147]/10 flex items-center justify-center text-[#0a0147] text-sm font-medium">B</div>
+        <div className="w-8 h-8 rounded-lg bg-[#1b75bc]/10 flex items-center justify-center text-[#1b75bc] text-sm font-medium">B</div>
         <h3 className="text-xl font-medium">Identificación de incidentes</h3>
       </div>
 
@@ -153,7 +153,7 @@ export function SectionC({ form }: { form: UseFormReturn<IncidentFormData> }) {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3 mb-2">
-        <div className="w-8 h-8 rounded-lg bg-[#0a0147]/10 flex items-center justify-center text-[#0a0147] text-sm font-medium">C</div>
+        <div className="w-8 h-8 rounded-lg bg-[#1b75bc]/10 flex items-center justify-center text-[#1b75bc] text-sm font-medium">C</div>
         <h3 className="text-xl font-medium">Investigación y contención</h3>
       </div>
 
@@ -239,7 +239,7 @@ export function SectionD({ form }: { form: UseFormReturn<IncidentFormData> }) {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3 mb-2">
-        <div className="w-8 h-8 rounded-lg bg-[#0a0147]/10 flex items-center justify-center text-[#0a0147] text-sm font-medium">D</div>
+        <div className="w-8 h-8 rounded-lg bg-[#1b75bc]/10 flex items-center justify-center text-[#1b75bc] text-sm font-medium">D</div>
         <h3 className="text-xl font-medium">Mitigación y evidencias</h3>
       </div>
 
@@ -314,7 +314,7 @@ export function SectionE({ form }: { form: UseFormReturn<IncidentFormData> }) {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3 mb-2">
-        <div className="w-8 h-8 rounded-lg bg-[#0a0147]/10 flex items-center justify-center text-[#0a0147] text-sm font-medium">E</div>
+        <div className="w-8 h-8 rounded-lg bg-[#1b75bc]/10 flex items-center justify-center text-[#1b75bc] text-sm font-medium">E</div>
         <h3 className="text-xl font-medium">Recuperación del incidente</h3>
       </div>
 
@@ -367,7 +367,7 @@ export function SectionF({ form }: { form: UseFormReturn<IncidentFormData> }) {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3 mb-2">
-        <div className="w-8 h-8 rounded-lg bg-[#0a0147]/10 flex items-center justify-center text-[#0a0147] text-sm font-medium">F</div>
+        <div className="w-8 h-8 rounded-lg bg-[#1b75bc]/10 flex items-center justify-center text-[#1b75bc] text-sm font-medium">F</div>
         <h3 className="text-xl font-medium">Documentación final</h3>
       </div>
 

@@ -124,7 +124,7 @@ export default function IncidentsAndBreachesPage() {
       head: [["Campo", "Valor"]],
       body: buildIncidentRows(incident.data),
       styles: { fontSize: 10, cellPadding: 3 },
-      headStyles: { fillColor: [10, 1, 71] },
+      headStyles: { fillColor: [27, 117, 188] },
     })
     const evidencias = incident.data.evidencias ?? []
     if (evidencias.length > 0) {
@@ -133,7 +133,7 @@ export default function IncidentsAndBreachesPage() {
         head: [["Evidencias adjuntas (PDF)", "Tamaño"]],
         body: evidencias.map((file) => [file.name, `${(file.size / 1024).toFixed(1)} KB`]),
         styles: { fontSize: 10, cellPadding: 3 },
-        headStyles: { fillColor: [10, 1, 71] },
+        headStyles: { fillColor: [27, 117, 188] },
       })
     }
     doc.save(`incidente-${incident.id}.pdf`)
@@ -305,7 +305,7 @@ export default function IncidentsAndBreachesPage() {
 
       <div className="sticky top-2 z-30">
         <div className="flex flex-wrap gap-2 rounded-xl border bg-background/95 backdrop-blur p-3 shadow-sm">
-          <Button onClick={handleNewIncident} className="gap-2 bg-[#0a0147] hover:bg-[#06002e] shadow-lg shadow-[#0a0147]/20">
+          <Button onClick={handleNewIncident} className="gap-2 bg-[#1b75bc] hover:bg-[#06002e] shadow-lg shadow-[#1b75bc]/20">
             <Plus className="h-4 w-4" /> Nuevo Incidente
           </Button>
           <Button variant="outline" onClick={() => setView("review")} className="gap-2">
@@ -351,7 +351,7 @@ export default function IncidentsAndBreachesPage() {
                   <Tabs defaultValue="A" className="flex flex-col flex-1 overflow-hidden">
                     <TabsList className="w-full grid grid-cols-6 h-10 mb-6">
                       {sections.map((s) => (
-                        <TabsTrigger key={s.id} value={s.id} className="text-xs data-[state=active]:bg-[#0a0147] data-[state=active]:text-white">
+                        <TabsTrigger key={s.id} value={s.id} className="text-xs data-[state=active]:bg-[#1b75bc] data-[state=active]:text-white">
                           {s.id}. {s.title}
                         </TabsTrigger>
                       ))}
@@ -374,18 +374,18 @@ export default function IncidentsAndBreachesPage() {
           </Button>
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Shield className="h-5 w-5 text-[#0a0147]"/> Fase de Preparación</CardTitle>
+              <CardTitle className="flex items-center gap-2"><Shield className="h-5 w-5 text-[#1b75bc]"/> Fase de Preparación</CardTitle>
               <CardDescription>Equipo de respuesta, contactos clave y recursos disponibles para actuar ante un incidente.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Team contacts */}
               <div>
-                <h3 className="text-sm font-semibold mb-3 flex items-center gap-2"><Users className="h-4 w-4 text-[#0a0147]" /> Equipo de Respuesta a Incidentes</h3>
+                <h3 className="text-sm font-semibold mb-3 flex items-center gap-2"><Users className="h-4 w-4 text-[#1b75bc]" /> Equipo de Respuesta a Incidentes</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {(form.getValues("contactGroups") ?? []).filter(g => g.contacts.some(c => c.name)).length > 0 ? (
                     form.getValues("contactGroups").filter(g => g.contacts.some(c => c.name)).map((group, i) => (
                       <div key={i} className="border rounded-lg p-4 bg-slate-50/50 dark:bg-slate-900/30">
-                        <p className="text-sm font-medium text-[#0a0147] mb-2">{group.groupTitle}</p>
+                        <p className="text-sm font-medium text-[#1b75bc] mb-2">{group.groupTitle}</p>
                         {group.contacts.filter(c => c.name).map((c, j) => (
                           <div key={j} className="text-sm text-muted-foreground">
                             <span className="font-medium text-foreground">{c.name}</span>
@@ -402,7 +402,7 @@ export default function IncidentsAndBreachesPage() {
               </div>
               {/* Checklist summary */}
               <div>
-                <h3 className="text-sm font-semibold mb-3 flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-[#0a0147]" /> Checklist de Preparación</h3>
+                <h3 className="text-sm font-semibold mb-3 flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-[#1b75bc]" /> Checklist de Preparación</h3>
                 <div className="space-y-2">
                   {["¿Se tienen identificados los medios de almacenamiento y medidas de seguridad?",
                     "¿El personal sabe a quién contactar si identifica un incidente?",
@@ -410,7 +410,7 @@ export default function IncidentsAndBreachesPage() {
                     "¿Se han realizado simulacros de respuesta a incidentes?"
                   ].map((q, i) => (
                     <div key={i} className="flex items-start gap-3 p-3 border rounded-lg bg-white dark:bg-slate-900/50">
-                      <ShieldCheck className="h-4 w-4 text-[#0a0147] mt-0.5 flex-shrink-0" />
+                      <ShieldCheck className="h-4 w-4 text-[#1b75bc] mt-0.5 flex-shrink-0" />
                       <span className="text-sm">{q}</span>
                     </div>
                   ))}
@@ -756,7 +756,7 @@ export default function IncidentsAndBreachesPage() {
         <>
           {/* ─── Stats Row ───────────────────────────────────────────────────── */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Card className="border-l-4 border-l-[#0a0147]">
+            <Card className="border-l-4 border-l-[#1b75bc]">
               <CardContent className="pt-5 pb-4 px-5">
                 <p className="text-xs text-muted-foreground uppercase tracking-wider">Total Incidentes</p>
                 <p className="text-3xl mt-1 font-medium">{stats.total}</p>
@@ -786,7 +786,7 @@ export default function IncidentsAndBreachesPage() {
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
-                <Activity className="h-4 w-4 text-[#0a0147]" />
+                <Activity className="h-4 w-4 text-[#1b75bc]" />
                 Ciclo de vida de respuesta a incidentes
               </CardTitle>
             </CardHeader>
@@ -818,7 +818,7 @@ export default function IncidentsAndBreachesPage() {
                   </div>
                   <p className="text-muted-foreground text-center font-medium">No hay incidentes registrados</p>
                   <p className="text-sm text-muted-foreground text-center mt-1">Registra el primer incidente usando el botón "Nuevo Incidente".</p>
-                  <Button onClick={handleNewIncident} className="mt-4 gap-2 bg-[#0a0147] hover:bg-[#06002e]">
+                  <Button onClick={handleNewIncident} className="mt-4 gap-2 bg-[#1b75bc] hover:bg-[#06002e]">
                     <Plus className="h-4 w-4" /> Registrar Incidente
                   </Button>
                 </CardContent>
@@ -922,7 +922,7 @@ export default function IncidentsAndBreachesPage() {
                    {/* 1. IDENTIFICACIÓN DEL INCIDENTE */}
                    <section className="space-y-7">
                      <div className="flex items-center gap-3 border-b pb-3">
-                       <span className="flex items-center justify-center w-7 h-7 rounded-full bg-[#0a0147] text-white text-sm font-bold shadow-sm">1</span>
+                       <span className="flex items-center justify-center w-7 h-7 rounded-full bg-[#1b75bc] text-white text-sm font-bold shadow-sm">1</span>
                        <h3 className="text-[13px] font-bold tracking-widest text-slate-500 uppercase">Identificación del incidente</h3>
                      </div>
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
@@ -962,7 +962,7 @@ export default function IncidentsAndBreachesPage() {
                    {/* 2. SEVERIDAD Y CLASIFICACIÓN */}
                    <section className="space-y-7">
                      <div className="flex items-center gap-3 border-b pb-3">
-                       <span className="flex items-center justify-center w-7 h-7 rounded-full bg-[#0a0147] text-white text-sm font-bold shadow-sm">2</span>
+                       <span className="flex items-center justify-center w-7 h-7 rounded-full bg-[#1b75bc] text-white text-sm font-bold shadow-sm">2</span>
                        <h3 className="text-[13px] font-bold tracking-widest text-slate-500 uppercase">Severidad y clasificación</h3>
                      </div>
                      
@@ -1033,7 +1033,7 @@ export default function IncidentsAndBreachesPage() {
                    {/* 3. DATOS PERSONALES INVOLUCRADOS */}
                    <section className="space-y-7">
                      <div className="flex items-center gap-3 border-b pb-3">
-                       <span className="flex items-center justify-center w-7 h-7 rounded-full bg-[#0a0147] text-white text-sm font-bold shadow-sm">3</span>
+                       <span className="flex items-center justify-center w-7 h-7 rounded-full bg-[#1b75bc] text-white text-sm font-bold shadow-sm">3</span>
                        <h3 className="text-[13px] font-bold tracking-widest text-slate-500 uppercase">Datos personales involucrados</h3>
                      </div>
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
@@ -1081,7 +1081,7 @@ export default function IncidentsAndBreachesPage() {
                    {/* 4. ASIGNACIÓN Y SEGUIMIENTO */}
                    <section className="space-y-7 pb-4">
                      <div className="flex items-center gap-3 border-b pb-3">
-                       <span className="flex items-center justify-center w-7 h-7 rounded-full bg-[#0a0147] text-white text-sm font-bold shadow-sm">4</span>
+                       <span className="flex items-center justify-center w-7 h-7 rounded-full bg-[#1b75bc] text-white text-sm font-bold shadow-sm">4</span>
                        <h3 className="text-[13px] font-bold tracking-widest text-slate-500 uppercase">Asignación y seguimiento</h3>
                      </div>
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
@@ -1121,7 +1121,7 @@ export default function IncidentsAndBreachesPage() {
                  </div>
                  <div className="flex items-center gap-3">
                    <Button type="button" variant="outline" onClick={() => setShowRegisterModal(false)} className="rounded-lg h-11 px-6 font-semibold">Cancelar</Button>
-                   <Button type="submit" className="bg-[#0a0147] hover:bg-[#06002e] text-white rounded-lg h-11 px-6 font-bold shadow-md transition-all flex items-center gap-2">
+                   <Button type="submit" className="bg-[#1b75bc] hover:bg-[#06002e] text-white rounded-lg h-11 px-6 font-bold shadow-md transition-all flex items-center gap-2">
                      <span className="text-xl leading-none block -mt-1">✓</span> Registrar Vulneración
                    </Button>
                  </div>
@@ -1141,7 +1141,7 @@ export default function IncidentsAndBreachesPage() {
             <>
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-3">
-                  <AlertTriangle className="h-5 w-5 text-[#0a0147]" />
+                  <AlertTriangle className="h-5 w-5 text-[#1b75bc]" />
                   {detailIncident.name}
                 </DialogTitle>
               </DialogHeader>
@@ -1169,7 +1169,7 @@ export default function IncidentsAndBreachesPage() {
                   <Button variant="outline" onClick={() => generateIncidentPDF(detailIncident)} className="gap-2">
                     <FileDown className="h-4 w-4" /> Descargar PDF
                   </Button>
-                  <Button onClick={() => { setShowDetailModal(false); handleEditIncident(detailIncident) }} className="gap-2 bg-[#0a0147] hover:bg-[#06002e]">
+                  <Button onClick={() => { setShowDetailModal(false); handleEditIncident(detailIncident) }} className="gap-2 bg-[#1b75bc] hover:bg-[#06002e]">
                     Editar Incidente
                   </Button>
                 </div>

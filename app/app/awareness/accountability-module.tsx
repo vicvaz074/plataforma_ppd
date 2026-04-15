@@ -2075,7 +2075,7 @@ export function AwarenessContent({ initialModule = "dashboard" }: { initialModul
       head: [["Sección", "Código", "Título", "Estado", "Responsable", "Referencia"]],
       body: rows.map((row) => [row.section, row.code, row.title, row.status, row.owner, row.reference || "—"]),
       styles: { fontSize: 9, cellPadding: 2.5 },
-      headStyles: { fillColor: [10, 1, 71] },
+      headStyles: { fillColor: [27, 117, 188] },
       columnStyles: {
         0: { cellWidth: 36 },
         1: { cellWidth: 22 },
