@@ -214,7 +214,7 @@ export default function Home() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.8, ease: "easeInOut" }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-[#0a192f] text-white"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-sidebar text-white"
           >
             <motion.div
               initial={{ opacity: 0, y: 15 }}
@@ -266,7 +266,7 @@ export default function Home() {
                     setShowWelcome(false)
                     localStorage.removeItem("showPostLoginWelcome")
                   }}
-                  className="bg-transparent border border-white/30 text-white/90 hover:bg-white hover:text-[#0a192f] transition-all duration-500 rounded-sm px-14 py-6 text-xs tracking-[0.2em] font-light uppercase"
+                  className="bg-transparent border border-white/30 text-white/90 hover:bg-white hover:text-[hsl(var(--sidebar))] transition-all duration-500 rounded-sm px-14 py-6 text-xs tracking-[0.2em] font-light uppercase"
                 >
                   Continuar
                 </Button>
