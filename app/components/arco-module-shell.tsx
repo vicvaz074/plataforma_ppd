@@ -3,11 +3,12 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { type CSSProperties, type ReactNode, useEffect, useMemo, useRef, useState } from "react"
-import { ChevronLeft, Menu, type LucideIcon } from "lucide-react"
+import { ChevronLeft, FileArchive, FileJson, Menu, Share2, type LucideIcon } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import {
   Sheet,
   SheetContent,
@@ -17,6 +18,12 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { cn } from "@/lib/utils"
+import { getAllFiles } from "@/lib/fileStorage"
+import {
+  buildModuleExportData,
+  getCurrentModuleExportDefinition,
+  triggerDataUrlDownloads,
+} from "@/lib/module-export"
 
 export type ModuleWorkspaceNavItem = {
   id?: string
@@ -89,6 +96,18 @@ type DesktopSidebarFrame = {
   width: number
   height: number
   shellWidth: number
+}
+
+function downloadAsJson(filename: string, payload: unknown) {
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json;charset=utf-8" })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement("a")
+  link.href = url
+  link.download = filename
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  URL.revokeObjectURL(url)
 }
 
 export const MODULE_COLOR_PALETTES = {
@@ -370,8 +389,41 @@ export function ModuleWorkspaceShell({
 }: BaseWorkspaceShellProps) {
   const pathname = usePathname()
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
+  const [exportOpen, setExportOpen] = useState(false)
   const shellSurfaceRef = useRef<HTMLDivElement | null>(null)
   const [desktopSidebarFrame, setDesktopSidebarFrame] = useState<DesktopSidebarFrame | null>(null)
+  const moduleExportDefinition = useMemo(() => getCurrentModuleExportDefinition(pathname), [pathname])
+  const moduleExportData = useMemo(() => {
+    if (typeof window === "undefined" || !moduleExportDefinition) {
+      return null
+    }
+
+    const localStorageValues = Object.keys(window.localStorage).reduce<Record<string, string | null>>((acc, key) => {
+      acc[key] = window.localStorage.getItem(key)
+      return acc
+    }, {})
+
+    return buildModuleExportData({
+      pathname,
+      moduleLabel,
+      moduleTitle,
+      moduleDescription,
+      definition: moduleExportDefinition,
+      localStorageValues,
+      files: getAllFiles(),
+    })
+  }, [moduleDescription, moduleExportDefinition, moduleLabel, moduleTitle, pathname])
+
+  const handleDownloadDocuments = () => {
+    if (!moduleExportData || moduleExportData.files.length === 0) return
+
+    triggerDataUrlDownloads(
+      moduleExportData.files.map((file, index) => ({
+        href: file.content,
+        filename: file.name || `documento-${index + 1}`,
+      })),
+    )
+  }
 
   const resolvedItems = useMemo<ResolvedNavItem[]>(() => {
     return navItems.map((item, index) => {
@@ -614,7 +666,64 @@ export function ModuleWorkspaceShell({
                       </div>
                     ) : null}
                   </div>
-                  {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
+                  <div className="flex flex-wrap items-center gap-2">
+                    {moduleExportData ? (
+                      <Dialog open={exportOpen} onOpenChange={setExportOpen}>
+                        <DialogTrigger asChild>
+                          <Button type="button" variant="outline" className="gap-2">
+                            <Share2 className="h-4 w-4" />
+                            Compartir
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-2xl">
+                          <DialogHeader>
+                            <DialogTitle>Exportar datos del módulo</DialogTitle>
+                            <DialogDescription>
+                              Descarga metadatos y documentos para migrar la información de {moduleExportData.module.label}.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="space-y-4 text-sm">
+                            <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                              <p className="font-semibold text-slate-800">{moduleExportData.module.moduleTitle}</p>
+                              <p className="text-slate-600">{moduleExportData.module.route}</p>
+                              <p className="mt-1 text-slate-600">
+                                Llaves detectadas: {moduleExportData.keys.length} · Documentos: {moduleExportData.files.length}
+                              </p>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              <Button
+                                type="button"
+                                className="gap-2"
+                                onClick={() =>
+                                  downloadAsJson(
+                                    `${moduleExportData.module.id}-metadata-${Date.now()}.json`,
+                                    moduleExportData,
+                                  )
+                                }
+                              >
+                                <FileJson className="h-4 w-4" />
+                                Descargar metadatos (JSON)
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="secondary"
+                                className="gap-2"
+                                disabled={moduleExportData.files.length === 0}
+                                onClick={handleDownloadDocuments}
+                              >
+                                <FileArchive className="h-4 w-4" />
+                                Descargar documentos
+                              </Button>
+                            </div>
+                            <p className="text-xs text-slate-500">
+                              Nota: los documentos se descargan de forma individual con su nombre original.
+                            </p>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    ) : null}
+                    {actions}
+                  </div>
                 </div>
               </div>
 
