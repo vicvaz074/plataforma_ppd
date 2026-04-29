@@ -5,19 +5,12 @@
  */
 
 import { Inventory, SubInventory, PersonalData, RiskLevel } from "@/app/rat/types";
+import { readScopedStorageJson } from "@/lib/local-first-platform";
 
 // ─── Lectura ────────────────────────────────────────────────────────────────
 
 export function readRATInventories(): Inventory[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = localStorage.getItem("inventories");
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
+  return readScopedStorageJson<Inventory[]>("inventories", []);
 }
 
 // ─── Tipos derivados ────────────────────────────────────────────────────────

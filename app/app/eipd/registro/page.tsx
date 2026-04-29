@@ -20,6 +20,7 @@ import { ArcoModuleShell } from "@/components/arco-module-shell"
 import { EIPD_META, EIPD_NAV } from "@/components/arco-module-config"
 import jsPDF from "jspdf"
 import autoTable from "jspdf-autotable"
+import { readScopedStorageJson, writeScopedStorageJson } from "@/lib/local-first-platform"
 import InlineHelp from "../components/InlineHelp"
 import QuestionItem, { QuestionAnswer } from "../components/QuestionItem"
 import {
@@ -462,19 +463,11 @@ export default function EipdPage() {
   const editLoadRef = useRef<string | null>(null)
 
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY)
-    if (!stored) return
-
-    try {
-      const parsed = JSON.parse(stored) as EipdForm[]
-      setForms(parsed)
-    } catch (error) {
-      console.error("No se pudieron cargar los formularios EIPD", error)
-    }
+    setForms(readScopedStorageJson<EipdForm[]>(STORAGE_KEY, []))
   }, [])
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(forms))
+    writeScopedStorageJson(STORAGE_KEY, forms)
   }, [forms])
 
   useEffect(() => {

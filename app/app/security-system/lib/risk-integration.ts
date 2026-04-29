@@ -5,6 +5,7 @@ import {
   normalizeRisk,
   type NormalizedRisk,
 } from "@/lib/security-controls";
+import { readScopedStorageJson } from "@/lib/local-first-platform";
 import type { CriticidadRiesgo, OpcionTratamiento, SgsdpActivo, SgsdpRiesgo } from "./models/sgsdp.types";
 
 type EipdRiskAssessment = {
@@ -222,15 +223,7 @@ function getRiskWeight(level: CriticidadRiesgo) {
 }
 
 function safeParseLocalStorage<T>(key: string, fallback: T): T {
-  if (typeof window === "undefined") return fallback;
-  try {
-    const raw = localStorage.getItem(key);
-    if (!raw) return fallback;
-    const parsed = JSON.parse(raw);
-    return (parsed ?? fallback) as T;
-  } catch {
-    return fallback;
-  }
+  return readScopedStorageJson<T>(key, fallback);
 }
 
 function getMaxVolumeBucket(inventory: Inventory) {

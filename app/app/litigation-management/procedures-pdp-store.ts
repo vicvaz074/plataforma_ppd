@@ -3,6 +3,7 @@
 import { deleteAuditReminder, getAuditReminders, upsertAuditReminderByReferenceKey } from "@/lib/audit-alarms"
 import { ensureBrowserStorageEvents } from "@/lib/browser-storage-events"
 import { getFileById, saveFile } from "@/lib/fileStorage"
+import { readScopedStorageJson, writeScopedStorageJson } from "@/lib/local-first-platform"
 import {
   addProcedureAccessLog,
   buildProcedureFromDraft,
@@ -292,16 +293,16 @@ function resolveLoadedProceduresRoot(): { root: ProceduresPdpRoot; shouldPersist
 
   ensureBrowserStorageEvents()
 
-  const currentRaw = window.localStorage.getItem(PROCEDURES_PDP_STORAGE_KEY)
-  if (currentRaw) {
-    const parsed = safeParseJSON<ProceduresPdpRoot>(currentRaw, emptyRoot)
+  const currentRoot = readScopedStorageJson<ProceduresPdpRoot | null>(PROCEDURES_PDP_STORAGE_KEY, null)
+  if (currentRoot) {
+    const parsed = currentRoot
     return {
       root: recalculateRoot(mergeAssignments(parsed, knownUsers)),
       shouldPersist: false,
     }
   }
 
-  const legacyRaw = safeParseJSON<LegacyProcedureRecord[]>(window.localStorage.getItem(LEGACY_PROCEDURES_PDP_STORAGE_KEY), [])
+  const legacyRaw = readScopedStorageJson<LegacyProcedureRecord[]>(LEGACY_PROCEDURES_PDP_STORAGE_KEY, [])
   if (legacyRaw.length > 0) {
     const migrated = createProceduresRootFromLegacy(legacyRaw, knownUsers, currentUser)
     const hydrated = mergeAssignments(migrated, knownUsers)
@@ -326,7 +327,7 @@ export function persistProceduresRoot(root: ProceduresPdpRoot) {
   ensureBrowserStorageEvents()
   const knownUsers = getKnownProcedureUsers()
   const next = recalculateRoot(mergeAssignments(root, knownUsers))
-  window.localStorage.setItem(PROCEDURES_PDP_STORAGE_KEY, JSON.stringify(next))
+  writeScopedStorageJson(PROCEDURES_PDP_STORAGE_KEY, next)
   syncProcedureReminders(next)
   return next
 }

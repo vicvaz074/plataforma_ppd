@@ -20,6 +20,8 @@ import type {
 } from "./training.types";
 import { TEMAS_NORMATIVOS_BASE, generateTemaId } from "./training.topics";
 
+export const TRAINING_STORE_STORAGE_KEY = "davara-training-store-v1";
+
 // ─── Helpers ────────────────────────────────────────────────────────────
 
 function uid(): string {
@@ -216,7 +218,7 @@ export const useTrainingStore = create<TrainingStoreState & TrainingActions>()(
         })),
     }),
     {
-      name: "davara-training-store-v1",
+      name: TRAINING_STORE_STORAGE_KEY,
     }
   )
 );

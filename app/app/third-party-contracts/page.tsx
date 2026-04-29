@@ -29,6 +29,7 @@ import {
 } from "@/components/arco-module-config"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { readScopedStorageJson } from "@/lib/local-first-platform"
 import { buildAdvancedMetrics } from "@/lib/module-statistics"
 import type { ContractMeta } from "./types"
 
@@ -51,11 +52,7 @@ export default function ThirdPartyContractsPage() {
 
   useEffect(() => {
     const refresh = () => {
-      try {
-        setContracts(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"))
-      } catch {
-        setContracts([])
-      }
+      setContracts(readScopedStorageJson<ContractMeta[]>(STORAGE_KEY, []))
     }
 
     refresh()

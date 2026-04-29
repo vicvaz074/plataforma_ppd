@@ -12,6 +12,7 @@ import {
   policyHasMinimumEvidence,
 } from "@/lib/policy-governance"
 import { getArcoRequests } from "@/app/arco-rights/utils/arco-storage"
+import { readScopedStorageJson } from "@/lib/local-first-platform"
 
 export type SupportedDataset =
   | "inventories"
@@ -88,15 +89,12 @@ const getDateCandidate = (record: Record<string, unknown>) => {
 }
 
 function loadProcedureRecords() {
-  const currentRootRaw = localStorage.getItem(PROCEDURES_PDP_STORAGE_KEY)
-  if (currentRootRaw) {
-    const currentRoot = JSON.parse(currentRootRaw) as ProceduresPdpRoot
-    if (Array.isArray(currentRoot?.procedures)) {
-      return currentRoot.procedures
-    }
+  const currentRoot = readScopedStorageJson<ProceduresPdpRoot | null>(PROCEDURES_PDP_STORAGE_KEY, null)
+  if (Array.isArray(currentRoot?.procedures)) {
+    return currentRoot.procedures
   }
 
-  const legacy = JSON.parse(localStorage.getItem(LEGACY_PROCEDURES_PDP_STORAGE_KEY) || "[]")
+  const legacy = readScopedStorageJson<unknown[]>(LEGACY_PROCEDURES_PDP_STORAGE_KEY, [])
   return Array.isArray(legacy) ? legacy : []
 }
 
@@ -289,28 +287,28 @@ export function loadItems(dataset: SupportedDataset) {
   try {
     switch (dataset) {
       case "dpo": {
-        const reports = JSON.parse(localStorage.getItem("dpo-reports") || "[]")
-        const actas = JSON.parse(localStorage.getItem("dpo-actas") || "[]")
+        const reports = readScopedStorageJson<unknown[]>("dpo-reports", [])
+        const actas = readScopedStorageJson<unknown[]>("dpo-actas", [])
         return [...reports, ...actas]
       }
       case "inventories":
-        return JSON.parse(localStorage.getItem("inventories") || "[]")
+        return readScopedStorageJson<unknown[]>("inventories", [])
       case "procedures":
         return loadProcedureRecords()
       case "privacy-notices":
         return getFilesByCategory("privacy-notice")
       case "contracts":
-        return JSON.parse(localStorage.getItem("contractsHistory") || "[]")
+        return readScopedStorageJson<unknown[]>("contractsHistory", [])
       case "arco":
         return getArcoRequests()
       case "eipd":
-        return JSON.parse(localStorage.getItem("eipd_forms") || "[]")
+        return readScopedStorageJson<unknown[]>("eipd_forms", [])
       case "policies":
         return loadPolicyRecords()
       case "training":
-        return JSON.parse(localStorage.getItem("davara-trainings-v3") || "[]")
+        return readScopedStorageJson<unknown[]>("davara-trainings-v3", [])
       case "incidents":
-        return JSON.parse(localStorage.getItem("security_incidents_v1") || "[]")
+        return readScopedStorageJson<unknown[]>("security_incidents_v1", [])
       default:
         return []
     }

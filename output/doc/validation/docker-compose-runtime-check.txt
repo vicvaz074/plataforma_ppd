@@ -1,0 +1,6 @@
+https://127.0.0.1/healthz
+ok
+
+
+https://127.0.0.1/api/health
+{"status":"ok","service":"davara-governance","database":{"configured":true,"connected":true},"storage":{"uploadsDir":"/app/uploads"},"timestamp":"2026-04-08T16:34:14.683Z"}

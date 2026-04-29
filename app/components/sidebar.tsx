@@ -26,8 +26,10 @@ import {
   ChevronLeft,
   ChevronRight,
   Lock,
+  Share2,
 } from "lucide-react"
 import { hasModuleAccess } from "@/lib/user-permissions"
+import { hasModuleAccessFromSnapshot, readSessionSnapshot } from "@/lib/platform-access"
 
 type RouteKey =
   | "/rat"
@@ -43,7 +45,8 @@ type RouteKey =
   | "/litigation-management"
   | "/audit"
   | "/incidents-breaches"
-  | "/audit-alarms";
+  | "/audit-alarms"
+  | "/shared";
 
 type TranslationKey =
   | "dataInventory"
@@ -59,7 +62,8 @@ type TranslationKey =
   | "proceduresManagement"
   | "securityIncidentManagement"
   | "auditProgram"
-  | "auditAlarms";
+  | "auditAlarms"
+  | "shared";
 
 const translations: Record<"en" | "es", Record<TranslationKey, string>> = {
   en: {
@@ -77,6 +81,7 @@ const translations: Record<"en" | "es", Record<TranslationKey, string>> = {
     auditProgram: "Data Protection Audit",
     securityIncidentManagement: "Security Incident Management",
     auditAlarms: "Reminders",
+    shared: "Shared workspace",
   },
   es: {
     dataInventory: "Inventarios de datos personales",
@@ -93,6 +98,7 @@ const translations: Record<"en" | "es", Record<TranslationKey, string>> = {
     auditProgram: "Auditoría en protección de datos",
     securityIncidentManagement: "Gestión de incidentes de seguridad",
     auditAlarms: "Recordatorios",
+    shared: "Compartidos",
   },
 };
 
@@ -130,6 +136,7 @@ export function Sidebar() {
       { href: "/litigation-management", icon: <Scale className="w-5 h-5 flex-shrink-0" />, label: t.proceduresManagement, route: "/litigation-management" },
       { href: "/audit", icon: <ListCheck className="w-5 h-5 flex-shrink-0" />, label: t.auditProgram, route: "/audit" },
       { href: "/audit-alarms", icon: <Bell className="w-5 h-5 flex-shrink-0" />, label: t.auditAlarms, route: "/audit-alarms" },
+      { href: "/shared", icon: <Share2 className="w-5 h-5 flex-shrink-0" />, label: t.shared, route: "/shared" },
     ]
 
   const isActive = (route: string) => {
@@ -138,6 +145,11 @@ export function Sidebar() {
   }
 
   const canAccess = (route: string): boolean => {
+    if (route === "/shared") return Boolean(userEmail)
+    const snapshot = readSessionSnapshot()
+    if (snapshot) {
+      return hasModuleAccessFromSnapshot(route, snapshot)
+    }
     if (userRole === "admin") return true
     return hasModuleAccess(userEmail, route)
   }

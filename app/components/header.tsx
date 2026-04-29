@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { translations } from "@/lib/translations"
 import { motion, AnimatePresence } from "framer-motion"
 import { useState, useEffect, useCallback, useRef } from "react"
@@ -36,6 +37,13 @@ import {
   type PlatformNotification,
 } from "@/lib/notification-engine"
 import { DAVARA_STORAGE_EVENT, ensureBrowserStorageEvents } from "@/lib/browser-storage-events"
+import { PLATFORM_STATUS_EVENT_NAME, readPlatformStatus, type PlatformStatus } from "@/lib/local-first-platform"
+
+type BackendConnectionState = {
+  authenticated: boolean
+  databaseConnected: boolean | null
+  checkedAt: string | null
+}
 
 export function Header({ withSidebar = false }: { withSidebar?: boolean }) {
   const { theme, setTheme } = useTheme()
@@ -45,6 +53,12 @@ export function Header({ withSidebar = false }: { withSidebar?: boolean }) {
   const pathname = usePathname()
   const t = translations[language]
   const [userName, setUserName] = useState("")
+  const [platformStatus, setPlatformStatus] = useState<PlatformStatus | null>(null)
+  const [backendConnection, setBackendConnection] = useState<BackendConnectionState>({
+    authenticated: false,
+    databaseConnected: null,
+    checkedAt: null,
+  })
 
   // Notifications state
   const [notifications, setNotifications] = useState<PlatformNotification[]>([])
@@ -55,6 +69,68 @@ export function Header({ withSidebar = false }: { withSidebar?: boolean }) {
     const storedUserName = localStorage.getItem("userName")
     if (storedUserName) {
       setUserName(storedUserName)
+    }
+    setPlatformStatus(readPlatformStatus())
+  }, [])
+
+  useEffect(() => {
+    const handleStatusChange = () => {
+      setPlatformStatus(readPlatformStatus())
+    }
+
+    window.addEventListener(PLATFORM_STATUS_EVENT_NAME, handleStatusChange as EventListener)
+    window.addEventListener("focus", handleStatusChange)
+    return () => {
+      window.removeEventListener(PLATFORM_STATUS_EVENT_NAME, handleStatusChange as EventListener)
+      window.removeEventListener("focus", handleStatusChange)
+    }
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+
+    const refreshBackendConnection = async () => {
+      try {
+        const response = await fetch("/api/auth/session", {
+          method: "GET",
+          cache: "no-store",
+        })
+        if (!response.ok) {
+          throw new Error("No fue posible leer el estado del backend on-premise")
+        }
+
+        const payload = await response.json()
+        if (cancelled) return
+
+        setBackendConnection({
+          authenticated: Boolean(payload?.authenticated),
+          databaseConnected:
+            typeof payload?.database?.connected === "boolean" ? payload.database.connected : null,
+          checkedAt: new Date().toISOString(),
+        })
+      } catch {
+        if (cancelled) return
+        setBackendConnection((current) => ({
+          authenticated: current.authenticated,
+          databaseConnected: false,
+          checkedAt: new Date().toISOString(),
+        }))
+      }
+    }
+
+    void refreshBackendConnection()
+    const interval = window.setInterval(() => {
+      void refreshBackendConnection()
+    }, 20_000)
+
+    window.addEventListener("online", refreshBackendConnection)
+    window.addEventListener("focus", refreshBackendConnection)
+
+    return () => {
+      cancelled = true
+      window.clearInterval(interval)
+      window.removeEventListener("online", refreshBackendConnection)
+      window.removeEventListener("focus", refreshBackendConnection)
     }
   }, [])
 
@@ -118,6 +194,9 @@ export function Header({ withSidebar = false }: { withSidebar?: boolean }) {
   const handleLogout = () => {
     const userEmail = localStorage.getItem("userEmail") || "unknown"
     logAuditEvent("LOGOUT", userEmail, "Cierre de sesión")
+    void fetch("/api/auth/logout", { method: "POST" }).catch(() => {
+      // El cierre local continúa aunque la sesión central no pueda revocarse en este momento.
+    })
     destroySession()
 
     toast({
@@ -150,6 +229,104 @@ export function Header({ withSidebar = false }: { withSidebar?: boolean }) {
     if (p === "media") return "border-l-amber-400"
     return "border-l-blue-300"
   }
+
+  const statusSummary = (() => {
+    const databaseConnected = backendConnection.databaseConnected
+    const backendUnavailable = databaseConnected === false
+    const lastSyncAt = platformStatus?.lastSyncAt || null
+
+    if (platformStatus?.state === "saving") {
+      return {
+        tone: "bg-amber-500 animate-pulse",
+        label: "Guardando local",
+        detail:
+          platformStatus.detail ||
+          "La información quedó protegida en este equipo y se enviará a la base central cuando corresponda.",
+        lastSyncAt,
+      }
+    }
+
+    if (platformStatus?.state === "syncing" || platformStatus?.state === "checking") {
+      return {
+        tone: "bg-sky-500 animate-pulse",
+        label: databaseConnected === false ? "Reconectando" : "Sincronizando",
+        detail:
+          platformStatus.detail ||
+          "La plataforma está validando conectividad y conciliando cambios con PostgreSQL on-premise.",
+        lastSyncAt,
+      }
+    }
+
+    if (platformStatus?.state === "offline") {
+      return {
+        tone: "bg-slate-500",
+        label: "Sin conexión",
+        detail:
+          platformStatus.detail ||
+          "La conectividad está caída y la captura continúa únicamente con persistencia local.",
+        lastSyncAt,
+      }
+    }
+
+    if (platformStatus?.state === "local" || backendUnavailable) {
+      return {
+        tone: "bg-amber-500",
+        label: "Modo local",
+        detail:
+          platformStatus?.detail ||
+          "La base central no está disponible en este momento. La aplicación sigue operando localmente.",
+        lastSyncAt,
+      }
+    }
+
+    if (platformStatus?.state === "error") {
+      return {
+        tone: "bg-rose-500",
+        label: backendUnavailable ? "Base no disponible" : "Atención",
+        detail:
+          platformStatus.detail ||
+          "Se detectó una incidencia de sincronización, pero la captura local sigue disponible.",
+        lastSyncAt,
+      }
+    }
+
+    if (platformStatus?.state === "synced" && databaseConnected === true) {
+      return {
+        tone: "bg-emerald-500",
+        label: "Base conectada",
+        detail:
+          platformStatus.detail ||
+          "La sesión está enlazada con la base central on-premise y los últimos cambios ya quedaron sincronizados.",
+        lastSyncAt,
+      }
+    }
+
+    if (databaseConnected === true) {
+      return {
+        tone: "bg-emerald-500",
+        label: "Base conectada",
+        detail: "La base central on-premise responde correctamente y la sesión puede sincronizar cambios.",
+        lastSyncAt,
+      }
+    }
+
+    return {
+      tone: "bg-slate-300",
+      label: platformStatus?.label || "Verificando",
+      detail: platformStatus?.detail || "La plataforma está determinando el modo de trabajo disponible.",
+      lastSyncAt,
+    }
+  })()
+
+  const lastSyncLabel = statusSummary.lastSyncAt
+    ? new Date(statusSummary.lastSyncAt).toLocaleString("es-MX")
+    : "Sin sincronización registrada"
+  const databaseStatusLabel =
+    backendConnection.databaseConnected === true
+      ? "Base central disponible"
+      : backendConnection.databaseConnected === false
+        ? "Base central no disponible"
+        : "Base central pendiente de verificación"
 
   return (
     <motion.header
@@ -188,6 +365,32 @@ export function Header({ withSidebar = false }: { withSidebar?: boolean }) {
 
         {/* Controles a la derecha */}
         <div className="flex items-center gap-4">
+          <TooltipProvider delayDuration={150}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  className="flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50/90 px-2.5 py-1.5 text-xs text-slate-700 shadow-sm transition-colors hover:bg-slate-100"
+                  aria-label={`Estado de plataforma: ${statusSummary.label}`}
+                >
+                  <span className={`h-2.5 w-2.5 rounded-full ${statusSummary.tone}`} />
+                  <span className="hidden font-medium sm:inline">{statusSummary.label}</span>
+                </button>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-xs space-y-2 bg-slate-950 px-3 py-2 text-white">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-300">
+                  Estado de plataforma
+                </p>
+                <p className="text-sm font-semibold">{statusSummary.label}</p>
+                <p className="text-xs leading-5 text-slate-200">{statusSummary.detail}</p>
+                <div className="space-y-1 border-t border-slate-800 pt-2 text-[11px] text-slate-300">
+                  <p>{databaseStatusLabel}</p>
+                  <p>Última sincronización: {lastSyncLabel}</p>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
           {/* Selector de idioma */}
           <Select value={language} onValueChange={(value: "es" | "en") => setLanguage(value)}>
             <SelectTrigger className="w-[100px]">

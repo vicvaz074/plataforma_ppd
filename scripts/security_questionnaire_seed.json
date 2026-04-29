@@ -1,0 +1,316 @@
+{
+  "rows": [
+    {
+      "control": 3,
+      "section": "Administración de Seguridad de la Información",
+      "title": "Modelo o sistema de gestión de seguridad de la información",
+      "question": "¿Cuenta con un modelo o sistema de gestión de seguridad de la información alineado con estándares de la industria?"
+    },
+    {
+      "control": 4,
+      "section": "Administración de Seguridad de la Información",
+      "title": "Gobierno de TI y ciclo de vida de activos",
+      "question": "¿Cuenta con un Gobierno de TI con políticas y procedimientos definidos e implementados para el ciclo de vida de los activos tecnológicos?"
+    },
+    {
+      "control": 5,
+      "section": "Administración de Seguridad de la Información",
+      "title": "Políticas de seguridad y ciberseguridad",
+      "question": "¿Cuenta con políticas generales y específicas de seguridad aprobadas, vigentes, implementadas y comunicadas a su personal?"
+    },
+    {
+      "control": 6,
+      "section": "Administración de Seguridad de la Información",
+      "title": "Roles responsables de seguridad",
+      "question": "¿Ha definido y designado los roles responsables de desarrollar, implementar y hacer cumplir los requisitos de seguridad de la información y protección de datos?"
+    },
+    {
+      "control": 7,
+      "section": "Administración de Seguridad de la Información",
+      "title": "Certificaciones del equipo de seguridad",
+      "question": "¿Los miembros del equipo de seguridad cuentan con certificaciones relacionadas con seguridad de la información?"
+    },
+    {
+      "control": 8,
+      "section": "Administración de Seguridad de la Información",
+      "title": "Formación del personal que atiende a SURA",
+      "question": "¿Realiza ejercicios de formación, concienciación o calificación de seguridad para el personal implicado en la prestación de servicios a SURA Investments?"
+    },
+    {
+      "control": 9,
+      "section": "Protección de Información y Sistemas",
+      "title": "Controles para proteger los sistemas de información",
+      "question": "¿Cuenta con medidas de control para proteger los sistemas de información, tanto on-premise como nube cuando aplique?"
+    },
+    {
+      "control": 10,
+      "section": "Protección de Información y Sistemas",
+      "title": "Prevención de fuga de información",
+      "question": "¿Cuenta con herramienta y/o proceso para prevenir la fuga de información confidencial?"
+    },
+    {
+      "control": 11,
+      "section": "Protección de Información y Sistemas",
+      "title": "Solución tipo SIEM",
+      "question": "¿Cuenta con una solución de seguridad tipo SIEM?"
+    },
+    {
+      "control": 12,
+      "section": "Protección de Información y Sistemas",
+      "title": "Encriptación en tránsito y en reposo",
+      "question": "¿Cuenta con controles de encriptación aplicados a la información en tránsito y en reposo de acuerdo con su naturaleza y sensibilidad?"
+    },
+    {
+      "control": 13,
+      "section": "Protección de Información y Sistemas",
+      "title": "Administración de copias de seguridad",
+      "question": "¿Cuenta con un procedimiento de administración de copias de seguridad para la infraestructura on-premise o nube cuando aplique?"
+    },
+    {
+      "control": 14,
+      "section": "Protección de Información y Sistemas",
+      "title": "Redundancia y disponibilidad",
+      "question": "¿Cuenta con buenas prácticas para implementar redundancia de servicios y garantizar disponibilidad minimizando el tiempo de inactividad?"
+    },
+    {
+      "control": 15,
+      "section": "Gestión de vulnerabilidades",
+      "title": "Procedimiento de identificación, priorización y remediación",
+      "question": "¿Cuenta con un procedimiento de identificación, priorización y remediación de amenazas y vulnerabilidades de seguridad para aplicaciones e infraestructura?"
+    },
+    {
+      "control": 16,
+      "section": "Gestión de vulnerabilidades",
+      "title": "Programa de administración de parches",
+      "question": "¿Cuenta con un programa de administración de parches para dispositivos, aplicaciones y sistemas?"
+    },
+    {
+      "control": 17,
+      "section": "Gestión de vulnerabilidades",
+      "title": "Niveles de gravedad estándar",
+      "question": "¿Cuenta con definición de niveles de gravedad de vulnerabilidad para los activos internos mediante un marco estándar como CVSS o NVD?"
+    },
+    {
+      "control": 18,
+      "section": "Gestión de vulnerabilidades",
+      "title": "Tiempos de remediación por severidad",
+      "question": "¿Cuenta con tiempos de remediación definidos para cada uno de los niveles de gravedad?"
+    },
+    {
+      "control": 19,
+      "section": "Gestión de vulnerabilidades",
+      "title": "Pruebas o auditorías periódicas de seguridad",
+      "question": "¿Cuenta con un procedimiento para ejecutar pruebas o auditorías periódicas a los sistemas de seguridad de la información?"
+    },
+    {
+      "control": 20,
+      "section": "Gestión de vulnerabilidades",
+      "title": "Disponibilidad de resultados para SURA",
+      "question": "¿Los resultados de las pruebas o auditorías pueden ser solicitados por SURA Investments?"
+    },
+    {
+      "control": 21,
+      "section": "Gestión de Respuesta a Incidentes",
+      "title": "Plan interno de respuesta a incidentes",
+      "question": "¿Cuenta con un procedimiento o plan interno implementado de gestión de respuesta a incidentes con escalamiento, priorización y plazos?"
+    },
+    {
+      "control": 22,
+      "section": "Gestión de Respuesta a Incidentes",
+      "title": "Procedimiento para gestionar e informar a SURA",
+      "question": "¿Cuenta con un procedimiento implementado para gestionar e informar a SURA Investments sobre incidentes de seguridad?"
+    },
+    {
+      "control": 23,
+      "section": "Gestión de Respuesta a Incidentes",
+      "title": "Tiempo de notificación a SURA",
+      "question": "¿En cuánto tiempo se compromete a informar de la materialización de un incidente de seguridad a SURA Investments?"
+    },
+    {
+      "control": 24,
+      "section": "Gestión de Respuesta a Incidentes",
+      "title": "Capacidad de investigación forense",
+      "question": "¿Tiene capacidad interna o a través de un tercero para llevar a cabo una investigación forense?"
+    },
+    {
+      "control": 25,
+      "section": "Gestión de Respuesta a Incidentes",
+      "title": "Incidentes significativos en los últimos dos años",
+      "question": "¿Ha experimentado algún incidente significativo de seguridad de la información en los últimos dos años?"
+    },
+    {
+      "control": 26,
+      "section": "Gestión de Respuesta a Incidentes",
+      "title": "Archivado seguro de registros por 3 años",
+      "question": "¿Los registros de eventos de seguridad y del sistema se archivan de forma segura durante un mínimo de 3 años?"
+    },
+    {
+      "control": 27,
+      "section": "Gestión de Accesos",
+      "title": "Políticas de gestión de acceso",
+      "question": "¿Cuenta con políticas de gestión de acceso a los sistemas aprobadas, vigentes, implementadas y comunicadas a su personal?"
+    },
+    {
+      "control": 28,
+      "section": "Gestión de Accesos",
+      "title": "Propiedad de los equipos con acceso",
+      "question": "¿Los equipos que tendrán acceso a los activos de SURA Investments son propiedad del proveedor?"
+    },
+    {
+      "control": 29,
+      "section": "Gestión de Accesos",
+      "title": "Línea base de seguridad en equipos",
+      "question": "¿Los equipos cuentan con configuración de línea base de seguridad claramente definida?"
+    },
+    {
+      "control": 30,
+      "section": "Gestión de Accesos",
+      "title": "Configuraciones de mínimo privilegio para sistemas de SURA",
+      "question": "¿Cuenta con aplicación de configuraciones de mínimo privilegio para accesos a los diferentes sistemas de información de SURA Investments?"
+    },
+    {
+      "control": 31,
+      "section": "Gestión de Accesos",
+      "title": "Política de administración de contraseñas",
+      "question": "¿Cuenta con una política de administración de contraseñas aprobada, vigente, implementada y comunicada a su personal?"
+    },
+    {
+      "control": 32,
+      "section": "Gestión de Accesos",
+      "title": "Caducidad de contraseñas",
+      "question": "¿La organización requiere que las contraseñas caduquen al menos cada 90 días?"
+    },
+    {
+      "control": 33,
+      "section": "Gestión de Accesos",
+      "title": "Longitud mínima de contraseña",
+      "question": "¿La organización requiere una longitud mínima de contraseña de al menos 8 caracteres?"
+    },
+    {
+      "control": 34,
+      "section": "Gestión de Accesos",
+      "title": "Cambio forzado de contraseña tras cambio administrativo",
+      "question": "¿La organización requiere cambios forzados de contraseña en el primer inicio de sesión después de un cambio administrativo?"
+    },
+    {
+      "control": 35,
+      "section": "Gestión de Accesos",
+      "title": "Complejidad de contraseñas",
+      "question": "¿La organización admite o exige complejidad de contraseñas?"
+    },
+    {
+      "control": 36,
+      "section": "Gestión de Accesos",
+      "title": "Historial de contraseñas",
+      "question": "¿Se mantiene un historial para evitar la reutilización de al menos las últimas 5 contraseñas?"
+    },
+    {
+      "control": 37,
+      "section": "Gestión de Accesos",
+      "title": "Bloqueo de cuenta tras intentos fallidos",
+      "question": "¿La organización requiere el bloqueo de la cuenta después de 5 o menos intentos fallidos?"
+    },
+    {
+      "control": 38,
+      "section": "Capacitación y Concientización",
+      "title": "Programa anual de cultura de seguridad",
+      "question": "¿Cuenta con un programa de cultura de seguridad de la información y ciberseguridad que se ejecute al menos una vez al año?"
+    },
+    {
+      "control": 39,
+      "section": "Capacitación y Concientización",
+      "title": "Concienciación anual sobre phishing",
+      "question": "¿Realiza ejercicios de concienciación sobre phishing como mínimo una vez al año?"
+    },
+    {
+      "control": 40,
+      "section": "Capacitación y Concientización",
+      "title": "Definición de faltas de seguridad",
+      "question": "¿Cuenta con una definición clara de faltas de seguridad cubierta por contratos, acuerdos y capacitación inicial/continua?"
+    },
+    {
+      "control": 41,
+      "section": "Gestión de Activos",
+      "title": "Manejo y clasificación de la información",
+      "question": "¿Cuenta con un procedimiento para el manejo y clasificación de información que defina diferentes clasificaciones y controles asociados?"
+    },
+    {
+      "control": 42,
+      "section": "Gestión de Activos",
+      "title": "Inventario de activos con propietarios",
+      "question": "¿Cuenta con un inventario de activos de información que incluya la definición de propietarios y responsabilidades?"
+    },
+    {
+      "control": 43,
+      "section": "Gestión de Activos",
+      "title": "Inventario con criticidad y tratamiento",
+      "question": "¿Cuenta con un inventario de activos de información que incluya criticidad en términos de confidencialidad, integridad y disponibilidad y su tratamiento?"
+    },
+    {
+      "control": 44,
+      "section": "Gestión de Activos",
+      "title": "Mantenimiento de activos tecnológicos",
+      "question": "¿Cuenta con un procedimiento implementado para el mantenimiento de los activos tecnológicos que soportan los servicios contratados?"
+    },
+    {
+      "control": 45,
+      "section": "Desarrollo Seguro",
+      "title": "Detección de actividades maliciosas o accesos no autorizados",
+      "question": "¿Cuenta con capacidades para detectar actividades maliciosas externas o intentos no autorizados de acceder a los activos de información?"
+    },
+    {
+      "control": 46,
+      "section": "Desarrollo Seguro",
+      "title": "Políticas de desarrollo seguro",
+      "question": "¿Cuenta con políticas de desarrollo seguro aprobadas, vigentes, implementadas y comunicadas a su personal?"
+    },
+    {
+      "control": 47,
+      "section": "Desarrollo Seguro",
+      "title": "Metodologías DevSecOps o SDL",
+      "question": "¿Cuenta con metodologías de desarrollo seguro como DevSecOps o SDL?"
+    },
+    {
+      "control": 48,
+      "section": "Desarrollo Seguro",
+      "title": "Herramientas y tecnologías para asegurar el código",
+      "question": "¿Qué herramientas y tecnologías utilizan para asegurar el código y las aplicaciones?"
+    },
+    {
+      "control": 49,
+      "section": "Desarrollo Seguro",
+      "title": "Capacitación de desarrollo seguro",
+      "question": "¿Realiza capacitaciones de desarrollo seguro a su personal?"
+    },
+    {
+      "control": 50,
+      "section": "Gestión de terceros",
+      "title": "Evaluación de seguridad de proveedores",
+      "question": "¿Cuenta con una evaluación de seguridad antes de contratar proveedores y periódicamente después?"
+    },
+    {
+      "control": 51,
+      "section": "Gestión de Riesgos",
+      "title": "Matriz de riesgos de seguridad",
+      "question": "¿Cuenta con una matriz de riesgos de seguridad de la información y con una periodicidad de actualización definida?"
+    },
+    {
+      "control": 52,
+      "section": "Seguridad Física",
+      "title": "Política de protección física y ambiental",
+      "question": "¿Cuenta con una política de protección física y ambiental aprobada, vigente, implementada y comunicada a su personal?"
+    },
+    {
+      "control": 53,
+      "section": "Seguridad Física",
+      "title": "Controles físicos en instalaciones",
+      "question": "¿Cuenta con controles de seguridad físicos en sus instalaciones y monitorea su correcto funcionamiento?"
+    },
+    {
+      "control": 54,
+      "section": "Seguridad Física",
+      "title": "Desembarque y revocación de accesos físicos",
+      "question": "Como parte de los procedimientos de desembarque, ¿cómo se asegura la recolección y/o deshabilitación de los derechos de acceso físico pertinentes?"
+    }
+  ]
+}

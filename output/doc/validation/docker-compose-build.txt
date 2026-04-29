@@ -1,0 +1,286 @@
+ Image davara-onprem-backup-runner Building 
+ Image davara-governance:onprem Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 1.10kB done
+#1 DONE 0.0s
+
+#2 [davara-app internal] load build definition from Dockerfile
+#2 transferring dockerfile: 1.35kB 0.0s done
+#2 DONE 0.0s
+
+#3 [backup-runner internal] load build definition from Dockerfile
+#3 transferring dockerfile: 177B done
+#3 DONE 0.0s
+
+#4 [davara-app internal] load metadata for docker.io/library/node:20-alpine
+#4 ...
+
+#5 [backup-runner internal] load metadata for docker.io/library/alpine:3.20
+#5 ...
+
+#4 [davara-app internal] load metadata for docker.io/library/node:20-alpine
+#4 DONE 11.7s
+
+#6 [davara-app internal] load .dockerignore
+#6 transferring context: 143B done
+#6 DONE 0.0s
+
+#7 [davara-app base 1/2] FROM docker.io/library/node:20-alpine@sha256:f598378b5240225e6beab68fa9f356db1fb8efe55173e6d4d8153113bb8f333c
+#7 resolve docker.io/library/node:20-alpine@sha256:f598378b5240225e6beab68fa9f356db1fb8efe55173e6d4d8153113bb8f333c 0.0s done
+#7 DONE 0.0s
+
+#8 [davara-app internal] load build context
+#8 transferring context: 441.49kB 0.1s done
+#8 DONE 0.1s
+
+#9 [davara-app base 2/2] RUN apk add --no-cache libc6-compat wget   && corepack enable
+#9 CACHED
+
+#10 [davara-app deps 1/3] WORKDIR /app
+#10 CACHED
+
+#11 [davara-app deps 2/3] COPY package.json pnpm-lock.yaml ./
+#11 DONE 0.0s
+
+#12 [davara-app deps 3/3] RUN pnpm install --frozen-lockfile
+#12 ...
+
+#5 [backup-runner internal] load metadata for docker.io/library/alpine:3.20
+#5 DONE 12.3s
+
+#13 [backup-runner internal] load .dockerignore
+#13 transferring context: 2B done
+#13 DONE 0.0s
+
+#14 [backup-runner 1/3] FROM docker.io/library/alpine:3.20@sha256:a4f4213abb84c497377b8544c81b3564f313746700372ec4fe84653e4fb03805
+#14 resolve docker.io/library/alpine:3.20@sha256:a4f4213abb84c497377b8544c81b3564f313746700372ec4fe84653e4fb03805 0.0s done
+#14 sha256:83b2d7e29698161422a104647ffb26568fe86648ff3609d1b60a4f9e9de38074 0B / 4.09MB 0.2s
+#14 sha256:83b2d7e29698161422a104647ffb26568fe86648ff3609d1b60a4f9e9de38074 1.37MB / 4.09MB 0.3s
+#14 sha256:83b2d7e29698161422a104647ffb26568fe86648ff3609d1b60a4f9e9de38074 4.09MB / 4.09MB 0.3s done
+#14 extracting sha256:83b2d7e29698161422a104647ffb26568fe86648ff3609d1b60a4f9e9de38074 0.1s done
+#14 DONE 0.5s
+
+#12 [davara-app deps 3/3] RUN pnpm install --frozen-lockfile
+#12 1.292 ! Corepack is about to download https://registry.npmjs.org/pnpm/-/pnpm-10.33.0.tgz
+#12 4.355 Lockfile is up to date, resolution step is skipped
+#12 4.491 Progress: resolved 1, reused 0, downloaded 0, added 0
+#12 4.661 Packages: +904
+#12 4.661 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#12 ...
+
+#15 [backup-runner 2/3] RUN apk add --no-cache bash postgresql16-client tar gzip coreutils ca-certificates
+#15 0.221 fetch https://dl-cdn.alpinelinux.org/alpine/v3.20/main/aarch64/APKINDEX.tar.gz
+#15 0.635 fetch https://dl-cdn.alpinelinux.org/alpine/v3.20/community/aarch64/APKINDEX.tar.gz
+#15 1.371 (1/21) Installing ncurses-terminfo-base (6.4_p20240420-r2)
+#15 1.417 (2/21) Installing libncursesw (6.4_p20240420-r2)
+#15 1.452 (3/21) Installing readline (8.2.10-r0)
+#15 1.473 (4/21) Installing bash (5.2.26-r0)
+#15 1.648 Executing bash-5.2.26-r0.post-install
+#15 1.657 (5/21) Installing ca-certificates (20250911-r0)
+#15 1.776 (6/21) Installing coreutils-env (9.5-r2)
+#15 1.938 (7/21) Installing coreutils-fmt (9.5-r2)
+#15 2.096 (8/21) Installing coreutils-sha512sum (9.5-r2)
+#15 2.255 (9/21) Installing libacl (2.3.2-r0)
+#15 2.270 (10/21) Installing libattr (2.5.2-r0)
+#15 2.423 (11/21) Installing skalibs (2.14.1.1-r0)
+#15 2.597 (12/21) Installing utmps-libs (0.1.2.2-r1)
+#15 2.745 (13/21) Installing coreutils (9.5-r2)
+#15 2.955 (14/21) Installing less (643-r2)
+#15 2.977 (15/21) Installing gzip (1.13-r0)
+#15 2.997 (16/21) Installing postgresql-common (1.2-r1)
+#15 3.008 Executing postgresql-common-1.2-r1.pre-install
+#15 3.027 (17/21) Installing lz4-libs (1.9.4-r5)
+#15 3.042 (18/21) Installing libpq (16.13-r0)
+#15 3.193 (19/21) Installing zstd-libs (1.5.6-r0)
+#15 3.216 (20/21) Installing postgresql16-client (16.13-r0)
+#15 3.427 (21/21) Installing tar (1.35-r2)
+#15 3.452 Executing busybox-1.36.1-r31.trigger
+#15 3.483 Executing ca-certificates-20250911-r0.trigger
+#15 3.615 Executing postgresql-common-1.2-r1.trigger
+#15 3.632 * Setting postgresql16 as the default version
+#15 4.007 WARNING: opening from cache https://dl-cdn.alpinelinux.org/alpine/v3.20/main: No such file or directory
+#15 4.007 WARNING: opening from cache https://dl-cdn.alpinelinux.org/alpine/v3.20/community: No such file or directory
+#15 4.017 OK: 22 MiB in 35 packages
+#15 DONE 4.3s
+
+#16 [backup-runner 3/3] WORKDIR /workspace
+#16 DONE 0.1s
+
+#12 [davara-app deps 3/3] RUN pnpm install --frozen-lockfile
+#12 5.501 Progress: resolved 904, reused 0, downloaded 17, added 12
+#12 6.536 Progress: resolved 904, reused 0, downloaded 147, added 133
+#12 ...
+
+#17 [backup-runner] exporting to image
+#17 exporting layers 0.8s done
+#17 exporting manifest sha256:b590d2089cb597e8ad1c31f73e6f345bccec704b91cb1965d3d292bf4138011f 0.0s done
+#17 exporting config sha256:07ff2c409dee7a6a4b7079f43c21991399d9a66a4e65079d21fcbae2c11c7eaa 0.0s done
+#17 exporting attestation manifest sha256:c4d9eee48ecc092e35a3e4bb676fe00bffe9200637844484a4f9606864e61043 0.0s done
+#17 exporting manifest list sha256:3ec30587b83a01408af97881a381997eaa496195a4090f2673e1be55d6f8c953 0.0s done
+#17 naming to docker.io/library/davara-onprem-backup-runner:latest done
+#17 unpacking to docker.io/library/davara-onprem-backup-runner:latest 0.4s done
+#17 DONE 1.4s
+
+#18 [backup-runner] resolving provenance for metadata file
+#18 DONE 0.0s
+
+#12 [davara-app deps 3/3] RUN pnpm install --frozen-lockfile
+#12 7.590 Progress: resolved 904, reused 0, downloaded 242, added 199
+#12 8.596 Progress: resolved 904, reused 0, downloaded 293, added 225
+#12 9.640 Progress: resolved 904, reused 0, downloaded 319, added 246
+#12 10.67 Progress: resolved 904, reused 0, downloaded 336, added 257
+#12 11.72 Progress: resolved 904, reused 0, downloaded 374, added 279
+#12 12.73 Progress: resolved 904, reused 0, downloaded 438, added 306
+#12 13.78 Progress: resolved 904, reused 0, downloaded 515, added 328
+#12 14.79 Progress: resolved 904, reused 0, downloaded 581, added 353
+#12 15.81 Progress: resolved 904, reused 0, downloaded 649, added 380
+#12 16.90 Progress: resolved 904, reused 0, downloaded 738, added 473
+#12 17.91 Progress: resolved 904, reused 0, downloaded 863, added 682
+#12 18.91 Progress: resolved 904, reused 0, downloaded 902, added 901
+#12 19.91 Progress: resolved 904, reused 0, downloaded 902, added 902
+#12 20.14 Packages are hard linked from the content-addressable store to the virtual store.
+#12 20.14   Content-addressable store is at: /pnpm/store/v10
+#12 20.14   Virtual store is at:             node_modules/.pnpm
+#12 20.91 Progress: resolved 904, reused 0, downloaded 903, added 903
+#12 25.51 Progress: resolved 904, reused 0, downloaded 904, added 903
+#12 25.56 Progress: resolved 904, reused 0, downloaded 904, added 904, done
+#12 26.80 
+#12 26.80 dependencies:
+#12 26.80 + @emotion/is-prop-valid 1.4.0
+#12 26.80 + @hookform/resolvers 5.2.1
+#12 26.80 + @radix-ui/react-accordion 1.2.12
+#12 26.80 + @radix-ui/react-alert-dialog 1.1.15
+#12 26.80 + @radix-ui/react-aspect-ratio 1.1.1
+#12 26.80 + @radix-ui/react-avatar 1.1.11
+#12 26.80 + @radix-ui/react-checkbox 1.3.3
+#12 26.80 + @radix-ui/react-collapsible 1.1.2
+#12 26.80 + @radix-ui/react-context-menu 2.2.4
+#12 26.80 + @radix-ui/react-dialog 1.1.15
+#12 26.80 + @radix-ui/react-dropdown-menu 2.1.16
+#12 26.80 + @radix-ui/react-hover-card 1.1.4
+#12 26.80 + @radix-ui/react-label 2.1.8
+#12 26.80 + @radix-ui/react-menubar 1.1.4
+#12 26.80 + @radix-ui/react-navigation-menu 1.2.3
+#12 26.80 + @radix-ui/react-popover 1.1.15
+#12 26.80 + @radix-ui/react-progress 1.1.8
+#12 26.80 + @radix-ui/react-radio-group 1.3.8
+#12 26.80 + @radix-ui/react-scroll-area 1.2.10
+#12 26.80 + @radix-ui/react-select 2.2.6
+#12 26.80 + @radix-ui/react-separator 1.1.1
+#12 26.80 + @radix-ui/react-slider 1.2.2
+#12 26.80 + @radix-ui/react-slot 1.2.4
+#12 26.80 + @radix-ui/react-switch 1.2.6
+#12 26.80 + @radix-ui/react-tabs 1.1.13
+#12 26.80 + @radix-ui/react-toast 1.2.15
+#12 26.80 + @radix-ui/react-toggle 1.1.1
+#12 26.80 + @radix-ui/react-toggle-group 1.1.1
+#12 26.80 + @radix-ui/react-tooltip 1.2.8
+#12 26.80 + autoprefixer 10.4.21
+#12 26.80 + bcryptjs 3.0.3
+#12 26.80 + class-variance-authority 0.7.1
+#12 26.80 + clsx 2.1.1
+#12 26.80 + cmdk 1.0.4
+#12 26.80 + cookie 1.0.2
+#12 26.80 + crypto 1.0.1
+#12 26.80 + date-fns 4.1.0
+#12 26.80 + docx 9.5.1
+#12 26.80 + embla-carousel-react 8.5.1
+#12 26.80 + express 5.2.1
+#12 26.80 + file-saver 2.0.5
+#12 26.80 + framer-motion 12.23.24
+#12 26.80 + fs 0.0.1-security
+#12 26.80 + html2canvas 1.4.1
+#12 26.80 + input-otp 1.4.1
+#12 26.80 + jspdf 4.2.0
+#12 26.80 + jspdf-autotable 5.0.2
+#12 26.80 + leaflet 1.9.4
+#12 26.80 + lucide-react 0.454.0
+#12 26.80 + mammoth 1.11.0
+#12 26.80 + next 16.1.6
+#12 26.80 + next-themes 0.4.6
+#12 26.80 + openai 6.9.1
+#12 26.80 + path 0.12.7
+#12 26.80 + pdfjs-dist 5.2.133
+#12 26.80 + pg 8.20.0
+#12 26.80 + react 19.1.1
+#12 26.80 + react-day-picker 9.11.2
+#12 26.80 + react-dom 19.1.1
+#12 26.80 + react-hook-form 7.66.1
+#12 26.80 + react-leaflet 5.0.0
+#12 26.80 + react-resizable-panels 2.1.9
+#12 26.80 + recharts 3.5.0
+#12 26.80 + serve-static 1.16.2
+#12 26.80 + sonner 1.7.4
+#12 26.80 + tailwind-merge 2.6.0
+#12 26.80 + tailwindcss-animate 1.0.7
+#12 26.80 + uuid 13.0.0
+#12 26.80 + vaul 0.9.9
+#12 26.80 + ws 8.18.3
+#12 26.80 + xlsx-js-style 1.2.0
+#12 26.80 + zod 4.1.1
+#12 26.80 + zustand 5.0.8
+#12 26.80 
+#12 26.80 devDependencies:
+#12 26.80 + @eslint/eslintrc 3.3.1
+#12 26.80 + @eslint/js 9.39.1
+#12 26.80 + @next/bundle-analyzer 15.5.6
+#12 26.80 + @next/eslint-plugin-next 15.5.6
+#12 26.80 + @types/file-saver 2.0.7
+#12 26.80 + @types/leaflet 1.9.20
+#12 26.80 + @types/node 22.17.2
+#12 26.80 + @types/pg 8.20.0
+#12 26.80 + @types/react 19.1.11
+#12 26.80 + @types/react-dom 19.1.7
+#12 26.80 + @typescript-eslint/eslint-plugin 8.48.0
+#12 26.80 + @typescript-eslint/parser 8.48.0
+#12 26.80 + electron 36.9.5
+#12 26.80 + electron-builder 26.0.12
+#12 26.80 + eslint 9.39.1
+#12 26.80 + eslint-formatter-junit 9.0.1
+#12 26.80 + eslint-plugin-react-hooks 7.0.1
+#12 26.80 + eslint-plugin-security 3.0.1
+#12 26.80 + globals 16.5.0
+#12 26.80 + postcss 8.5.6
+#12 26.80 + semgrep 0.0.1
+#12 26.80 + serve 14.2.4
+#12 26.80 + tailwindcss 3.4.17
+#12 26.80 + tsx 4.21.0
+#12 26.80 + typescript 5.9.2
+#12 26.80 
+#12 26.85 ╭ Warning ─────────────────────────────────────────────────────────────────────╮
+#12 26.85 │                                                                              │
+#12 26.85 │   Ignored build scripts: core-js@3.45.1, electron-winstaller@5.4.0,          │
+#12 26.85 │   electron@36.9.5, esbuild@0.27.4, sharp@0.34.5.                             │
+#12 26.85 │   Run "pnpm approve-builds" to pick which dependencies should be allowed     │
+#12 26.85 │   to run scripts.                                                            │
+#12 26.85 │                                                                              │
+#12 26.85 ╰──────────────────────────────────────────────────────────────────────────────╯
+#12 26.95 Done in 23.6s using pnpm v10.33.0
+#12 DONE 27.6s
+
+#19 [davara-app build 1/3] WORKDIR /app
+#19 DONE 1.0s
+
+#20 [davara-app build 2/3] COPY . .
+#20 DONE 0.3s
+
+#21 [davara-app build 3/3] RUN pnpm build
+#21 0.932 
+#21 0.932 > my-v0-project@0.1.10 build /app
+#21 0.932 > next build
+#21 0.932 
+#21 2.097 ▲ Next.js 16.1.6 (Turbopack)
+#21 2.097 
+#21 2.154   Creating an optimized production build ...
+#21 38.00 ✓ Compiled successfully in 35.3s
+#21 38.03   Running TypeScript ...
+#21 ...
+
+#22 [davara-app runner 2/9] RUN addgroup -S nodejs   && adduser -S davara -G nodejs   && mkdir -p /app/uploads /app/logs   && chown -R davara:nodejs /app
+#22 CACHED
+
+#23 [davara-app runner 3/9] COPY --from=deps /app/node_modules ./node_modules
+#23 DONE 22.0s
+
+#21 [davara-app build 3/3] RUN pnpm build
+

@@ -1,0 +1,29 @@
+- generic [active] [ref=e1]:
+  - alert [ref=e2]
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - img "Davara Abogados" [ref=e7]
+      - heading "Iniciar sesión" [level=3] [ref=e8]
+      - paragraph [ref=e9]: Ingresa tus credenciales para acceder a tu cuenta
+    - generic [ref=e12]:
+      - generic [ref=e13]:
+        - generic [ref=e14]: Correo electrónico
+        - textbox "Correo electrónico" [ref=e15]
+      - generic [ref=e16]:
+        - generic [ref=e17]: Contraseña
+        - generic [ref=e18]:
+          - textbox "Contraseña" [ref=e19]
+          - button [ref=e20] [cursor=pointer]:
+            - img [ref=e22]
+            - img [ref=e28]
+    - generic [ref=e31]:
+      - button "Iniciar sesión" [ref=e33] [cursor=pointer]
+      - button "¿No tienes una cuenta? Regístrate" [ref=e34] [cursor=pointer]
+      - generic [ref=e35]:
+        - combobox [ref=e37] [cursor=pointer]:
+          - img [ref=e38]
+          - generic: Español
+          - img [ref=e41]
+        - button "Modo oscuro" [ref=e44] [cursor=pointer]:
+          - img [ref=e45]
+          - generic [ref=e47]: Modo oscuro

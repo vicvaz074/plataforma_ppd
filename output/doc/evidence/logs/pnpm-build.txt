@@ -1,0 +1,105 @@
+
+> my-v0-project@0.1.10 build /Users/vicentevazquez/Desktop/plataforma_ppd-main/app
+> next build --webpack
+
+▲ Next.js 16.1.6 (webpack)
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 18.6s
+  Running TypeScript ...
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/64) ...
+  Generating static pages using 7 workers (16/64) 
+  Generating static pages using 7 workers (32/64) 
+  Generating static pages using 7 workers (48/64) 
+✓ Generating static pages using 7 workers (64/64) in 867.0ms
+  Finalizing page optimization ...
+  Collecting build traces ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ○ /alicia
+├ ƒ /api/admin/module-access
+├ ƒ /api/admin/module-passwords
+├ ƒ /api/admin/users
+├ ƒ /api/attachments/[attachmentId]/download
+├ ƒ /api/attachments/upload
+├ ƒ /api/auth/bootstrap
+├ ƒ /api/auth/login
+├ ƒ /api/auth/logout
+├ ƒ /api/auth/session
+├ ƒ /api/documents/upload
+├ ƒ /api/health
+├ ƒ /api/module-passwords/status
+├ ƒ /api/module-passwords/verify
+├ ƒ /api/security/events
+├ ƒ /api/share/lookup
+├ ƒ /api/share/module
+├ ƒ /api/share/record
+├ ƒ /api/shared
+├ ƒ /api/sync/conflicts/[conflictId]/resolve
+├ ƒ /api/sync/pull
+├ ƒ /api/sync/push
+├ ƒ /api/sync/simulate-remote-update
+├ ƒ /api/sync/status
+├ ○ /arco-rights
+├ ○ /audit
+├ ○ /audit-alarms
+├ ○ /awareness
+├ ○ /awareness/consulta
+├ ○ /awareness/registro
+├ ○ /calendar-demo
+├ ○ /dashboard
+├ ○ /data-policies
+├ ○ /data-policies/consulta
+├ ○ /data-policies/registro
+├ ○ /davara-training
+├ ○ /dpo
+├ ○ /dpo/compliance
+├ ○ /dpo/registro
+├ ○ /dpo/reports
+├ ○ /dynamic-dashboard
+├ ○ /eipd
+├ ○ /eipd/consultar
+├ ○ /eipd/registro
+├ ○ /eipd/reportes
+├ ○ /external-recipients
+├ ○ /history
+├ ○ /incidents-breaches
+├ ○ /litigation-management
+├ ○ /litigation-management/consulta
+├ ○ /litigation-management/registro
+├ ○ /login
+├ ● /module-insights/[dataset]
+│ ├ /module-insights/inventories
+│ ├ /module-insights/procedures
+│ ├ /module-insights/dpo
+│ └ [+7 more paths]
+├ ○ /privacy-notices
+├ ○ /privacy-notices/registrados
+├ ○ /privacy-notices/registro
+├ ○ /privacy-notices/reportes
+├ ○ /profile
+├ ○ /rat
+├ ○ /rat/informes
+├ ○ /rat/registro
+├ ○ /security-system
+├ ○ /security-system/fase-1-planificar
+├ ○ /security-system/fase-2-hacer
+├ ○ /security-system/fase-3-verificar
+├ ○ /security-system/fase-4-actuar
+├ ○ /settings
+├ ○ /shared
+├ ○ /sync-center
+├ ○ /third-party-contracts
+├ ○ /third-party-contracts/documents
+├ ○ /third-party-contracts/registration
+├ ○ /third-party-contracts/reportes
+└ ○ /user-progress
+
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses generateStaticParams)
+ƒ  (Dynamic)  server-rendered on demand
+

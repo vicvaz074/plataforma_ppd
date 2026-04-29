@@ -1,0 +1,10 @@
++-----------------+-------+
+|     metric      | value |
++-----------------+-------+
+| devices         |     1 |
+| records         |     1 |
+| conflicts_open  |     0 |
+| security_events |     6 |
++-----------------+-------+
+(4 rows)
+
